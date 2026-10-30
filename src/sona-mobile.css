@@ -1794,3 +1794,34 @@
 @media(prefers-reduced-motion:reduce){
   .sona-account-native-dialog{transition-duration:.01ms!important}
 }
+
+/* Album-colored viewport extension while Now Playing follows a downward drag.
+   This background is fixed to the screen, not the moving player sheet. */
+@media(max-width:767px){
+  .sona-now-overscroll-fill{
+    position:fixed;z-index:249;inset:-100vh -100vw;
+    pointer-events:none;visibility:hidden;
+    --sona-ambient-color:#755265;
+    background:
+      radial-gradient(ellipse 60% 46% at 43% 35%,
+        color-mix(in srgb,var(--sona-ambient-color) 72%,#bf83a1),
+        transparent 80%),
+      radial-gradient(ellipse 60% 54% at 78% 75%,
+        color-mix(in srgb,var(--sona-ambient-color) 58%,#565175),
+        transparent 85%),
+      linear-gradient(150deg,
+        color-mix(in srgb,var(--sona-ambient-color) 50%,#201b26),
+        color-mix(in srgb,var(--sona-ambient-color) 25%,#1d1c22) 75%,
+        #17161d);
+    -webkit-backdrop-filter:blur(30px);
+    backdrop-filter:blur(30px);
+  }
+  .sona-now-overscroll-fill.is-active{visibility:visible}
+  .sona-now-overlay{
+    position:fixed!important;inset:0!important;
+    height:100dvh!important;min-height:100dvh!important;
+    z-index:250!important;
+    isolation:isolate!important;
+  }
+  .sona-now-background{min-height:calc(100dvh + 120px)!important}
+}

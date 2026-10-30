@@ -1,4 +1,5 @@
-import { Album, ChevronRight, Disc3, Heart, ListMusic, Mic2, Music2, Podcast, Radio, Tags } from 'lucide-react'
+import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
+import { Album, ChevronRight, Disc3, Heart, ListMusic, Mic2, Podcast, Radio, Tags } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/routes/routesList'
 
@@ -6,7 +7,7 @@ const pages = [
   { name: 'Playlists', icon: ListMusic, href: ROUTES.LIBRARY.PLAYLISTS },
   { name: 'Artists', icon: Mic2, href: ROUTES.LIBRARY.ARTISTS },
   { name: 'Albums', icon: Album, href: ROUTES.LIBRARY.ALBUMS },
-  { name: 'Songs', icon: Music2, href: ROUTES.LIBRARY.SONGS },
+  { name: 'Songs', icon: SonaNoteGlyph, href: ROUTES.LIBRARY.SONGS },
   { name: 'Favorites', icon: Heart, href: ROUTES.LIBRARY.FAVORITES },
   { name: 'Genres', icon: Tags, href: ROUTES.LIBRARY.GENRES },
   { name: 'Podcasts', icon: Podcast, href: ROUTES.LIBRARY.PODCASTS },

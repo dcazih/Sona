@@ -1,5 +1,5 @@
 import randomCSSHexColor from '@chriscodesthings/random-css-hex-color'
-import { AudioLines } from 'lucide-react'
+import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { useCallback } from 'react'
 import { Fragment } from 'react/jsx-runtime'
 import { useTranslation } from 'react-i18next'
@@ -56,7 +56,7 @@ export function TrackInfo({ song }: { song: ISong | undefined }) {
     return (
       <Fragment>
         <div className="sona-player-cover w-[70px] h-[70px] flex justify-center items-center bg-muted rounded">
-          <AudioLines data-testid="song-no-playing-icon" />
+          <SonaNoteGlyph size={23} data-testid="song-no-playing-icon" />
         </div>
         <div className="flex flex-col justify-center">
           <span

@@ -1,4 +1,5 @@
-import { Airplay, ListMusic, Music2 } from 'lucide-react'
+import { Airplay, ListMusic } from 'lucide-react'
+import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { type CSSProperties, type TouchEvent, useEffect, useRef, useState } from 'react'
 import { ImageLoader } from '@/app/components/image-loader'
 import { SonaMobileTransport } from '@/app/components/sona/mobile-transport'
@@ -112,6 +113,13 @@ export function SonaMobileNowPlaying() {
   }
 
   return (
+    <>
+    <div className={'sona-now-overscroll-fill' + (isFullscreen ? ' is-active' : '')}
+      aria-hidden="true"
+      style={{
+        ...ambientStyle,
+        opacity: isFullscreen ? Math.min(1, dragY / 55) : 0,
+      } as CSSProperties} />
     <div
       className={'sona-now-overlay ' + (isFullscreen ? 'is-open' : '') + (dragY > 0 ? ' is-dragging' : '')}
       role="dialog"
@@ -142,7 +150,7 @@ export function SonaMobileNowPlaying() {
                 <ImageLoader id={song.coverArt} type="song" size={800}>
                   {(src) => <img src={src} alt={song.title || 'Album artwork'} />}
                 </ImageLoader>
-              ) : <Music2 size={76} strokeWidth={1} />}
+              ) : <SonaNoteGlyph size={78} /> }
             </div>
           </div>
         )}
@@ -183,5 +191,6 @@ export function SonaMobileNowPlaying() {
         </div>
       </div>
     </div>
+    </>
   )
 }
