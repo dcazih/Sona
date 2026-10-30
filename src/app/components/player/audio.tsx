@@ -79,7 +79,8 @@ export function AudioPlayer({
     if (replayGainEnabled || !replayGainError) {
       setReplayGainEnabled(false)
       setReplayGainError(true)
-      window.location.reload()
+      // Avoid a reload loop for a malformed stream or unsupported ReplayGain.
+      // Keep the song in place so it can be retried manually.
     }
   }, [
     audioRef,

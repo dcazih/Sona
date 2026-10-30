@@ -20,7 +20,7 @@ import { ROUTES } from '@/routes/routesList'
 import { useAppActions } from '@/store/app.store'
 import { removeSlashFromUrl } from '@/utils/removeSlashFromUrl'
 
-const DEFAULT_SERVER = 'https://music.hippocampus-polaris.ts.net'
+const DEFAULT_SERVER = 'https://homelab.hippocampus-polaris.ts.net'
 const loginSchema = z.object({
   url: z.string()
     .url({ message: 'login.form.validations.url' })

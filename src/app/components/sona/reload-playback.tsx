@@ -1,75 +1,136 @@
 import { useEffect } from 'react'
+import { idbStorage } from '@/store/idb'
 import { usePlayerStore } from '@/store/player.store'
+import type { ISongList } from '@/types/playerContext'
+import type { ISong } from '@/types/responses/song'
 
-const KEY = 'sona:reload-playback'
-const EXPIRES_MS = 120000
-type Snapshot = { id: string; progress: number; playing: boolean; savedAt: number }
-function read(): Snapshot | null {
+const KEY = 'sona:reload-playback-v2'
+const EXPIRATION_MS = 5 * 60 * 1000
+type Snapshot = {
+  id: string
+  progress: number
+  playing: boolean
+  savedAt: number
+  song?: ISong
+}
+
+function saveSnapshot() {
+  const state = usePlayerStore.getState()
+  const song = state.songlist.currentList[state.songlist.currentSongIndex] || state.songlist.currentSong
   try {
-    const item = sessionStorage.getItem(KEY)
-    if (!item) return null
-    const value = JSON.parse(item) as Snapshot
-    if (!value?.id || Date.now() - value.savedAt > EXPIRES_MS) {
+    if (!song?.id) return
+    const snapshot: Snapshot = {
+      id: song.id,
+      progress: Math.max(0, state.playerProgress.progress || 0),
+      playing: state.playerState.isPlaying,
+      savedAt: Date.now(),
+      song,
+    }
+    sessionStorage.setItem(KEY, JSON.stringify(snapshot))
+  } catch {
+    // Session storage is optional. Do not affect playback in private mode.
+  }
+}
+
+function readSnapshot(): Snapshot | null {
+  try {
+    const value = sessionStorage.getItem(KEY)
+    if (!value) return null
+    const item = JSON.parse(value) as Snapshot
+    if (!item.id || Date.now() - item.savedAt > EXPIRATION_MS) {
       sessionStorage.removeItem(KEY)
       return null
     }
-    return value
+    return item
   } catch { return null }
-}
-function save() {
-  const state = usePlayerStore.getState()
-  const id = state.songlist.currentSong?.id
-    || state.songlist.currentList[state.songlist.currentSongIndex]?.id
-  try {
-    if (!id) { sessionStorage.removeItem(KEY); return }
-    sessionStorage.setItem(KEY, JSON.stringify({
-      id, progress: state.playerProgress.progress,
-      playing: state.playerState.isPlaying, savedAt: Date.now(),
-    } satisfies Snapshot))
-  } catch { /* Storage can be disabled in private mode. */ }
 }
 
 /**
- * Restore the previous playing state on a browser reload.
- * Browser autoplay policy may still require a fresh user gesture on iOS.
+ * Restores the same song, queue and seek position on a real page reload.
+ * IndexedDB restoration is asynchronous, so rehydrate it explicitly before
+ * initiating playback. iOS/browser autoplay policy can still require a tap.
  */
 export function SonaReloadPlayback() {
   useEffect(() => {
-    const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
-    const reloaded = navigation?.type === 'reload'
-    const stored = reloaded ? read() : null
-    let handled = !stored || !stored.playing
-    let attempts = 0
+    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
+    const snapshot = nav?.type === 'reload' ? readSnapshot() : null
+    let handled = !snapshot || !snapshot.playing
+    let pending = Boolean(snapshot?.playing)
+    let lastSavedProgress = -1
 
-    function tryRestore() {
-      if (handled || !stored) return
+    function restore() {
+      if (handled || !snapshot) return
       const state = usePlayerStore.getState()
-      const song = state.songlist.currentSong?.id
-        || state.songlist.currentList[state.songlist.currentSongIndex]?.id
-      if (!song) return
-      if (song !== stored.id) {
+      const song = state.songlist.currentList[state.songlist.currentSongIndex] || state.songlist.currentSong
+      if (!song?.id) return
+
+      if (song.id !== snapshot.id) {
+        // A user selected a different song while the old library was loading.
         handled = true
-        sessionStorage.removeItem(KEY)
+        pending = false
         return
       }
+
       handled = true
-      // Reuse the original stream URL and store queue. Do not advance or replay
-      // the song from the beginning if a prior position was retained.
-      state.actions.setProgress(Math.max(0, stored.progress || 0))
+      pending = false
+      state.actions.setProgress(snapshot.progress)
+      // If metadata is already loaded, also seek the actual HTML audio player.
+      const audio = state.playerState.audioPlayerRef
+      if (audio && audio.readyState >= 1) {
+        try { audio.currentTime = snapshot.progress } catch { /* ignore */ }
+      }
       state.actions.setPlayingState(true)
-      sessionStorage.removeItem(KEY)
     }
 
-    const unsubscribe = usePlayerStore.subscribe(() => {
-      if (!handled && ++attempts < 3000) tryRestore()
+    if (pending) {
+      // This queue is persisted separately by the upstream player.
+      // Its asynchronous IndexedDB load does not update Zustand automatically.
+      idbStorage.getItem<ISongList>('player_songlist', (stored) => {
+        if (handled || !snapshot) return
+        const state = usePlayerStore.getState()
+        if (state.songlist.currentList.length === 0 && stored?.currentList?.length) {
+          const matching = stored.currentList[stored.currentSongIndex]?.id === snapshot.id
+          if (matching) {
+            usePlayerStore.setState({ songlist: stored })
+          }
+        }
+        if (usePlayerStore.getState().songlist.currentList.length === 0 && snapshot.song) {
+          const previous = usePlayerStore.getState()
+          usePlayerStore.setState({
+            songlist: {
+              ...previous.songlist,
+              currentSong: snapshot.song,
+              currentSongIndex: 0,
+              originalSongIndex: 0,
+              currentList: [snapshot.song],
+              originalList: [snapshot.song],
+              shuffledList: [snapshot.song],
+            },
+            playerState: { ...previous.playerState, mediaType: 'song' },
+          })
+        }
+        restore()
+      })
+    }
+
+    const unsubscribe = usePlayerStore.subscribe((state, before) => {
+      if (pending) restore()
+      if (state.playerState.isPlaying !== before.playerState.isPlaying ||
+        state.songlist.currentSongIndex !== before.songlist.currentSongIndex ||
+        Math.abs(state.playerProgress.progress - lastSavedProgress) >= 5) {
+        lastSavedProgress = state.playerProgress.progress
+        if (!pending) saveSnapshot()
+      }
     })
-    tryRestore()
-    window.addEventListener('pagehide', save)
-    window.addEventListener('beforeunload', save)
+    if (pending) restore()
+
+    const onHide = () => saveSnapshot()
+    window.addEventListener('pagehide', onHide)
+    window.addEventListener('beforeunload', onHide)
     return () => {
       unsubscribe()
-      window.removeEventListener('pagehide', save)
-      window.removeEventListener('beforeunload', save)
+      window.removeEventListener('pagehide', onHide)
+      window.removeEventListener('beforeunload', onHide)
     }
   }, [])
   return null
