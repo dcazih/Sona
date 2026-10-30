@@ -972,3 +972,440 @@
     transition-duration:.01ms!important;
   }
 }
+
+/* Sona floating controls v4: four-tab pill + separate expanding Search orb.
+   All floating controls are real overlays, not reserved content boxes. */
+@media(max-width:767px){
+  .sona-app-shell,
+  .sona-app-shell[data-sona-has-media="true"],
+  .sona-app-shell[data-sona-has-media="false"]{
+    --player-height:0px!important;
+    --content-height:calc(100dvh - var(--header-height))!important;
+  }
+  .sona-app-shell [data-slot="sidebar-wrapper"]{
+    padding-bottom:0!important;
+  }
+  .sona-app-shell [data-slot="sidebar-inset"],
+  .sona-app-shell main,#main-scroll-area{
+    min-height:0!important;
+  }
+  .sona-app-shell #main-scroll-area #scroll-viewport>div{
+    padding-bottom:calc(173px + env(safe-area-inset-bottom,0px))!important;
+  }
+  .sona-app-shell:has(.sona-am-search-page) #main-scroll-area #scroll-viewport>div{
+    padding-bottom:calc(85px + env(safe-area-inset-bottom,0px))!important;
+  }
+  .sona-app-shell .sona-bottom-nav-split,
+  .sona-app-shell:has(.sona-am-search-page) .sona-bottom-nav-split{
+    display:grid!important;
+    position:fixed!important;
+    z-index:81!important;
+    width:calc(100% - 98px)!important;
+    height:64px!important;
+    left:10px!important;
+    right:auto!important;
+    top:auto!important;
+    bottom:calc(9px + env(safe-area-inset-bottom,0px))!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    padding:4px!important;
+    gap:0!important;
+    box-sizing:border-box!important;
+    border:1px solid rgba(255,255,255,.16)!important;
+    border-radius:33px!important;
+    overflow:hidden!important;
+    background:rgba(31,31,35,.62)!important;
+    -webkit-backdrop-filter:blur(35px) saturate(1.65)!important;
+    backdrop-filter:blur(35px) saturate(1.65)!important;
+    box-shadow:0 7px 22px #0005!important;
+    opacity:1;
+    transform:translate3d(0,0,0);
+    transition:transform .43s cubic-bezier(.2,.9,.19,1),
+      opacity .3s ease,filter .3s ease,visibility 0s!important;
+    touch-action:pan-y;
+  }
+  .sona-app-shell .sona-bottom-nav-split.is-searching{
+    opacity:0!important;
+    transform:translate3d(-13px,13px,0) scale(.94)!important;
+    filter:blur(5px)!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+    transition:transform .36s cubic-bezier(.2,.8,.19,1),
+      opacity .26s ease,filter .3s ease,
+      visibility 0s linear .36s!important;
+  }
+  .sona-bottom-nav-split .sona-nav-highlight{
+    position:absolute;z-index:0;
+    left:4px;top:4px;bottom:4px;
+    width:calc((100% - 8px) / 4);
+    border-radius:28px;
+    background:rgba(255,255,255,.12);
+    pointer-events:none;
+    transform:translate3d(calc(var(--sona-nav-index,0) * 100%),0,0);
+    transition:transform .47s cubic-bezier(.2,1.08,.28,1),
+      opacity .2s ease!important;
+  }
+  .sona-bottom-nav-split.is-dragging .sona-nav-highlight{
+    transition:transform .18s cubic-bezier(.22,.82,.23,1)!important;
+  }
+  .sona-bottom-nav-split .sona-nav-highlight.is-hidden{opacity:0}
+  .sona-bottom-nav-split .sona-tab{
+    z-index:1;position:relative;
+    width:100%!important;min-width:0;height:100%!important;
+    background:transparent!important;
+    color:#babac3!important;
+    transition:color .27s ease,transform .16s ease!important;
+    border-radius:25px!important;
+  }
+  .sona-bottom-nav-split .sona-tab-active{
+    color:#ff728e!important;background:transparent!important;
+  }
+  .sona-bottom-nav-split .sona-tab svg{
+    transition:color .26s ease,stroke-width .22s ease!important;
+  }
+
+  /* The circle and the expanded input are the SAME persistent surface. */
+  .sona-search-morph{
+    position:fixed!important;
+    z-index:94!important;
+    right:10px!important;left:auto!important;
+    bottom:calc(9px + env(safe-area-inset-bottom,0px))!important;
+    height:64px!important;
+    width:64px!important;max-width:calc(100vw - 20px);
+    border:1px solid rgba(255,255,255,.20);
+    border-radius:33px;
+    display:flex;align-items:center;gap:0;
+    box-sizing:border-box;
+    padding:4px;
+    overflow:hidden;
+    background:rgba(33,33,38,.65);
+    -webkit-backdrop-filter:blur(34px) saturate(1.7);
+    backdrop-filter:blur(34px) saturate(1.7);
+    box-shadow:0 8px 25px #0006;
+    transform:translate3d(0,0,0);
+    transition:width .48s cubic-bezier(.22,1.08,.28,1),
+      border-radius .42s cubic-bezier(.22,1,.27,1),
+      bottom .14s linear,background .25s ease,
+      box-shadow .32s ease!important;
+    will-change:width,bottom;
+  }
+  .sona-search-morph.is-expanded{
+    width:calc(100vw - 20px)!important;
+    border-radius:33px!important;
+    background:rgba(31,31,35,.80);
+  }
+  .sona-search-morph.is-focused{
+    bottom:calc(7px + var(--sona-keyboard-offset,0px))!important;
+    background:rgba(35,35,40,.9);
+    border-color:rgba(255,255,255,.27);
+  }
+  .sona-search-orb{
+    height:53px;width:53px;min-width:53px;flex:none;
+    display:grid;place-items:center;
+    border-radius:50%;color:#f8f8fa;
+    background:transparent;
+    padding:0!important;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .sona-search-orb:active{background:rgba(255,255,255,.10)}
+  .sona-search-orb svg{transition:transform .34s cubic-bezier(.22,1,.2,1)}
+  .sona-search-morph.is-expanded .sona-search-orb svg{transform:scale(.86)}
+  .sona-search-morph-field{
+    display:flex;align-items:center;
+    flex:1;min-width:0;height:51px;
+    gap:8px;opacity:0;
+    transform:translateX(12px);
+    pointer-events:none;
+    transition:opacity .14s ease,transform .32s cubic-bezier(.2,.9,.2,1);
+  }
+  .sona-search-morph.is-expanded .sona-search-morph-field{
+    opacity:1;transform:translateX(0);
+    pointer-events:auto;
+    transition:opacity .24s ease .13s,
+      transform .34s cubic-bezier(.2,.9,.2,1) .07s!important;
+  }
+  .sona-search-morph-field input{
+    min-width:0;flex:1;width:100%;height:47px;
+    padding:0!important;
+    border:0!important;background:transparent!important;
+    outline:none!important;box-shadow:none!important;
+    border-radius:0!important;
+    color:#fff;font-size:16px!important;
+    -webkit-appearance:none!important;appearance:none!important;
+    text-overflow:ellipsis;
+  }
+  .sona-search-morph-field input::placeholder{color:#bbbcc4}
+  .sona-search-morph-field input::-webkit-search-cancel-button{display:none}
+  .sona-search-inline-action{
+    display:grid;place-items:center;
+    height:40px;width:35px;min-width:35px;
+    color:#f1f1f4;padding:0;
+  }
+  .sona-search-exit{
+    width:0;min-width:0;height:45px;
+    opacity:0;visibility:hidden;
+    pointer-events:none;
+    color:#f7f7f9;border-radius:50%;
+    background:transparent;
+    display:grid;place-items:center;
+    overflow:hidden;
+    transition:opacity .18s ease,width .3s ease,visibility 0s linear .3s;
+  }
+  .sona-search-morph.is-expanded .sona-search-exit{
+    width:42px;min-width:42px;
+    opacity:1;visibility:visible;pointer-events:auto;
+    transition:opacity .24s ease .14s,width .28s ease,visibility 0s;
+  }
+  .sona-search-exit:active{background:#ffffff1b}
+  .sona-search-voice-error{
+    position:fixed;z-index:100;
+    bottom:calc(76px + var(--sona-keyboard-offset,0px));
+    left:15px;right:15px;
+    background:#713045e8;color:white;
+    border-radius:12px;padding:9px;font-size:12px;
+  }
+  /* Hide obsolete search dock if a cached component mounts during transition. */
+  .sona-search-dock{display:none!important}
+
+  .sona-app-shell:has(.sona-am-search-page) .sona-player{
+    bottom:calc(83px + env(safe-area-inset-bottom,0px))!important;
+  }
+  .sona-app-shell:has(.sona-am-search-page.is-search-active) .sona-player{
+    opacity:0!important;pointer-events:none!important;
+    transform:translate3d(0,16px,0);
+  }
+  .sona-am-search-page{
+    padding-top:22px!important;
+    padding-bottom:calc(105px + var(--sona-keyboard-offset,0px))!important;
+  }
+  .sona-am-search-page.is-search-active{
+    padding-top:12px!important;
+    min-height:calc(100dvh - var(--sona-keyboard-offset,0px) - 90px)!important;
+  }
+  .sona-am-search-page .sona-am-live-results{
+    padding-bottom:calc(105px + var(--sona-keyboard-offset,0px))!important;
+  }
+
+  /* Mini-player and navigation float over the scrolling content, not in the flow. */
+  .sona-player[data-mobile-active="true"]{
+    position:fixed!important;
+    left:10px!important;right:10px!important;
+    width:calc(100vw - 20px)!important;
+    bottom:calc(82px + env(safe-area-inset-bottom,0px))!important;
+    border:0!important;outline:0!important;
+    border-radius:17px!important;
+    background:rgba(41,40,48,.50)!important;
+    -webkit-backdrop-filter:blur(34px) saturate(1.8)!important;
+    backdrop-filter:blur(34px) saturate(1.8)!important;
+    box-shadow:0 8px 26px #0005!important;
+  }
+  .sona-player .sona-player-track a,
+  .sona-player .sona-player-track a *,
+  .sona-player .sona-player-track a:hover,
+  .sona-player .sona-player-track a:hover *{
+    text-decoration:none!important;
+    text-decoration-line:none!important;
+    border-bottom:0!important;
+  }
+  .sona-player .sona-player-track [data-testid="track-artist-url"]{
+    position:relative;z-index:3;pointer-events:auto;
+  }
+  .sona-now-artist-link{
+    color:#d1bfc9;
+    display:inline-flex;
+    max-width:100%;
+    font-size:14px;font-weight:500;
+    text-decoration:none!important;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    padding:4px 0;
+  }
+  .sona-album-meta a,
+  .sona-album-meta a:hover{color:#f6f6f8;text-decoration:none!important}
+
+  /* Scrub is thick and its labels gain visual emphasis only during interaction. */
+  .sona-mobile-scrubber{
+    display:flex;align-items:center;position:relative;
+    height:38px!important;width:100%!important;
+    touch-action:none;cursor:pointer;
+    margin:0!important;
+  }
+  .sona-scrubber-track{
+    display:block;position:relative;
+    width:100%;height:4px;
+    overflow:hidden;border-radius:99px;
+    background:rgba(255,255,255,.35);
+    transition:height .27s cubic-bezier(.19,1,.22,1),
+      background .25s ease!important;
+  }
+  .sona-mobile-progress.is-scrubbing .sona-scrubber-track{
+    height:10px;
+    background:rgba(255,255,255,.30);
+  }
+  .sona-scrubber-range{
+    position:absolute;height:100%;border-radius:inherit;
+    background:#f7f7f9;
+  }
+  .sona-scrubber-thumb{
+    display:block;width:7px;height:16px;
+    background:white;border:0;border-radius:99px;
+    opacity:0;box-shadow:0 1px 8px #0004;
+    transition:opacity .16s ease,height .22s cubic-bezier(.2,1,.2,1);
+    outline:none;
+  }
+  .sona-mobile-progress.is-scrubbing .sona-scrubber-thumb{
+    opacity:1;height:22px;
+  }
+  .sona-mobile-progress-times{
+    margin-top:-1px;padding:0 2px!important;
+    color:#ffffffac!important;font-size:11px!important;
+    font-variant-numeric:tabular-nums;
+    transition:font-size .23s cubic-bezier(.2,1,.22,1),
+      color .2s ease!important;
+  }
+  .sona-mobile-progress.is-scrubbing .sona-mobile-progress-times{
+    color:#fff!important;font-size:14px!important;
+    font-weight:680!important;
+  }
+
+  /* Remove lingering desktop hover transforms. All mobile touches must release. */
+  .sona-now-overlay button,
+  .sona-player button,
+  .sona-bottom-nav-split button,
+  .sona-search-morph button,
+  .sona-album-page button{
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+  }
+  .sona-now-overlay button:not(:disabled):active,
+  .sona-player button:not(:disabled):active{
+    filter:brightness(1.15);
+  }
+  .sona-now-transport .sona-transport{
+    width:100%;display:flex;align-items:center;justify-content:space-between;
+    padding:0 5%;gap:15px;
+    height:67px;
+  }
+  .sona-transport button{
+    display:grid;place-items:center;
+    min-width:62px;height:64px;
+    flex:1;position:relative;
+    transform:scale(1);
+    transition:transform .25s cubic-bezier(.23,1,.35,1),opacity .2s ease!important;
+    background:transparent!important;color:#fff!important;
+    border:0!important;border-radius:16px!important;
+    box-shadow:none!important;
+  }
+  .sona-transport .sona-transport-toggle{
+    width:76px;max-width:96px;flex:0 0 82px;
+  }
+  .sona-transport .sona-transport-skip svg{width:32px;height:32px}
+  .sona-transport .sona-transport-toggle svg{width:46px;height:46px}
+  .sona-transport button:active{
+    transform:scale(.86)!important;
+  }
+  .sona-transport button:disabled{opacity:.34}
+  .sona-transport-icon{
+    position:absolute;inset:0;
+    display:grid;place-items:center;
+    opacity:0;transform:scale(.7) rotate(-12deg);
+    transition:opacity .17s ease,transform .36s cubic-bezier(.22,1.15,.36,1)!important;
+    pointer-events:none;
+  }
+  .sona-transport-icon.is-visible{
+    opacity:1;transform:scale(1) rotate(0);
+  }
+  .sona-now-transport{margin:14px 0 6px!important;display:block!important}
+  .sona-now-volume{width:100%!important;max-width:none!important;display:block!important;margin:8px 0 12px}
+  .sona-now-volume>div{
+    display:flex;justify-content:center;gap:8px;align-items:center;
+    width:100%;
+  }
+  .sona-now-volume>div>button{
+    flex:none;width:32px!important;height:36px!important;
+    background:transparent!important;border:0!important;
+    transform:none!important;
+  }
+  .sona-now-volume [role="slider"],.sona-now-volume input{
+    touch-action:none;max-width:none!important;
+  }
+  .sona-now-volume>div>div,.sona-now-volume>div>[role="slider"]{flex:1}
+  .sona-now-bottom-actions{
+    border:0!important;
+    padding-top:7px!important;
+    width:100%;display:grid!important;
+    grid-template-columns:repeat(3,1fr)!important;
+    justify-items:center!important;
+    align-items:center!important;
+  }
+  .sona-now-bottom-actions>button{
+    min-width:54px!important;width:58px!important;height:47px!important;
+    padding:0!important;display:grid!important;place-items:center!important;
+    background:transparent!important;border:0!important;
+    color:#ffffffa3!important;
+    border-radius:15px!important;
+    transform:scale(1)!important;
+    transition:background .19s ease,color .19s ease,transform .18s ease!important;
+  }
+  .sona-now-bottom-actions>button.is-selected{
+    color:#fff!important;background:#ffffff25!important;
+  }
+  .sona-now-bottom-actions>button:disabled{opacity:.32}
+  .sona-now-bottom-actions>button svg{width:23px;height:23px}
+  .sona-now-stage>.sona-queue-screen,
+  .sona-now-stage>.sona-now-lyrics{
+    animation:sona-now-panel-in .25s cubic-bezier(.2,.95,.2,1);
+  }
+  @keyframes sona-now-panel-in{
+    from{opacity:.1;transform:translateY(11px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  .sona-now-top{
+    min-height:calc(61px + env(safe-area-inset-top,0px))!important;
+    padding:calc(env(safe-area-inset-top,0px) + 6px) 15px 2px!important;
+    justify-content:center!important;
+  }
+  .sona-now-drag-handle{
+    width:100%;height:45px;
+    display:grid;place-items:center;
+    background:transparent;border:0!important;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .sona-now-drag-capsule{
+    display:block!important;position:relative!important;
+    left:auto!important;top:auto!important;
+    width:41px!important;height:4px!important;
+    border-radius:99px!important;
+    background:#ffffffe0!important;
+    opacity:clamp(.55,calc(.55 + var(--sona-drag-progress) * .45),1)!important;
+    transform:scaleX(calc(1 + var(--sona-drag-progress) * .92))!important;
+    transition:opacity .16s ease,transform .17s ease!important;
+    box-shadow:0 1px 9px #0004;
+  }
+  .sona-now-overlay.is-dragging{
+    border-radius:clamp(10px,calc(10px + var(--sona-drag-progress) * 27px),38px)!important;
+    transition:border-radius .16s cubic-bezier(.2,1.08,.3,1)!important;
+  }
+  .sona-now-stage{
+    padding-top:45px!important;
+  }
+}
+@media (hover:none) and (pointer:coarse) and (max-width:767px) {
+  .sona-now-overlay button:hover,
+  .sona-player button:hover,
+  .sona-album-page button:hover,
+  .sona-bottom-nav-split button:hover,
+  .sona-now-volume button:hover{
+    transform:none!important;scale:1!important;
+  }
+  .sona-now-overlay button:not(:active):not(:disabled),
+  .sona-player button:not(:active):not(:disabled){
+    transform:scale(1)!important;
+  }
+  .sona-transport button:active{transform:scale(.88)!important}
+}
+@media (prefers-reduced-motion:reduce){
+  .sona-search-morph,.sona-bottom-nav-split,
+  .sona-transport-icon,.sona-scrubber-track{
+    transition-duration:.01ms!important;
+  }
+}
