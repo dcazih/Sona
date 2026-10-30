@@ -1523,3 +1523,26 @@
 @media(prefers-reduced-motion:reduce){
   .sona-account-sheet,.sona-account-scrim{transition-duration:.01ms!important}
 }
+
+@media(max-width:767px) {
+  .sona-request-page{min-height:100%;padding:22px 21px calc(190px + env(safe-area-inset-bottom,0px));}
+  .sona-request-eyebrow{font-size:10px;letter-spacing:.13em;color:#f2799a;font-weight:750}
+  .sona-request-page h1{font-size:39px;font-weight:830;letter-spacing:-.065em;margin-top:6px}
+  .sona-request-subtitle{color:#a7a3ad;font-size:14px;margin:5px 0 27px}
+  .sona-request-main-card{border-radius:24px;background:linear-gradient(135deg,#41313c,#222329);
+    padding:27px 22px 25px;color:#fff;}
+  .sona-request-icon{width:59px;height:59px;display:grid;place-items:center;border-radius:17px;
+    color:#fff;background:linear-gradient(140deg,#ef718c,#cd4165);margin-bottom:21px}
+  .sona-request-main-card h2{font-size:23px;font-weight:770;letter-spacing:-.035em;line-height:1.12}
+  .sona-request-main-card p{font-size:13px;color:#c0bbc5;margin:9px 0 24px;line-height:1.5}
+  .sona-request-open{display:flex;gap:10px;align-items:center;justify-content:center;
+    height:48px;background:#eb6380;border-radius:14px;color:#fff;font-weight:740;font-size:14px;
+    text-decoration:none!important;}
+  .sona-request-secondary{margin-top:24px;display:flex;flex-direction:column;gap:13px}
+  .sona-request-secondary>a{display:flex;align-items:center;gap:12px;min-height:60px;
+    padding:0 15px;color:#fff;background:#ffffff0c;border-radius:16px;font-size:14px}
+  .sona-request-secondary>a>span{flex:1}
+  .sona-request-note{display:flex;align-items:start;gap:12px;padding:13px 15px;
+    font-size:12px;color:#a8a4b0;line-height:1.5}
+  .sona-request-note svg{flex:none;margin-top:2px}
+}
