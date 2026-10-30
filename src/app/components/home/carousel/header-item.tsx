@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { Pause, Play } from 'lucide-react'
 import { isFirefox } from 'react-device-detect'
 import { LazyLoadImage } from 'react-lazy-load-image-component'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { BlurredCanvas } from '@/app/components/blurred-canvas'
 import { EqualizerBars } from '@/app/components/icons/equalizer-bars'
 import { ImageLoader } from '@/app/components/image-loader'
@@ -16,6 +16,7 @@ import { convertSecondsToTime } from '@/utils/convertSecondsToTime'
 
 export function HeaderItem({ song }: { song: ISong }) {
   const { setSongList, togglePlayPause } = usePlayerActions()
+  const navigate = useNavigate()
   const { isAlbumActive, isAlbumPlaying } = useIsAlbumPlaying(song.albumId)
 
   async function handlePlaySongAlbum() {
@@ -63,7 +64,9 @@ export function HeaderItem({ song }: { song: ISong }) {
                   className="h-full aspect-square relative group bg-skeleton rounded-lg"
                   data-testid="header-image-container"
                   onClick={(event) => {
-                    if (window.innerWidth < 768 && !(event.target as Element).closest('button')) void handlePlaySongAlbum()
+                    if (window.innerWidth >= 768) return
+                    if ((event.target as Element).closest('button')) return
+                    navigate(ROUTES.ALBUM.PAGE(song.albumId))
                   }}
                 >
                   <LazyLoadImage
@@ -101,12 +104,6 @@ export function HeaderItem({ song }: { song: ISong }) {
                     <Link
                       to={ROUTES.ALBUM.PAGE(song.albumId)}
                       className="w-fit"
-                      onClick={(event) => {
-                        if (window.innerWidth < 768) {
-                          event.preventDefault()
-                          void handlePlaySongAlbum()
-                        }
-                      }}
                     >
                       <h1
                         data-testid="header-title"

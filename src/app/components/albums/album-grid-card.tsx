@@ -38,12 +38,7 @@ function AlbumCard({ album }: AlbumCardProps) {
 
   return (
     <PreviewCard.Root>
-      <PreviewCard.ImageWrapper link={ROUTES.ALBUM.PAGE(album.id)} onClick={(event) => {
-        if (window.matchMedia('(max-width: 767px)').matches) {
-          event.preventDefault()
-          void playCurrentAlbum()
-        }
-      }}>
+      <PreviewCard.ImageWrapper link={ROUTES.ALBUM.PAGE(album.id)}>
         <ImageLoader id={album.coverArt} type="album" size={300}>
           {(src) => <PreviewCard.Image src={src} alt={album.name} />}
         </ImageLoader>
@@ -60,12 +55,6 @@ function AlbumCard({ album }: AlbumCardProps) {
           )}
           <PreviewCard.Title
             link={ROUTES.ALBUM.PAGE(album.id)}
-            onClick={(event) => {
-              if (window.matchMedia('(max-width: 767px)').matches) {
-                event.preventDefault()
-                void playCurrentAlbum()
-              }
-            }}
             className={clsx(isAlbumPlaying && 'text-primary')}
           >
             {album.name}
