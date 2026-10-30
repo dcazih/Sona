@@ -33,7 +33,7 @@ export function SonaMobileNavigation() {
   const inputRef = useRef<HTMLInputElement>(null)
   const navRef = useRef<HTMLElement>(null)
   const swipeRef = useRef<Swipe | null>(null)
-  const blockClickRef = useRef(false)
+  const blockClickUntil = useRef(0)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
   const [voiceError, setVoiceError] = useState('')
@@ -98,15 +98,12 @@ export function SonaMobileNavigation() {
     swipeRef.current = null
     setDragIndex(null)
     if (swipe?.moved) {
-      blockClickRef.current = true
+      blockClickUntil.current = Date.now() + 350
       goTo(tabs[swipe.index].url)
     }
   }
   function tabClick(url: string) {
-    if (blockClickRef.current) {
-      blockClickRef.current = false
-      return
-    }
+    if (Date.now() < blockClickUntil.current) return
     goTo(url)
   }
 

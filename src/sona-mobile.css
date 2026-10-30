@@ -1409,3 +1409,21 @@
     transition-duration:.01ms!important;
   }
 }
+
+@media(max-width:767px){
+  .sona-album-song-select{position:relative!important;flex:1;min-width:0}
+  .sona-album-song-play{
+    display:flex;flex:1;min-width:0;align-items:center;gap:9px;width:100%;
+    text-align:left;min-height:62px;background:transparent;padding:7px 0!important;
+  }
+  .sona-album-song-artist-link{
+    display:block;position:absolute;left:84px;bottom:7px;
+    max-width:calc(100% - 92px);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    font-size:11.5px;color:#b4b4bc;text-decoration:none!important;
+    z-index:2;padding:4px 0;
+  }
+  .sona-album-song-select:has(.sona-album-song-artist-link) .sona-album-song-text small{
+    visibility:hidden;
+  }
+}

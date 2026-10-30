@@ -1,5 +1,7 @@
 import { Ellipsis, Music2 } from 'lucide-react'
 import { ImageLoader } from '@/app/components/image-loader'
+import { Link } from 'react-router-dom'
+import { ROUTES } from '@/routes/routesList'
 import { SongMenuOptions } from '@/app/components/song/menu-options'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/app/components/ui/dropdown-menu'
 import { usePlayerActions, usePlayerCurrentSong } from '@/store/player.store'
@@ -27,19 +29,23 @@ export function SonaMobileAlbumTracks({ album }: { album: SingleAlbum }) {
         return (
           <div className={'sona-album-song-row' + (active ? ' is-playing' : '')}
             key={song.id + ':' + index}>
-            <button type="button" className="sona-album-song-select"
-              aria-label={'Play ' + song.title} onClick={() => play(index)}>
-              <span className="sona-album-song-index">{active ? <Music2 size={19} /> : (song.track || index + 1)}</span>
-              <span className="sona-album-song-art">
-                {song.coverArt ? <ImageLoader id={song.coverArt} type="song" size={100}>
-                  {(src) => <img src={src} alt="" loading="lazy" />}
-                </ImageLoader> : <Music2 size={18} />}
-              </span>
-              <span className="sona-album-song-text">
-                <strong>{song.title}</strong>
-                <small>{song.artist || album.artist}</small>
-              </span>
-            </button>
+            <div className="sona-album-song-select">
+              <button type="button" className="sona-album-song-play"
+                aria-label={'Play ' + song.title} onClick={() => play(index)}>
+                <span className="sona-album-song-index">{active ? <Music2 size={19} /> : (song.track || index + 1)}</span>
+                <span className="sona-album-song-art">
+                  {song.coverArt ? <ImageLoader id={song.coverArt} type="song" size={100}>
+                    {(src) => <img src={src} alt="" loading="lazy" />}
+                  </ImageLoader> : <Music2 size={18} />}
+                </span>
+                <span className="sona-album-song-text">
+                  <strong>{song.title}</strong>
+                  <small>{song.artist || album.artist}</small>
+                </span>
+              </button>
+              {song.artistId && <Link className="sona-album-song-artist-link"
+                to={ROUTES.ARTIST.PAGE(song.artistId)}>{song.artist || album.artist}</Link>}
+            </div>
             <span className="sona-album-song-duration">{convertSecondsToTime(song.duration || 0)}</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
