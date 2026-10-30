@@ -3,6 +3,7 @@ import { Explore } from '@/app/components/home/explore'
 import { MostPlayed } from '@/app/components/home/most-played'
 import { RecentlyAdded } from '@/app/components/home/recently-added'
 import { RecentlyPlayed } from '@/app/components/home/recently-played'
+import { SonaHomeRadio } from '@/app/components/sona/home-radio'
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
         <MostPlayed />
         <RecentlyAdded />
         <Explore />
+        <SonaHomeRadio />
       </div>
     </div>
   )

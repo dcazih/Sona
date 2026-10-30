@@ -6,7 +6,7 @@ import { SonaMobileTransport } from '@/app/components/sona/mobile-transport'
 import { LikeButton } from '@/app/components/fullscreen/like-button'
 import { LyricsTab } from '@/app/components/fullscreen/lyrics'
 import { SonaMobileProgress } from '@/app/components/sona/mobile-progress'
-import { VolumeContainer } from '@/app/components/fullscreen/volume-container'
+import { SonaMobileVolume } from '@/app/components/sona/mobile-volume'
 import { SonaMobileQueue } from '@/app/components/sona/mobile-queue'
 import { useSonaAmbient } from '@/app/hooks/use-sona-ambient'
 import { Link } from 'react-router-dom'
@@ -165,7 +165,7 @@ export function SonaMobileNowPlaying() {
         </div>
         <div className="sona-now-progress"><SonaMobileProgress /></div>
         <div className="sona-now-transport"><SonaMobileTransport /></div>
-        <div className="sona-now-volume"><VolumeContainer /></div>
+        <div className="sona-now-volume"><SonaMobileVolume /></div>
         <div className="sona-now-bottom-actions">
           <button type="button" aria-label="Show lyrics" aria-pressed={view === 'lyrics'}
             className={view === 'lyrics' ? 'is-selected' : ''}

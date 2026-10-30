@@ -1990,3 +1990,51 @@
     -webkit-overflow-scrolling:touch!important;
   }
 }
+
+/* Match volume's interactive scrubber and put Radio at the bottom of Home. */
+@media(max-width:767px){
+  .sona-mobile-volume-control{
+    width:100%;display:flex;align-items:center;gap:12px;
+    color:rgba(255,255,255,.78);padding:1px 0;
+  }
+  .sona-mobile-volume-control>svg{flex:none;transition:transform .25s cubic-bezier(.2,1,.22,1)}
+  .sona-mobile-volume-control.is-scrubbing>svg{transform:scale(1.1);color:#fff}
+  .sona-volume-slider{
+    display:flex;align-items:center;position:relative;
+    flex:1;width:auto;min-width:0;height:38px;touch-action:none;
+    cursor:pointer;
+  }
+  .sona-volume-track{
+    position:relative;display:block;width:100%;height:4px;border-radius:99px;
+    background:rgba(255,255,255,.32);overflow:hidden;
+    transition:height .27s cubic-bezier(.19,1,.22,1),background .2s ease;
+  }
+  .sona-mobile-volume-control.is-scrubbing .sona-volume-track{
+    height:10px;background:rgba(255,255,255,.30);
+  }
+  .sona-volume-range{position:absolute;height:100%;background:#fff;border-radius:inherit}
+  .sona-volume-thumb{
+    display:block;width:7px;height:17px;border-radius:99px;
+    background:#fff;box-shadow:0 1px 8px #0004;opacity:0;outline:none;
+    transition:opacity .16s ease,height .23s cubic-bezier(.2,1,.2,1);
+  }
+  .sona-mobile-volume-control.is-scrubbing .sona-volume-thumb{opacity:1;height:22px}
+  .sona-now-volume{margin-top:12px!important;margin-bottom:9px!important}
+  .sona-home-radio{margin:27px 0 12px;padding-bottom:18px}
+  .sona-home-radio-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px}
+  .sona-home-radio-heading h2{font-size:21px;font-weight:770;letter-spacing:-.035em}
+  .sona-home-radio-heading a{display:flex;align-items:center;gap:3px;font-size:12px;color:#f3859c}
+  .sona-home-radio-list{display:flex;gap:11px;overflow-x:auto;scrollbar-width:none}
+  .sona-home-radio-list::-webkit-scrollbar{display:none}
+  .sona-home-radio-station{flex:none;width:138px;display:flex;gap:11px;flex-direction:column;
+    background:#30303878;border-radius:15px;padding:16px 14px;color:#f4f4f7;
+    font-size:13px;font-weight:650}
+  .sona-home-radio-icon{display:grid;place-items:center;background:#f1759225;
+    border-radius:11px;width:48px;height:48px;color:#fa7798}
+  .sona-home-radio-empty{display:flex;align-items:center;gap:12px;min-height:74px;
+    padding:12px 15px;border-radius:17px;background:#ffffff0d;color:#d7d5df;font-size:13px}
+  .sona-home-radio-empty svg:first-child{color:#f17a95;flex:none}
+  .sona-home-radio-empty span{flex:1}
+  .sona-home-radio-empty svg:last-child{flex:none}
+}
+@media(min-width:768px){.sona-home-radio{display:none}}

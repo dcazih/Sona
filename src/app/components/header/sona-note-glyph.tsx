@@ -1,19 +1,15 @@
 import type { SVGProps } from 'react'
+
 type Props = SVGProps<SVGSVGElement> & { size?: number }
 
-/** Standalone double-note glyph used for playing tracks and missing artwork. */
+/** Font Awesome Free 7.3.1 music glyph, CC BY 4.0 SVG (Fonticons, Inc.).
+ *  Shared double-note icon for Sona's empty states and playing indicators.
+ */
 export function SonaNoteGlyph({ size = 21, ...props }: Props) {
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" fill="none"
+    <svg width={size} height={size} viewBox="0 0 640 640" fill="currentColor"
       xmlns="http://www.w3.org/2000/svg" aria-hidden="true" {...props}>
-      <g stroke="currentColor" strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M24 48V19L55 12V42"/>
-        <path d="M24 19L55 12" strokeWidth="7"/>
-        <ellipse cx="16" cy="50" rx="9.5" ry="6.4" transform="rotate(-17 16 50)"
-          fill="currentColor" stroke="none"/>
-        <ellipse cx="47" cy="44" rx="9.5" ry="6.4" transform="rotate(-17 47 44)"
-          fill="currentColor" stroke="none"/>
-      </g>
+      <path d="M532 71C539.6 77.1 544 86.3 544 96L544 400C544 444.2 501 480 448 480C395 480 352 444.2 352 400C352 355.8 395 320 448 320C459.2 320 470 321.6 480 324.6L480 207.9L256 257.7L256 464C256 508.2 213 544 160 544C107 544 64 508.2 64 464C64 419.8 107 384 160 384C171.2 384 182 385.6 192 388.6L192 160C192 145 202.4 132 217.1 128.8L505.1 64.8C514.6 62.7 524.5 65 532.1 71.1z" />
     </svg>
   )
 }
