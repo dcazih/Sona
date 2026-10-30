@@ -21,86 +21,102 @@ const groups: { label: string; items: { key: SettingsOptions; title: string; ico
   ] },
 ]
 
+/**
+ * Portaled bottom sheet, independent of WebKit's native <dialog> support,
+ * and outside the scrolling app's stacking contexts.
+ */
 export function SonaMobileAccount() {
   const { username, url, lockUser } = useAppData()
   const { setCurrentPage } = useAppSettings()
   const setLogoutDialogState = useAppStore((state) => state.actions.setLogoutDialogState)
-  const dialog = useRef<HTMLDialogElement>(null)
-  const closeTimer = useRef<number | null>(null)
   const [open, setOpen] = useState(false)
   const [section, setSection] = useState<SettingsOptions | null>(null)
   const [pull, setPull] = useState(0)
   const start = useRef<number | null>(null)
   const scroll = useRef<HTMLDivElement>(null)
-
-  function show() {
-    if (!dialog.current) return
-    if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
-    if (!dialog.current.open) dialog.current.showModal()
-    // The native dialog is in the browser top layer, above header, player,
-    // nav bars and every stacking context.
-    window.requestAnimationFrame(() => setOpen(true))
-  }
-
-  function finishClose() {
-    dialog.current?.close()
-    setOpen(false)
-    setSection(null)
-    setPull(0)
-  }
+  const closeButton = useRef<HTMLButtonElement>(null)
 
   function dismiss() {
     setOpen(false)
     setPull(0)
-    if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
-    closeTimer.current = window.setTimeout(finishClose, 330)
+    start.current = null
   }
-
   function navigateTo(page: SettingsOptions) {
     setCurrentPage(page)
     setSection(page)
-    scroll.current?.scrollTo({ top: 0, behavior: 'instant' })
+    scroll.current?.scrollTo({ top: 0, behavior: 'auto' })
   }
 
-  useEffect(() => () => {
-    if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
-  }, [])
+  useEffect(() => {
+    if (!open) {
+      setSection(null)
+      return
+    }
+    const oldOverflow = document.body.style.overflow
+    const oldOverscroll = document.body.style.overscrollBehavior
+    document.body.style.overflow = 'hidden'
+    document.body.style.overscrollBehavior = 'none'
+    closeButton.current?.focus({ preventScroll: true })
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') dismiss()
+      if (event.key !== 'Tab') return
+      const node = document.querySelector<HTMLElement>('.sona-account-portal-sheet')
+      const controls = Array.from(node?.querySelectorAll<HTMLElement>(
+        'button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),[tabindex="0"]'
+      ) || [])
+      if (!controls.length) return
+      const first = controls[0], last = controls[controls.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault(); last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault(); first.focus()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.body.style.overflow = oldOverflow
+      document.body.style.overscrollBehavior = oldOverscroll
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [open])
 
   function gestureStart(event: TouchEvent<HTMLElement>) {
-    if (event.touches.length !== 1) return
-    start.current = event.touches[0].clientY
+    if (event.touches.length === 1) start.current = event.touches[0].clientY
   }
   function gestureMove(event: TouchEvent<HTMLElement>) {
     if (start.current === null) return
-    const delta = event.touches[0].clientY - start.current
-    setPull(Math.max(0, Math.min(120, delta * .55)))
-    if (delta > 12 && event.cancelable) event.preventDefault()
+    const diff = event.touches[0].clientY - start.current
+    if (diff > 0) {
+      setPull(Math.max(0, Math.min(160, diff * .62)))
+      if (event.cancelable) event.preventDefault()
+    }
   }
   function gestureEnd() {
     if (pull > 75) dismiss()
     else setPull(0)
     start.current = null
   }
-
-  const title = groups.flatMap((group) => group.items).find((item) => item.key === section)?.title
+  const title = groups.flatMap(group => group.items).find(item => item.key === section)?.title
 
   return (
     <>
       <div className="sona-mobile-account">
         <button type="button" className="sona-account-trigger"
           aria-label="Open Sona Account" aria-haspopup="dialog"
-          onClick={show}>
+          aria-expanded={open}
+          onClick={() => setOpen(true)}>
           {username ? username.charAt(0).toUpperCase() : <CircleUserRound size={20} />}
         </button>
       </div>
       {createPortal(
-        <dialog ref={dialog}
-          className={'sona-account-native-dialog' + (open ? ' is-open' : '')}
-          aria-label="Sona Account"
-          onCancel={(event) => { event.preventDefault(); dismiss() }}
-          onClose={() => { setOpen(false); setSection(null); setPull(0) }}
-          onClick={(event) => { if (event.target === dialog.current) dismiss() }}>
-          <div className="sona-account-sheet-body" style={{ transform: 'translateY(' + pull + 'px)' }}>
+        <div className={'sona-account-portal' + (open ? ' is-open' : '')}
+          aria-hidden={!open} data-testid="sona-account-sheet">
+          <div className="sona-account-portal-backdrop" onClick={dismiss} />
+          <section className="sona-account-portal-sheet" role="dialog"
+            aria-modal={open ? 'true' : undefined}
+            aria-label="Sona Account" style={{
+              transform: open ? 'translate3d(0,' + pull + 'px,0)' : 'translate3d(0,106%,0)',
+            }}>
             <header className="sona-account-sheet-heading"
               onTouchStart={gestureStart} onTouchMove={gestureMove} onTouchEnd={gestureEnd}
               onTouchCancel={() => { start.current = null; setPull(0) }}>
@@ -108,67 +124,65 @@ export function SonaMobileAccount() {
               <div className="sona-account-heading-row">
                 {section
                   ? <button className="sona-account-back" type="button"
-                      onClick={() => { setSection(null); scroll.current?.scrollTo({ top: 0 }) }}>
+                      onClick={() => { setSection(null); scroll.current?.scrollTo({ top: 0, behavior: 'auto' }) }}>
                       <ChevronLeft size={22} /> Account
                     </button>
-                  : <div className="sona-account-heading-title"><SonaMark size={32} /><strong>Sona Account</strong></div>}
-                <button type="button" className="sona-account-close"
-                  aria-label="Close Sona Account" onClick={dismiss}><X size={24} /></button>
+                  : <div className="sona-account-heading-title">
+                      <SonaMark size={32} /><strong>Sona Account</strong>
+                    </div>}
+                <button ref={closeButton} type="button" className="sona-account-close"
+                  aria-label="Close Sona Account" onClick={dismiss}><X size={24} />
+                </button>
               </div>
               {section && <h2 className="sona-account-subheading">{title}</h2>}
             </header>
-
             <div className="sona-account-scroll" ref={scroll}>
-              {section ? (
-                <div className="sona-account-settings-content"><Pages /></div>
-              ) : (
-                <div className="sona-account-overview">
-                  <button className="sona-account-profile sona-account-group" type="button"
-                    onClick={() => navigateTo('accounts')}>
-                    <span className="sona-account-avatar" aria-hidden="true">
-                      {username?.charAt(0).toUpperCase() || <CircleUserRound size={28} />}
-                    </span>
-                    <span className="sona-account-profile-info">
-                      <strong>{username || 'Sona listener'}</strong>
-                      <span>Account information & connected services</span>
-                      <small>{url || 'Music server'}</small>
-                    </span>
-                    <ChevronRight size={20} className="sona-account-chevron" />
-                  </button>
-                  {groups.map((group) => (
-                    <div key={group.label} className="sona-account-section">
-                      <p className="sona-account-section-label">{group.label}</p>
-                      <div className="sona-account-group">
-                        {group.items.map((item) => (
-                          <button type="button" key={item.key} className="sona-account-item"
-                            onClick={() => navigateTo(item.key)}>
-                            <span className="sona-account-item-icon"><item.icon size={21} strokeWidth={1.9}/></span>
-                            <span className="sona-account-item-copy"><strong>{item.title}</strong></span>
-                            <ChevronRight size={20} className="sona-account-chevron"/>
-                          </button>
-                        ))}
+              {section
+                ? <div className="sona-account-settings-content"><Pages /></div>
+                : <div className="sona-account-overview">
+                    <button className="sona-account-profile sona-account-group" type="button"
+                      onClick={() => navigateTo('accounts')}>
+                      <span className="sona-account-avatar" aria-hidden="true">
+                        {username?.charAt(0).toUpperCase() || <CircleUserRound size={28} />}
+                      </span>
+                      <span className="sona-account-profile-info">
+                        <strong>{username || 'Sona listener'}</strong>
+                        <span>Account information & connected services</span>
+                        <small>{url || 'Music server'}</small>
+                      </span>
+                      <ChevronRight size={20} className="sona-account-chevron" />
+                    </button>
+                    {groups.map(group => (
+                      <div key={group.label} className="sona-account-section">
+                        <p className="sona-account-section-label">{group.label}</p>
+                        <div className="sona-account-group">
+                          {group.items.map(item => (
+                            <button type="button" key={item.key} className="sona-account-item"
+                              onClick={() => navigateTo(item.key)}>
+                              <span className="sona-account-item-icon">
+                                <item.icon size={21} strokeWidth={1.9}/>
+                              </span>
+                              <span className="sona-account-item-copy"><strong>{item.title}</strong></span>
+                              <ChevronRight size={20} className="sona-account-chevron" />
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                  {!lockUser && (
-                    <div className="sona-account-section">
+                    ))}
+                    {!lockUser && <div className="sona-account-section">
                       <div className="sona-account-group">
                         <button type="button" className="sona-account-item sona-account-logout"
                           onClick={() => { dismiss(); setLogoutDialogState(true) }}>
-                          <span className="sona-account-item-icon"><LogOut size={20} /></span>
+                          <span className="sona-account-item-icon"><LogOut size={20}/></span>
                           <span className="sona-account-item-copy"><strong>Sign Out</strong></span>
                         </button>
                       </div>
-                    </div>
-                  )}
-                  <p className="sona-account-footer">Sona · Your music, your way.</p>
-                </div>
-              )}
+                    </div>}
+                    <p className="sona-account-footer">Sona · Your music, your way.</p>
+                  </div>}
             </div>
-          </div>
-        </dialog>,
-        document.body,
-      )}
+          </section>
+        </div>, document.body)}
     </>
   )
 }

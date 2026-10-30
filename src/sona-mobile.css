@@ -1872,3 +1872,45 @@
   .sona-album-page>div.w-full.px-8.py-6{padding:6px 20px 26px!important}
   .sona-album-page .sona-album-songs{padding-top:7px!important}
 }
+
+/* Reliable iPhone account sheet. Portaled above ALL app stacking contexts. */
+.sona-account-portal{
+  position:fixed!important;inset:0!important;z-index:2147483600!important;
+  display:block!important;
+  opacity:1;visibility:hidden;pointer-events:none;
+  transition:visibility 0s linear .36s;
+}
+.sona-account-portal.is-open{visibility:visible;pointer-events:auto;transition:visibility 0s}
+.sona-account-portal-backdrop{
+  position:absolute;inset:0;background:#0009;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  opacity:0;transition:opacity .34s ease;touch-action:none;
+}
+.sona-account-portal.is-open .sona-account-portal-backdrop{opacity:1}
+.sona-account-portal-sheet{
+  position:absolute;inset:auto 0 0;display:flex;flex-direction:column;
+  width:100vw;height:calc(100dvh - env(safe-area-inset-top,0px) - 5px);
+  max-height:100dvh;min-height:0;
+  border-radius:34px 34px 0 0!important;
+  background:linear-gradient(165deg,#28262d,#19191e 55%,#151519);
+  box-shadow:0 -20px 80px #0009;
+  color:#f8f8fa;overflow:hidden!important;
+  transition:transform .43s cubic-bezier(.19,1,.23,1)!important;
+  will-change:transform;
+}
+.sona-account-portal-sheet .sona-account-sheet-heading{
+  flex:none;width:100%;padding:10px 19px 14px;
+  background:#222127ad;
+  -webkit-backdrop-filter:blur(28px);backdrop-filter:blur(28px);
+  touch-action:none;
+}
+.sona-account-portal-sheet .sona-account-scroll{
+  min-height:0;flex:1;overflow:auto;
+  width:100%;padding:18px 20px calc(44px + env(safe-area-inset-bottom,0px));
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+}
+.sona-account-portal-sheet .sona-account-overview{margin:0 auto;max-width:650px}
+.sona-account-portal-sheet .sona-account-profile{width:100%;text-align:left;border:0!important}
+@media(prefers-reduced-motion:reduce){
+  .sona-account-portal-sheet,.sona-account-portal-backdrop{transition-duration:.01ms!important}
+}
