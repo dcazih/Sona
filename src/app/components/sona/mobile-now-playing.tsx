@@ -22,6 +22,7 @@ export function SonaMobileNowPlaying() {
   const { playPrevSong, playNextSong } = usePlayerActions()
   const [view, setView] = useState<View>('playing')
   const [dragY, setDragY] = useState(0)
+  const lastDrag = useRef(0)
   const gesture = useRef<Gesture | null>(null)
   const artTouchX = useRef<number | null>(null)
 
@@ -29,6 +30,7 @@ export function SonaMobileNowPlaying() {
     if (!isFullscreen) {
       setView('playing')
       setDragY(0)
+      lastDrag.current = 0
     }
   }, [isFullscreen])
 
@@ -61,9 +63,16 @@ export function SonaMobileNowPlaying() {
     const dx = event.touches[0].clientX - start.x
     const dy = event.touches[0].clientY - start.y
     if (dy > 0 && dy > Math.abs(dx) * 1.15) {
-      setDragY(Math.min(dy, window.innerHeight))
+      // Progressive resistance keeps the drawer attached to the fingertip
+      // while avoiding a sudden snap near the bottom of the screen.
+      const travel = Math.min(dy, window.innerHeight)
+      const resistance = 1 - 0.24 * Math.min(1, travel / window.innerHeight)
+      const offset = travel * resistance
+      lastDrag.current = offset
+      setDragY(offset)
       if (event.cancelable) event.preventDefault()
-    } else if (dragY !== 0 && dy <= 0) {
+    } else if (lastDrag.current !== 0 && dy <= 0) {
+      lastDrag.current = 0
       setDragY(0)
     }
   }
@@ -74,8 +83,11 @@ export function SonaMobileNowPlaying() {
     if (!start) return
     const dx = event.changedTouches[0].clientX - start.x
     const dy = event.changedTouches[0].clientY - start.y
+    lastDrag.current = 0
     setDragY(0)
-    if (dy > 100 && dy > Math.abs(dx) * 1.15) setIsFullscreen(false)
+    if (dy > 112 && dy > Math.abs(dx) * 1.15) {
+      setIsFullscreen(false)
+    }
   }
 
   function endArtworkSwipe(event: TouchEvent<HTMLDivElement>) {
@@ -95,10 +107,14 @@ export function SonaMobileNowPlaying() {
       aria-modal={isFullscreen ? 'true' : undefined}
       aria-hidden={!isFullscreen}
       aria-label="Now Playing"
-      style={{ '--sona-drag-y': String(dragY) + 'px' } as CSSProperties}
+      style={{
+        '--sona-drag-y': String(dragY) + 'px',
+        '--sona-drag-progress': String(Math.min(1, dragY / 310)),
+      } as CSSProperties}
     >
       <div className="sona-now-background" />
       <div className="sona-now-top" onTouchStart={beginSwipe} onTouchMove={moveSwipe} onTouchEnd={endSwipe}>
+        <span className="sona-now-drag-capsule" aria-hidden="true" />
         <button className="sona-now-dismiss" type="button" aria-label="Close Now Playing"
           onClick={() => setIsFullscreen(false)}>
           <ChevronDown size={29} strokeWidth={1.7} />
