@@ -59,8 +59,7 @@ export default function ImageHeader({
       {(src, isLoading) => (
         <div
           id="image-header-container"
-          className="sona-album-hero" data-header="mobile-responsive"
-          data-original-class="flex relative w-full h-[calc(3rem+200px)] 2xl:h-[calc(3rem+250px)]"
+          className="sona-album-hero flex relative w-full h-[calc(3rem+200px)] 2xl:h-[calc(3rem+250px)]"
           key={`header-${coverArtId}`}
         >
           {isLoading && (
