@@ -2117,3 +2117,62 @@
     touch-action:pan-y pinch-zoom;
   }
 }
+
+/* Safe-area and header share the same exact artwork-aware paint; no
+   translucent gray header over a different status-bar background. */
+@media(max-width:767px){
+  :root{--sona-top-chrome-color:#080809}
+  html,body,#root{background:var(--sona-top-chrome-color)!important}
+  .sona-header{
+    background:var(--sona-top-chrome-color)!important;
+    background-image:none!important;
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+    border:0!important;box-shadow:none!important;
+    transition:background-color .36s cubic-bezier(.2,.95,.2,1)!important;
+  }
+  .sona-app-shell::before{
+    content:"";display:block;position:fixed;left:0;right:0;top:0;
+    height:calc(env(safe-area-inset-top,0px) + 1px);
+    background:var(--sona-top-chrome-color)!important;
+    background-image:none!important;
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+    z-index:70;pointer-events:none;
+    transition:background-color .36s cubic-bezier(.2,.95,.2,1)!important;
+  }
+  .sona-app-shell #main-scroll-area:not(:has(.sona-mobile-album-hero)){
+    background:linear-gradient(180deg,#080809 0px,#171719 280px)!important;
+  }
+  .sona-mobile-album-hero{position:relative}
+  .sona-mobile-album-back{
+    position:absolute;top:18px;left:18px;z-index:4;
+    width:39px;height:39px;border-radius:50%;display:grid;place-items:center;
+    background:#ffffff23;color:#fff;border:1px solid #ffffff14;
+    -webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+    touch-action:manipulation;
+    transition:background .2s ease,transform .2s ease;
+  }
+  .sona-mobile-album-back:active{transform:scale(.92)}
+}
+.sona-album-morph{
+  position:fixed;inset:0;overflow:hidden;z-index:2147482000;
+  pointer-events:none;isolation:isolate;
+}
+.sona-album-morph-surface{
+  position:fixed;overflow:hidden;background:#221d28;
+  box-shadow:0 16px 60px #0008;
+  will-change:top,left,width,height,border-radius,opacity;
+}
+.sona-album-morph-ambient{
+  position:absolute;inset:-45%;background-size:cover;background-position:center;
+  filter:blur(95px) saturate(.85) brightness(.63);
+  opacity:.82;
+}
+.sona-album-morph-artwork{
+  position:fixed;display:block;object-fit:cover;
+  background:#242329;border-radius:13px;
+  box-shadow:0 16px 40px #0008;overflow:hidden;
+  will-change:top,left,width,height;
+}
+@media(prefers-reduced-motion:reduce){
+  .sona-album-morph{display:none}
+}

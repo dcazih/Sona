@@ -1,5 +1,7 @@
 import clsx from 'clsx'
 import { memo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { openSonaAlbumFromCover } from '@/app/components/sona/album-morph'
 import { EqualizerBars } from '@/app/components/icons/equalizer-bars'
 import { ImageLoader } from '@/app/components/image-loader'
 import { PreviewCard } from '@/app/components/preview-card/card'
@@ -14,6 +16,7 @@ type AlbumCardProps = {
 
 function AlbumCard({ album }: AlbumCardProps) {
   const { setSongList, togglePlayPause } = usePlayerActions()
+  const navigate = useNavigate()
   const { isAlbumActive, isAlbumPlaying } = useIsAlbumPlaying(album.id)
 
   async function playCurrentAlbum() {
@@ -37,8 +40,13 @@ function AlbumCard({ album }: AlbumCardProps) {
   }
 
   return (
-    <PreviewCard.Root>
-      <PreviewCard.ImageWrapper link={ROUTES.ALBUM.PAGE(album.id)}>
+    <PreviewCard.Root data-sona-album-id={album.id}>
+      <PreviewCard.ImageWrapper link={ROUTES.ALBUM.PAGE(album.id)}
+        onClick={(event) => {
+          if (window.innerWidth >= 768 || event.defaultPrevented) return
+          event.preventDefault()
+          openSonaAlbumFromCover(event, navigate, album.id)
+        }}>
         <ImageLoader id={album.coverArt} type="album" size={300}>
           {(src) => <PreviewCard.Image src={src} alt={album.name} />}
         </ImageLoader>
@@ -55,6 +63,11 @@ function AlbumCard({ album }: AlbumCardProps) {
           )}
           <PreviewCard.Title
             link={ROUTES.ALBUM.PAGE(album.id)}
+            onClick={(event) => {
+              if (window.innerWidth >= 768 || event.defaultPrevented) return
+              event.preventDefault()
+              openSonaAlbumFromCover(event, navigate, album.id)
+            }}
             className={clsx(isAlbumPlaying && 'text-primary')}
           >
             {album.name}

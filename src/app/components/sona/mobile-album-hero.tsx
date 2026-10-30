@@ -1,4 +1,7 @@
 import { useEffect, type CSSProperties } from 'react'
+import { ChevronLeft } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { closeSonaAlbumToCover } from '@/app/components/sona/album-morph'
 import { Link } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
@@ -9,6 +12,7 @@ import { convertSecondsToHumanRead } from '@/utils/convertSecondsToTime'
 
 /** Standalone mobile header. It doesn't inherit the desktop's fixed-height banner. */
 export function SonaMobileAlbumHero({ album }: { album: SingleAlbum }) {
+  const navigate = useNavigate()
   const { bgColor, handleLoadImage, handleError } = useAlbumColor('sona-mobile-album-art')
   const color = bgColor || '#342730'
 
@@ -17,6 +21,26 @@ export function SonaMobileAlbumHero({ album }: { album: SingleAlbum }) {
     if (!viewport) return
     viewport.style.setProperty('--sona-page-album-color', color)
     return () => viewport.style.removeProperty('--sona-page-album-color')
+  }, [color])
+
+  useEffect(() => {
+    // The iPhone status-bar area and the album toolbar use one exact shade,
+    // derived from the artwork's dominant color rather than a separate overlay.
+    const root = document.documentElement
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+    const previous = meta?.content
+    const rgb = /^#([0-9a-f]{6})$/i.exec(color)?.[1]
+    const mix = rgb ? [0,2,4].map(i => {
+      const channel = parseInt(rgb.slice(i,i+2),16)
+      return Math.round(channel*.38 + 19*.62).toString(16).padStart(2,'0')
+    }).join('') : '24202a'
+    const chrome = '#' + mix
+    root.style.setProperty('--sona-top-chrome-color',chrome)
+    meta?.setAttribute('content',chrome)
+    return () => {
+      root.style.removeProperty('--sona-top-chrome-color')
+      if (previous) meta?.setAttribute('content',previous)
+    }
   }, [color])
 
   const info = [
@@ -30,6 +54,10 @@ export function SonaMobileAlbumHero({ album }: { album: SingleAlbum }) {
     <section className="sona-mobile-album-hero"
       style={{ '--sona-page-album-color': color } as CSSProperties}
       aria-label={'Album: ' + album.name}>
+      <button type="button" className="sona-mobile-album-back"
+        aria-label="Back to music" onClick={() => closeSonaAlbumToCover(navigate, album.id)}>
+        <ChevronLeft size={23} strokeWidth={2.2}/>
+      </button>
       <div className="sona-mobile-album-cover">
         <ImageLoader id={album.coverArt} type="album" size={700}>
           {(src) => src
