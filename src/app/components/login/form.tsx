@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
-import { ChevronDown, Loader2, LockKeyhole, Server, UserRound } from 'lucide-react'
+import { ChevronDown, Loader2, Server } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -92,9 +92,7 @@ export function LoginForm() {
           )}>
             <CardHeader className="sona-login-card-header">
               <div>
-                <p className="sona-login-section-label">SIGN IN</p>
-                <CardTitle>Connect to your music</CardTitle>
-                <p className="sona-login-card-subtitle">Sign in with your Navidrome account.</p>
+                <CardTitle>Sign in</CardTitle>
               </div>
               <div className="sona-login-language" aria-label="Language"><LangToggle /></div>
             </CardHeader>
@@ -103,7 +101,6 @@ export function LoginForm() {
                 <FormItem className="sona-login-field">
                   <FormLabel>{t('login.form.username')}</FormLabel>
                   <div className="sona-login-input-wrap">
-                    <UserRound size={19} strokeWidth={1.8} aria-hidden="true" />
                     <FormControl>
                       <Input {...field} id="username" type="text" autoComplete="username"
                         placeholder={t('login.form.usernamePlaceholder')}
@@ -117,7 +114,6 @@ export function LoginForm() {
                 <FormItem className="sona-login-field">
                   <FormLabel>{t('login.form.password')}</FormLabel>
                   <div className="sona-login-input-wrap">
-                    <LockKeyhole size={18} strokeWidth={1.8} aria-hidden="true" />
                     <FormControl>
                       <Password {...field} id="password" autoComplete="current-password"
                         placeholder="Enter your password" />
@@ -132,9 +128,7 @@ export function LoginForm() {
                     <CollapsibleTrigger asChild>
                       <button type="button" className="sona-login-server-trigger"
                         aria-label={'Server: ' + displayServer(currentServer) + '. Change server'}>
-                        <span className="sona-login-server-indicator">
-                          <Server size={18} strokeWidth={1.8} aria-hidden="true" />
-                        </span>
+                        <span className="sona-login-server-indicator"><Server size={16} strokeWidth={1.8} /></span>
                         <span className="sona-login-server-name">
                           <span>Server:</span> <strong>{displayServer(currentServer)}</strong>
                         </span>

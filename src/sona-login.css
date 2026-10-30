@@ -89,3 +89,68 @@
 /* Consistent Sona brand icon on login at all viewport sizes. */
 .sona-login-topbar .sona-brand-mark {display:grid;place-items:center;background:linear-gradient(140deg,#ef718c,#c84264);box-shadow:0 4px 17px #ae41545a;color:#fff}
 .sona-login-topbar .sona-brand-mark svg {color:#fff}
+
+/* Simplified flat sign-in. Same on web and mobile; only button is elevated. */
+.sona-login-screen{
+  background:linear-gradient(155deg,#1f1b22 0%,#17171c 48%,#16171a 100%)!important;
+  color:#f5f4f7!important;
+}
+.sona-login-main{padding:45px 20px 24px!important;scroll-padding-bottom:35vh}
+.sona-login-intro{margin:0 0 27px!important}
+.sona-login-main-mark{width:74px;height:74px;filter:drop-shadow(0 7px 16px #0003)}
+.sona-login-card{
+  width:min(390px,100%)!important;
+  background:transparent!important;box-shadow:none!important;
+  border:0!important;border-radius:0!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+.sona-login-card-header{
+  padding:0 0 25px!important;display:flex!important;align-items:center!important;
+  justify-content:space-between!important;gap:14px;
+}
+.sona-login-card-header h3{font-size:27px!important;letter-spacing:-.045em;font-weight:760}
+.sona-login-language [role=combobox]{border:0!important;background:#ffffff10!important;border-radius:18px!important}
+.sona-login-fields{gap:15px!important;padding:0 0 19px!important}
+.sona-login-field label{font-size:13px!important;font-weight:600!important;color:#c6c2cd!important}
+.sona-login-input-wrap{
+  width:100%;height:53px!important;
+  padding:0 18px!important;
+  border:0!important;outline:0!important;
+  border-radius:17px!important;background:#343238!important;
+  box-shadow:none!important;transition:background .24s ease!important;
+}
+.sona-login-input-wrap:focus-within{background:#444047!important}
+.sona-login-input-wrap input{padding:0!important;height:100%!important;box-shadow:none!important}
+.sona-login-server-trigger{
+  border:0!important;border-radius:17px!important;
+  background:#343238!important;min-height:50px!important;
+  padding:11px 14px!important;box-shadow:none!important
+}
+.sona-login-server-trigger[data-state=open]{background:#444047!important}
+.sona-login-server-content input{border:0!important;background:#343238!important;border-radius:16px!important}
+.sona-login-submit-wrap{padding:0!important}
+.sona-login-submit{
+  background:linear-gradient(110deg,#f1708d,#d74769)!important;
+  box-shadow:0 7px 22px #b73d606b!important;
+  min-height:54px!important;border-radius:17px!important
+}
+.sona-login-footnote,.sona-login-topbar,.sona-login-art,
+.sona-login-eyebrow,.sona-login-subtitle{display:none!important}
+.sona-login-main input:focus{outline:none!important}
+@media(max-width:600px){
+  .sona-login-main{
+    height:100dvh!important;min-height:100dvh!important;
+    overflow-y:auto!important;overscroll-behavior-y:contain!important;
+    justify-content:safe center!important;
+    padding:calc(env(safe-area-inset-top,0px) + 22px) 22px calc(env(safe-area-inset-bottom,0px) + 22px)!important;
+    scroll-padding-block:35vh;
+  }
+  .sona-login-intro{margin-bottom:24px!important}
+  .sona-login-card-header{padding-bottom:21px!important}
+  .sona-login-main-mark{display:block!important;width:72px;height:72px}
+  .sona-login-fields{gap:14px!important}
+}
+@media(max-height:650px){
+ .sona-login-intro{margin-bottom:10px!important}
+ .sona-login-main-mark{width:53px;height:53px}
+}
