@@ -1,14 +1,15 @@
-import { repository, version } from '@/../package.json'
+import { version } from '@/../package.json'
 
-export const appName = 'Aonsoku'
+export const appName = 'Sona'
+export const appRepositoryUrl = 'https://github.com/dcazih/Sona'
 
 export function getAppInfo() {
   return {
     name: appName,
     version,
-    url: repository.url,
-    releaseUrl: `${repository.url}/releases/latest`,
+    url: appRepositoryUrl,
+    releaseUrl: appRepositoryUrl + '/releases/latest',
   }
 }
 
-export const lrclibClient = `${appName} v${version} (${repository.url})`
+export const lrclibClient = appName + ' v' + version + ' (' + appRepositoryUrl + ')'
