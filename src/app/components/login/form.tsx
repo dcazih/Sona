@@ -29,9 +29,7 @@ const loginSchema = z.object({
   password: z.string().min(1, 'login.form.validations.password'),
 })
 type FormData = z.infer<typeof loginSchema>
-const defaultServer = (window.SERVER_URL && /^https?:\/\//.test(window.SERVER_URL))
-  ? window.SERVER_URL
-  : DEFAULT_SERVER
+const defaultServer = DEFAULT_SERVER
 
 function normalizeServer(value: string) {
   const trimmed = value.trim()
