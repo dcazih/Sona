@@ -12,28 +12,22 @@
   "display": "standalone",
   "icons": [
     {
-      "src": "/sona-icon.svg",
+      "src": "/sona-icon.svg?v=2",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/sona-icon-192.png",
+      "src": "/sona-mark-192-v2.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/sona-icon-512.png",
+      "src": "/sona-mark-512-v2.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/sona-icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "screenshots": [
