@@ -2,12 +2,12 @@
   "name": "Sona",
   "short_name": "Sona",
   "description": "Your music, wherever you are. A mobile-friendly music player for your Navidrome library.",
-  "theme_color": "#202024",
+  "theme_color": "#17171c",
   "categories": [
     "music",
     "entertainment"
   ],
-  "background_color": "#171719",
+  "background_color": "#17171c",
   "start_url": "/",
   "display": "standalone",
   "icons": [
@@ -18,24 +18,20 @@
       "purpose": "any"
     },
     {
-      "src": "/favicons/android-chrome-192x192.png",
+      "src": "/sona-icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/favicons/android-chrome-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicons/maskable_icon_x512.png",
+      "src": "/sona-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any"
     },
     {
-      "src": "/favicons/maskable_icon_x192.png",
-      "sizes": "192x192",
+      "src": "/sona-icon-512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
