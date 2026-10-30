@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import '@/fonts.css'
 import '@/themes.css'
 import '@/index.css'
+import '@/sona-mobile.css'
 
 import '@/i18n'
 

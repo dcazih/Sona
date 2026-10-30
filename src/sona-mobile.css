@@ -1,0 +1,30 @@
+/* Sona portrait phone layout, layered over Aonsoku 0.15 */
+@media (max-width:767px) {
+  :root {
+    --header-height: calc(52px + env(safe-area-inset-top, 0px));
+    --player-height: calc(74px + env(safe-area-inset-bottom, 0px));
+    --content-height: calc(100dvh - var(--header-height) - var(--player-height));
+  }
+  html,body,#root {width:100%;height:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+  .sona-app-shell {width:100%;height:100dvh;overflow:hidden}
+  .sona-header {padding-top:env(safe-area-inset-top,0px);gap:.25rem;min-width:0}
+  .sona-header>div {min-width:0}
+  .sona-header [data-sidebar="trigger"] {min-width:36px;min-height:36px}
+  .sona-app-shell [data-slot="sidebar-inset"] {min-width:0;width:100%}
+  .sona-app-shell #main-scroll-area {min-width:0;width:100%}
+  .sona-player {padding-bottom:env(safe-area-inset-bottom,0px);min-width:0}
+  .sona-player-layout {position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:minmax(0,1fr);align-items:center;column-gap:.35rem;padding:.4rem .65rem .65rem}
+  .sona-player-track {grid-column:1;grid-row:1;min-width:0;overflow:hidden;gap:.45rem}
+  .sona-player-cover {min-width:44px!important;max-width:44px!important;width:44px!important;height:44px!important;flex-shrink:0}
+  .sona-player-track>.flex-col {min-width:0;flex:1}
+  .sona-player-controls {grid-column:2;grid-row:1;padding:0;gap:0;min-width:0}
+  .sona-player-controls>div:first-child {width:auto;justify-content:flex-end;margin-bottom:0;gap:0}
+  .sona-player-controls [data-testid="player-button-shuffle"],.sona-player-controls [data-testid="player-button-loop"] {display:none}
+  .sona-player-controls [data-testid^="player-button-"] {width:38px;height:42px;min-width:38px}
+  .sona-player-controls>div:nth-child(2) {position:absolute;bottom:1px;left:.65rem;right:.65rem;width:auto;height:10px;gap:0}
+  .sona-player-controls>div:nth-child(2)>small {display:none}
+  .sona-player-controls [data-testid="player-progress-slider"] {width:100%;min-width:0}
+  .sona-player-extra {display:none}
+  #root input,#root textarea,#root select {font-size:16px}
+  #main-scroll-area img {max-width:100%}
+}

@@ -22,7 +22,7 @@ const MemoFullscreenMode = memo(FullscreenMode)
 
 export default function BaseLayout() {
   return (
-    <div className="h-screen w-screen overflow-hidden">
+    <div className="sona-app-shell h-screen w-screen overflow-hidden">
       <MainSidebarProvider>
         <MemoHeader />
         <AppSidebar />

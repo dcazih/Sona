@@ -15,7 +15,7 @@ export function PodcastInfo({ podcast }: { podcast: EpisodeWithPodcast }) {
 
   return (
     <Fragment>
-      <div className="min-w-[70px] max-w-[70px] aspect-square bg-cover bg-center bg-skeleton rounded overflow-hidden shadow-md">
+      <div className="sona-player-cover min-w-[70px] max-w-[70px] aspect-square bg-cover bg-center bg-skeleton rounded overflow-hidden shadow-md">
         <MemoLazyLoadImage
           src={imageError ? placeholderImageSrc : podcast.image_url}
           width="100%"

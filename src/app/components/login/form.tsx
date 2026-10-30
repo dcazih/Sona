@@ -112,7 +112,7 @@ export function LoginForm() {
 
   return (
     <>
-      <Card className="w-[450px] bg-background-foreground">
+      <Card className="w-[450px] max-w-[calc(100vw-2rem)] bg-background-foreground">
         <Form {...form}>
           <form onSubmit={form.handleSubmit((data) => onSubmit(data))}>
             <CardHeader className="flex">

@@ -211,16 +211,16 @@ export function Player() {
   }, [song, replayGainDefaultGain, replayGainPreAmp, replayGainType])
 
   return (
-    <footer className="border-t h-[--player-height] w-full flex items-center fixed bottom-0 left-0 right-0 z-40 bg-background">
-      <div className="w-full h-full grid grid-cols-player gap-2 px-4">
+    <footer className="sona-player border-t h-[--player-height] w-full flex items-center fixed bottom-0 left-0 right-0 z-40 bg-background">
+      <div className="sona-player-layout w-full h-full grid grid-cols-player gap-2 px-4">
         {/* Track Info */}
-        <div className="flex items-center gap-2 w-full">
+        <div className="sona-player-track flex items-center gap-2 w-full min-w-0">
           {isSong && <MemoTrackInfo song={song} />}
           {isRadio && <MemoRadioInfo radio={radio} />}
           {isPodcast && <MemoPodcastInfo podcast={podcast} />}
         </div>
         {/* Main Controls */}
-        <div className="col-span-2 flex flex-col justify-center items-center px-4 gap-1">
+        <div className="sona-player-controls col-span-2 flex flex-col justify-center items-center px-4 gap-1">
           <MemoPlayerControls
             song={song}
             radio={radio}
@@ -233,7 +233,7 @@ export function Player() {
           )}
         </div>
         {/* Remain Controls and Volume */}
-        <div className="flex items-center w-full justify-end">
+        <div className="sona-player-extra flex items-center w-full justify-end">
           <div className="flex items-center gap-1">
             {isSong && !hideFavoritesSection && (
               <>
