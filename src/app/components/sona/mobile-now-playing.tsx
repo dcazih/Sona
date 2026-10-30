@@ -176,7 +176,7 @@ export function SonaMobileNowPlaying() {
           <button type="button" aria-label="Show lyrics" aria-pressed={view === 'lyrics'}
             className={view === 'lyrics' ? 'is-selected' : ''}
             onClick={() => setView(view === 'lyrics' ? 'playing' : 'lyrics')}>
-            <Music2 size={22} />
+            <SonaNoteGlyph size={22} />
           </button>
           <button type="button" aria-label="Choose AirPlay output"
             disabled={!supportsAirplay}
