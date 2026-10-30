@@ -11,6 +11,7 @@ import { BadgesData } from '@/app/components/header-info'
 import PreviewList from '@/app/components/home/preview-list'
 import ListWrapper from '@/app/components/list-wrapper'
 import { SonaMobileAlbumTracks } from '@/app/components/sona/mobile-album-tracks'
+import { SonaMobileAlbumHero } from '@/app/components/sona/mobile-album-hero'
 import { DataTable } from '@/app/components/ui/data-table'
 import {
   useGetAlbum,
@@ -119,7 +120,7 @@ export default function Album() {
     <div className="sona-album-page w-full relative">
       <AlbumStickyHeader album={album} />
 
-      <ImageHeader
+      <div className="hidden md:block"><ImageHeader
         type={t('album.headline')}
         title={album.name}
         subtitle={album.artist}
@@ -132,7 +133,8 @@ export default function Album() {
         animatedArtworkArtist={album.artist}
         animatedArtworkAlbum={album.name}
         badges={badges}
-      />
+      /></div>
+      <div className="md:hidden"><SonaMobileAlbumHero album={album} /></div>
 
       <ListWrapper>
         <AlbumInfo album={album} />
