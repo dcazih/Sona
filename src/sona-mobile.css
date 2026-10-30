@@ -1573,3 +1573,224 @@
     padding-top:calc(env(safe-area-inset-top,0px) + 9px)!important;
   }
 }
+
+/* Sona October 30 mobile audit: native account sheet, Apple-style album tracks,
+   genuinely floating pill mini-player, no border in header, stable safe areas. */
+.sona-account-native-dialog{
+  position:fixed!important;
+  display:none;
+  inset:auto 0 0 0!important;
+  margin:0!important;padding:0!important;
+  max-width:100vw!important;max-height:100dvh!important;
+  width:100vw!important;
+  height:calc(100dvh - env(safe-area-inset-top,0px) - 6px)!important;
+  border:0!important;
+  border-radius:32px 32px 0 0!important;
+  background:linear-gradient(165deg,#28262c,#19191e 55%,#151519)!important;
+  color:#f9f9fb;
+  overflow:hidden!important;
+  box-shadow:0 -15px 80px rgba(0,0,0,.52)!important;
+  transform:translateY(105%);
+  transition:transform .38s cubic-bezier(.19,1,.23,1)!important;
+  -webkit-overflow-scrolling:touch;
+}
+.sona-account-native-dialog[open]{display:flex!important;flex-direction:column}
+.sona-account-native-dialog.is-open{transform:translateY(0)!important}
+.sona-account-native-dialog::backdrop{
+  background:rgba(0,0,0,.54);
+  -webkit-backdrop-filter:blur(7px);
+  backdrop-filter:blur(7px);
+}
+.sona-account-sheet-body{height:100%;min-height:0;min-width:0;display:flex;flex-direction:column;
+  transition:transform .17s cubic-bezier(.19,1,.23,1)}
+.sona-account-native-dialog .sona-account-sheet-heading{
+  width:100%;padding:10px 19px 14px;
+  background:rgba(35,34,39,.56);
+  -webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);
+  border:0!important;
+}
+.sona-account-native-dialog .sona-account-scroll{
+  flex:1;min-height:0;width:100%;overflow:auto;
+  padding:15px 20px calc(44px + env(safe-area-inset-bottom,0px))
+}
+.sona-account-native-dialog .sona-account-profile{
+  width:100%;color:#fff;text-align:left;border:0!important
+}
+.sona-account-trigger{
+  display:grid!important;place-items:center!important;
+  pointer-events:auto!important;touch-action:manipulation!important;
+  position:relative;z-index:10;
+  -webkit-tap-highlight-color:transparent;
+}
+@media(max-width:767px){
+  .sona-app-brand .sona-brand-mark{
+    background:transparent!important;box-shadow:none!important;
+    width:35px!important;height:35px!important;border-radius:0!important;
+    display:grid!important;place-items:center!important;
+  }
+  .sona-app-brand .sona-brand-mark svg{display:block;width:34px!important;height:34px!important}
+  .sona-header{
+    border:0!important;border-bottom:0!important;
+    outline:0!important;box-shadow:none!important;
+    background:linear-gradient(180deg,rgba(31,30,36,.57),rgba(31,30,36,.12))!important;
+    -webkit-backdrop-filter:blur(28px) saturate(1.4)!important;
+    backdrop-filter:blur(28px) saturate(1.4)!important;
+  }
+  .sona-header:before,.sona-header:after{border:0!important;box-shadow:none!important}
+  .sona-header .sona-mobile-account{
+    position:relative;z-index:2;pointer-events:auto!important;
+  }
+  .sona-app-shell #main-scroll-area{
+    border-top:0!important;
+    box-shadow:none!important;
+  }
+
+  /* Actual floating mini-player: no reserved layout row, compact glass capsule */
+  .sona-player[data-mobile-active="true"]{
+    position:fixed!important;
+    left:10px!important;right:10px!important;
+    width:calc(100vw - 20px)!important;
+    height:53px!important;
+    bottom:calc(80px + env(safe-area-inset-bottom,0px))!important;
+    border:0!important;outline:0!important;
+    border-radius:29px!important;
+    background:rgba(38,38,44,.47)!important;
+    -webkit-backdrop-filter:blur(32px) saturate(1.55)!important;
+    backdrop-filter:blur(32px) saturate(1.55)!important;
+    box-shadow:0 7px 18px #0005!important;
+    overflow:hidden!important;
+    padding:0!important;
+  }
+  .sona-player[data-mobile-active="true"]::before{
+    border-radius:inherit!important;inset:-8px!important;
+    opacity:.48!important;
+  }
+  .sona-player .sona-player-layout{
+    display:grid!important;align-items:center!important;
+    height:100%!important;
+    padding:5px 9px!important;
+    min-height:0!important;
+  }
+  .sona-player .sona-player-track{
+    min-height:0!important;height:43px!important;
+    gap:9px!important;
+  }
+  .sona-player .sona-player-cover{
+    width:38px!important;height:38px!important;min-width:38px!important;max-width:38px!important;
+    border-radius:8px!important;
+  }
+  .sona-player .sona-player-track [data-testid="track-title"]{
+    line-height:1.1!important;font-size:12px!important;font-weight:700!important;
+    text-decoration:none!important;
+  }
+  .sona-player .sona-player-track [data-testid="track-artist-url"]{
+    font-size:10px!important;text-decoration:none!important;
+  }
+  .sona-player .sona-player-controls{
+    min-width:78px!important;padding:0!important;
+  }
+  .sona-player .sona-player-controls [data-testid^="player-button-"]{
+    min-width:32px!important;width:32px!important;height:38px!important;
+    border-radius:50%!important;
+    transform:scale(1)!important;
+  }
+  .sona-player .sona-player-controls [data-testid^="player-button-"]:active{
+    transform:scale(.91)!important;
+  }
+  .sona-player .sona-player-controls>div:nth-child(2){
+    bottom:-2px!important;height:3px!important;opacity:.64!important;
+  }
+
+  /* Apple Music album list: number, name, original duration, ellipsis.
+     No cover thumbnails and no large card background. */
+  .sona-album-page .sona-album-songs{padding:10px 0 15px!important}
+  .sona-album-songs-heading{
+    padding:0 4px!important;margin:7px 0 9px!important;
+    display:flex!important;align-items:center!important;
+  }
+  .sona-album-songs-heading strong{font-size:20px!important;font-weight:800!important}
+  .sona-album-songs-heading span{font-size:12px!important;color:#8c8992!important}
+  .sona-album-songs-list{width:100%;border-top:1px solid #ffffff1c}
+  .sona-album-page .sona-album-song-row{
+    width:100%!important;max-width:100%!important;
+    border:0!important;border-bottom:1px solid #ffffff20!important;
+    background:transparent!important;
+    box-shadow:none!important;border-radius:0!important;
+    padding:0 2px!important;
+    display:flex!important;align-items:center!important;gap:9px!important;
+    min-height:58px!important;
+  }
+  .sona-album-page .sona-album-song-row.is-playing{background:transparent!important}
+  .sona-album-song-index{display:flex!important;align-items:center!important;
+    justify-content:center!important;flex:none!important;
+    width:29px!important;min-width:29px!important;
+    font-size:13px!important;color:#9c98a4!important;
+  }
+  .sona-album-song-row.is-playing .sona-album-song-index{color:#ff688a!important}
+  .sona-album-song-main{flex:1;min-width:0;display:flex;flex-direction:column;
+    justify-content:center;align-items:stretch;
+    padding:5px 0;
+  }
+  .sona-album-song-title{
+    flex:1;min-width:0;min-height:43px;
+    width:100%!important;max-width:100%!important;
+    display:block;text-align:left;
+    color:#f6f4f7!important;font-size:15px!important;
+    font-weight:570!important;letter-spacing:-.015em;
+    white-space:nowrap!important;overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    padding:0!important;margin:0!important;
+    background:transparent!important;border:0!important;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .sona-album-song-row.is-playing .sona-album-song-title{
+    color:#ff738f!important;
+  }
+  .sona-album-song-title:active{opacity:.65!important}
+  .sona-album-song-secondary-artist{
+    display:block;font-size:11.5px!important;color:#a7a3ad!important;
+    padding:0 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    text-decoration:none!important;
+  }
+  .sona-album-song-duration{
+    flex:none!important;min-width:37px!important;
+    font-size:12px!important;color:#aaa5af!important;
+    text-align:right!important;white-space:nowrap!important;
+    font-variant-numeric:tabular-nums;
+  }
+  .sona-album-song-more{
+    width:40px!important;height:50px!important;
+    flex:none!important;
+    display:grid!important;place-items:center!important;
+    border:0!important;outline:0!important;
+    color:#bcb8c2!important;background:transparent!important;
+    border-radius:20px!important;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .sona-album-song-more:active{background:#ffffff1e!important;color:white!important}
+  .sona-album-page .sona-album-hero-inner{
+    padding-top:12px!important;padding-bottom:18px!important;
+  }
+  .sona-album-page .sona-album-cover{
+    box-shadow:0 11px 25px #0007!important;
+  }
+  .sona-album-page .sona-album-meta{
+    padding-top:5px!important;
+  }
+
+  /* Avoid reintroducing the old oversized empty strip above album artwork. */
+  .sona-album-page .sona-album-hero{margin-top:0!important}
+  .sona-album-page .sona-album-hero-effect{pointer-events:none}
+}
+@media(max-width:767px) and (display-mode:standalone){
+  .sona-header{
+    height:var(--header-height)!important;
+    padding-top:env(safe-area-inset-top,0px)!important;
+  }
+  .sona-app-shell #main-scroll-area #scroll-viewport>div{
+    padding-top:var(--header-height)!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .sona-account-native-dialog{transition-duration:.01ms!important}
+}
