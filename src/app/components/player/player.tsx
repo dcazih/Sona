@@ -233,6 +233,8 @@ export function Player() {
         <div className="sona-player-track flex items-center gap-2 w-full min-w-0"
           onClickCapture={(event) => {
             if (window.innerWidth >= 768 || !song) return
+            // Artist links retain their navigation even inside the mini-player.
+            if ((event.target as HTMLElement).closest('[data-testid="track-artist-url"]')) return
             event.preventDefault()
             event.stopPropagation()
             setIsFullscreen(true)
