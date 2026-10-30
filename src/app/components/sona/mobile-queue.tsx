@@ -1,5 +1,5 @@
 import { GripVertical, Music2, X } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { type PointerEvent, useRef, useState } from 'react'
 import { ImageLoader } from '@/app/components/image-loader'
 import { usePlayerActions, usePlayerSonglist } from '@/store/player.store'
 
@@ -12,7 +12,7 @@ export function SonaMobileQueue() {
   const [dragging, setDragging] = useState<number | null>(null)
   const [hovered, setHovered] = useState<number | null>(null)
 
-  function startDrag(event: React.PointerEvent<HTMLButtonElement>, index: number) {
+  function startDrag(event: PointerEvent<HTMLButtonElement>, index: number) {
     if (event.pointerType === 'mouse' && event.button !== 0) return
     event.preventDefault()
     drag.current = { from: index, to: index, pointerId: event.pointerId }
@@ -21,7 +21,7 @@ export function SonaMobileQueue() {
     setHovered(index)
   }
 
-  function moveDrag(event: React.PointerEvent<HTMLButtonElement>) {
+  function moveDrag(event: PointerEvent<HTMLButtonElement>) {
     if (!drag.current || drag.current.pointerId !== event.pointerId) return
     const element = document.elementFromPoint(event.clientX, event.clientY)
     const row = element?.closest('[data-sona-queue-index]')
@@ -32,7 +32,7 @@ export function SonaMobileQueue() {
     }
   }
 
-  function finishDrag(event: React.PointerEvent<HTMLButtonElement>) {
+  function finishDrag(event: PointerEvent<HTMLButtonElement>) {
     const current = drag.current
     if (!current || current.pointerId !== event.pointerId) return
     event.preventDefault()

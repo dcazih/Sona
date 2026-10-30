@@ -1,5 +1,5 @@
-import { ChevronDown, ListMusic, ListMusicIcon, Music2 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { ChevronDown, ListMusic, Music2 } from 'lucide-react'
+import { type TouchEvent, useEffect, useRef, useState } from 'react'
 import { ImageLoader } from '@/app/components/image-loader'
 import { FullscreenControls } from '@/app/components/fullscreen/controls'
 import { LikeButton } from '@/app/components/fullscreen/like-button'
@@ -11,7 +11,6 @@ import {
   usePlayerActions,
   usePlayerCurrentSong,
   usePlayerFullscreen,
-  usePlayerSonglist,
 } from '@/store/player.store'
 
 type View = 'playing' | 'lyrics' | 'queue'
@@ -19,7 +18,6 @@ type View = 'playing' | 'lyrics' | 'queue'
 export function SonaMobileNowPlaying() {
   const { isFullscreen, setIsFullscreen } = usePlayerFullscreen()
   const song = usePlayerCurrentSong()
-  const { currentList } = usePlayerSonglist()
   const { playPrevSong, playNextSong } = usePlayerActions()
   const [view, setView] = useState<View>('playing')
   const touch = useRef<number | null>(null)
@@ -40,7 +38,7 @@ export function SonaMobileNowPlaying() {
 
   if (!isFullscreen) return null
 
-  function endArtworkSwipe(event: React.TouchEvent<HTMLDivElement>) {
+  function endArtworkSwipe(event: TouchEvent<HTMLDivElement>) {
     if (touch.current === null) return
     const distance = event.changedTouches[0].clientX - touch.current
     if (Math.abs(distance) > 85) {

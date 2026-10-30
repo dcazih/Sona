@@ -18,7 +18,7 @@ export function SonaMobileNavigation() {
 
   const isActive = (key: string) => {
     if (key === 'home') return pathname === '/'
-    if (key === 'new') return pathname === ROUTES.LIBRARY.ALBUMS && search.includes('RecentlyAdded')
+    if (key === 'new') return pathname + search === ROUTES.ALBUMS.RECENTLY_ADDED
     if (key === 'radio') return pathname === ROUTES.LIBRARY.RADIOS
     if (key === 'library') return pathname === '/mobile-library' || (
       pathname.startsWith('/library') && !isActive('new') && !isActive('radio')
