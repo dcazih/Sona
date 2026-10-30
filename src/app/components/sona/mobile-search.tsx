@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { ArrowRight, ChevronRight, Disc3, Music2, Play, Search, X } from 'lucide-react'
+import { ArrowRight, ChevronRight, Music2, Play, Search } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
@@ -7,6 +7,7 @@ import { ROUTES } from '@/routes/routesList'
 import { subsonic } from '@/service/subsonic'
 import { usePlayerActions } from '@/store/player.store'
 import { useSonaSearch, type SearchFilter } from './search-state'
+import { getMainScrollElement } from '@/utils/scrollPageToTop'
 
 type RecentItem = { id: string; title: string; subtitle: string; type: 'song' | 'album' | 'artist'; coverArt?: string; albumId?: string }
 const RECENTS_KEY = 'sona-mobile-recent-searches'
@@ -40,6 +41,9 @@ export default function SonaMobileSearch() {
   const { playSong, setSongList } = usePlayerActions()
 
   useEffect(() => {
+    // A new query must always start at the top of the result list, even
+    // when the user entered Search while scrolled far down.
+    getMainScrollElement()?.scrollTo({ top: 0, behavior: 'instant' })
     const timeout = window.setTimeout(() => setQuery(term.trim()), 240)
     return () => window.clearTimeout(timeout)
   }, [term])

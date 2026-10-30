@@ -2,6 +2,7 @@ import { Compass, House, Library, Radio, Search, X, Mic } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ROUTES } from '@/routes/routesList'
+import { getMainScrollElement } from '@/utils/scrollPageToTop'
 import { useSonaSearch } from './search-state'
 
 const tabs = [
@@ -44,23 +45,71 @@ export function SonaMobileNavigation() {
 
   useEffect(() => {
     const vp = window.visualViewport
-    if (!isSearch || !focused || !vp) {
+    if (!isSearch || !vp) {
       document.documentElement.style.setProperty('--sona-keyboard-offset', '0px')
       return
     }
+    let frame: number | null = null
     const update = () => {
-      const offset = Math.max(0, window.innerHeight - vp.height - vp.offsetTop)
-      document.documentElement.style.setProperty('--sona-keyboard-offset', offset > 110 ? Math.round(offset) + 'px' : '0px')
+      if (frame !== null) cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => {
+        // visualViewport changes continuously as iOS animates its keyboard.
+        const offset = Math.max(0, window.innerHeight - vp.height - vp.offsetTop)
+        const next = focused && offset > 100 ? Math.round(offset) : 0
+        document.documentElement.style.setProperty('--sona-keyboard-offset', next + 'px')
+        document.documentElement.style.setProperty('--sona-keyboard-visible', next > 0 ? '1' : '0')
+        frame = null
+      })
     }
     update()
     vp.addEventListener('resize', update)
     vp.addEventListener('scroll', update)
+    window.addEventListener('resize', update)
     return () => {
+      if (frame !== null) cancelAnimationFrame(frame)
       vp.removeEventListener('resize', update)
       vp.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
       document.documentElement.style.setProperty('--sona-keyboard-offset', '0px')
+      document.documentElement.style.setProperty('--sona-keyboard-visible', '0')
     }
   }, [isSearch, focused])
+
+  useEffect(() => {
+    if (!isSearch) return
+    const viewport = getMainScrollElement()
+    if (!viewport) return
+    let touchOrigin: { x: number; y: number } | null = null
+
+    function onTouchStart(event: TouchEvent) {
+      if (event.touches.length !== 1) return
+      touchOrigin = { x: event.touches[0].clientX, y: event.touches[0].clientY }
+    }
+    function onTouchMove(event: TouchEvent) {
+      if (!touchOrigin || document.activeElement !== inputRef.current) return
+      const dx = event.touches[0].clientX - touchOrigin.x
+      const dy = event.touches[0].clientY - touchOrigin.y
+      if (Math.abs(dy) > 13 && Math.abs(dy) > Math.abs(dx) * 1.15) {
+        inputRef.current?.blur()
+        setFocused(false)
+        touchOrigin = null
+      }
+    }
+    function onScroll() {
+      if (viewport && viewport.scrollTop > 25 && document.activeElement === inputRef.current) {
+        inputRef.current?.blur()
+        setFocused(false)
+      }
+    }
+    viewport.addEventListener('touchstart', onTouchStart, { passive: true })
+    viewport.addEventListener('touchmove', onTouchMove, { passive: true })
+    viewport.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      viewport.removeEventListener('touchstart', onTouchStart)
+      viewport.removeEventListener('touchmove', onTouchMove)
+      viewport.removeEventListener('scroll', onScroll)
+    }
+  }, [isSearch, setFocused])
 
   function voiceSearch() {
     const w = window as SpeechWindow
@@ -90,6 +139,7 @@ export function SonaMobileNavigation() {
 
   function stopSearch() {
     inputRef.current?.blur()
+    setFocused(false)
     recognition.current?.stop()
     setVoiceError('')
     reset()
@@ -122,13 +172,14 @@ export function SonaMobileNavigation() {
           </button>
         ))}
         <button type="button"
-          className={'sona-floating-search ' + (isSearch ? 'is-selected' : '')}
+          className={'sona-tab sona-tab-search ' + (isSearch ? 'sona-tab-active' : '')}
           aria-label="Search"
           onClick={() => {
             if (!isSearch) { navigate('/mobile-search'); return }
             if (!focused) { setFocused(true); inputRef.current?.focus() }
           }}>
-          <Search size={25} />
+          <Search size={22} strokeWidth={isSearch ? 2.6 : 1.8} />
+          <span>Search</span>
         </button>
       </nav>
       {isSearch && (
@@ -145,6 +196,7 @@ export function SonaMobileNavigation() {
               placeholder={focused ? 'Artists, songs, albums...' : 'Search Your Library'}
               value={term}
               onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
               onChange={(e) => setTerm(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Escape') stopSearch() }}
             />
