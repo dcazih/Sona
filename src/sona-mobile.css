@@ -171,3 +171,56 @@
 @media (prefers-reduced-motion: reduce) {
   .sona-now-overlay{animation:none!important}
 }
+
+/* Mobile refinements: inherit Cassette colors, remove desktop remnants. */
+@media (max-width:767px) {
+  :root { --sona-tab-height:calc(67px + env(safe-area-inset-bottom,0px)); }
+  .sona-app-shell[data-sona-has-media="false"] { --player-height:var(--sona-tab-height); }
+  .sona-app-shell[data-sona-has-media="true"] { --player-height:calc(145px + env(safe-area-inset-bottom,0px)); }
+  .sona-app-shell [data-sidebar="rail"],.sona-app-shell [data-slot="sidebar-rail"],
+  .sona-app-shell [data-slot="sidebar-gap"],.sona-app-shell [data-slot="sidebar-container"] {display:none!important}
+  .sona-app-shell [data-slot="sidebar-wrapper"]{background:#171719!important}
+  .sona-app-shell #main-scroll-area .sona-page-header {
+    background:#202024!important;border-bottom:1px solid #ffffff16!important;
+    padding:12px 18px!important;min-height:72px!important;height:auto!important;
+    position:relative!important;box-shadow:none!important;color:#f6f6f7!important;
+  }
+  .sona-app-shell #main-scroll-area .sona-page-header h2{font-size:26px!important;line-height:1.2}
+  .sona-app-shell #main-scroll-area .sona-page-header button.bg-primary {
+    background:#e84e68!important;color:#fff!important;border-radius:10px
+  }
+  .sona-app-shell #main-scroll-area .bg-background{background-color:#202024}
+  .sona-app-shell #main-scroll-area .h-empty-content{min-height:calc(100dvh - 270px);height:auto!important}
+  .sona-app-shell #main-scroll-area .border-dashed{border-color:#ffffff17;padding:22px 12px;margin:20px 0}
+  .sona-app-shell #main-scroll-area .border-dashed h3{font-size:20px!important;line-height:1.25}
+  .sona-app-shell #main-scroll-area .border-dashed p{font-size:13px!important;line-height:1.5}
+  .sona-app-shell #main-scroll-area .border-dashed button{background:#e84e68;color:white;border-radius:9px;padding-inline:18px}
+  .sona-app-shell #main-scroll-area [data-testid="card-play-button"],
+  .sona-app-shell #main-scroll-area [data-testid="card-pause-button"] {opacity:0!important;pointer-events:none!important}
+  .sona-player {
+    background:#303036ad!important;
+    backdrop-filter:blur(30px) saturate(1.8)!important;-webkit-backdrop-filter:blur(30px) saturate(1.8)!important;
+    border-color:#ffffff35!important;touch-action:pan-x;-webkit-user-select:none
+  }
+  .sona-player .sona-player-track{min-height:46px;touch-action:pan-x}
+  .sona-now-overlay {
+    visibility:hidden;pointer-events:none;opacity:0;transform:translate3d(0,100%,0);
+    touch-action:none;overscroll-behavior:none;
+    transition:transform .43s cubic-bezier(.33,.02,.24,1),opacity .32s ease-in,visibility 0s linear .43s;
+    animation:none!important;will-change:transform,opacity
+  }
+  .sona-now-overlay.is-open {
+    visibility:visible;pointer-events:auto;opacity:1;
+    transform:translate3d(0,var(--sona-drag-y,0px),0);
+    transition:transform .47s cubic-bezier(.19,1,.22,1),opacity .32s ease-out,visibility 0s
+  }
+  .sona-now-overlay.is-dragging {transition:none!important}
+  .sona-now-background{pointer-events:none}
+  .sona-now-top,.sona-now-art-area{touch-action:none}
+  .sona-now-lyrics,.sona-queue-scroller{touch-action:pan-y;overscroll-behavior:contain}
+  .sona-now-overlay:not(.is-open) * {pointer-events:none}
+  .sona-app-shell #main-scroll-area {overscroll-behavior-y:contain}
+}
+@media (prefers-reduced-motion:reduce) {
+  .sona-now-overlay,.sona-now-overlay.is-open{transition-duration:.01ms!important}
+}

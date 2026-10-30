@@ -62,6 +62,9 @@ export function HeaderItem({ song }: { song: ISong }) {
                 <div
                   className="h-full aspect-square relative group bg-skeleton rounded-lg"
                   data-testid="header-image-container"
+                  onClick={(event) => {
+                    if (window.innerWidth < 768 && !(event.target as Element).closest('button')) void handlePlaySongAlbum()
+                  }}
                 >
                   <LazyLoadImage
                     src={src}
@@ -98,6 +101,12 @@ export function HeaderItem({ song }: { song: ISong }) {
                     <Link
                       to={ROUTES.ALBUM.PAGE(song.albumId)}
                       className="w-fit"
+                      onClick={(event) => {
+                        if (window.innerWidth < 768) {
+                          event.preventDefault()
+                          void handlePlaySongAlbum()
+                        }
+                      }}
                     >
                       <h1
                         data-testid="header-title"

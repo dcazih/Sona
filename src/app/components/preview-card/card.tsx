@@ -110,11 +110,12 @@ function InfoWrapper({ children }: InfoWrapperProps) {
 
 interface TitleProps {
   link: string
+  onClick?: React.MouseEventHandler<HTMLAnchorElement>
   className?: string
   children: string
 }
 
-function Title({ link, children, className }: TitleProps) {
+function Title({ link, children, className, onClick }: TitleProps) {
   return (
     <div className="w-full truncate mt-0.5" data-testid="card-title">
       <Link
@@ -124,6 +125,7 @@ function Title({ link, children, className }: TitleProps) {
           className,
         )}
         data-testid="card-title-link"
+        onClick={onClick}
       >
         {children}
       </Link>

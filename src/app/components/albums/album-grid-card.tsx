@@ -60,6 +60,12 @@ function AlbumCard({ album }: AlbumCardProps) {
           )}
           <PreviewCard.Title
             link={ROUTES.ALBUM.PAGE(album.id)}
+            onClick={(event) => {
+              if (window.matchMedia('(max-width: 767px)').matches) {
+                event.preventDefault()
+                void playCurrentAlbum()
+              }
+            }}
             className={clsx(isAlbumPlaying && 'text-primary')}
           >
             {album.name}
