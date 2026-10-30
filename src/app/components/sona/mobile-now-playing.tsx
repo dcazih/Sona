@@ -1,5 +1,5 @@
 import { ChevronDown, ListMusic, Music2 } from 'lucide-react'
-import { type TouchEvent, useEffect, useRef, useState } from 'react'
+import { type CSSProperties, type TouchEvent, useEffect, useRef, useState } from 'react'
 import { ImageLoader } from '@/app/components/image-loader'
 import { FullscreenControls } from '@/app/components/fullscreen/controls'
 import { LikeButton } from '@/app/components/fullscreen/like-button'
@@ -14,64 +14,104 @@ import {
 } from '@/store/player.store'
 
 type View = 'playing' | 'lyrics' | 'queue'
+type Gesture = { x: number; y: number }
 
 export function SonaMobileNowPlaying() {
   const { isFullscreen, setIsFullscreen } = usePlayerFullscreen()
   const song = usePlayerCurrentSong()
   const { playPrevSong, playNextSong } = usePlayerActions()
   const [view, setView] = useState<View>('playing')
-  const touch = useRef<number | null>(null)
-  const grab = useRef<number | null>(null)
+  const [dragY, setDragY] = useState(0)
+  const gesture = useRef<Gesture | null>(null)
+  const artTouchX = useRef<number | null>(null)
 
   useEffect(() => {
-    if (!isFullscreen) setView('playing')
+    if (!isFullscreen) {
+      setView('playing')
+      setDragY(0)
+    }
   }, [isFullscreen])
 
   useEffect(() => {
     if (!isFullscreen) return
+    const previousOverflow = document.body.style.overflow
+    const previousOverscroll = document.body.style.overscrollBehaviorY
+    document.body.style.overflow = 'hidden'
+    document.body.style.overscrollBehaviorY = 'none'
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setIsFullscreen(false)
     }
     window.addEventListener('keydown', closeOnEscape)
-    return () => window.removeEventListener('keydown', closeOnEscape)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.body.style.overscrollBehaviorY = previousOverscroll
+      window.removeEventListener('keydown', closeOnEscape)
+    }
   }, [isFullscreen, setIsFullscreen])
 
-  if (!isFullscreen) return null
+  function beginSwipe(event: TouchEvent<HTMLElement>) {
+    if (!isFullscreen) return
+    if ((event.target as Element).closest('.sona-queue-scroller, .sona-now-lyrics, [role="slider"], input')) return
+    gesture.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }
+  }
+
+  function moveSwipe(event: TouchEvent<HTMLElement>) {
+    const start = gesture.current
+    if (!start) return
+    const dx = event.touches[0].clientX - start.x
+    const dy = event.touches[0].clientY - start.y
+    if (dy > 0 && dy > Math.abs(dx) * 1.15) {
+      setDragY(Math.min(dy, window.innerHeight))
+      if (event.cancelable) event.preventDefault()
+    } else if (dragY !== 0 && dy <= 0) {
+      setDragY(0)
+    }
+  }
+
+  function endSwipe(event: TouchEvent<HTMLElement>) {
+    const start = gesture.current
+    gesture.current = null
+    if (!start) return
+    const dx = event.changedTouches[0].clientX - start.x
+    const dy = event.changedTouches[0].clientY - start.y
+    setDragY(0)
+    if (dy > 100 && dy > Math.abs(dx) * 1.15) setIsFullscreen(false)
+  }
 
   function endArtworkSwipe(event: TouchEvent<HTMLDivElement>) {
-    if (touch.current === null) return
-    const distance = event.changedTouches[0].clientX - touch.current
-    if (Math.abs(distance) > 85) {
+    if (artTouchX.current === null) return
+    const distance = event.changedTouches[0].clientX - artTouchX.current
+    if (Math.abs(distance) > 85 && dragY === 0) {
       if (distance < 0) playNextSong()
       else playPrevSong()
     }
-    touch.current = null
+    artTouchX.current = null
   }
 
   return (
-    <div className="sona-now-overlay" role="dialog" aria-modal="true" aria-label="Now Playing">
+    <div
+      className={'sona-now-overlay ' + (isFullscreen ? 'is-open' : '') + (dragY > 0 ? ' is-dragging' : '')}
+      role="dialog"
+      aria-modal={isFullscreen ? 'true' : undefined}
+      aria-hidden={!isFullscreen}
+      aria-label="Now Playing"
+      style={{ '--sona-drag-y': String(dragY) + 'px' } as CSSProperties}
+    >
       <div className="sona-now-background" />
-      <div className="sona-now-top">
-        <button
-          className="sona-now-dismiss" type="button" aria-label="Close Now Playing"
-          onClick={() => setIsFullscreen(false)}
-          onPointerDown={(event) => { grab.current = event.clientY }}
-          onPointerUp={(event) => {
-            if (grab.current !== null && event.clientY - grab.current > 75) setIsFullscreen(false)
-            grab.current = null
-          }}
-        ><ChevronDown size={29} strokeWidth={1.7} /></button>
+      <div className="sona-now-top" onTouchStart={beginSwipe} onTouchMove={moveSwipe} onTouchEnd={endSwipe}>
+        <button className="sona-now-dismiss" type="button" aria-label="Close Now Playing"
+          onClick={() => setIsFullscreen(false)}>
+          <ChevronDown size={29} strokeWidth={1.7} />
+        </button>
         <span className="sona-now-label">NOW PLAYING</span>
         <span className="sona-now-top-empty" aria-hidden="true" />
       </div>
 
-      <div className="sona-now-stage">
+      <div className="sona-now-stage" onTouchStart={beginSwipe} onTouchMove={moveSwipe} onTouchEnd={endSwipe}>
         {view === 'playing' && (
-          <div
-            className="sona-now-art-area"
-            onTouchStart={(event) => { touch.current = event.touches[0].clientX }}
-            onTouchEnd={endArtworkSwipe}
-          >
+          <div className="sona-now-art-area"
+            onTouchStart={(event) => { artTouchX.current = event.touches[0].clientX }}
+            onTouchEnd={endArtworkSwipe}>
             <div className="sona-now-art">
               {song?.coverArt ? (
                 <ImageLoader id={song.coverArt} type="song" size={800}>
