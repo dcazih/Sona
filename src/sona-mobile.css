@@ -431,3 +431,203 @@
   .sona-am-search-page,.sona-am-in,.sona-search-dock,.sona-search-dock-field,
   .sona-search-library-toggle{animation:none!important;transition-duration:.01ms!important}
 }
+
+/* Sona mobile polish: content passes underneath a pinned translucent top bar;
+   album details get their own row and mobile playback gets a real touch target. */
+@media (max-width:767px) {
+  html,body,#root,.sona-app-shell {
+    overscroll-behavior-y:none!important;
+    overflow:hidden!important;
+  }
+  .sona-app-shell [data-slot="sidebar-wrapper"] {
+    padding-top:0!important;
+    overscroll-behavior-y:none!important;
+  }
+  .sona-app-shell #main-scroll-area #scroll-viewport {
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-y:contain!important;
+  }
+  .sona-app-shell #main-scroll-area #scroll-viewport > div {
+    padding-top:var(--header-height);
+    min-height:100%;
+  }
+  .sona-app-shell:has(.sona-am-search-page) #main-scroll-area #scroll-viewport > div {
+    padding-top:env(safe-area-inset-top,0px);
+  }
+  .sona-header {
+    position:fixed!important;top:0!important;z-index:70!important;
+    background:rgba(25,25,30,.58)!important;
+    border-bottom:1px solid #ffffff2a!important;
+    box-shadow:0 8px 22px #00000016!important;
+    -webkit-backdrop-filter:blur(32px) saturate(1.8)!important;
+    backdrop-filter:blur(32px) saturate(1.8)!important;
+  }
+  .sona-refresh-button {
+    width:39px;height:39px;flex:none;border-radius:50%;
+    display:grid;place-items:center;color:#dedee5;
+    background:#ffffff14;border:1px solid #ffffff19;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .sona-refresh-button:active{background:#ffffff29;transform:scale(.94)}
+  .sona-refresh-button:disabled{opacity:.55}
+  .sona-pull-refresh {
+    position:fixed;z-index:69;top:calc(var(--header-height) + 6px);
+    left:50%;transform:translate(-50%,calc(-58px + var(--sona-pull-distance,0px)));
+    opacity:0;pointer-events:none;
+    transition:opacity .18s,transform .22s cubic-bezier(.22,.8,.22,1);
+    white-space:nowrap;
+  }
+  .sona-pull-refresh[data-visible="true"]{opacity:1}
+  .sona-pull-refresh.is-refreshing{transform:translate(-50%,4px)}
+  .sona-pull-refresh-pill{
+    display:flex;align-items:center;gap:9px;padding:10px 16px;
+    background:#2d2d36d9;color:#f6f6f8;border:1px solid #ffffff35;
+    border-radius:24px;font-size:12px;font-weight:680;
+    box-shadow:0 8px 28px #0008;
+    -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+  }
+  .sona-pull-refresh.is-refreshing svg{animation:sona-refresh-spin .9s linear infinite}
+  @keyframes sona-refresh-spin{to{transform:rotate(360deg)}}
+
+  .sona-player[data-mobile-active="true"]{
+    background:rgba(45,45,52,.48)!important;
+    border:1px solid #ffffff46!important;
+    -webkit-backdrop-filter:blur(34px) saturate(1.8)!important;
+    backdrop-filter:blur(34px) saturate(1.8)!important;
+    box-shadow:0 12px 27px #0007!important;
+  }
+  .sona-player-layout {background:transparent!important}
+
+  .sona-album-page{overflow:visible!important;background:#171719}
+  .sona-album-page > .sticky {display:none!important}
+  .sona-album-page .sona-album-hero {
+    position:relative!important;display:block!important;
+    width:100%!important;height:auto!important;min-height:0!important;
+    isolation:isolate;overflow:visible!important;
+  }
+  .sona-album-page .sona-album-hero-inner {
+    position:relative!important;inset:auto!important;width:100%!important;
+    min-height:0!important;display:flex!important;flex-direction:column!important;
+    align-items:center!important;justify-content:center!important;
+    gap:18px!important;padding:22px 20px 24px!important;
+    background-image:linear-gradient(180deg,rgba(10,10,13,.16),rgba(23,23,25,.95))!important;
+  }
+  .sona-album-page .sona-album-cover {
+    width:min(70vw,300px)!important;height:auto!important;
+    min-width:0!important;min-height:0!important;max-width:300px!important;
+    flex:none!important;aspect-ratio:1;
+    border-radius:13px!important;overflow:hidden!important;
+    box-shadow:0 15px 42px #000b,0 2px 9px #0008!important;
+    transform:none!important;
+  }
+  .sona-album-page .sona-album-cover img {width:100%!important;height:100%!important;
+    object-fit:cover!important;border-radius:13px}
+  .sona-album-page .sona-album-meta {
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    display:flex!important;flex-direction:column!important;align-items:center!important;
+    justify-content:center!important;text-align:center!important;gap:5px!important;
+    z-index:2!important;overflow:visible!important;
+  }
+  .sona-album-page .sona-album-meta >p:first-child{
+    color:#d1d1d6;font-size:11px;letter-spacing:.11em;font-weight:780;text-transform:uppercase;
+  }
+  .sona-album-page .sona-album-meta h1 {
+    font-size:clamp(24px,7vw,32px)!important;line-height:1.12!important;
+    font-weight:820!important;letter-spacing:-.045em!important;
+    width:100%!important;max-width:100%!important;
+    overflow-wrap:break-word;line-clamp:unset!important;
+    -webkit-line-clamp:unset!important;display:block!important;
+  }
+  .sona-album-page .sona-album-meta >div.flex.items-center.mt-2{
+    flex-direction:column!important;justify-content:center!important;
+    align-items:center!important;gap:9px!important;width:100%;min-width:0;
+  }
+  .sona-album-page .sona-album-meta .flex.text-sm {
+    display:flex!important;flex-wrap:wrap!important;align-items:center!important;
+    justify-content:center!important;gap:2px 0!important;line-height:1.45;
+    max-width:100%;white-space:normal;
+  }
+  .sona-album-page .sona-album-meta a,.sona-album-page .sona-album-meta p {
+    max-width:100%;white-space:normal!important;
+  }
+  .sona-album-page .sona-album-hero-effect {
+    position:absolute!important;top:calc(100% - 48px)!important;
+    height:118px!important;z-index:0!important;
+    opacity:.52;pointer-events:none;
+    -webkit-mask-image:linear-gradient(#000 0%,transparent 100%);
+    mask-image:linear-gradient(#000 0%,transparent 100%);
+  }
+  .sona-album-page .sona-album-hero+*{position:relative;z-index:1}
+  .sona-album-page .sona-album-hero .absolute.inset-0.z-20 {
+    pointer-events:none;
+  }
+  .sona-album-page .sona-album-songs{
+    width:100%;padding:18px 0 18px;
+    background:transparent;
+  }
+  .sona-album-songs-heading{display:flex;align-items:baseline;justify-content:space-between;
+    margin:4px 0 11px;padding:0 5px;gap:9px}
+  .sona-album-songs-heading strong{font-size:20px;font-weight:760;letter-spacing:-.03em}
+  .sona-album-songs-heading span{font-size:12px;color:#a9a9b2}
+  .sona-album-song-row{
+    display:flex;align-items:center;gap:5px;min-height:66px;
+    border-bottom:1px solid #ffffff18;
+    padding:2px 0;
+  }
+  .sona-album-song-row.is-playing{background:#fa627908;border-radius:8px}
+  .sona-album-song-select {
+    flex:1;min-width:0;display:flex;align-items:center;gap:9px;
+    min-height:62px;padding:7px 0;
+    color:#f7f7fb;text-align:left;touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .sona-album-song-select:active{opacity:.65}
+  .sona-album-song-index {width:24px;min-width:24px;flex:none;
+    display:grid;place-items:center;color:#9696a1;font-size:13px;font-variant-numeric:tabular-nums}
+  .sona-album-song-row.is-playing .sona-album-song-index{color:#ff7794}
+  .sona-album-song-art {width:42px;height:42px;flex:none;display:grid;place-items:center;
+    border-radius:7px;background:#33333b;color:#aeb0b7;overflow:hidden}
+  .sona-album-song-art img{width:100%;height:100%;object-fit:cover}
+  .sona-album-song-text{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+  .sona-album-song-text strong{font-size:14px;font-weight:630;line-height:1.2}
+  .sona-album-song-text small{font-size:11.5px;color:#a5a5ae;line-height:1.1}
+  .sona-album-song-text strong,.sona-album-song-text small{
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sona-album-song-row.is-playing .sona-album-song-text strong{color:#ff7890}
+  .sona-album-song-duration {min-width:30px;flex:none;color:#94949d;
+    text-align:right;font-size:11px;font-weight:510;font-variant-numeric:tabular-nums}
+  .sona-album-song-more{width:36px;height:44px;flex:none;display:grid;place-items:center;
+    color:#b8b8c0;touch-action:manipulation}
+  .sona-album-page .sona-album-songs~*{max-width:100%}
+
+  .sona-now-stage {overflow:visible!important;isolation:isolate;
+    padding-bottom:24px!important}
+  .sona-now-art-area{overflow:visible!important;min-height:0!important}
+  .sona-now-art{
+    position:relative!important;overflow:visible!important;
+    box-shadow:0 27px 55px #0009,0 8px 22px #0007!important;
+    margin-bottom:14px!important;z-index:1;
+  }
+  .sona-now-art:after{content:"";position:absolute;z-index:-1;
+    left:7%;right:7%;bottom:-17px;height:45px;border-radius:50%;
+    background:#0009;filter:blur(18px);pointer-events:none}
+  .sona-now-art img{width:100%;height:100%;border-radius:12px!important;
+    object-fit:cover;overflow:hidden}
+  .sona-now-panel{position:relative;z-index:3;background:transparent!important;
+    padding-top:13px!important}
+  .sona-now-progress{width:100%!important;margin-top:8px!important}
+  .sona-mobile-progress{display:flex;flex-direction:column;gap:0;width:100%;
+    padding:0!important}
+  .sona-mobile-scrubber{width:100%!important;height:23px!important;
+    margin:0!important;touch-action:none}
+  .sona-mobile-scrubber [data-radix-slider-track] {height:4px}
+  .sona-mobile-progress-times{display:flex;justify-content:space-between;
+    align-items:center;width:100%;padding:0 2px;gap:16px;
+    color:#ded3dbca;font-size:11px;font-weight:520;
+    font-variant-numeric:tabular-nums;line-height:1.15}
+  .sona-mobile-progress-times>span:last-child{text-align:right;margin-left:auto}
+  .sona-now-transport{margin:17px 0 12px!important}
+  .sona-now-song-info{margin-bottom:0!important}
+}
+@media(min-width:768px) {.sona-refresh-button,.sona-pull-refresh{display:none!important}}
+@media(prefers-reduced-motion:reduce){.sona-pull-refresh{transition:none!important}}
