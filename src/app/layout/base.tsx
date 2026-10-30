@@ -11,6 +11,7 @@ import {
   MainSidebarProvider,
 } from '@/app/components/ui/main-sidebar'
 import { Header } from '@/app/layout/header'
+import { SonaMobileNavigation } from '@/app/components/sona/mobile-navigation'
 import { MainRoutes } from './main'
 
 const MemoHeader = memo(Header)
@@ -30,6 +31,7 @@ export default function BaseLayout() {
           <MainRoutes />
         </MainSidebarInset>
         <MemoPlayer />
+        <SonaMobileNavigation />
       </MainSidebarProvider>
       <MemoSongInfoDialog />
       <MemoRemovePlaylistDialog />

@@ -192,6 +192,7 @@ export interface IPlayerActions {
   setNextOnQueue: (songlist: ISong[]) => void
   setLastOnQueue: (songlist: ISong[]) => void
   removeSongFromQueue: (id: string) => void
+  reorderQueue: (from: number, to: number) => void
   setMainDrawerState: (state: boolean) => void
   setQueueState: (state: boolean) => void
   toggleQueueAction: () => void

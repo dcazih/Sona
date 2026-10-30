@@ -734,6 +734,30 @@ export const usePlayerStore = createWithEqualityFn<IPlayerContext>()(
                 }),
               )
             },
+            // Reorder by index so playback continues at the same song and timestamp.
+            // A manual move becomes the new queue order without resetting the player.
+            reorderQueue: (from, to) => {
+              const { currentList, currentSongIndex } = get().songlist
+              if (
+                !Number.isInteger(from) || !Number.isInteger(to) ||
+                from < 0 || to < 0 || from >= currentList.length ||
+                to >= currentList.length || from === to
+              ) return
+              const reordered = [...currentList]
+              const [moved] = reordered.splice(from, 1)
+              reordered.splice(to, 0, moved)
+              const current = currentList[currentSongIndex]
+              const nextIndex = reordered.findIndex((item) => item === current)
+              set((state) => {
+                state.songlist.currentList = reordered
+                state.songlist.originalList = reordered
+                state.songlist.shuffledList = reordered
+                state.songlist.currentSongIndex = nextIndex
+                state.songlist.originalSongIndex = nextIndex
+                state.playerState.isShuffleActive = false
+                state.playerState.playbackContext.source = null
+              })
+            },
             removeSongFromQueue: (id) => {
               const {
                 currentList,

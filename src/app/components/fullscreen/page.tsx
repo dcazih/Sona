@@ -1,6 +1,8 @@
 import { memo } from 'react'
 import { Drawer, DrawerContent, DrawerTitle } from '@/app/components/ui/drawer'
 import { useAppWindow } from '@/app/hooks/use-app-window'
+import { useIsMobile } from '@/app/hooks/use-mobile'
+import { SonaMobileNowPlaying } from '@/app/components/sona/mobile-now-playing'
 import { usePlayerFullscreen } from '@/store/player.store'
 import { FullscreenBackdrop } from './backdrop'
 import { FullscreenDragHandler } from './drag-handler'
@@ -11,7 +13,10 @@ const MemoFullscreenBackdrop = memo(FullscreenBackdrop)
 
 export function FullscreenMode() {
   const { handleDrawerAnimationEnd } = useAppWindow()
+  const isMobile = useIsMobile()
   const { isFullscreen, setIsFullscreen } = usePlayerFullscreen()
+
+  if (isMobile) return <SonaMobileNowPlaying />
 
   return (
     <Drawer

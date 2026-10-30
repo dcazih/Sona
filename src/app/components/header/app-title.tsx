@@ -1,12 +1,10 @@
-import { AppIcon } from '@/app/components/app-icon'
+import { Music2 } from 'lucide-react'
 
 export function AppTitle() {
   return (
     <div className="flex gap-2 items-center">
-      <AppIcon size={24} />
-      <span className="leading-7 text-sm font-medium text-muted-foreground">
-        Aonsoku
-      </span>
+      <span className="sona-brand-mark"><Music2 size={19} strokeWidth={2.5} /></span>
+      <span className="sona-brand-label">Sona</span>
     </div>
   )
 }

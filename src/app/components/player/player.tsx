@@ -13,6 +13,7 @@ import {
   usePlayerLoop,
   usePlayerMediaType,
   usePlayerRef,
+  usePlayerFullscreen,
   usePlayerSonglist,
   usePlayerStore,
   useReplayGainState,
@@ -50,6 +51,7 @@ const MemoMiniPlayerButton = memo(MiniPlayerButton)
 
 export function Player() {
   const hideFavoritesSection = useAppStore().pages.hideFavoritesSection
+  const { setIsFullscreen } = usePlayerFullscreen()
   const audioRef = useRef<HTMLAudioElement>(null)
   const radioRef = useRef<HTMLAudioElement>(null)
   const podcastRef = useRef<HTMLAudioElement>(null)
@@ -211,10 +213,10 @@ export function Player() {
   }, [song, replayGainDefaultGain, replayGainPreAmp, replayGainType])
 
   return (
-    <footer className="sona-player border-t h-[--player-height] w-full flex items-center fixed bottom-0 left-0 right-0 z-40 bg-background">
+    <footer data-mobile-active={Boolean(song || radio || podcast)} className="sona-player border-t h-[--player-height] w-full flex items-center fixed bottom-0 left-0 right-0 z-40 bg-background">
       <div className="sona-player-layout w-full h-full grid grid-cols-player gap-2 px-4">
         {/* Track Info */}
-        <div className="sona-player-track flex items-center gap-2 w-full min-w-0">
+        <div className="sona-player-track flex items-center gap-2 w-full min-w-0" onClick={(event) => { if (song && !(event.target as HTMLElement).closest("a, button")) setIsFullscreen(true) }}>
           {isSong && <MemoTrackInfo song={song} />}
           {isRadio && <MemoRadioInfo radio={radio} />}
           {isPodcast && <MemoPodcastInfo podcast={podcast} />}
