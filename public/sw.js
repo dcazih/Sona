@@ -1,14 +1,22 @@
-const APP_CACHE = 'sona-app-v1'
+/* Sona service worker: network-first application updates, opt-in audio cache.
+   Previous cache-first JS/CSS/favicon policy could freeze old branding/UI. */
+const APP_CACHE = 'sona-app-v4'
 const MEDIA_CACHE = 'sona-media-v1'
 let mediaPreferences = { enabled: true, maxTracks: 5, allowCellular: false }
 
 self.addEventListener('install', () => self.skipWaiting())
-self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()))
+self.addEventListener('activate', (event) => event.waitUntil((async () => {
+  const keys = await caches.keys()
+  await Promise.all(keys.filter((key) => key.startsWith('sona-app-') && key !== APP_CACHE)
+    .map((key) => caches.delete(key)))
+  await self.clients.claim()
+})()))
 
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'sona-media-cache-preferences') {
     mediaPreferences = { ...mediaPreferences, ...event.data }
   }
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting()
 })
 
 async function trimMediaCache(cache) {
@@ -22,14 +30,15 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return
   const url = new URL(request.url)
   if (url.origin !== self.location.origin) return
-  const isStream = /\/rest\/stream(?:\.view)?/.test(url.pathname)
-  if (isStream) {
+
+  if (/\/rest\/stream(?:\.view)?/.test(url.pathname)) {
     event.respondWith((async () => {
+      if (!mediaPreferences.enabled) return fetch(request)
       const cache = await caches.open(MEDIA_CACHE)
       const cached = await cache.match(request)
       if (cached) return cached
       const response = await fetch(request)
-      if (mediaPreferences.enabled && response.ok && response.type === 'basic') {
+      if (response.ok && response.type === 'basic') {
         await cache.put(request, response.clone())
         await trimMediaCache(cache)
       }
@@ -37,14 +46,23 @@ self.addEventListener('fetch', (event) => {
     })())
     return
   }
-  if (url.pathname.endsWith('.js') || url.pathname.endsWith('.css') || url.pathname.endsWith('.woff') || url.pathname.endsWith('.woff2') || url.pathname.endsWith('.ttf') || url.pathname.endsWith('.png') || url.pathname.endsWith('.svg')) {
+
+  // Never cache the app shell or authentication endpoints. Network-first
+  // assets ensure a new deployment does not retain a stale theme/favicon.
+  if (request.mode === 'navigate' || /\/(?:rest|api)\//.test(url.pathname)) return
+
+  if (/\.(?:js|css|woff2?|ttf|png|svg|ico|webp)$/.test(url.pathname)) {
     event.respondWith((async () => {
       const cache = await caches.open(APP_CACHE)
-      const cached = await cache.match(request)
-      if (cached) return cached
-      const response = await fetch(request)
-      if (response.ok) await cache.put(request, response.clone())
-      return response
+      try {
+        const response = await fetch(request, { cache: 'no-cache' })
+        if (response.ok) await cache.put(request, response.clone())
+        return response
+      } catch (error) {
+        const cached = await cache.match(request)
+        if (cached) return cached
+        throw error
+      }
     })())
   }
 })
