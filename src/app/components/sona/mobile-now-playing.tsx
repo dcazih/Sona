@@ -4,7 +4,7 @@ import { ImageLoader } from '@/app/components/image-loader'
 import { FullscreenControls } from '@/app/components/fullscreen/controls'
 import { LikeButton } from '@/app/components/fullscreen/like-button'
 import { LyricsTab } from '@/app/components/fullscreen/lyrics'
-import { FullscreenProgress } from '@/app/components/fullscreen/progress'
+import { SonaMobileProgress } from '@/app/components/sona/mobile-progress'
 import { VolumeContainer } from '@/app/components/fullscreen/volume-container'
 import { SonaMobileQueue } from '@/app/components/sona/mobile-queue'
 import {
@@ -133,7 +133,7 @@ export function SonaMobileNowPlaying() {
           </div>
           <LikeButton />
         </div>
-        <div className="sona-now-progress"><FullscreenProgress /></div>
+        <div className="sona-now-progress"><SonaMobileProgress /></div>
         <div className="sona-now-transport"><FullscreenControls /></div>
         <div className="sona-now-bottom-actions">
           <button type="button" aria-label="Show lyrics" aria-pressed={view === 'lyrics'}

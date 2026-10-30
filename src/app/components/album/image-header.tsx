@@ -59,7 +59,8 @@ export default function ImageHeader({
       {(src, isLoading) => (
         <div
           id="image-header-container"
-          className="flex relative w-full h-[calc(3rem+200px)] 2xl:h-[calc(3rem+250px)]"
+          className="sona-album-hero" data-header="mobile-responsive"
+          data-original-class="flex relative w-full h-[calc(3rem+200px)] 2xl:h-[calc(3rem+250px)]"
           key={`header-${coverArtId}`}
         >
           {isLoading && (
@@ -69,14 +70,14 @@ export default function ImageHeader({
           )}
           <div
             className={cn(
-              'w-full px-8 py-6 flex gap-4 absolute inset-0',
+              'sona-album-hero-inner w-full px-8 py-6 flex gap-4 absolute inset-0',
               'bg-gradient-to-b from-background/20 to-background/50',
             )}
             style={{ backgroundColor: bgColor }}
           >
             <div
               className={cn(
-                'w-[200px] h-[200px] min-w-[200px] min-h-[200px]',
+                'sona-album-cover w-[200px] h-[200px] min-w-[200px] min-h-[200px]',
                 '2xl:w-[250px] 2xl:h-[250px] 2xl:min-w-[250px] 2xl:min-h-[250px]',
                 'bg-skeleton aspect-square bg-cover bg-center rounded',
                 'shadow-header-image overflow-hidden relative',
@@ -105,7 +106,7 @@ export default function ImageHeader({
               />
             </div>
 
-            <div className="flex w-full max-w-[calc(100%-216px)] 2xl:max-w-[calc(100%-266px)] flex-col justify-end z-10">
+            <div className="sona-album-meta flex w-full max-w-[calc(100%-216px)] 2xl:max-w-[calc(100%-266px)] flex-col justify-end z-10">
               <p className="text-xs 2xl:text-sm font-medium text-shadow-md">
                 {type}
               </p>
@@ -156,9 +157,9 @@ export default function ImageHeader({
           </div>
 
           {isLoading ? (
-            <ImageHeaderEffect className="bg-muted-foreground" />
+            <ImageHeaderEffect className="sona-album-hero-effect bg-muted-foreground" />
           ) : (
-            <ImageHeaderEffect style={{ backgroundColor: bgColor }} />
+            <ImageHeaderEffect className="sona-album-hero-effect" style={{ backgroundColor: bgColor }} />
           )}
 
           <CustomLightBox

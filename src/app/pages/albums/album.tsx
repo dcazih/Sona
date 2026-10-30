@@ -10,6 +10,7 @@ import { PreviewListFallback } from '@/app/components/fallbacks/home-fallbacks'
 import { BadgesData } from '@/app/components/header-info'
 import PreviewList from '@/app/components/home/preview-list'
 import ListWrapper from '@/app/components/list-wrapper'
+import { SonaMobileAlbumTracks } from '@/app/components/sona/mobile-album-tracks'
 import { DataTable } from '@/app/components/ui/data-table'
 import {
   useGetAlbum,
@@ -115,7 +116,7 @@ export default function Album() {
   const albumComment = album.song.length > 0 ? album.song[0].comment : null
 
   return (
-    <div className="w-full relative">
+    <div className="sona-album-page w-full relative">
       <AlbumStickyHeader album={album} />
 
       <ImageHeader
@@ -136,7 +137,8 @@ export default function Album() {
       <ListWrapper>
         <AlbumInfo album={album} />
 
-        <DataTable
+        <div className="md:hidden"><SonaMobileAlbumTracks album={album} /></div>
+        <div className="hidden md:block"><DataTable
           columns={columns}
           data={album.song}
           handlePlaySong={(row) =>
@@ -150,7 +152,7 @@ export default function Album() {
           showDiscNumber={true}
           variant="modern"
           enableVirtualization={true}
-        />
+        /></div>
 
         {albumComment && <AlbumComment comment={albumComment} />}
 
