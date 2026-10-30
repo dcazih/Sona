@@ -1,6 +1,7 @@
 import { NavigationButtons } from '@/app/components/header/navigation-buttons'
 import { AppTitle } from '@/app/components/header/app-title'
 import { UserDropdown } from '@/app/components/header/user-dropdown'
+import { SonaMobileAccount } from '@/app/components/sona/mobile-account'
 import { HeaderSongInfo } from '@/app/components/header-song'
 import { SettingsButton } from '@/app/components/settings/header-button'
 import { MainSidebarTrigger } from '@/app/components/ui/main-sidebar'
@@ -21,7 +22,8 @@ export function Header() {
       <div className="flex items-center justify-center min-w-0 md:hidden"><AppTitle /></div>
       <div className="flex justify-end items-center gap-2">
         <div className="sona-desktop-settings"><SettingsButton /></div>
-        <UserDropdown />
+        <div className="sona-desktop-account"><UserDropdown /></div>
+        <SonaMobileAccount />
         {isWindows && !isFullscreen && <div className="w-[122px]" />}
         {isLinux && !isFullscreen && <div className="w-[94px]" />}
       </div>

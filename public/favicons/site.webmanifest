@@ -1,13 +1,22 @@
 {
-  "name": "Aonsoku",
-  "short_name": "Aonsoku",
-  "description": "A modern desktop client for Navidrome/Subsonic servers.",
-  "theme_color": "#060E23",
-  "categories": ["music", "entertainment"],
-  "background_color": "#20b358",
+  "name": "Sona",
+  "short_name": "Sona",
+  "description": "Your music, wherever you are. A mobile-friendly music player for your Navidrome library.",
+  "theme_color": "#202024",
+  "categories": [
+    "music",
+    "entertainment"
+  ],
+  "background_color": "#171719",
   "start_url": "/",
   "display": "standalone",
   "icons": [
+    {
+      "src": "/sona-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "/favicons/android-chrome-192x192.png",
       "sizes": "192x192",
