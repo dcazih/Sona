@@ -1,225 +1,180 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
-import clsx from 'clsx'
-import { Loader2 } from 'lucide-react'
+import { ChevronDown, Loader2, LockKeyhole, Server, UserRound } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-
 import { toast } from 'react-toastify'
 import { z } from 'zod'
 import { queryServerInfo } from '@/api/queryServerInfo'
 import { LangToggle } from '@/app/components/login/lang-toggle'
 import { Button } from '@/app/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/app/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/app/components/ui/dialog'
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/app/components/ui/form'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/app/components/ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/app/components/ui/collapsible'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/app/components/ui/dialog'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/app/components/ui/form'
 import { Input } from '@/app/components/ui/input'
 import { Password } from '@/app/components/ui/password'
 import { ROUTES } from '@/routes/routesList'
-import { useAppActions, useAppData } from '@/store/app.store'
-import { isDesktop } from '@/utils/desktop'
+import { useAppActions } from '@/store/app.store'
 import { removeSlashFromUrl } from '@/utils/removeSlashFromUrl'
 
+const DEFAULT_SERVER = 'https://homelab.hippocampus-polaris.ts.net'
 const loginSchema = z.object({
-  url: z
-    .string()
+  url: z.string()
     .url({ message: 'login.form.validations.url' })
-    .refine((value) => /^https?:\/\//.test(value), {
-      message: 'login.form.validations.protocol',
-    }),
-  username: z.string({ required_error: 'login.form.validations.username' }),
-  password: z.string({ required_error: 'login.form.validations.password' }),
+    .refine((value) => /^https?:\/\//.test(value), { message: 'login.form.validations.protocol' }),
+  username: z.string().min(1, 'login.form.validations.username'),
+  password: z.string().min(1, 'login.form.validations.password'),
 })
-
 type FormData = z.infer<typeof loginSchema>
+const defaultServer = (window.SERVER_URL && /^https?:\/\//.test(window.SERVER_URL))
+  ? window.SERVER_URL
+  : DEFAULT_SERVER
 
-const defaultUrl = isDesktop() ? 'http://' : 'https://'
-const url = window.SERVER_URL || defaultUrl
-const urlIsValid = url !== defaultUrl
+function normalizeServer(value: string) {
+  const trimmed = value.trim()
+  if (!trimmed) return trimmed
+  return removeSlashFromUrl(/^https?:\/\//i.test(trimmed) ? trimmed : 'https://' + trimmed)
+}
+
+function displayServer(value: string) {
+  return value.replace(/^https?:\/\//i, '').replace(/\/+$/, '') || 'Choose a server'
+}
 
 export function LoginForm() {
   const [loading, setLoading] = useState(false)
+  const [serverOpen, setServerOpen] = useState(false)
   const [serverIsIncompatible, setServerIsIncompatible] = useState(false)
   const { saveConfig } = useAppActions()
-  const { hideServer } = useAppData()
   const navigate = useNavigate()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
 
-  const shouldHideUrlInput = urlIsValid && hideServer
-
   const form = useForm<FormData>({
     resolver: zodResolver(loginSchema),
-    values: {
-      url,
-      username: '',
-      password: '',
-    },
+    defaultValues: { url: defaultServer, username: '', password: '' },
   })
+  const currentServer = form.watch('url')
 
   async function onSubmit(data: FormData, forceCompatible?: boolean) {
+    if (loading) return
     setLoading(true)
-
-    // Check if server is compatible
-    const serverInfo = await queryServerInfo(removeSlashFromUrl(data.url))
-
-    // If server version is lower than 1.15.0
-    if (serverInfo.protocolVersionNumber < 1150 && forceCompatible !== true) {
-      setServerIsIncompatible(true)
-      setLoading(false)
-      return
-    } else {
+    try {
+      const serverUrl = normalizeServer(data.url)
+      const serverInfo = await queryServerInfo(serverUrl)
+      if (serverInfo.protocolVersionNumber < 1150 && forceCompatible !== true) {
+        setServerIsIncompatible(true)
+        return
+      }
       setServerIsIncompatible(false)
-    }
-
-    const status = await saveConfig({
-      ...data,
-      url: removeSlashFromUrl(data.url),
-    })
-
-    if (status) {
-      await queryClient.invalidateQueries()
-      toast.success(t('toast.server.success'))
-      navigate(ROUTES.LIBRARY.HOME, { replace: true })
-    } else {
-      setLoading(false)
+      const status = await saveConfig({ ...data, url: serverUrl })
+      if (status) {
+        await queryClient.invalidateQueries()
+        toast.success(t('toast.server.success'))
+        navigate(ROUTES.LIBRARY.HOME, { replace: true })
+      } else {
+        toast.error(t('toast.server.error'))
+      }
+    } catch {
       toast.error(t('toast.server.error'))
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
     <>
-      <Card className="w-[450px] max-w-[calc(100vw-2rem)] bg-background-foreground">
+      <Card className="sona-login-card">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((data) => onSubmit(data))}>
-            <CardHeader className="flex">
-              <CardTitle className="flex flex-row justify-between items-center">
-                {t('login.form.server')}
-                <div className="flex gap-2 items-center">
-                  <LangToggle />
-                </div>
-              </CardTitle>
-              <CardDescription>{t('login.form.description')}</CardDescription>
+          <form noValidate onSubmit={form.handleSubmit(
+            (data) => onSubmit(data),
+            (errors) => { if (errors.url) setServerOpen(true) },
+          )}>
+            <CardHeader className="sona-login-card-header">
+              <div>
+                <p className="sona-login-section-label">SIGN IN</p>
+                <CardTitle>Connect to your music</CardTitle>
+                <p className="sona-login-card-subtitle">Sign in with your Navidrome account.</p>
+              </div>
+              <div className="sona-login-language" aria-label="Language"><LangToggle /></div>
             </CardHeader>
-
-            <CardContent className="space-y-2">
-              <FormField
-                control={form.control}
-                name="url"
-                render={({ field }) => (
-                  <FormItem className={clsx(shouldHideUrlInput && 'hidden')}>
-                    <FormLabel className="required">
-                      {t('login.form.url')}
-                    </FormLabel>
+            <CardContent className="sona-login-fields">
+              <FormField control={form.control} name="username" render={({ field }) => (
+                <FormItem className="sona-login-field">
+                  <FormLabel>{t('login.form.username')}</FormLabel>
+                  <div className="sona-login-input-wrap">
+                    <UserRound size={19} strokeWidth={1.8} aria-hidden="true" />
                     <FormControl>
-                      <Input
-                        {...field}
-                        id="url"
-                        type="text"
-                        placeholder={t('login.form.urlDescription')}
-                        autoCorrect="false"
-                        autoCapitalize="false"
-                        spellCheck="false"
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {t('login.form.urlDescription')}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem className={clsx(shouldHideUrlInput && '!mt-0')}>
-                    <FormLabel className="required">
-                      {t('login.form.username')}
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        value={field.value ?? ''}
-                        id="username"
-                        type="text"
+                      <Input {...field} id="username" type="text" autoComplete="username"
                         placeholder={t('login.form.usernamePlaceholder')}
-                        autoCorrect="false"
-                        autoCapitalize="false"
-                        spellCheck="false"
-                      />
+                        autoCorrect="off" autoCapitalize="none" spellCheck={false} />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="required">
-                      {t('login.form.password')}
-                    </FormLabel>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="password" render={({ field }) => (
+                <FormItem className="sona-login-field">
+                  <FormLabel>{t('login.form.password')}</FormLabel>
+                  <div className="sona-login-input-wrap">
+                    <LockKeyhole size={18} strokeWidth={1.8} aria-hidden="true" />
                     <FormControl>
-                      <Password {...field} value={field.value ?? ''} />
+                      <Password {...field} id="password" autoComplete="current-password"
+                        placeholder="Enter your password" />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="url" render={({ field }) => (
+                <FormItem className="sona-login-server-field">
+                  <Collapsible open={serverOpen} onOpenChange={setServerOpen}>
+                    <CollapsibleTrigger asChild>
+                      <button type="button" className="sona-login-server-trigger"
+                        aria-label={'Server: ' + displayServer(currentServer) + '. Change server'}>
+                        <span className="sona-login-server-indicator">
+                          <Server size={18} strokeWidth={1.8} aria-hidden="true" />
+                        </span>
+                        <span className="sona-login-server-name">
+                          <span>Server:</span> <strong>{displayServer(currentServer)}</strong>
+                        </span>
+                        <ChevronDown className={'sona-login-server-chevron' + (serverOpen ? ' is-open' : '')}
+                          size={18} strokeWidth={1.8} aria-hidden="true" />
+                      </button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="sona-login-server-content" id="sona-login-server-settings">
+                      <FormLabel>Server URL</FormLabel>
+                      <FormControl>
+                        <Input {...field} id="url" type="url" inputMode="url"
+                          autoCorrect="off" autoCapitalize="none" spellCheck={false}
+                          placeholder={DEFAULT_SERVER}
+                          onBlur={(event) => {
+                            field.onBlur()
+                            if (event.target.value.trim()) field.onChange(normalizeServer(event.target.value))
+                          }} />
+                      </FormControl>
+                      <FormMessage />
+                      <p className="sona-login-server-help">Enter a full HTTPS address. Your device must be able to reach the server.</p>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </FormItem>
+              )} />
             </CardContent>
-
-            <CardFooter className="flex">
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t('login.form.connecting')}
-                  </>
-                ) : (
-                  <>{t('login.form.connect')}</>
-                )}
+            <CardFooter className="sona-login-submit-wrap">
+              <Button type="submit" className="sona-login-submit" disabled={loading}>
+                {loading
+                  ? <><Loader2 size={19} className="animate-spin" />{t('login.form.connecting')}</>
+                  : <>{t('login.form.connect')} <span aria-hidden="true">→</span></>}
               </Button>
             </CardFooter>
           </form>
         </Form>
       </Card>
-      <Dialog
-        open={serverIsIncompatible}
-        onOpenChange={(state) => {
-          setServerIsIncompatible(state)
-        }}
-      >
+      <Dialog open={serverIsIncompatible} onOpenChange={setServerIsIncompatible}>
         <DialogContent className="max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>{t('server.incompatible.title')}</DialogTitle>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>{t('server.incompatible.title')}</DialogTitle></DialogHeader>
           <p>{t('server.incompatible.description')}</p>
           <DialogFooter>
             <Button onClick={form.handleSubmit((data) => onSubmit(data, true))}>
