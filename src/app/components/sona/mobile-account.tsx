@@ -31,15 +31,17 @@ export function SonaMobileAccount() {
   const setLogoutDialogState = useAppStore((state) => state.actions.setLogoutDialogState)
   const [open, setOpen] = useState(false)
   const [section, setSection] = useState<SettingsOptions | null>(null)
-  const [pull, setPull] = useState(0)
+  const pull = useRef(0)
   const start = useRef<number | null>(null)
+  const sheetRef = useRef<HTMLElement>(null)
   const scroll = useRef<HTMLDivElement>(null)
   const closeButton = useRef<HTMLButtonElement>(null)
 
   function dismiss() {
     setOpen(false)
-    setPull(0)
+    pull.current = 0
     start.current = null
+    if (sheetRef.current) sheetRef.current.style.transform = 'translate3d(0,106%,0)'
   }
   function navigateTo(page: SettingsOptions) {
     setCurrentPage(page)
@@ -80,21 +82,32 @@ export function SonaMobileAccount() {
     }
   }, [open])
 
-  function gestureStart(event: TouchEvent<HTMLElement>) {
-    if (event.touches.length === 1) start.current = event.touches[0].clientY
+  // Only the dedicated grab handle drags the sheet. Native content scrolling
+  // never touches React state, preventing the settings tree from re-rendering
+  // on every touchmove (the previous source of severe iOS scroll jitter).
+  function gestureStart(event: TouchEvent<HTMLButtonElement>) {
+    if (event.touches.length !== 1) return
+    start.current = event.touches[0].clientY
+    pull.current = 0
+    if (sheetRef.current) sheetRef.current.style.transition = 'none'
   }
-  function gestureMove(event: TouchEvent<HTMLElement>) {
-    if (start.current === null) return
+  function gestureMove(event: TouchEvent<HTMLButtonElement>) {
+    if (start.current === null || !sheetRef.current) return
     const diff = event.touches[0].clientY - start.current
-    if (diff > 0) {
-      setPull(Math.max(0, Math.min(160, diff * .62)))
-      if (event.cancelable) event.preventDefault()
-    }
+    if (diff <= 0) return
+    pull.current = Math.min(250, diff * .76)
+    sheetRef.current.style.transform = 'translate3d(0,' + pull.current + 'px,0)'
+    if (event.cancelable) event.preventDefault()
   }
   function gestureEnd() {
-    if (pull > 75) dismiss()
-    else setPull(0)
     start.current = null
+    const moved = pull.current
+    pull.current = 0
+    if (sheetRef.current) {
+      sheetRef.current.style.transition = ''
+      sheetRef.current.style.transform = moved > 85 ? 'translate3d(0,106%,0)' : 'translate3d(0,0,0)'
+    }
+    if (moved > 85) dismiss()
   }
   const title = groups.flatMap(group => group.items).find(item => item.key === section)?.title
 
@@ -112,15 +125,18 @@ export function SonaMobileAccount() {
         <div className={'sona-account-portal' + (open ? ' is-open' : '')}
           aria-hidden={!open} data-testid="sona-account-sheet">
           <div className="sona-account-portal-backdrop" onClick={dismiss} />
-          <section className="sona-account-portal-sheet" role="dialog"
+          <section ref={sheetRef} className="sona-account-portal-sheet" role="dialog"
             aria-modal={open ? 'true' : undefined}
             aria-label="Sona Account" style={{
-              transform: open ? 'translate3d(0,' + pull + 'px,0)' : 'translate3d(0,106%,0)',
+              transform: open ? 'translate3d(0,0,0)' : 'translate3d(0,106%,0)',
             }}>
-            <header className="sona-account-sheet-heading"
-              onTouchStart={gestureStart} onTouchMove={gestureMove} onTouchEnd={gestureEnd}
-              onTouchCancel={() => { start.current = null; setPull(0) }}>
-              <span className="sona-account-grabber" aria-hidden="true" />
+            <header className="sona-account-sheet-heading">
+              <button type="button" className="sona-account-grab-target"
+                aria-label="Drag down to close account"
+                onTouchStart={gestureStart} onTouchMove={gestureMove} onTouchEnd={gestureEnd}
+                onTouchCancel={gestureEnd}>
+                <span className="sona-account-grabber" aria-hidden="true" />
+              </button>
               <div className="sona-account-heading-row">
                 {section
                   ? <button className="sona-account-back" type="button"

@@ -234,7 +234,7 @@ export function Player() {
           onClickCapture={(event) => {
             if (window.innerWidth >= 768 || !song) return
             // Artist links retain their navigation even inside the mini-player.
-            if ((event.target as HTMLElement).closest('[data-testid="track-artist-url"]')) return
+            if ((event.target as Element).closest('[data-testid="track-artist-url"], a[href*="/library/artists/"]')) return
             event.preventDefault()
             event.stopPropagation()
             setIsFullscreen(true)

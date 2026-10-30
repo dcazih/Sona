@@ -1934,3 +1934,59 @@
     background-size:cover!important;background-attachment:fixed;
   }
 }
+
+/* Scrolling and live page reveal: remove the moving-player underlay completely. */
+@media(max-width:767px){
+  .sona-now-overscroll-fill{display:none!important}
+  .sona-now-overlay{
+    background:color-mix(in srgb,var(--sona-ambient-color,#755265) 20%,#18171d)!important;
+    will-change:transform!important;
+  }
+  .sona-now-overlay.is-dragging{box-shadow:0 -2px 42px #0006!important}
+  .sona-now-stage{padding-bottom:42px!important}
+  .sona-now-art{margin-bottom:0!important}
+  .sona-now-panel{padding-top:20px!important}
+  .sona-now-song-info{margin-top:14px!important}
+  .sona-player .sona-player-cover{
+    width:30px!important;height:30px!important;min-width:30px!important;max-width:30px!important;
+    border-radius:7px!important;
+  }
+  .sona-player .sona-player-track{gap:7px!important}
+  .sona-player .sona-player-track>div:last-child{
+    min-height:0!important;line-height:1!important;gap:0!important;
+  }
+  .sona-player .sona-player-track [data-testid="track-title"]{
+    line-height:1.12!important;font-size:12px!important;
+  }
+  .sona-player .sona-player-track [data-testid="track-artist-url"]{
+    font-size:11px!important;line-height:1.15!important;
+    padding:4px 2px!important;margin-top:-2px!important;
+    min-height:24px!important;position:relative!important;z-index:15!important;
+    touch-action:manipulation!important;pointer-events:auto!important;
+  }
+  .sona-player .sona-player-track [data-testid="track-artist-url"] span{
+    font-size:11px!important;line-height:1.15!important;
+  }
+  .sona-account-portal-sheet{
+    height:calc(100svh - env(safe-area-inset-top,0px) - 5px)!important;
+    max-height:100svh!important;
+    will-change:auto!important;
+  }
+  .sona-account-portal-sheet .sona-account-sheet-heading{
+    touch-action:pan-y!important;
+    padding-top:0!important;
+  }
+  .sona-account-grab-target{
+    display:flex!important;align-items:center;justify-content:center;
+    width:100%;height:34px;min-height:34px;padding:0;margin:0!important;
+    border:0;background:transparent;touch-action:none!important;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .sona-account-grab-target .sona-account-grabber{margin:0!important}
+  .sona-account-portal-sheet .sona-account-scroll{
+    overflow-y:auto!important;overflow-x:hidden!important;
+    touch-action:pan-y!important;overscroll-behavior-y:contain!important;
+    transform:none!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+}

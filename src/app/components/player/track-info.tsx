@@ -153,6 +153,7 @@ function ArtistLink({ id, name }: ArtistLinkProps) {
       to={ROUTES.ARTIST.PAGE(id ?? '')}
       className={cn('w-fit inline-flex', !id && 'pointer-events-none')}
       data-testid="track-artist-url"
+      onClick={(event) => event.stopPropagation()}
     >
       <span
         className={cn(

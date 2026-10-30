@@ -114,12 +114,6 @@ export function SonaMobileNowPlaying() {
 
   return (
     <>
-    <div className={'sona-now-overscroll-fill' + (isFullscreen ? ' is-active' : '')}
-      aria-hidden="true"
-      style={{
-        ...ambientStyle,
-        opacity: isFullscreen ? 1 : 0,
-      } as CSSProperties} />
     <div
       className={'sona-now-overlay ' + (isFullscreen ? 'is-open' : '') + (dragY > 0 ? ' is-dragging' : '')}
       role="dialog"
