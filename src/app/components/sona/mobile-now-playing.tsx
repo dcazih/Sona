@@ -39,6 +39,33 @@ export function SonaMobileNowPlaying() {
   }, [audioRef, isFullscreen])
 
   useEffect(() => {
+    if (!isFullscreen || window.innerWidth >= 768) return
+    // Match the actual playing song's ambient tint in standalone iOS chrome.
+    const color = String((ambientStyle as Record<string, string>)['--sona-ambient-color'] || '#755265')
+    const channels = /^#[0-9a-f]{6}$/i.test(color)
+      ? [0,2,4].map(i => parseInt(color.slice(i+1,i+3),16))
+      : [117,82,101]
+    const tint = '#' + channels.map((v,i) => Math.round(v*.7 + [31,27,38][i]*.3)
+      .toString(16).padStart(2,'0')).join('')
+    const root = document.documentElement
+    const previous = root.style.getPropertyValue('--sona-top-chrome-color')
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+    const priorMeta = meta?.content
+    root.style.setProperty('--sona-top-chrome-color',tint)
+    meta?.setAttribute('content',tint)
+    return () => {
+      if (document.querySelector('.sona-mobile-album-hero') && previous) {
+        root.style.setProperty('--sona-top-chrome-color',previous)
+        if (priorMeta) meta?.setAttribute('content',priorMeta)
+      } else {
+        root.style.removeProperty('--sona-top-chrome-color')
+        meta?.setAttribute('content','#080809')
+      }
+    }
+  }, [isFullscreen,ambientStyle])
+
+
+  useEffect(() => {
     if (!isFullscreen) {
       setView('playing')
       setDragY(0)

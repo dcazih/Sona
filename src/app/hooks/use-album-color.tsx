@@ -1,4 +1,3 @@
-import randomCSSHexColor from '@chriscodesthings/random-css-hex-color'
 import { useState } from 'react'
 import { getAverageColor } from '@/utils/getAverageColor'
 
@@ -13,13 +12,13 @@ export function useAlbumColor(imageId: string) {
     const img = getImage()
     if (!img) return
 
-    let color = randomCSSHexColor(true)
+    let color = '#554253'
 
     try {
       color = (await getAverageColor(img)).hex
     } catch (_) {
       console.warn(
-        'handleLoadImage: unable to get image color. Using a random color.',
+        'handleLoadImage: unable to get image color. Using a stable fallback.',
       )
     }
 
