@@ -867,3 +867,13 @@
     transition-duration:.01ms!important;
   }
 }
+
+@media(max-width:767px){
+  .sona-now-overlay.is-open{
+    transition:transform .47s cubic-bezier(.19,1,.22,1),
+      opacity .32s ease-out,visibility 0s,
+      border-radius .35s cubic-bezier(.25,1,.23,1)!important;
+  }
+  .sona-now-overlay.is-dragging{transition:none!important}
+  .sona-now-drag-capsule{transform-origin:center!important}
+}

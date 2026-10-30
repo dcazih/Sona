@@ -43,7 +43,7 @@ export default function SonaMobileSearch() {
   useEffect(() => {
     // A new query must always start at the top of the result list, even
     // when the user entered Search while scrolled far down.
-    getMainScrollElement()?.scrollTo({ top: 0, behavior: 'instant' })
+    getMainScrollElement()?.scrollTo({ top: 0, behavior: 'auto' })
     const timeout = window.setTimeout(() => setQuery(term.trim()), 240)
     return () => window.clearTimeout(timeout)
   }, [term])

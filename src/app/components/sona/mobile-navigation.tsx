@@ -36,11 +36,15 @@ export function SonaMobileNavigation() {
   const setFocused = useSonaSearch((state) => state.setFocused)
   const reset = useSonaSearch((state) => state.reset)
   const [voiceError, setVoiceError] = useState('')
+  const [keyboardVisible, setKeyboardVisible] = useState(false)
   const recognition = useRef<Recognition | null>(null)
 
   useEffect(() => {
     if (!isSearch && focused) setFocused(false)
-    if (!isSearch) recognition.current?.stop()
+    if (!isSearch) {
+      recognition.current?.stop()
+      setKeyboardVisible(false)
+    }
   }, [isSearch, focused, setFocused])
 
   useEffect(() => {
@@ -55,7 +59,10 @@ export function SonaMobileNavigation() {
       frame = requestAnimationFrame(() => {
         // visualViewport changes continuously as iOS animates its keyboard.
         const offset = Math.max(0, window.innerHeight - vp.height - vp.offsetTop)
-        const next = focused && offset > 100 ? Math.round(offset) : 0
+        const next = offset > 15 ? Math.round(offset) : 0
+        // Keep the dock attached while iOS animates the keyboard closed,
+        // even after the input's blur event.
+        setKeyboardVisible(next > 0)
         document.documentElement.style.setProperty('--sona-keyboard-offset', next + 'px')
         document.documentElement.style.setProperty('--sona-keyboard-visible', next > 0 ? '1' : '0')
         frame = null
@@ -73,7 +80,7 @@ export function SonaMobileNavigation() {
       document.documentElement.style.setProperty('--sona-keyboard-offset', '0px')
       document.documentElement.style.setProperty('--sona-keyboard-visible', '0')
     }
-  }, [isSearch, focused])
+  }, [isSearch])
 
   useEffect(() => {
     if (!isSearch) return
@@ -183,7 +190,7 @@ export function SonaMobileNavigation() {
         </button>
       </nav>
       {isSearch && (
-        <div className={'sona-search-dock ' + (focused ? 'is-active' : '')}
+        <div className={'sona-search-dock ' + (focused || keyboardVisible ? 'is-active' : '')}
           role="search" aria-label="Search your music">
           <button className="sona-search-library-toggle" type="button"
             aria-label="Return to library" onClick={() => { stopSearch(); navigate('/mobile-library') }}>
