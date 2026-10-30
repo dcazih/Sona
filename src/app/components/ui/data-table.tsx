@@ -357,12 +357,23 @@ export function DataTable<TData, TValue>({
   const handleRowTap = useCallback(
     (e: TouchEvent<HTMLDivElement>, row: Row<TData>) => {
       clearTimeout(tapTimeout)
-      if (isTap && handlePlaySong) {
+      if (isTap && handlePlaySong && !(dataType === 'song' && window.innerWidth < 768)) {
         e.stopPropagation()
         handlePlaySong(row)
       }
     },
     [handlePlaySong],
+  )
+
+  const handleMobileSongClick = useCallback(
+    (event: MouseEvent<HTMLDivElement>, row: Row<TData>) => {
+      if (dataType !== 'song' || window.innerWidth >= 768 || !handlePlaySong) return
+      if ((event.target as Element).closest('button, [role="button"], input, [role="checkbox"]')) return
+      event.preventDefault()
+      event.stopPropagation()
+      handlePlaySong(row)
+    },
+    [dataType, handlePlaySong],
   )
 
   function handleTouchStart() {
@@ -519,7 +530,9 @@ export function DataTable<TData, TValue>({
                               variant={variant}
                               dataType={dataType}
                               clickable={!!onRowClick}
-                              onClick={(e) => handleClicks(e, row)}
+                              onClickCapture={(e) => handleMobileSongClick(e, row)}
+                              onClickCapture={(e) => handleMobileSongClick(e, row)}
+                          onClick={(e) => handleClicks(e, row)}
                               onDoubleClick={(e) => handleRowDbClick(e, row)}
                               onTouchStart={handleTouchStart}
                               onTouchMove={handleTouchMove}

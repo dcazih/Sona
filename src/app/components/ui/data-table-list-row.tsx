@@ -47,7 +47,8 @@ export function TableListRow<TData>({
 
   function handleTouchEnd(e: TouchEvent<HTMLDivElement>) {
     clearTimeout(tapTimeout)
-    if (isTap) handleRowTap(e, row)
+    // Mobile clicks are handled in capture phase to avoid a second play after touchend.
+    if (isTap && !(dataType === 'song' && window.innerWidth < 768)) handleRowTap(e, row)
   }
 
   function handleTouchCancel() {
@@ -71,6 +72,13 @@ export function TableListRow<TData>({
         data-test-id="table-row"
         data-row-index={virtualRow.index}
         data-state={row.getIsSelected() && 'selected'}
+        onClickCapture={(event) => {
+          if (dataType !== 'song' || window.innerWidth >= 768) return
+          if ((event.target as Element).closest('button, [role="button"], input, [role="checkbox"]')) return
+          event.preventDefault()
+          event.stopPropagation()
+          handleRowDbClick(event, row)
+        }}
         onClick={(e) => handleClicks(e, row)}
         onDoubleClick={(e) => handleRowDbClick(e, row)}
         onTouchStart={handleTouchStart}

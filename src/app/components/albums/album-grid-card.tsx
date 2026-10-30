@@ -38,7 +38,12 @@ function AlbumCard({ album }: AlbumCardProps) {
 
   return (
     <PreviewCard.Root>
-      <PreviewCard.ImageWrapper link={ROUTES.ALBUM.PAGE(album.id)}>
+      <PreviewCard.ImageWrapper link={ROUTES.ALBUM.PAGE(album.id)} onClick={(event) => {
+        if (window.matchMedia('(max-width: 767px)').matches) {
+          event.preventDefault()
+          void playCurrentAlbum()
+        }
+      }}>
         <ImageLoader id={album.coverArt} type="album" size={300}>
           {(src) => <PreviewCard.Image src={src} alt={album.name} />}
         </ImageLoader>

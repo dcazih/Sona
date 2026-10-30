@@ -21,14 +21,16 @@ function Root({ className, children, ...props }: RootProps) {
 
 interface ImageWrapperProps extends Children {
   link: string
+  onClick?: React.MouseEventHandler<HTMLAnchorElement>
 }
 
-function ImageWrapper({ children, link }: ImageWrapperProps) {
+function ImageWrapper({ children, link, onClick }: ImageWrapperProps) {
   return (
     <div className="group flex-1 aspect-square rounded bg-border relative overflow-hidden">
       <Link
         to={link}
         data-testid="card-image-link"
+        onClick={onClick}
         className="flex h-full w-full"
       >
         {children}
