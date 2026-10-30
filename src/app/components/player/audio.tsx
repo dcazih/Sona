@@ -112,11 +112,17 @@ export function AudioPlayer({
         }
       } catch (error) {
         logger.error('Audio playback failed', error)
+        // iOS and Chrome may block autoplay after a reload. This is not an
+        // invalid audio stream: pause and keep the same song for a manual tap.
+        if (error instanceof DOMException && error.name === 'NotAllowedError') {
+          setPlayingState(false)
+          return
+        }
         handleSongError()
       }
     }
     if (isSong || isPodcast) handleSong()
-  }, [audioRef, handleSongError, isPlaying, isSong, isPodcast, resumeContext])
+  }, [audioRef, handleSongError, isPlaying, isSong, isPodcast, resumeContext, setPlayingState])
 
   useEffect(() => {
     async function handleRadio() {

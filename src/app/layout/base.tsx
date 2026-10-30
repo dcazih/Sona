@@ -14,6 +14,7 @@ import { Header } from '@/app/layout/header'
 import { usePlayerStore } from '@/store/player.store'
 import { SonaMobileNavigation } from '@/app/components/sona/mobile-navigation'
 import { MainRoutes } from './main'
+import { SonaReloadPlayback } from '@/app/components/sona/reload-playback'
 
 const MemoHeader = memo(Header)
 const MemoPlayer = memo(Player)
@@ -42,6 +43,7 @@ export default function BaseLayout() {
       <MemoMainDrawerPage />
       <CreatePlaylistDialog />
       <MemoFullscreenMode />
+      <SonaReloadPlayback />
     </div>
   )
 }
