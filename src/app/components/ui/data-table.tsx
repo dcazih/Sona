@@ -531,7 +531,7 @@ export function DataTable<TData, TValue>({
                               dataType={dataType}
                               clickable={!!onRowClick}
                               onClickCapture={(e) => handleMobileSongClick(e, row)}
-                          onClick={(e) => handleClicks(e, row)}
+                              onClick={(e) => handleClicks(e, row)}
                               onDoubleClick={(e) => handleRowDbClick(e, row)}
                               onTouchStart={handleTouchStart}
                               onTouchMove={handleTouchMove}
@@ -568,6 +568,7 @@ export function DataTable<TData, TValue>({
                           variant={variant}
                           dataType={dataType}
                           clickable={!!onRowClick}
+                          onClickCapture={(e) => handleMobileSongClick(e, row)}
                           onClick={(e) => handleClicks(e, row)}
                           onDoubleClick={(e) => handleRowDbClick(e, row)}
                           onTouchStart={handleTouchStart}
