@@ -89,7 +89,10 @@ export default function PreviewList({
         <Carousel
           opts={{
             align: 'start',
-            slidesToScroll: 'auto',
+            slidesToScroll: 1,
+            containScroll: 'trimSnaps',
+            dragFree: false,
+            duration: 27,
           }}
           setApi={setApi}
           data-testid="preview-list-carousel"

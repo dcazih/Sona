@@ -2038,3 +2038,82 @@
   .sona-home-radio-empty svg:last-child{flex:none}
 }
 @media(min-width:768px){.sona-home-radio{display:none}}
+
+/* Apple Music-style Home carousels. Embla owns the snap and eased momentum. */
+@media(max-width:767px){
+  .sona-app-shell #main-scroll-area{
+    overscroll-behavior-x:contain;
+  }
+  .sona-mobile-featured{
+    padding:24px 0 16px;
+    width:100%;
+    overflow:hidden;
+  }
+  .sona-featured-heading{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 20px 16px;gap:12px;
+  }
+  .sona-featured-heading h2{
+    font-size:23px;line-height:1.16;font-weight:790;
+    letter-spacing:-.035em;color:#fff;
+  }
+  .sona-featured-arrows{display:flex;align-items:center;gap:9px}
+  .sona-featured-arrows button{
+    width:33px;height:33px;display:grid;place-items:center;
+    border-radius:50%;background:#ffffff16;color:#f7f7f9;
+    transition:background .2s ease,opacity .2s ease,transform .2s cubic-bezier(.2,1,.2,1);
+    touch-action:manipulation;
+  }
+  .sona-featured-arrows button:active:not(:disabled){transform:scale(.9)}
+  .sona-featured-arrows button:disabled{opacity:.25}
+  .sona-featured-carousel{overflow:visible!important}
+  .sona-featured-carousel>div{overflow:hidden!important}
+  .sona-featured-track{
+    display:flex;gap:0!important;margin:0!important;
+    padding-left:20px;padding-right:18vw;
+    touch-action:pan-y pinch-zoom;
+  }
+  .sona-featured-slide{
+    flex:0 0 min(76vw,355px)!important;max-width:min(76vw,355px)!important;
+    min-width:0!important;padding:0 13px 0 0!important;
+  }
+  .sona-featured-card{
+    display:flex;flex-direction:column;min-width:0;overflow:hidden;
+    background:#29282c;border-radius:20px;
+    box-shadow:0 8px 26px #0004;
+    height:100%;color:#fff;
+  }
+  .sona-featured-art{
+    display:grid;place-items:center;position:relative;
+    width:100%;aspect-ratio:1/1;flex:none;overflow:hidden;
+    background:#3a3940;color:#b4b0bd;
+    border:0;padding:0;border-radius:20px 20px 0 0;
+    touch-action:manipulation;cursor:pointer;
+  }
+  .sona-featured-art img{display:block;width:100%;height:100%;object-fit:cover;border-radius:0}
+  .sona-featured-details{
+    padding:13px 16px 18px;min-height:118px;
+    display:flex;flex-direction:column;justify-content:flex-start;
+  }
+  .sona-featured-eyebrow{font-size:9px;font-weight:800;letter-spacing:.12em;color:#f48ea4}
+  .sona-featured-info{display:flex;align-items:center;gap:10px;margin-top:6px}
+  .sona-featured-text{flex:1;min-width:0}
+  .sona-featured-text h3{font-size:16px;font-weight:740;line-height:1.21;
+    overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+  .sona-featured-text p{font-size:12px;color:#c3bfc8;margin-top:4px;
+    white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+  .sona-featured-play{display:grid;place-items:center;flex:none;
+    width:40px;height:40px;background:#ffffff1c;border-radius:50%;color:#fff;
+    touch-action:manipulation}
+  .sona-featured-play:active{transform:scale(.92)}
+  .sona-featured-album-name{font-size:10px;color:#8f8b95;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap;margin-top:9px}
+  /* Each album row uses the exact same one-card Embla snap settings.
+     A visible sliver of the next album cues the horizontal gesture. */
+  .sona-app-shell #main-scroll-area [data-testid^="preview-list-carousel-item"]{
+    flex:0 0 43%!important;max-width:43%!important;padding-left:12px!important;
+  }
+  .sona-app-shell #main-scroll-area [data-testid="preview-list-carousel"]{
+    touch-action:pan-y pinch-zoom;
+  }
+}

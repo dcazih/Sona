@@ -2,6 +2,7 @@ import Autoplay from 'embla-carousel-autoplay'
 import { useEffect, useState } from 'react'
 import { HeaderFallback } from '@/app/components/fallbacks/home-fallbacks'
 import { HeaderItem } from '@/app/components/home/carousel/header-item'
+import { SonaMobileFeatured } from '@/app/components/sona/mobile-featured'
 import {
   Carousel,
   type CarouselApi,
@@ -34,6 +35,9 @@ export function HomeHeader() {
   if (!songs || songs.length === 0) return null
 
   return (
+    <>
+      <div className="md:hidden"><SonaMobileFeatured songs={songs} /></div>
+      <div className="hidden md:block">
     <Carousel
       setApi={setApi}
       className="w-full overflow-hidden z-10"
@@ -70,5 +74,7 @@ export function HomeHeader() {
         />
       </div>
     </Carousel>
+      </div>
+    </>
   )
 }
