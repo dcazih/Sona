@@ -30,7 +30,13 @@ export function SonaMobileAlbumTracks({ album }: { album: SingleAlbum }) {
           const showArtist = Boolean(song.artist && song.artistId && song.artist !== album.artist)
           return (
             <div className={'sona-album-song-row' + (active ? ' is-playing' : '')}
-              key={song.id + ':' + index}>
+              key={song.id + ':' + index}
+              onClick={(event) => {
+                // The entire Apple-style track row is tappable. Artist links and
+                // the options menu must keep their separate actions.
+                if ((event.target as HTMLElement).closest('button,a')) return
+                play(index)
+              }}>
               <span className="sona-album-song-index">
                 {active ? <SonaNoteGlyph size={20}/> : (song.track || index + 1)}
               </span>

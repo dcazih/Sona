@@ -118,7 +118,7 @@ export function SonaMobileNowPlaying() {
       aria-hidden="true"
       style={{
         ...ambientStyle,
-        opacity: isFullscreen ? Math.min(1, dragY / 55) : 0,
+        opacity: isFullscreen ? 1 : 0,
       } as CSSProperties} />
     <div
       className={'sona-now-overlay ' + (isFullscreen ? 'is-open' : '') + (dragY > 0 ? ' is-dragging' : '')}
