@@ -5,6 +5,7 @@ import { subsonic } from '@/service/subsonic'
 import { usePlayerActions } from '@/store/player.store'
 import { usePlaylistRemoveSong } from '@/store/playlists.store'
 import { useSongInfo } from '@/store/ui.store'
+import { useSonaWebSettings } from '@/store/sona-web-settings.store'
 import { PlaybackSource } from '@/types/playerContext'
 import { UpdateParams } from '@/types/responses/playlist'
 import { ISong } from '@/types/responses/song'
@@ -20,6 +21,7 @@ export function useOptions() {
   const { setActionData, setConfirmDialogState } = usePlaylistRemoveSong()
   const matches = useMatches()
   const { setSongId, setModalOpen } = useSongInfo()
+  const downloadFormat = useSonaWebSettings((state) => state.downloadFormat)
 
   const isOnPlaylistPage = matches.find((route) => route.id === 'playlist')
   const playlistId = isOnPlaylistPage?.params.playlistId ?? ''
@@ -39,7 +41,11 @@ export function useOptions() {
   }
 
   function startDownload(id: string) {
-    const url = getDownloadUrl(id)
+    const url = getDownloadUrl(
+      id,
+      '0',
+      downloadFormat === 'mp3' ? 'mp3' : 'raw',
+    )
 
     if (isDesktop()) {
       downloadDesktop(url, id)

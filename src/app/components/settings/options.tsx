@@ -6,6 +6,7 @@ import {
   Headphones,
   LaptopIcon,
   Paintbrush,
+  SlidersHorizontal,
 } from 'lucide-react'
 import { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -27,6 +28,7 @@ export type SettingsOptions =
   | 'accounts'
   | 'desktop'
   | 'privacy'
+  | 'sona'
 
 interface OptionsData {
   id: SettingsOptions
@@ -40,6 +42,7 @@ const options: OptionsData[] = [
   { id: 'appearance', icon: Paintbrush },
   { id: 'language', icon: Globe },
   { id: 'audio', icon: Headphones },
+  { id: 'sona', icon: SlidersHorizontal },
   { id: 'content', icon: FileText },
   ...(isDesktop() ? [accountsOption, desktopOption] : []),
   { id: 'privacy', icon: EarthLock },

@@ -1,0 +1,37 @@
+@font-face{font-family:SonaJakarta;src:url('/fonts/jakarta.ttf') format('truetype');font-display:swap}
+@font-face{font-family:SonaInter;src:url('/fonts/inter.ttf') format('truetype');font-display:swap}
+@font-face{font-family:SonaSora;src:url('/fonts/sora.ttf') format('truetype');font-display:swap}
+
+/* Desktop-only layer: preserves Aonsoku's routes and components while using the
+   grayscale Sona web visual language. */
+@media (min-width:768px){
+  .sona-app-shell,.sona-app-shell button,.sona-app-shell input,.sona-app-shell select{font-family:SonaInter,Inter,system-ui,sans-serif}
+  .sona-app-shell{background:#202020;color:#f2f2f0}
+  .sona-app-shell [data-slot="sidebar-wrapper"]{background:#171717!important}
+  .sona-app-shell [data-slot="sidebar"]{background:#171717!important;border-color:#343434!important}
+  .sona-app-shell [data-slot="sidebar"] [data-sidebar="menu-button"]{color:#bdbdbb;border-radius:9px;min-height:38px;font-size:14px;font-weight:500}
+  .sona-app-shell [data-slot="sidebar"] [data-sidebar="menu-button"]:hover{background:#2d2d2d!important;color:#f2f2f0!important}
+  .sona-app-shell [data-slot="sidebar"] [data-sidebar="menu-button"][data-active="true"]{background:#353535!important;color:#f2f2f0!important}
+  .sona-app-shell [data-slot="sidebar"] [data-sidebar="group-label"]{color:#8e8e8b;font:600 11px/1 SonaInter,system-ui;letter-spacing:.08em;text-transform:uppercase}
+  .sona-app-shell [data-slot="sidebar"] input{background:#2d2d2d;border-color:#414141;border-radius:9px;color:#f2f2f0}
+  .sona-header{height:58px!important;background:#202020eF!important;border-color:#343434!important;backdrop-filter:blur(16px)}
+  .sona-header .sona-desktop-navigation button,.sona-header .sona-desktop-settings button,.sona-header .sona-desktop-account button{border-radius:9px}
+  .sona-header [data-testid="header-song-title"]{font:600 13px SonaSora,system-ui}
+  .sona-app-shell #main-scroll-area{background:linear-gradient(180deg,#272727 0,#202020 300px)!important}
+  .sona-app-shell #main-scroll-area h1{font-family:SonaJakarta,system-ui!important;font-weight:800!important;letter-spacing:-.055em}
+  .sona-app-shell #main-scroll-area h2,.sona-app-shell #main-scroll-area h3,.sona-settings-page h3{font-family:SonaSora,system-ui!important;font-weight:600!important;letter-spacing:-.028em}
+  .sona-app-shell #main-scroll-area [class*="rounded"],.sona-app-shell [role="dialog"]{border-radius:14px}
+  .sona-app-shell [data-slot="card"],.sona-app-shell .bg-card{background:#2b2b2b!important;border-color:#414141!important}
+  .sona-app-shell button{border-radius:10px}
+  .sona-app-shell button:hover{opacity:.84}
+  .sona-app-shell [data-slot="dialog-content"]{background:#2b2b2b!important;border-color:#414141!important;box-shadow:0 22px 70px #000a}
+  .sona-app-shell [data-slot="sidebar-inset"]{background:#202020!important}
+  .sona-player{height:82px!important;background:#353535f0!important;border-top:1px solid #4a4a4a!important;box-shadow:0 -14px 34px #0005;backdrop-filter:blur(18px)}
+  .sona-player-layout{grid-template-columns:minmax(210px,1fr) minmax(310px,1.2fr) minmax(210px,1fr)!important}
+  .sona-player [data-testid="track-title"]{font:600 13px SonaSora,system-ui!important;color:#f2f2f0}
+  .sona-player [data-testid="track-artist-url"]{font-size:12px;color:#aaa}
+  .sona-player [data-testid="player-progress-slider"] [data-orientation="horizontal"]{height:4px}
+  .sona-settings-page{max-width:760px;padding-bottom:24px}
+  .sona-settings-page [data-slot="input"],.sona-settings-page input{background:#303030!important;border-color:#474747!important;color:#fff!important;border-radius:9px!important}
+  .sona-settings-page [role="switch"]{border-color:transparent!important}
+}

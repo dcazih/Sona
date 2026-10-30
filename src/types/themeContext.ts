@@ -1,4 +1,5 @@
 export enum Theme {
+  SonaWeb = 'sona-web',
   Light = 'light',
   Dark = 'dark',
   Black = 'black',

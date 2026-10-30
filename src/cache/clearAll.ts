@@ -4,6 +4,7 @@ import { queryKeys } from '@/utils/queryKeys'
 
 const IDB_CACHE_PREFIXES = ['lyrics:', 'animated-artwork:']
 const IMAGE_CACHE_NAME = 'images'
+const SONA_CACHE_NAMES = ['sona-app-v1', 'sona-media-v1']
 
 async function clearIndexedDbCaches() {
   const allKeys = await keys()
@@ -20,7 +21,7 @@ async function clearImageCacheStorage() {
   if (typeof caches === 'undefined') return
 
   try {
-    await caches.delete(IMAGE_CACHE_NAME)
+    await Promise.all([IMAGE_CACHE_NAME, ...SONA_CACHE_NAMES].map((name) => caches.delete(name)))
   } catch {}
 }
 

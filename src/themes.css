@@ -556,4 +556,28 @@
     --destructive-foreground: 3 86% 89%;
     --ring: 180 51% 40%;
   }
+
+  /* The hosted Sona desktop theme mirrors the companion Sona web client. */
+  .sona-web {
+    --background: 0 0% 12.5%;
+    --background-foreground: 0 0% 12.5%;
+    --foreground: 60 5% 94%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 66%;
+    --popover: 0 0% 18%;
+    --popover-foreground: 60 5% 94%;
+    --card: 0 0% 17%;
+    --card-foreground: 60 5% 94%;
+    --border: 0 0% 26%;
+    --input: 0 0% 25%;
+    --primary: 60 5% 94%;
+    --primary-foreground: 0 0% 12%;
+    --secondary: 0 0% 22%;
+    --secondary-foreground: 0 0% 94%;
+    --accent: 0 0% 23%;
+    --accent-foreground: 60 5% 94%;
+    --destructive: 0 45% 34%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: 0 0% 55%;
+  }
 }

@@ -7,6 +7,7 @@ import { Content } from './content'
 import { Desktop } from './desktop'
 import { Language } from './language'
 import { Privacy } from './privacy'
+import { Sona } from './sona'
 
 const pages: Record<SettingsOptions, JSX.Element> = {
   appearance: <Appearance />,
@@ -16,6 +17,7 @@ const pages: Record<SettingsOptions, JSX.Element> = {
   accounts: <Accounts />,
   desktop: <Desktop />,
   privacy: <Privacy />,
+  sona: <Sona />,
 }
 
 export function Pages() {

@@ -10,15 +10,39 @@ import '@/themes.css'
 import '@/index.css'
 import '@/sona-mobile.css'
 import '@/sona-login.css'
+import '@/sona-web.css'
 
 import '@/i18n'
 
 import App from '@/App'
 
 import { queryClient } from '@/lib/queryClient'
+import { useAppStore } from '@/store/app.store'
+import { useSonaWebSettings } from '@/store/sona-web-settings.store'
 import { blockFeatures } from '@/utils/browser'
 
 blockFeatures()
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then((registration) => {
+    const sendCachePreferences = () => {
+      const cache = useSonaWebSettings.getState()
+      const enabled = useAppStore.getState().pages.mediaCacheEnabled
+      ;(registration.active || registration.waiting || registration.installing)?.postMessage({
+        type: 'sona-media-cache-preferences',
+        enabled,
+        maxTracks: cache.cacheTracks,
+        allowCellular: cache.cellularCache,
+      })
+    }
+    sendCachePreferences()
+    navigator.serviceWorker.addEventListener('controllerchange', sendCachePreferences)
+    useSonaWebSettings.subscribe(sendCachePreferences)
+    useAppStore.subscribe(sendCachePreferences)
+  }).catch(() => {
+    // Playback remains available when a browser blocks service workers.
+  })
+}
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>

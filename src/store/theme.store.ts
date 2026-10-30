@@ -12,7 +12,7 @@ export const useThemeStore = createWithEqualityFn<IThemeContext>()(
     persist(
       devtools(
         immer((set) => ({
-          theme: appThemeFromEnv || Theme.Dark,
+          theme: appThemeFromEnv || Theme.SonaWeb,
           setTheme: (theme: Theme) => {
             set((state) => {
               state.theme = theme
