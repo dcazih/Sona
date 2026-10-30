@@ -877,3 +877,98 @@
   .sona-now-overlay.is-dragging{transition:none!important}
   .sona-now-drag-capsule{transform-origin:center!important}
 }
+
+/* Album-reactive ambient color. Register the property so WebKit interpolates
+   the actual color, not a non-animatable gradient image on track changes. */
+@property --sona-ambient-color {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #755265;
+}
+@media (max-width:767px) {
+  .sona-now-overlay {
+    background: #19171c!important;
+    --sona-ambient-color: #755265;
+    transition:
+      transform .47s cubic-bezier(.19,1,.22,1),
+      opacity .32s ease-out,
+      visibility 0s,
+      border-radius .35s cubic-bezier(.25,1,.23,1),
+      --sona-ambient-color 1.15s cubic-bezier(.25,.1,.25,1)!important;
+  }
+  .sona-now-overlay.is-open {
+    transition:
+      transform .47s cubic-bezier(.19,1,.22,1),
+      opacity .32s ease-out,
+      visibility 0s,
+      border-radius .35s cubic-bezier(.25,1,.23,1),
+      --sona-ambient-color 1.15s cubic-bezier(.25,.1,.25,1)!important;
+  }
+  .sona-now-overlay.is-dragging {
+    transition:none!important;
+  }
+  .sona-now-background {
+    inset:-45px!important;
+    background:
+      radial-gradient(ellipse 82% 52% at 42% 13%,
+        color-mix(in srgb,var(--sona-ambient-color) 78%,#c47796) 0%,
+        color-mix(in srgb,var(--sona-ambient-color) 45%,transparent) 60%,
+        transparent 100%),
+      radial-gradient(ellipse 75% 56% at 105% 66%,
+        color-mix(in srgb,var(--sona-ambient-color) 72%,#343f6c) 0%,
+        transparent 78%),
+      radial-gradient(ellipse 67% 45% at 0% 88%,
+        color-mix(in srgb,var(--sona-ambient-color) 53%,#6a4772) 0%,
+        transparent 74%),
+      linear-gradient(160deg,
+        color-mix(in srgb,var(--sona-ambient-color) 48%,#1b1820) 0%,
+        color-mix(in srgb,var(--sona-ambient-color) 16%,#17161b) 65%,
+        #141419 100%)!important;
+    filter:blur(35px) saturate(1.25)!important;
+    transform:translateZ(0) scale(1.015);
+    opacity:1!important;
+    pointer-events:none!important;
+    will-change:background;
+  }
+  .sona-now-background:after {
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,#0000000c 0%,transparent 35%,#0a08121a 100%);
+    pointer-events:none;
+  }
+
+  /* A translucent mini-player with the same live album-color gradient beneath
+     the frosted surface; full-screen and minimized players stay in sync. */
+  .sona-player {
+    isolation:isolate;
+    --sona-ambient-color: #755265;
+    transition:--sona-ambient-color 1.15s cubic-bezier(.25,.1,.25,1)!important;
+  }
+  .sona-player[data-mobile-active="true"] {
+    background:rgba(29,27,34,.38)!important;
+    -webkit-backdrop-filter:blur(27px) saturate(1.7)!important;
+    backdrop-filter:blur(27px) saturate(1.7)!important;
+  }
+  .sona-player[data-mobile-active="true"]::before {
+    content:"";position:absolute;inset:-18px;
+    z-index:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 72% 175% at 10% 12%,
+        color-mix(in srgb,var(--sona-ambient-color) 68%,#b97d9d) 0%,transparent 85%),
+      radial-gradient(ellipse 80% 130% at 88% 92%,
+        color-mix(in srgb,var(--sona-ambient-color) 69%,#494c82) 0%,transparent 88%),
+      linear-gradient(110deg,
+        color-mix(in srgb,var(--sona-ambient-color) 55%,#28252d),
+        color-mix(in srgb,var(--sona-ambient-color) 20%,#211f26));
+    filter:blur(14px) saturate(1.2);
+    opacity:.7;
+    transform:translateZ(0);
+  }
+  .sona-player .sona-player-layout {
+    position:relative;z-index:2;background:transparent!important;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  .sona-now-overlay,.sona-now-overlay.is-open,.sona-player {
+    transition-duration:.01ms!important;
+  }
+}

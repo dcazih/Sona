@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { getSongStreamUrl } from '@/api/httpClient'
 import { getProxyURL } from '@/api/podcastClient'
+import { useSonaAmbient } from '@/app/hooks/use-sona-ambient'
 import { MiniPlayerButton } from '@/app/components/mini-player/button'
 import { RadioInfo } from '@/app/components/player/radio-info'
 import { TrackInfo } from '@/app/components/player/track-info'
@@ -50,6 +51,7 @@ const MemoLyricsButton = memo(PlayerLyricsButton)
 const MemoMiniPlayerButton = memo(MiniPlayerButton)
 
 export function Player() {
+  const ambientStyle = useSonaAmbient()
   const swipeStart = useRef<{ x: number; y: number } | null>(null)
   const hideFavoritesSection = useAppStore().pages.hideFavoritesSection
   const { setIsFullscreen } = usePlayerFullscreen()
@@ -214,7 +216,7 @@ export function Player() {
   }, [song, replayGainDefaultGain, replayGainPreAmp, replayGainType])
 
   return (
-    <footer data-mobile-active={Boolean(song || radio || podcast)}
+    <footer data-mobile-active={Boolean(song || radio || podcast)} style={ambientStyle}
       onTouchStart={(event) => { if (window.innerWidth < 768) swipeStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY } }}
       onTouchEnd={(event) => {
         const start = swipeStart.current

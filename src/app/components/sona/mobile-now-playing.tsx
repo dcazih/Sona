@@ -7,6 +7,7 @@ import { LyricsTab } from '@/app/components/fullscreen/lyrics'
 import { SonaMobileProgress } from '@/app/components/sona/mobile-progress'
 import { VolumeContainer } from '@/app/components/fullscreen/volume-container'
 import { SonaMobileQueue } from '@/app/components/sona/mobile-queue'
+import { useSonaAmbient } from '@/app/hooks/use-sona-ambient'
 import {
   usePlayerActions,
   usePlayerCurrentSong,
@@ -19,6 +20,7 @@ type Gesture = { x: number; y: number }
 export function SonaMobileNowPlaying() {
   const { isFullscreen, setIsFullscreen } = usePlayerFullscreen()
   const song = usePlayerCurrentSong()
+  const ambientStyle = useSonaAmbient()
   const { playPrevSong, playNextSong } = usePlayerActions()
   const [view, setView] = useState<View>('playing')
   const [dragY, setDragY] = useState(0)
@@ -108,6 +110,7 @@ export function SonaMobileNowPlaying() {
       aria-hidden={!isFullscreen}
       aria-label="Now Playing"
       style={{
+        ...ambientStyle,
         '--sona-drag-y': String(dragY) + 'px',
         '--sona-drag-progress': String(Math.min(1, dragY / 310)),
       } as CSSProperties}
