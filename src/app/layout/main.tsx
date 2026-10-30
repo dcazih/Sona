@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Location, Outlet, useLocation } from 'react-router-dom'
 import { ScrollArea } from '@/app/components/ui/scroll-area'
-import { SonaPullToRefresh } from '@/app/components/sona/mobile-refresh'
+import { SonaImplicitRefresh } from '@/app/components/sona/mobile-refresh'
 import { scrollPageToTop } from '@/utils/scrollPageToTop'
 
 export function MainRoutes() {
@@ -19,7 +19,7 @@ export function MainRoutes() {
       >
         <Outlet />
       </ScrollArea>
-      <SonaPullToRefresh />
+      <SonaImplicitRefresh />
     </main>
   )
 }

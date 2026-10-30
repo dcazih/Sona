@@ -12,11 +12,11 @@ import { useGetRandomSongs } from '@/app/hooks/use-home'
 import { useAppStore } from '@/store/app.store'
 
 export function HomeHeader() {
-  const { data: songs, isLoading, isFetching } = useGetRandomSongs()
+  const { data: songs, isLoading } = useGetRandomSongs()
   const autoScrollEnabled = useAppStore().pages.homeAutoScrollEnabled
   const loopEnabled = useAppStore().pages.homeLoopEnabled
 
-  if (isLoading || isFetching) return <HeaderFallback />
+  if (isLoading && !songs) return <HeaderFallback />
   if (!songs || songs.length === 0) return null
 
   return (
