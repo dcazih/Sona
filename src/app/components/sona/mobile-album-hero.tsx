@@ -28,7 +28,6 @@ export function SonaMobileAlbumHero({ album }: { album: SingleAlbum }) {
     // derived from the artwork's dominant color rather than a separate overlay.
     const root = document.documentElement
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
-    const previous = meta?.content
     const rgb = /^#([0-9a-f]{6})$/i.exec(color)?.[1]
     const mix = rgb ? [0,2,4].map(i => {
       const channel = parseInt(rgb.slice(i,i+2),16)
@@ -39,7 +38,7 @@ export function SonaMobileAlbumHero({ album }: { album: SingleAlbum }) {
     meta?.setAttribute('content',chrome)
     return () => {
       root.style.removeProperty('--sona-top-chrome-color')
-      if (previous) meta?.setAttribute('content',previous)
+      meta?.setAttribute('content','#080809')
     }
   }, [color])
 

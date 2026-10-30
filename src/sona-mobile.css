@@ -2176,3 +2176,18 @@
 @media(prefers-reduced-motion:reduce){
   .sona-album-morph{display:none}
 }
+
+/* Loading layout is an exact footprint match to the real featured cards. */
+@media(max-width:767px){
+  .sona-featured-loading{width:100%;padding:24px 0 16px;overflow:hidden}
+  .sona-featured-arrow-placeholder{display:block;width:33px;height:33px;border-radius:50%;background:#ffffff15}
+  .sona-featured-loading-row{display:flex;gap:0;padding-left:20px;overflow:hidden}
+  .sona-featured-loading-slide{flex:0 0 min(76vw,355px);max-width:min(76vw,355px);padding-right:13px}
+  .sona-featured-loading-card{border-radius:20px;overflow:hidden;background:#29282c}
+  .sona-featured-loading-cover{display:block;aspect-ratio:1;width:100%;height:auto!important;border-radius:0!important;background:#ffffff12!important}
+  .sona-featured-loading-details{display:flex;flex-direction:column;gap:9px;padding:13px 16px 18px;min-height:118px}
+  .sona-featured-loading-tag{width:88px;height:8px;background:#ffffff15!important}
+  .sona-featured-loading-song{width:77%;height:17px;background:#ffffff19!important}
+  .sona-featured-loading-artist{width:54%;height:12px;background:#ffffff13!important}
+  .sona-featured-loading-album{width:66%;height:9px;margin-top:3px;background:#ffffff10!important}
+}
