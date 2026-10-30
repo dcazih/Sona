@@ -1,11 +1,11 @@
-import { Ellipsis, Music2 } from 'lucide-react'
-import { ImageLoader } from '@/app/components/image-loader'
+import { Ellipsis } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { ROUTES } from '@/routes/routesList'
+import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { SongMenuOptions } from '@/app/components/song/menu-options'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/app/components/ui/dropdown-menu'
+import { ROUTES } from '@/routes/routesList'
 import { usePlayerActions, usePlayerCurrentSong } from '@/store/player.store'
-import { SingleAlbum } from '@/types/responses/album'
+import type { SingleAlbum } from '@/types/responses/album'
 import { convertSecondsToTime } from '@/utils/convertSecondsToTime'
 
 export function SonaMobileAlbumTracks({ album }: { album: SingleAlbum }) {
@@ -22,43 +22,42 @@ export function SonaMobileAlbumTracks({ album }: { album: SingleAlbum }) {
     <section className="sona-album-songs" aria-label={'Tracks on ' + album.name}>
       <div className="sona-album-songs-heading">
         <strong>Songs</strong>
-        <span>{album.song.length} tracks</span>
+        <span>{album.song.length} {album.song.length === 1 ? 'track' : 'tracks'}</span>
       </div>
-      {album.song.map((song, index) => {
-        const active = Boolean(song.id && song.id === currentSong?.id)
-        return (
-          <div className={'sona-album-song-row' + (active ? ' is-playing' : '')}
-            key={song.id + ':' + index}>
-            <div className="sona-album-song-select">
-              <button type="button" className="sona-album-song-play"
-                aria-label={'Play ' + song.title} onClick={() => play(index)}>
-                <span className="sona-album-song-index">{active ? <Music2 size={19} /> : (song.track || index + 1)}</span>
-                <span className="sona-album-song-art">
-                  {song.coverArt ? <ImageLoader id={song.coverArt} type="song" size={100}>
-                    {(src) => <img src={src} alt="" loading="lazy" />}
-                  </ImageLoader> : <Music2 size={18} />}
-                </span>
-                <span className="sona-album-song-text">
-                  <strong>{song.title}</strong>
-                  <small>{song.artist || album.artist}</small>
-                </span>
-              </button>
-              {song.artistId && <Link className="sona-album-song-artist-link"
-                to={ROUTES.ARTIST.PAGE(song.artistId)}>{song.artist || album.artist}</Link>}
+      <div className="sona-album-songs-list">
+        {album.song.map((song, index) => {
+          const active = Boolean(song.id && song.id === currentSong?.id)
+          const showArtist = Boolean(song.artist && song.artistId && song.artist !== album.artist)
+          return (
+            <div className={'sona-album-song-row' + (active ? ' is-playing' : '')}
+              key={song.id + ':' + index}>
+              <span className="sona-album-song-index">
+                {active ? <SonaNoteGlyph size={20}/> : (song.track || index + 1)}
+              </span>
+              <div className="sona-album-song-main">
+                <button type="button" className="sona-album-song-title"
+                  aria-label={'Play ' + song.title} onClick={() => play(index)}>
+                  {song.title}
+                </button>
+                {showArtist && (
+                  <Link className="sona-album-song-secondary-artist"
+                    to={ROUTES.ARTIST.PAGE(song.artistId)}>{song.artist}</Link>
+                )}
+              </div>
+              <span className="sona-album-song-duration">{convertSecondsToTime(song.duration || 0)}</span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button type="button" className="sona-album-song-more"
+                    aria-label={'Options for ' + song.title}><Ellipsis size={22}/></button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <SongMenuOptions variant="dropdown" song={song} index={index}/>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-            <span className="sona-album-song-duration">{convertSecondsToTime(song.duration || 0)}</span>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="sona-album-song-more" type="button"
-                  aria-label={'Options for ' + song.title}><Ellipsis size={21}/></button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <SongMenuOptions variant="dropdown" song={song} index={index} />
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
     </section>
   )
 }
