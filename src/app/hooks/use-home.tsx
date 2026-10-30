@@ -7,6 +7,7 @@ export const useGetRandomSongs = () => {
   return useQuery({
     queryKey: [queryKeys.song.random],
     queryFn: () => subsonic.songs.getRandomSongs({ size: 10 }),
+    staleTime: convertMinutesToMs(5),
   })
 }
 
@@ -52,5 +53,6 @@ export const useGetRandomAlbums = () => {
         size: 16,
         type: 'random',
       }),
+    staleTime: convertMinutesToMs(5),
   })
 }

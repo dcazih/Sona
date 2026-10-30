@@ -1,8 +1,10 @@
 import Autoplay from 'embla-carousel-autoplay'
+import { useEffect, useState } from 'react'
 import { HeaderFallback } from '@/app/components/fallbacks/home-fallbacks'
 import { HeaderItem } from '@/app/components/home/carousel/header-item'
 import {
   Carousel,
+  type CarouselApi,
   CarouselContent,
   CarouselItem,
   CarouselNext,
@@ -11,16 +13,29 @@ import {
 import { useGetRandomSongs } from '@/app/hooks/use-home'
 import { useAppStore } from '@/store/app.store'
 
+// Keep the featured song in place when switching between mobile tabs.
+let lastFeaturedIndex = 0
+
 export function HomeHeader() {
+  const [api, setApi] = useState<CarouselApi>()
   const { data: songs, isLoading } = useGetRandomSongs()
   const autoScrollEnabled = useAppStore().pages.homeAutoScrollEnabled
   const loopEnabled = useAppStore().pages.homeLoopEnabled
+
+  useEffect(() => {
+    if (!api) return
+    api.scrollTo(lastFeaturedIndex, true)
+    const onSelect = () => { lastFeaturedIndex = api.selectedScrollSnap() }
+    api.on('select', onSelect)
+    return () => { api.off('select', onSelect) }
+  }, [api])
 
   if (isLoading && !songs) return <HeaderFallback />
   if (!songs || songs.length === 0) return null
 
   return (
     <Carousel
+      setApi={setApi}
       className="w-full overflow-hidden z-10"
       opts={{
         loop: loopEnabled,
