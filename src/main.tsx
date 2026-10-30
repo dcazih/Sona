@@ -9,6 +9,7 @@ import '@/fonts.css'
 import '@/themes.css'
 import '@/index.css'
 import '@/sona-mobile.css'
+import '@/sona-login.css'
 
 import '@/i18n'
 

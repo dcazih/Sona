@@ -1,0 +1,87 @@
+/* Sona sign-in: dark glass, soft pink ambient color, mobile-first touch targets. */
+.sona-login-screen{position:relative;isolation:isolate;width:100%;height:100dvh;overflow:hidden;background:#101013;color:#f8f7f9}
+.sona-login-glow{position:absolute;z-index:-1;pointer-events:none;border-radius:50%;filter:blur(80px)}
+.sona-login-glow-one{width:min(750px,95vw);height:550px;top:-260px;left:calc(50% - 380px);background:radial-gradient(ellipse,rgba(164,61,102,.28),rgba(92,52,97,.12) 55%,transparent 80%)}
+.sona-login-glow-two{width:620px;height:510px;bottom:-390px;right:-190px;background:radial-gradient(ellipse,rgba(109,66,123,.2),transparent 74%)}
+.sona-login-topbar{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;align-items:center;justify-content:space-between;height:78px;padding:0 clamp(22px,5vw,60px)}
+.sona-login-topbar .sona-brand-mark{height:35px;width:35px;border-radius:11px}
+.sona-login-topbar .sona-brand-label{font-size:23px;color:#fff;font-weight:820}
+.sona-login-topbar-tag{font-size:10px;letter-spacing:.19em;color:#a7a1ae;font-weight:680}
+.sona-login-main{width:100%;height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow-y:auto;overscroll-behavior-y:contain;padding:100px 18px 30px;-webkit-overflow-scrolling:touch}
+.sona-login-intro{display:flex;flex-direction:column;align-items:center;text-align:center;flex:none;margin-bottom:28px}
+.sona-login-art{position:relative;width:74px;height:70px;margin-bottom:19px}
+.sona-login-art-back{position:absolute;width:62px;height:62px;left:12px;top:0;transform:rotate(14deg);border-radius:19px;background:linear-gradient(135deg,#74495b,#332a39);box-shadow:0 10px 36px #0005}
+.sona-login-art-front{position:absolute;left:0;top:9px;width:62px;height:62px;border-radius:19px;display:grid;place-items:center;color:white;background:linear-gradient(138deg,#f0718c,#d34a6b 55%,#b8395b);box-shadow:0 12px 35px #842b4d5c,inset 0 1px #ffffff55}
+.sona-login-art-front svg{width:36px;height:36px}
+.sona-login-eyebrow{font-size:10px;font-weight:800;letter-spacing:.17em;color:#f58ba2;margin-bottom:10px}
+.sona-login-intro h1{font-weight:800;font-size:clamp(30px,4.2vw,44px);letter-spacing:-.055em;line-height:1.15}
+.sona-login-intro h1 span{color:#f48aa3}
+.sona-login-subtitle{font-size:13px;line-height:1.4;color:#aaa3b0;margin-top:11px}
+.sona-login-card{position:relative;width:min(430px,100%);flex:none;background:rgba(38,36,44,.74)!important;border:1px solid #ffffff20!important;border-radius:24px!important;box-shadow:0 24px 60px #0005,inset 0 1px #ffffff10!important;-webkit-backdrop-filter:blur(28px) saturate(1.4);backdrop-filter:blur(28px) saturate(1.4)}
+.sona-login-card-header{padding:25px 27px 14px;flex-direction:row;align-items:start;justify-content:space-between;gap:12px}
+.sona-login-section-label{font-size:10px;letter-spacing:.15em;color:#f47b96;font-weight:800;margin:0 0 10px}
+.sona-login-card-header h3{font-size:21px;line-height:1.2;letter-spacing:-.045em;color:#fff;font-weight:740}
+.sona-login-card-subtitle{font-size:12px;color:#aaa3af;margin-top:7px}
+.sona-login-language [role=combobox]{background:#ffffff0d!important;border:1px solid #ffffff19!important;color:#f8f7fa!important;border-radius:10px!important;width:60px!important;min-width:60px}
+.sona-login-fields{display:flex;flex-direction:column;gap:17px;padding:9px 27px 17px}
+.sona-login-field{display:flex;flex-direction:column;gap:8px}
+.sona-login-field label,.sona-login-server-content label{font-size:12px;color:#e0dce3;font-weight:650;line-height:1.2}
+.sona-login-input-wrap{position:relative;height:50px;display:flex;align-items:center;gap:12px;padding:0 14px;border:1px solid #ffffff23;border-radius:12px;background:#ffffff0b;color:#a49dab;transition:background .2s,border-color .2s}
+.sona-login-input-wrap:focus-within{border-color:#f37091ac;background:#ffffff11}
+.sona-login-input-wrap>svg{flex:none}
+.sona-login-input-wrap input{width:100%;height:100%;flex:1;min-width:0;background:transparent!important;color:#fff!important;border:0!important;outline:0!important;box-shadow:none!important;padding:0!important;border-radius:0!important;font-size:16px!important}
+.sona-login-input-wrap input::placeholder{color:#827d88}
+.sona-login-input-wrap .relative{height:100%;flex:1;min-width:0}
+.sona-login-input-wrap .relative input{padding-right:42px!important}
+.sona-login-input-wrap .relative button{width:40px;color:#c5bbc7}
+.sona-login-server-field{margin-top:1px}
+.sona-login-server-trigger{display:flex;align-items:center;gap:10px;text-align:left;min-height:49px;width:100%;padding:9px 11px;background:#0003;border:1px solid #ffffff1c;border-radius:12px;color:#d9d1dc;cursor:pointer;transition:border-color .2s,background .2s}
+.sona-login-server-trigger:hover,.sona-login-server-trigger[data-state=open]{background:#ffffff11;border-color:#ffffff31}
+.sona-login-server-trigger:focus-visible,.sona-login-submit:focus-visible{outline:2px solid #f47795;outline-offset:3px}
+.sona-login-server-indicator{display:grid;place-items:center;flex:none;width:26px;height:29px;color:#f58aa1}
+.sona-login-server-name{flex:1;min-width:0;display:flex;align-items:baseline;gap:5px;font-size:12px}
+.sona-login-server-name>span{color:#aaa3b0;flex:none}
+.sona-login-server-name strong{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:#e6e2e8;font-weight:620}
+.sona-login-server-chevron{flex:none;color:#a59eaa;transition:transform .25s cubic-bezier(.2,.95,.3,1)}
+.sona-login-server-chevron.is-open{transform:rotate(180deg)}
+.sona-login-server-content{display:flex;flex-direction:column;gap:9px;margin-top:12px;padding:3px 1px 0}
+.sona-login-server-content[data-state=closed]{display:none}
+.sona-login-server-content input{width:100%;min-height:47px;border-radius:11px!important;background:#ffffff0c!important;color:white!important;border:1px solid #ffffff2e!important;font-size:16px!important;outline:0!important;box-shadow:none!important}
+.sona-login-server-content input:focus{border-color:#f47795!important}
+.sona-login-server-help{font-size:11px;color:#a49fac;line-height:1.5}
+.sona-login-submit-wrap{padding:4px 27px 26px}
+.sona-login-submit{width:100%!important;min-height:51px!important;padding:0 18px!important;border-radius:13px!important;border:0!important;display:flex;align-items:center;justify-content:center;gap:9px;background:linear-gradient(105deg,#ec6481,#d54b6c)!important;color:white!important;font-size:15px!important;font-weight:740!important;box-shadow:0 7px 21px #bc3a5e40;transition:filter .15s,transform .18s cubic-bezier(.22,1,.3,1)!important}
+.sona-login-submit:active:not(:disabled){transform:scale(.985)}
+.sona-login-submit:hover:not(:disabled){filter:brightness(1.07)}
+.sona-login-submit>span{font-size:23px;line-height:1;position:relative;top:-1px}
+.sona-login-footnote{font-size:11px;color:#77717f;margin-top:23px;text-align:center}
+@media(max-width:600px){
+  .sona-login-topbar{height:calc(60px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 23px 0}
+  .sona-login-topbar-tag{display:none}
+  .sona-login-topbar .sona-brand-label{font-size:20px}
+  .sona-login-topbar .sona-brand-mark{width:32px;height:32px}
+  .sona-login-main{justify-content:safe center;padding:calc(69px + env(safe-area-inset-top,0px)) 19px calc(16px + env(safe-area-inset-bottom,0px))}
+  .sona-login-intro{margin-bottom:23px}
+  .sona-login-art{width:60px;height:58px;margin-bottom:17px}
+  .sona-login-art-back{width:50px;height:50px;left:10px;border-radius:16px}
+  .sona-login-art-front{width:50px;height:50px;top:7px;border-radius:16px}
+  .sona-login-art-front svg{width:30px;height:30px}
+  .sona-login-eyebrow{font-size:9px;margin-bottom:8px}
+  .sona-login-intro h1{font-size:31px}
+  .sona-login-subtitle{font-size:12px;margin-top:8px}
+  .sona-login-card{border-radius:22px!important}
+  .sona-login-card-header{padding:23px 21px 14px}
+  .sona-login-card-header h3{font-size:20px}
+  .sona-login-fields{padding:7px 21px 16px;gap:16px}
+  .sona-login-submit-wrap{padding:5px 21px 23px}
+  .sona-login-footnote{margin-top:16px}
+}
+@media(max-width:380px){
+  .sona-login-main{padding-top:calc(64px + env(safe-area-inset-top,0px))}
+  .sona-login-intro{margin-bottom:15px}
+  .sona-login-art{display:none}
+  .sona-login-card-header{padding-top:19px}
+  .sona-login-fields{gap:12px}
+  .sona-login-footnote{margin-top:10px}
+}
+@media(prefers-reduced-motion:reduce){.sona-login-card *,.sona-login-submit,.sona-login-server-chevron{transition:none!important}}
