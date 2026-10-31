@@ -117,31 +117,48 @@ export function SonaMobileNavigation() {
 
   useEffect(() => {
     const vp = window.visualViewport
-    if (!isSearch || !vp) {
-      document.documentElement.style.setProperty('--sona-keyboard-offset', '0px')
+    const root = document.documentElement
+    if (!isSearch) {
+      root.style.removeProperty('--sona-visual-bottom')
+      root.style.removeProperty('--sona-visual-height')
+      root.style.removeProperty('--sona-keyboard-offset')
       return
     }
-    let frame: number | null = null
+    let frame = 0
+    // Track the visual viewport itself, not only the difference between
+    // window.innerHeight and viewport.height. Safari can resize both while
+    // raising its keyboard, which previously made the offset appear zero.
+    let baseline = Math.max(window.innerHeight, vp?.height || 0)
     const update = () => {
-      if (frame !== null) cancelAnimationFrame(frame)
+      if (frame) cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() => {
-        const offset = Math.max(0, window.innerHeight - vp.height - vp.offsetTop)
-        const next = offset > 15 ? Math.round(offset) : 0
-        document.documentElement.style.setProperty('--sona-keyboard-offset', next + 'px')
-        setKeyboardVisible(next > 100)
-        frame = null
+        const visual = window.visualViewport
+        const top = visual?.offsetTop || 0
+        const height = visual?.height || window.innerHeight
+        const bottom = top + height
+        if (height > baseline) baseline = height
+        const keyboardHeight = Math.max(0, baseline - bottom)
+        root.style.setProperty('--sona-visual-bottom', Math.round(bottom) + 'px')
+        root.style.setProperty('--sona-visual-height', Math.round(height) + 'px')
+        root.style.setProperty('--sona-keyboard-offset', Math.round(keyboardHeight) + 'px')
+        setKeyboardVisible(keyboardHeight > 100)
+        frame = 0
       })
     }
     update()
-    vp.addEventListener('resize', update)
-    vp.addEventListener('scroll', update)
+    vp?.addEventListener('resize', update)
+    vp?.addEventListener('scroll', update)
     window.addEventListener('resize', update)
+    window.addEventListener('orientationchange', update)
     return () => {
-      if (frame !== null) cancelAnimationFrame(frame)
-      vp.removeEventListener('resize', update)
-      vp.removeEventListener('scroll', update)
+      if (frame) cancelAnimationFrame(frame)
+      vp?.removeEventListener('resize', update)
+      vp?.removeEventListener('scroll', update)
       window.removeEventListener('resize', update)
-      document.documentElement.style.setProperty('--sona-keyboard-offset', '0px')
+      window.removeEventListener('orientationchange', update)
+      root.style.removeProperty('--sona-visual-bottom')
+      root.style.removeProperty('--sona-visual-height')
+      root.style.removeProperty('--sona-keyboard-offset')
     }
   }, [isSearch])
 
@@ -228,8 +245,12 @@ export function SonaMobileNavigation() {
         <button type="button" className="sona-search-orb"
           aria-label={isSearch ? 'Focus search' : 'Search'}
           onClick={() => {
-            if (!isSearch) { navigate('/mobile-search'); return }
-            inputRef.current?.focus()
+            if (!isSearch) {
+              navigate('/mobile-search')
+              inputRef.current?.focus({ preventScroll: true })
+              return
+            }
+            inputRef.current?.focus({ preventScroll: true })
           }}>
           <Search size={24} strokeWidth={isSearch ? 2.3 : 1.9} />
         </button>
@@ -244,7 +265,12 @@ export function SonaMobileNavigation() {
             autoComplete="off"
             placeholder={focused ? 'Artists, albums, songs…' : 'Search Your Library'}
             value={term}
-            onFocus={() => setFocused(true)}
+            onFocus={() => {
+              setFocused(true)
+              requestAnimationFrame(() => {
+                getMainScrollElement()?.scrollTo({ top: 0, behavior: 'instant' })
+              })
+            }}
             onBlur={() => setFocused(false)}
             onChange={(event) => setTerm(event.target.value)}
             onKeyDown={(event) => { if (event.key === 'Escape') leaveSearch() }}
@@ -258,9 +284,9 @@ export function SonaMobileNavigation() {
                 aria-label="Voice search" onClick={startVoiceSearch}><Mic size={19} /></button>}
         </div>
         <button type="button" className="sona-search-exit" tabIndex={isSearch ? 0 : -1}
-          aria-label="Close search"
+          aria-label="Return Home"
           onClick={() => { leaveSearch(); navigate(ROUTES.LIBRARY.HOME) }}>
-          <X size={22} />
+          <House size={23} strokeWidth={2.1} />
         </button>
         {voiceError && <span role="status" className="sona-search-voice-error">{voiceError}</span>}
       </div>

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, ChevronRight, Play, Search } from 'lucide-react'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
 import { ROUTES } from '@/routes/routesList'
@@ -39,6 +39,7 @@ export default function SonaMobileSearch() {
   const [query, setQuery] = useState('')
   const [recent, setRecent] = useState<RecentItem[]>(loadRecents)
   const [errorMessage, setErrorMessage] = useState('')
+  const [stageKey, setStageKey] = useState(0)
   const { playSong, setSongList } = usePlayerActions()
 
   useEffect(() => {
@@ -48,6 +49,17 @@ export default function SonaMobileSearch() {
     const timeout = window.setTimeout(() => setQuery(term.trim()), 240)
     return () => window.clearTimeout(timeout)
   }, [term])
+
+  useLayoutEffect(() => {
+    // After a new search, the first results must remain visible at the top
+    // rather than inheriting Safari's previous scroll position.
+    const viewport = getMainScrollElement()
+    viewport?.scrollTo({ top: 0, behavior: 'instant' })
+  }, [query, filter])
+
+  useEffect(() => {
+    if (query.length) setStageKey((value) => value + 1)
+  }, [query, filter])
 
   const { data: searchData, isFetching, isError } = useQuery({
     queryKey: ['sona-mobile-search-v2', query],
@@ -151,6 +163,7 @@ export default function SonaMobileSearch() {
 
   return (
     <div className={'sona-am-search-page ' + (activeSearch ? 'is-search-active' : '')}>
+      {activeSearch && <div className="sona-search-page-veil" key={'veil-' + stageKey} aria-hidden="true" />}
       {!activeSearch ? (
         <>
           <h1 className="sona-am-search-heading">Search</h1>
@@ -195,7 +208,7 @@ export default function SonaMobileSearch() {
               )}
             </section>
           ) : (
-            <div className="sona-am-live-results sona-am-in">
+            <div className="sona-am-live-results sona-am-in" key={'results-' + stageKey}>
               <div className="sona-am-filter-pills" role="group" aria-label="Filter search results">
                 {([['all','All'],['songs','Songs'],['albums','Albums'],['artists','Artists']] as [SearchFilter,string][]).map(([value,label])=> (
                   <button type="button" key={value} aria-pressed={filter===value}
