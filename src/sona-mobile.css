@@ -226,7 +226,7 @@
   .sona-now-overlay{animation:none!important}
 }
 
-/* Mobile refinements: inherit Cassette colors, remove desktop remnants. */
+/* Mobile refinements: retain the Sona palette and remove desktop remnants. */
 @media (max-width:767px) {
   :root { --sona-tab-height:calc(67px + env(safe-area-inset-bottom,0px)); }
   .sona-app-shell[data-sona-has-media="false"] { --player-height:var(--sona-tab-height); }
@@ -2529,11 +2529,12 @@
   html::-webkit-scrollbar,body::-webkit-scrollbar,#root::-webkit-scrollbar,.sona-app-shell *::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
 
   /* Compact, centered, finite Top Picks carousel. */
-  .sona-featured-track{padding-left:0!important;padding-right:0!important}
-  .sona-featured-slide{flex:0 0 min(74vw,310px)!important;max-width:min(74vw,310px)!important;padding:0 7px!important}
+  .sona-featured-track{padding-left:20px!important;padding-right:20px!important;gap:12px!important}
+  .sona-featured-slide{flex:0 0 min(58vw,250px)!important;max-width:min(58vw,250px)!important;padding:0!important}
   .sona-featured-details{min-height:82px!important;padding:9px 12px 10px!important}
   .sona-featured-album-name{margin-top:3px!important}
-  .sona-featured-loading-slide{flex:0 0 min(74vw,310px)!important;max-width:min(74vw,310px)!important;padding:0 7px!important}
+  .sona-featured-loading-row{padding-left:20px!important;gap:12px!important}
+  .sona-featured-loading-slide{flex:0 0 min(58vw,250px)!important;max-width:min(58vw,250px)!important;padding:0!important}
 
   /* Album rails own their edge spacing. Removing Embla's negative track
      margin keeps the first cover out from under the clipped viewport. */

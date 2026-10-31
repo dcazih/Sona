@@ -47,7 +47,7 @@ export default function SonaMobileSearch() {
     // A new query must always start at the top of the result list, even
     // when the user entered Search while scrolled far down.
     getMainScrollElement()?.scrollTo({ top: 0, behavior: 'auto' })
-    const timeout = window.setTimeout(() => setQuery(term.trim()), 520)
+    const timeout = window.setTimeout(() => setQuery(term.trim()), 320)
     return () => window.clearTimeout(timeout)
   }, [term])
 
@@ -68,7 +68,6 @@ export default function SonaMobileSearch() {
     enabled: query.length >= 2,
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    placeholderData: (previous) => previous,
   })
   const { data: genres } = useQuery({
     queryKey: ['sona-mobile-genre-browse'],
@@ -81,9 +80,10 @@ export default function SonaMobileSearch() {
     staleTime: 300000,
   })
 
-  const songs = searchData?.song ?? []
-  const albums = searchData?.album ?? []
-  const artists = searchData?.artist ?? []
+  const resultsReady = term.trim() === query
+  const songs = resultsReady ? searchData?.song ?? [] : []
+  const albums = resultsReady ? searchData?.album ?? [] : []
+  const artists = resultsReady ? searchData?.artist ?? [] : []
   const hasResults = songs.length > 0 || albums.length > 0 || artists.length > 0
   const activeSearch = focused || term.length > 0
 
@@ -232,7 +232,7 @@ export default function SonaMobileSearch() {
               </div>
               {errorMessage && <p className="sona-am-status">{errorMessage}</p>}
               {isError && <p className="sona-am-status">Search failed. Check your Navidrome connection.</p>}
-              {isFetching && <p className="sona-am-status">Searching your library...</p>}
+              {(isFetching || !resultsReady) && <p className="sona-am-status">Searching your library...</p>}
               {query.length >= 2 && !isFetching && !isError && !hasResults &&
                 <p className="sona-am-status">No matches found for “{query}”.</p>}
               {showArtists && artists.length > 0 &&

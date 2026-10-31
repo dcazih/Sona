@@ -49,11 +49,12 @@ export function useSonaMomentumSnap(api: CarouselApi, itemCount: number) {
     if (recentSpeed < 1.8 || acceleration < 0.014) return
     const steps = Math.min(3, 2 + Math.floor((acceleration - 0.014) / 0.026))
     const direction = delta < 0 ? 1 : -1
-    const target = current.startIndex + direction * steps
+    const target = Math.max(0, Math.min(itemCount - 1,
+      current.startIndex + direction * steps))
     // Applied after pointer-up so our target wins over Embla's ordinary snap.
     requestAnimationFrame(() => {
       if (!api) return
-      api.scrollTo(((target % itemCount) + itemCount) % itemCount)
+      api.scrollTo(target)
     })
   }
   return { onTouchStartCapture, onTouchMoveCapture, onTouchEndCapture }

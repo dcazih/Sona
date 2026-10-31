@@ -61,7 +61,7 @@ export function SonaMobileFeatured({ songs }: { songs: ISong[] }) {
       </div>
       <Carousel className="sona-featured-carousel" setApi={setApi}
         {...gestures}
-        opts={{ align: 'center', containScroll: false,
+        opts={{ align: 'start', containScroll: 'trimSnaps',
           startIndex: Math.max(0, songs.findIndex(song => song.id === featuredSongId)),
           loop: false, slidesToScroll: 1, dragFree: false,
           skipSnaps: false, duration: 30 }}>

@@ -1,8 +1,10 @@
-const CACHE_NAME = 'sona-images-v2'
-const MAX_MEMORY_IMAGES = 180
+const CACHE_NAME = 'sona-images-v3'
+const MAX_MEMORY_IMAGES = 300
+const MAX_PERSISTENT_IMAGES = 600
 
 const memoryImages = new Map<string, string>()
 const warmingImages = new Set<string>()
+const scheduledImages = new Set<string>()
 
 function touchMemoryImage(url: string, src: string) {
   memoryImages.delete(url)
@@ -31,6 +33,11 @@ async function warmImage(url: string) {
       if (!networkResponse.ok) return
       response = networkResponse.clone()
       await cache.put(url, networkResponse)
+      const keys = await cache.keys()
+      if (keys.length > MAX_PERSISTENT_IMAGES) {
+        await Promise.all(keys.slice(0, keys.length - MAX_PERSISTENT_IMAGES)
+          .map((request) => cache.delete(request)))
+      }
     }
 
     const blob = await response.blob()
@@ -44,10 +51,16 @@ async function warmImage(url: string) {
 }
 
 function scheduleWarm(url: string) {
+  if (scheduledImages.has(url) || warmingImages.has(url) || memoryImages.has(url)) return
+  scheduledImages.add(url)
+  const run = () => {
+    scheduledImages.delete(url)
+    void warmImage(url)
+  }
   if ('requestIdleCallback' in window) {
-    window.requestIdleCallback(() => void warmImage(url), { timeout: 1200 })
+    window.requestIdleCallback(run, { timeout: 800 })
   } else {
-    window.setTimeout(() => void warmImage(url), 180)
+    window.setTimeout(run, 80)
   }
 }
 

@@ -205,7 +205,7 @@ export const useAppStore = createWithEqualityFn<IAppContext>()(
                 state.pages.artistsPageViewType = type
               })
             },
-            imagesCacheLayerEnabled: IMAGE_CACHE_ENABLED ?? false,
+            imagesCacheLayerEnabled: IMAGE_CACHE_ENABLED ?? true,
             setImagesCacheLayerEnabled: (value) => {
               set((state) => {
                 state.pages.imagesCacheLayerEnabled = value
@@ -409,7 +409,14 @@ export const useAppStore = createWithEqualityFn<IAppContext>()(
       ),
       {
         name: 'app_store',
-        version: 1,
+        version: 2,
+        migrate: (persistedState, version) => {
+          const persisted = persistedState as Partial<IAppContext> | undefined
+          if (version < 2 && persisted?.pages) {
+            persisted.pages.imagesCacheLayerEnabled = true
+          }
+          return persistedState
+        },
         merge: (persistedState, currentState) => {
           try {
             const persisted = persistedState as Partial<IAppContext> | undefined
@@ -420,7 +427,7 @@ export const useAppStore = createWithEqualityFn<IAppContext>()(
             let hideFavoritesSection = false
             let hidePlaylistsSection = false
             let hideRadiosSection = false
-            let enableImageCache = false
+            let enableImageCache = true
             let enableLyricsCache = true
             let enableMediaCache = true
 
@@ -434,7 +441,7 @@ export const useAppStore = createWithEqualityFn<IAppContext>()(
                 persisted.pages.hidePlaylistsSection ?? false
               hideRadiosSection = persisted.pages.hideRadiosSection ?? false
               enableImageCache =
-                persisted.pages.imagesCacheLayerEnabled ?? false
+                persisted.pages.imagesCacheLayerEnabled ?? true
               enableLyricsCache = persisted.pages.lyricsCacheEnabled ?? true
               enableMediaCache = persisted.pages.mediaCacheEnabled ?? true
             }

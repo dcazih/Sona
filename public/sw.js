@@ -32,13 +32,16 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return
 
   if (/\/rest\/stream(?:\.view)?/.test(url.pathname)) {
+    // CacheStorage rejects partial 206 responses. Let range playback stay on
+    // the direct network path so caching can never break seeking or startup.
+    if (request.headers.has('range')) return
     event.respondWith((async () => {
       if (!mediaPreferences.enabled) return fetch(request)
       const cache = await caches.open(MEDIA_CACHE)
       const cached = await cache.match(request)
       if (cached) return cached
       const response = await fetch(request)
-      if (response.ok && response.type === 'basic') {
+      if (response.status === 200 && response.type === 'basic') {
         await cache.put(request, response.clone())
         await trimMediaCache(cache)
       }

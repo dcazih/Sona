@@ -4,7 +4,9 @@ import { queryKeys } from '@/utils/queryKeys'
 
 const IDB_CACHE_PREFIXES = ['lyrics:', 'animated-artwork:']
 const IMAGE_CACHE_NAME = 'images'
-const SONA_CACHE_NAMES = ['sona-app-v1', 'sona-media-v1']
+const SONA_CACHE_NAMES = [
+  'sona-images-v2', 'sona-images-v3', 'sona-app-v7', 'sona-media-v1',
+]
 
 async function clearIndexedDbCaches() {
   const allKeys = await keys()

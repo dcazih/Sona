@@ -122,14 +122,15 @@ export function SonaMobileNavigation() {
       setSearchVisible(false)
       return
     }
+    // Keep the control usable until iOS reports an actual keyboard viewport.
+    // Once mounted, run the requested delayed fade. No guessed timeout is used
+    // when the keyboard never appeared.
+    if (!keyboardVisible) {
+      setSearchVisible(true)
+      return
+    }
     setSearchVisible(false)
-    // visualViewport does not consistently announce the software keyboard in
-    // an installed iOS PWA. Use its mounted signal when available, with a
-    // bounded fallback so the focused search control can never stay invisible.
-    const timer = window.setTimeout(
-      () => setSearchVisible(true),
-      keyboardVisible ? 1500 : 1900,
-    )
+    const timer = window.setTimeout(() => setSearchVisible(true), 1500)
     return () => window.clearTimeout(timer)
   }, [focused, keyboardVisible])
 
@@ -143,6 +144,7 @@ export function SonaMobileNavigation() {
       return
     }
     let frame = 0
+    let keyboardSettleTimer = 0
     // Track the visual viewport itself, not only the difference between
     // window.innerHeight and viewport.height. Safari can resize both while
     // raising its keyboard, which previously made the offset appear zero.
@@ -159,7 +161,17 @@ export function SonaMobileNavigation() {
         root.style.setProperty('--sona-visual-bottom', Math.round(bottom) + 'px')
         root.style.setProperty('--sona-visual-height', Math.round(height) + 'px')
         root.style.setProperty('--sona-keyboard-offset', Math.round(keyboardHeight) + 'px')
-        setKeyboardVisible(keyboardHeight > 100)
+        window.clearTimeout(keyboardSettleTimer)
+        if (keyboardHeight > 100) {
+          // Wait for VisualViewport to stop changing so the 1.5 second reveal
+          // begins after the keyboard has finished mounting.
+          keyboardSettleTimer = window.setTimeout(
+            () => setKeyboardVisible(true),
+            160,
+          )
+        } else {
+          setKeyboardVisible(false)
+        }
         frame = 0
       })
     }
@@ -170,6 +182,7 @@ export function SonaMobileNavigation() {
     window.addEventListener('orientationchange', update)
     return () => {
       if (frame) cancelAnimationFrame(frame)
+      window.clearTimeout(keyboardSettleTimer)
       vp?.removeEventListener('resize', update)
       vp?.removeEventListener('scroll', update)
       window.removeEventListener('resize', update)
