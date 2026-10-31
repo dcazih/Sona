@@ -1,61 +1,84 @@
-/* Shared Sona toast capsules: compact status icon, concise preview, swipe up. */
+/* Sona notification capsules, one source of truth for layout and motion.
+   Mobile header is z-index:70 and --header-height already includes the notch;
+   this layer must remain *behind* it until the capsule slides below it. */
 .Toastify__toast-container.sona-toast-container{
-  --toastify-toast-width: auto;
-  --toastify-toast-min-height: 0px;
-  --toastify-toast-max-height: none;
+  --toastify-toast-width:80vw;
+  --toastify-toast-min-height:0px;
+  --toastify-toast-max-height:40px;
   position:fixed!important;
-  top:calc(var(--header-height,44px) + env(safe-area-inset-top,0px) + 11px)!important;
+  inset:auto auto auto 50%!important;
+  top:calc(var(--header-height,44px) + 5px)!important;
+  left:50%!important;
+  right:auto!important;
   bottom:auto!important;
-  left:50%!important;right:auto!important;
-  width:min(332px,calc(100vw - 42px))!important;
-  max-width:calc(100vw - 42px)!important;
-  transform:translateX(-50%)!important;
+  width:80vw!important;
+  max-width:80vw!important;
   padding:0!important;
-  z-index:10030!important;
+  margin:0!important;
+  transform:translateX(-50%)!important;
+  z-index:69!important;
   pointer-events:none;
+  overflow:visible!important;
 }
 .Toastify__toast-container.sona-toast-container .Toastify__toast.sona-toast{
-  display:flex;align-items:center;
-  box-sizing:border-box;
-  min-height:44px!important;
-  max-height:74px!important;
   width:100%!important;
-  margin:0 0 8px!important;
-  padding:6px 12px!important;
-  border:1px solid rgba(255,255,255,.14)!important;
+  height:40px!important;
+  min-height:40px!important;
+  max-height:40px!important;
+  padding:5px 10px!important;
+  margin:0 0 6px!important;
+  display:flex!important;
+  align-items:center!important;
+  box-sizing:border-box!important;
   border-radius:999px!important;
-  background:rgba(36,35,41,.94)!important;
-  color:#faf9fd!important;
-  box-shadow:0 11px 29px rgba(0,0,0,.33)!important;
-  backdrop-filter:blur(24px) saturate(1.4);
-  -webkit-backdrop-filter:blur(24px) saturate(1.4);
-  pointer-events:auto;
-  cursor:default;
+  border:1px solid rgba(255,255,255,.1)!important;
+  background:rgba(48,48,51,.98)!important;
+  color:#f8f8fa!important;
+  box-shadow:0 7px 22px rgba(0,0,0,.32)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.2);
+  backdrop-filter:blur(18px) saturate(1.2);
   touch-action:none;
+  pointer-events:auto;
+  overflow:hidden!important;
+  cursor:default;
   translate:0 0;
-  transition:translate .19s cubic-bezier(.2,.82,.23,1),opacity .19s ease;
+  transition:translate .16s cubic-bezier(.2,.85,.2,1),
+    opacity .16s ease!important;
 }
 .Toastify__toast-container.sona-toast-container .Toastify__toast.sona-toast[data-swiping=true]{
   transition:none!important;
 }
-.sona-toast .Toastify__toast-body,
+.Toastify__toast-container.sona-toast-container .Toastify__toast-body,
 .Toastify__toast-body.sona-toast-body{
-  display:flex!important;align-items:center!important;
-  gap:9px!important;
-  padding:0!important;margin:0!important;
-  width:100%;min-width:0;
-  line-height:1.3!important;
+  display:flex!important;
+  align-items:center!important;
+  flex:1 1 auto!important;
+  gap:8px!important;
+  min-width:0!important;
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:1.2!important;
 }
 .sona-toast .Toastify__toast-icon{
-  display:grid!important;place-items:center!important;
-  width:28px!important;min-width:28px!important;height:28px!important;
-  margin:0!important;flex:0 0 28px!important
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 24px!important;
+  width:24px!important;
+  min-width:24px!important;
+  height:24px!important;
+  margin:0!important;
 }
 .sona-toast-status{
-  display:grid;place-items:center;flex:none;
-  width:27px;height:27px;border-radius:50%;color:white;
-  background:rgba(255,80,120,.88)
+  display:grid;
+  place-items:center;
+  flex:none;
+  width:23px;height:23px;
+  border-radius:50%;
+  color:#fff;
+  background:#fc4b79;
 }
+.sona-toast-status svg{width:14px;height:14px}
 .sona-toast-status-success{background:#2aaf78}
 .sona-toast-status-error{background:#e45e6c}
 .sona-toast-status-warning{background:#dc9b38}
@@ -63,70 +86,76 @@
 .sona-toast-status-loading{background:#ff5380}
 @keyframes sona-toast-spin-animation{to{transform:rotate(360deg)}}
 .sona-toast-spin{animation:sona-toast-spin-animation .7s linear infinite}
-.sona-toast .Toastify__toast-body>div:last-child{
-  display:-webkit-box;
-  -webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;
-  overflow:hidden;text-overflow:ellipsis;
-  max-height:38px;
+.sona-toast .Toastify__toast-body > div:last-child{
+  display:block!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+  max-height:18px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
   font-family:"Sona Jakarta",system-ui,-apple-system,sans-serif;
-  font-size:12px!important;font-weight:610;
-  line-height:1.33!important;letter-spacing:-.01em;
-  word-break:normal;overflow-wrap:anywhere;
+  font-size:12px!important;
+  font-weight:610!important;
+  line-height:18px!important;
+  letter-spacing:-.01em;
+}
+.sona-toast .Toastify__toast-body > div:last-child *{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap
 }
 .sona-toast .Toastify__close-button,
 .sona-toast .Toastify__progress-bar,
-.sona-toast .Toastify__progress-bar--wrp{display:none!important}
-@keyframes sona-toast-slide-down{
-  from{opacity:0;transform:translate3d(0,-28px,0) scale(.93);filter:blur(3px)}
-  to{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}
+.sona-toast .Toastify__progress-bar--wrp{
+  display:none!important
 }
-@keyframes sona-toast-slide-up{
-  from{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}
-  to{opacity:0;transform:translate3d(0,-38px,0) scale(.94);filter:blur(3px)}
-}
-.sona-toast-enter{animation:sona-toast-slide-down .36s cubic-bezier(.16,1,.3,1) both}
-.sona-toast-exit{animation:sona-toast-slide-up .25s cubic-bezier(.4,0,.7,.25) both}
-@media(max-width:767px){
- .Toastify__toast-container.sona-toast-container{
-   top:calc(var(--header-height,44px) + env(safe-area-inset-top,0px) + 10px)!important;
- }
- .Toastify__toast-container.sona-toast-container .Toastify__toast.sona-toast{
-   min-height:43px!important;padding:6px 11px!important
- }
-}
-@media(prefers-reduced-motion:reduce){
- .sona-toast-enter,.sona-toast-exit{animation-duration:.01ms!important}
- .sona-toast-spin{animation:none}
-}
-
-/* Toast v16: centered 80% capsule emerges from behind the fixed header. */
-.Toastify__toast-container.sona-toast-container{
-  width:80vw!important;max-width:400px!important;
-  top:calc(var(--header-height,44px) + env(safe-area-inset-top,0px) + 7px)!important;
-  z-index:69!important
-}
-.Toastify__toast-container.sona-toast-container .Toastify__toast.sona-toast{
-  background:rgba(46,45,52,.97)!important
-}
-@keyframes sona-toast-emerge{
-  from{opacity:0;transform:translate3d(0,-88px,0) scale(.97)}
+/* The toast begins inside the opaque top bar and settles exactly 5px below. */
+@keyframes sona-toast-emerge-behind-header{
+  from{
+    opacity:0;
+    transform:translate3d(0,calc(0px - var(--header-height,44px) - 8px),0) scale(.96);
+  }
   to{opacity:1;transform:translate3d(0,0,0) scale(1)}
 }
-@keyframes sona-toast-retreat{
+@keyframes sona-toast-return-behind-header{
   from{opacity:1;transform:translate3d(0,0,0) scale(1)}
-  to{opacity:0;transform:translate3d(0,-88px,0) scale(.97)}
+  to{
+    opacity:0;
+    transform:translate3d(0,calc(0px - var(--header-height,44px) - 8px),0) scale(.97);
+  }
 }
-.sona-toast-enter{animation:sona-toast-emerge .34s cubic-bezier(.16,1,.3,1) both!important}
-.sona-toast-exit{animation:sona-toast-retreat .23s cubic-bezier(.45,0,.75,.25) both!important}
+.sona-toast-enter{
+  animation:sona-toast-emerge-behind-header .33s cubic-bezier(.16,1,.3,1) both!important;
+}
+.sona-toast-exit{
+  animation:sona-toast-return-behind-header .2s cubic-bezier(.4,0,.7,.25) both!important;
+}
+/* Login has no persistent header. Enter below the iOS status/notch region. */
 body:has(.sona-login-screen) .Toastify__toast-container.sona-toast-container{
-  top:calc(env(safe-area-inset-top,0px) + 13px)!important;z-index:10030!important
+  top:calc(env(safe-area-inset-top,0px) + 5px)!important;
+  z-index:10030!important;
 }
-@media(max-width:767px){
- .Toastify__toast-container.sona-toast-container{
-  width:80vw!important;max-width:80vw!important;
-  top:calc(var(--header-height,44px) + env(safe-area-inset-top,0px) + 7px)!important
- }
+body:has(.sona-login-screen) .sona-toast-enter{
+  animation-name:sona-login-toast-emerge!important;
+}
+body:has(.sona-login-screen) .sona-toast-exit{
+  animation-name:sona-login-toast-exit!important;
+}
+@keyframes sona-login-toast-emerge{
+  from{opacity:0;transform:translate3d(0,-54px,0) scale(.96)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+@keyframes sona-login-toast-exit{
+  from{opacity:1;transform:translate3d(0,0,0) scale(1)}
+  to{opacity:0;transform:translate3d(0,-54px,0) scale(.97)}
+}
+@media(min-width:768px){
+  .Toastify__toast-container.sona-toast-container{
+    width:min(80vw,400px)!important;max-width:min(80vw,400px)!important
+  }
 }
 @media(prefers-reduced-motion:reduce){
- .sona-toast-enter,.sona-toast-exit{animation-duration:.01ms!important}
+  .sona-toast-enter,.sona-toast-exit{
+    animation-duration:.01ms!important
+  }
+  .sona-toast-spin{animation:none}
 }

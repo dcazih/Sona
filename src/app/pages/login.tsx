@@ -39,7 +39,7 @@ export default function Login() {
     <div className="sona-login-screen">
       <main ref={main} className="sona-login-main">
         <div className="sona-login-intro">
-          <SonaMark size={90} className="sona-login-main-mark" />
+          <SonaMark size={68} className="sona-login-main-mark" />
           <h1 className="sona-login-brand-title">Sona</h1>
           <p className="sona-login-brand-tagline">Apple Music. Minus Apple.</p>
         </div>

@@ -391,3 +391,10 @@
 @media(max-width:600px){
   .sona-login-card .sona-login-fields{gap:7px!important;row-gap:7px!important}
 }
+
+/* Compact login branding; leaves the installed PWA icon unchanged. */
+.sona-login-intro > .sona-login-main-mark{
+ width:68px!important;height:68px!important;
+ min-width:68px!important;min-height:68px!important;
+ max-width:68px!important;max-height:68px!important;
+}

@@ -52,11 +52,17 @@ function useSwipeUpDismiss() {
       const dy = event.clientY - y
       const dx = event.clientX - x
       drag = null
-      element.removeAttribute('data-swiping')
-      element.style.translate = ''
-      element.style.opacity = ''
-      if (dy < -42 && -dy > Math.abs(dx) * 1.15 && element.id) {
-        toast.dismiss(element.id)
+      const upwardDismiss = dy < -35 && -dy > Math.abs(dx) * 1.15
+      if (upwardDismiss) {
+        // Leave the pill displaced until Toastify mounts its exit animation.
+        // A missing DOM id should not silently defeat swipe-to-dismiss.
+        element.removeAttribute('data-swiping')
+        if (element.id) toast.dismiss(element.id)
+        else toast.dismiss()
+      } else {
+        element.removeAttribute('data-swiping')
+        element.style.translate = ''
+        element.style.opacity = ''
       }
     }
     const cancel = (event: PointerEvent) => {

@@ -70,13 +70,13 @@ export function LoginForm() {
       const status = await saveConfig({ ...data, url: serverUrl })
       if (status) {
         await queryClient.invalidateQueries()
-        toast.success(t('toast.server.success'))
+        toast.success(t('toast.server.success'), { autoClose: 2000 })
         navigate(ROUTES.LIBRARY.HOME, { replace: true })
       } else {
-        toast.error(t('toast.server.error'))
+        toast.error(t('toast.server.error'), { autoClose: 2000 })
       }
     } catch {
-      toast.error(t('toast.server.error'))
+      toast.error(t('toast.server.error'), { autoClose: 2000 })
     } finally {
       setLoading(false)
     }
