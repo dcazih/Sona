@@ -23,7 +23,7 @@ const defaults = {
   continueAcrossDevices: false,
   crossfadeSeconds: 0,
   gaplessAlbums: true,
-  cacheTracks: 5,
+  cacheTracks: 40,
   cacheFormat: 'original' as AudioFormat,
   cellularCache: false,
   downloadFormat: 'original' as AudioFormat,
@@ -39,6 +39,13 @@ export const useSonaWebSettings = create<SonaWebSettings>()(
       ...defaults,
       set: (key, value) => set({ [key]: value } as Partial<SonaWebSettings>),
     }),
-    { name: 'sona-web-settings' },
+    {
+      name: 'sona-web-settings',
+      version: 2,
+      migrate: (persisted) => ({
+        ...(persisted as Partial<SonaWebSettings>),
+        cacheTracks: Math.max(40, Number((persisted as Partial<SonaWebSettings>)?.cacheTracks) || 0),
+      }),
+    },
   ),
 )

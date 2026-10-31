@@ -1,5 +1,5 @@
 import { NavigationButtons } from '@/app/components/header/navigation-buttons'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Ellipsis } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { closeSonaAlbumToCover } from '@/app/components/sona/album-morph'
 import { UserDropdown } from '@/app/components/header/user-dropdown'
@@ -15,6 +15,8 @@ export function Header() {
   const { pathname, search } = useLocation()
   const navigate = useNavigate()
   const albumId = /^\/library\/albums\/([^/]+)$/.exec(pathname)?.[1]
+  const artistId = /^\/library\/artists\/([^/]+)$/.exec(pathname)?.[1]
+  const isMobileDetail = Boolean(albumId || artistId)
   const isNewTab = pathname + search === '/library/albums?filter=newest'
   const mobileTitle = pathname === '/' ? 'Home'
     : pathname === '/mobile-library' ? 'Library'
@@ -31,11 +33,15 @@ export function Header() {
     : 'Sona'
 
   return (
-    <header className={'sona-header w-full grid grid-cols-[auto_minmax(0,1fr)_auto] md:grid-cols-header h-header px-3 md:px-4 fixed top-0 right-0 left-0 z-20 bg-background border-b electron-drag' + (albumId ? ' sona-header-album-view' : '')}>
-      {albumId && <button className="sona-album-header-back md:hidden"
+    <header className={'sona-header w-full grid grid-cols-[auto_minmax(0,1fr)_auto] md:grid-cols-header h-header px-3 md:px-4 fixed top-0 right-0 left-0 z-20 bg-background border-b electron-drag' + (isMobileDetail ? ' sona-header-detail-view' : '') + (albumId ? ' sona-header-album-view' : '')}>
+      {isMobileDetail && <button className="sona-album-header-back md:hidden"
         type="button" aria-label="Back to music"
-        onClick={() => closeSonaAlbumToCover(navigate, albumId)}>
+        onClick={() => albumId ? closeSonaAlbumToCover(navigate, albumId) : navigate(-1)}>
         <ChevronLeft size={24} strokeWidth={2.3}/>
+      </button>}
+      {albumId && <button className="sona-album-header-more md:hidden" type="button"
+        aria-label="Album options" onClick={() => document.getElementById('sona-mobile-album-options')?.click()}>
+        <Ellipsis size={25} strokeWidth={2.4}/>
       </button>}
       <div className="flex items-center">
         {isMacOS && !isFullscreen && <div className="w-[70px]" />}

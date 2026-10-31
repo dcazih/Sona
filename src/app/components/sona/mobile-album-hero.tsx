@@ -6,6 +6,7 @@ import { useAlbumColor } from '@/app/hooks/use-album-color'
 import { ROUTES } from '@/routes/routesList'
 import type { SingleAlbum } from '@/types/responses/album'
 import { convertSecondsToHumanRead } from '@/utils/convertSecondsToTime'
+import { SonaMobileAlbumActions } from './mobile-album-actions'
 
 /** Standalone mobile header. It doesn't inherit the desktop's fixed-height banner. */
 export function SonaMobileAlbumHero({ album }: { album: SingleAlbum }) {
@@ -73,6 +74,7 @@ export function SonaMobileAlbumHero({ album }: { album: SingleAlbum }) {
           : <p className="sona-mobile-album-artist">{album.artist}</p>}
         <p className="sona-mobile-album-facts">{info.join(' · ')}</p>
       </div>
+      <SonaMobileAlbumActions album={album}/>
     </section>
   )
 }

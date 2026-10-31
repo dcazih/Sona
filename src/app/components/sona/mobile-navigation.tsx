@@ -242,12 +242,16 @@ export function SonaMobileNavigation() {
         className={'sona-search-morph' + (isSearch ? ' is-expanded' : '') + (focused || keyboardVisible ? ' is-focused' : '')}
         role={isSearch ? 'search' : undefined}
         aria-label={isSearch ? 'Search your music library' : undefined}>
+        <button type="button" className="sona-search-exit" tabIndex={isSearch ? 0 : -1}
+          aria-label="Return Home"
+          onClick={() => { leaveSearch(); navigate(ROUTES.LIBRARY.HOME) }}>
+          <House size={23} strokeWidth={2.1} />
+        </button>
         <button type="button" className="sona-search-orb"
           aria-label={isSearch ? 'Focus search' : 'Search'}
           onClick={() => {
             if (!isSearch) {
               navigate('/mobile-search')
-              inputRef.current?.focus({ preventScroll: true })
               return
             }
             inputRef.current?.focus({ preventScroll: true })
@@ -283,11 +287,6 @@ export function SonaMobileNavigation() {
             : <button type="button" className="sona-search-inline-action" tabIndex={isSearch ? 0 : -1}
                 aria-label="Voice search" onClick={startVoiceSearch}><Mic size={19} /></button>}
         </div>
-        <button type="button" className="sona-search-exit" tabIndex={isSearch ? 0 : -1}
-          aria-label="Return Home"
-          onClick={() => { leaveSearch(); navigate(ROUTES.LIBRARY.HOME) }}>
-          <House size={23} strokeWidth={2.1} />
-        </button>
         {voiceError && <span role="status" className="sona-search-voice-error">{voiceError}</span>}
       </div>
     </>

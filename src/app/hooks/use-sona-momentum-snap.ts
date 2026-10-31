@@ -44,9 +44,10 @@ export function useSonaMomentumSnap(api: CarouselApi, itemCount: number) {
     const recentSpeed = Math.abs((end.clientX - last.x) / Math.max(12, endTime - last.time))
     const totalSpeed = Math.abs(delta) / Math.max(20, endTime - current.startTime)
     const acceleration = Math.max(0, (recentSpeed - totalSpeed) / Math.max(20, endTime - last.time))
-    const flickStrength = recentSpeed * 1.27 + acceleration * 31 + Math.abs(delta) / 350
-    const steps = Math.min(5, Math.max(1, Math.floor(flickStrength)))
-    if (steps <= 1) return // Let Embla's usual one-item snap finish naturally.
+    // More than one card requires a deliberate, sharply accelerating throw.
+    // Distance alone never triggers a multi-card jump.
+    if (recentSpeed < 1.8 || acceleration < 0.014) return
+    const steps = Math.min(3, 2 + Math.floor((acceleration - 0.014) / 0.026))
     const direction = delta < 0 ? 1 : -1
     const target = current.startIndex + direction * steps
     // Applied after pointer-up so our target wins over Embla's ordinary snap.

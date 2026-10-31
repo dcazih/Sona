@@ -46,7 +46,7 @@ export default function SonaMobileSearch() {
     // A new query must always start at the top of the result list, even
     // when the user entered Search while scrolled far down.
     getMainScrollElement()?.scrollTo({ top: 0, behavior: 'auto' })
-    const timeout = window.setTimeout(() => setQuery(term.trim()), 240)
+    const timeout = window.setTimeout(() => setQuery(term.trim()), 520)
     return () => window.clearTimeout(timeout)
   }, [term])
 
@@ -65,7 +65,9 @@ export default function SonaMobileSearch() {
     queryKey: ['sona-mobile-search-v2', query],
     queryFn: () => subsonic.search.get({ query, albumCount: 35, artistCount: 35, songCount: 60 }),
     enabled: query.length >= 2,
-    staleTime: 60000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    placeholderData: (previous) => previous,
   })
   const { data: genres } = useQuery({
     queryKey: ['sona-mobile-genre-browse'],

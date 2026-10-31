@@ -137,7 +137,7 @@ export default function Album() {
       <div className="md:hidden"><SonaMobileAlbumHero album={album} /></div>
 
       <ListWrapper>
-        <AlbumInfo album={album} />
+        <div className="hidden md:block"><AlbumInfo album={album} /></div>
 
         <div className="md:hidden"><SonaMobileAlbumTracks album={album} /></div>
         <div className="hidden md:block"><DataTable

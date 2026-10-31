@@ -55,7 +55,7 @@ export function Sona() {
       <Header><HeaderTitle>Offline Cache</HeaderTitle><HeaderDescription>Keep recently played music ready for a repeat listen. ReplayGain remains in Player & Audio, where it uses Sona’s Web Audio gain stage.</HeaderDescription></Header>
       <Content>
         <ContentItem><ContentItemTitle>Cache Music While Playing</ContentItemTitle><ContentItemForm><Switch checked={mediaCacheEnabled} onCheckedChange={setMediaCacheEnabled} /></ContentItemForm></ContentItem>
-        <ContentItem><ContentItemTitle>Recent Tracks to Keep</ContentItemTitle><ContentItemForm><NumericInput value={settings.cacheTracks} onChange={(value) => settings.set('cacheTracks', value)} min={1} max={25} /></ContentItemForm></ContentItem>
+        <ContentItem><ContentItemTitle>Recent Tracks to Keep</ContentItemTitle><ContentItemForm><NumericInput value={settings.cacheTracks} onChange={(value) => settings.set('cacheTracks', value)} min={10} max={100} /></ContentItemForm></ContentItem>
         <ContentItem><ContentItemTitle>Cache Format</ContentItemTitle><ContentItemForm><FormatSelect value={settings.cacheFormat} onChange={(value) => settings.set('cacheFormat', value)} /></ContentItemForm></ContentItem>
         <ContentItem><ContentItemTitle>Allow Cellular Cache</ContentItemTitle><ContentItemForm><Switch checked={settings.cellularCache} onCheckedChange={(value) => settings.set('cellularCache', value)} /></ContentItemForm></ContentItem>
         <ContentItem><ContentItemTitle>Clear Music, Artwork, and Lyrics Cache</ContentItemTitle><ContentItemForm><Button variant="destructive" size="sm" disabled={clearing} onClick={clearCache}><RefreshCw className="mr-1 h-3.5 w-3.5" />{clearing ? 'Clearing' : 'Clear cache'}</Button></ContentItemForm></ContentItem>

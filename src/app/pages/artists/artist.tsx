@@ -19,6 +19,7 @@ import {
 import ErrorPage from '@/app/pages/error-page'
 import { ROUTES } from '@/routes/routesList'
 import { sortRecentAlbums } from '@/utils/album'
+import { SonaMobileArtistHero } from '@/app/components/sona/mobile-artist-hero'
 
 export default function Artist() {
   const { t } = useTranslation()
@@ -82,10 +83,10 @@ export default function Artist() {
   const recentAlbums = artist.album ? sortRecentAlbums(artist.album) : []
 
   return (
-    <div className="w-full relative">
+    <div className="sona-artist-page w-full relative">
       <ArtistStickyHeader artist={artist} />
 
-      <ImageHeader
+      <div className="hidden md:block"><ImageHeader
         type={t('artist.headline')}
         title={artist.name}
         coverArtId={artist.coverArt}
@@ -93,7 +94,8 @@ export default function Artist() {
         coverArtSize="700"
         coverArtAlt={artist.name}
         badges={badges}
-      />
+      /></div>
+      <div className="md:hidden"><SonaMobileArtistHero artist={artist} songCount={songCount}/></div>
 
       <ListWrapper>
         <ArtistInfo artist={artist} />

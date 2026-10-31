@@ -1,8 +1,8 @@
 /* Sona service worker: network-first application updates, opt-in audio cache.
    Previous cache-first JS/CSS/favicon policy could freeze old branding/UI. */
-const APP_CACHE = 'sona-app-v6'
+const APP_CACHE = 'sona-app-v7'
 const MEDIA_CACHE = 'sona-media-v1'
-let mediaPreferences = { enabled: true, maxTracks: 5, allowCellular: false }
+let mediaPreferences = { enabled: true, maxTracks: 40, allowCellular: false }
 
 self.addEventListener('install', () => self.skipWaiting())
 self.addEventListener('activate', (event) => event.waitUntil((async () => {
@@ -21,7 +21,7 @@ self.addEventListener('message', (event) => {
 
 async function trimMediaCache(cache) {
   const requests = await cache.keys()
-  const excess = requests.length - Math.max(1, Number(mediaPreferences.maxTracks) || 5)
+  const excess = requests.length - Math.max(10, Number(mediaPreferences.maxTracks) || 40)
   if (excess > 0) await Promise.all(requests.slice(0, excess).map((request) => cache.delete(request)))
 }
 
@@ -54,15 +54,16 @@ self.addEventListener('fetch', (event) => {
   if (/\.(?:js|css|woff2?|ttf|png|svg|ico|webp)$/.test(url.pathname)) {
     event.respondWith((async () => {
       const cache = await caches.open(APP_CACHE)
-      try {
-        const response = await fetch(request, { cache: 'no-cache' })
-        if (response.ok) await cache.put(request, response.clone())
-        return response
-      } catch (error) {
-        const cached = await cache.match(request)
-        if (cached) return cached
-        throw error
+      const cached = await cache.match(request)
+      if (cached) {
+        event.waitUntil(fetch(request).then((response) => {
+          if (response.ok) return cache.put(request, response.clone())
+        }).catch(() => undefined))
+        return cached
       }
+      const response = await fetch(request)
+      if (response.ok) await cache.put(request, response.clone())
+      return response
     })())
   }
 })

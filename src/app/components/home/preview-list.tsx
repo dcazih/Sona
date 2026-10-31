@@ -95,8 +95,8 @@ export default function PreviewList({
             slidesToScroll: 1,
             containScroll: 'trimSnaps',
             dragFree: false,
-            skipSnaps: true,
-            duration: 26,
+            skipSnaps: false,
+            duration: 30,
           }}
           setApi={setApi}
           data-testid="preview-list-carousel"

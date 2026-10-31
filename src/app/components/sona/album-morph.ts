@@ -1,6 +1,9 @@
 import type { MouseEvent } from 'react'
 import type { NavigateFunction } from 'react-router-dom'
 import { ROUTES } from '@/routes/routesList'
+import { queryClient } from '@/lib/queryClient'
+import { subsonic } from '@/service/subsonic'
+import { queryKeys } from '@/utils/queryKeys'
 
 type Source = { albumId: string; rect: DOMRect; image: string }
 let lastSource: Source | null = null
@@ -87,6 +90,11 @@ export function openSonaAlbumFromCover(
   event: MouseEvent<HTMLElement>, navigate: NavigateFunction, albumId: string,
 ) {
   const path = ROUTES.ALBUM.PAGE(albumId)
+  void queryClient.prefetchQuery({
+    queryKey: [queryKeys.album.single, albumId],
+    queryFn: () => subsonic.albums.getOne(albumId),
+    staleTime: 10 * 60 * 1000,
+  })
   if (!mobileMotion()) { navigate(path); return }
   const sourceElement = coverFor(event.currentTarget)
   const image = sourceElement?.currentSrc || sourceElement?.src
