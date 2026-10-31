@@ -157,10 +157,10 @@ function writeSplash(logicalW, logicalH, dpr) {
    const [r,g,b]=rgbFor(y/(height-1))
    const row=y*rowBytes
    raw[row]=0
-   const ny=Math.floor((y-top)*logo.height/icon)
+   const ny=((y-top)+.5)*512/icon
    for(let x=0;x<width;x++){
-     const off=row+1+x*4, nx=Math.floor((x-left)*logo.width/icon)
-     const a=vectorNoteAt(nx*512/logo.width,ny*512/logo.height)
+     const off=row+1+x*4, nx=((x-left)+.5)*512/icon
+     const a=vectorNoteAt(nx,ny)
      const rr=Math.round(r*(1-a)+255*a)
      const gg=Math.round(g*(1-a)+255*a)
      const bb=Math.round(b*(1-a)+255*a)
