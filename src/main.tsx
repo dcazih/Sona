@@ -11,6 +11,7 @@ import '@/index.css'
 import '@/sona-mobile.css'
 import '@/sona-login.css'
 import '@/sona-web.css'
+import '@/sona-toast.css'
 
 import '@/i18n'
 

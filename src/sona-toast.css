@@ -1,0 +1,100 @@
+/* Shared Sona toast capsules: compact status icon, concise preview, swipe up. */
+.Toastify__toast-container.sona-toast-container{
+  --toastify-toast-width: auto;
+  --toastify-toast-min-height: 0px;
+  --toastify-toast-max-height: none;
+  position:fixed!important;
+  top:calc(var(--header-height,44px) + env(safe-area-inset-top,0px) + 11px)!important;
+  bottom:auto!important;
+  left:50%!important;right:auto!important;
+  width:min(332px,calc(100vw - 42px))!important;
+  max-width:calc(100vw - 42px)!important;
+  transform:translateX(-50%)!important;
+  padding:0!important;
+  z-index:10030!important;
+  pointer-events:none;
+}
+.Toastify__toast-container.sona-toast-container .Toastify__toast.sona-toast{
+  display:flex;align-items:center;
+  box-sizing:border-box;
+  min-height:44px!important;
+  max-height:74px!important;
+  width:100%!important;
+  margin:0 0 8px!important;
+  padding:6px 12px!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+  border-radius:999px!important;
+  background:rgba(36,35,41,.94)!important;
+  color:#faf9fd!important;
+  box-shadow:0 11px 29px rgba(0,0,0,.33)!important;
+  backdrop-filter:blur(24px) saturate(1.4);
+  -webkit-backdrop-filter:blur(24px) saturate(1.4);
+  pointer-events:auto;
+  cursor:default;
+  touch-action:none;
+  translate:0 0;
+  transition:translate .19s cubic-bezier(.2,.82,.23,1),opacity .19s ease;
+}
+.Toastify__toast-container.sona-toast-container .Toastify__toast.sona-toast[data-swiping=true]{
+  transition:none!important;
+}
+.sona-toast .Toastify__toast-body,
+.Toastify__toast-body.sona-toast-body{
+  display:flex!important;align-items:center!important;
+  gap:9px!important;
+  padding:0!important;margin:0!important;
+  width:100%;min-width:0;
+  line-height:1.3!important;
+}
+.sona-toast .Toastify__toast-icon{
+  display:grid!important;place-items:center!important;
+  width:28px!important;min-width:28px!important;height:28px!important;
+  margin:0!important;flex:0 0 28px!important
+}
+.sona-toast-status{
+  display:grid;place-items:center;flex:none;
+  width:27px;height:27px;border-radius:50%;color:white;
+  background:rgba(255,80,120,.88)
+}
+.sona-toast-status-success{background:#2aaf78}
+.sona-toast-status-error{background:#e45e6c}
+.sona-toast-status-warning{background:#dc9b38}
+.sona-toast-status-info{background:#548dca}
+.sona-toast-status-loading{background:#ff5380}
+@keyframes sona-toast-spin-animation{to{transform:rotate(360deg)}}
+.sona-toast-spin{animation:sona-toast-spin-animation .7s linear infinite}
+.sona-toast .Toastify__toast-body>div:last-child{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;
+  overflow:hidden;text-overflow:ellipsis;
+  max-height:38px;
+  font-family:"Sona Jakarta",system-ui,-apple-system,sans-serif;
+  font-size:12px!important;font-weight:610;
+  line-height:1.33!important;letter-spacing:-.01em;
+  word-break:normal;overflow-wrap:anywhere;
+}
+.sona-toast .Toastify__close-button,
+.sona-toast .Toastify__progress-bar,
+.sona-toast .Toastify__progress-bar--wrp{display:none!important}
+@keyframes sona-toast-slide-down{
+  from{opacity:0;transform:translate3d(0,-28px,0) scale(.93);filter:blur(3px)}
+  to{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}
+}
+@keyframes sona-toast-slide-up{
+  from{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}
+  to{opacity:0;transform:translate3d(0,-38px,0) scale(.94);filter:blur(3px)}
+}
+.sona-toast-enter{animation:sona-toast-slide-down .36s cubic-bezier(.16,1,.3,1) both}
+.sona-toast-exit{animation:sona-toast-slide-up .25s cubic-bezier(.4,0,.7,.25) both}
+@media(max-width:767px){
+ .Toastify__toast-container.sona-toast-container{
+   top:calc(var(--header-height,44px) + env(safe-area-inset-top,0px) + 10px)!important;
+ }
+ .Toastify__toast-container.sona-toast-container .Toastify__toast.sona-toast{
+   min-height:43px!important;padding:6px 11px!important
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .sona-toast-enter,.sona-toast-exit{animation-duration:.01ms!important}
+ .sona-toast-spin{animation:none}
+}
