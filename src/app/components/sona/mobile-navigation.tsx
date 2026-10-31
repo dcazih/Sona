@@ -404,10 +404,17 @@ export function SonaMobileNavigation() {
             autoComplete="off"
             placeholder={focused ? 'Artists, albums, songs…' : 'Search Your Library'}
             value={term}
+            onPointerDown={() => {
+              // On iOS, focusing a fixed bottom input can scroll the document
+              // to keep it above the incoming keyboard. Focus during the
+              // trusted pointer event with preventScroll so the page stays put.
+              if (document.activeElement !== inputRef.current) {
+                inputRef.current?.focus({ preventScroll: true })
+              }
+            }}
             onFocus={() => {
               setEngaged(true)
               setFocused(true)
-              requestAnimationFrame(forceSearchTop)
             }}
             onBlur={() => setFocused(false)}
             onChange={(event) => setTerm(event.target.value)}
