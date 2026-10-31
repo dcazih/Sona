@@ -82,7 +82,10 @@ function noteAlpha(x,y) {
 }
 function noteAt(nx,ny) {
   if(nx<0||ny<0||nx>=logo.width||ny>=logo.height)return 0
-  return noteAlpha(Math.floor(nx),Math.floor(ny))
+  const x=Math.floor(nx),y=Math.floor(ny)
+  const u=nx-x,v=ny-y
+  const a=noteAlpha(x,y),b=noteAlpha(x+1,y),c=noteAlpha(x,y+1),d=noteAlpha(x+1,y+1)
+  return (a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v
 }
 
 function writeSplash(logicalW, logicalH, dpr) {
@@ -128,6 +131,29 @@ for(const [w,h,dpr] of devices){
 
 // Generate matching high-resolution home-screen and browser icons from the
 // same Apple Music source, avoiding stale earlier Sona branding.
+// Stage 2 renders this same transparent note over the same gradient.
+// Native iOS startup files use noteAt too, preventing shape/color changes.
+function writeStartupNote(size=512) {
+  const raw=Buffer.alloc(size*(size*4+1))
+  for(let y=0;y<size;y++){
+    const row=y*(size*4+1)
+    raw[row]=0
+    for(let x=0;x<size;x++){
+      const off=row+1+x*4
+      const a=noteAt((x+.5)*logo.width/size,(y+.5)*logo.height/size)
+      raw[off]=255;raw[off+1]=255;raw[off+2]=255;raw[off+3]=Math.round(a*255)
+    }
+  }
+  const header=Buffer.alloc(13)
+  header.writeUInt32BE(size,0);header.writeUInt32BE(size,4)
+  header[8]=8;header[9]=6
+  writeFileSync(join(process.cwd(),'public','sona-startup-note-v14.png'),
+    Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),
+      chunk('IHDR',header),chunk('IDAT',deflateSync(raw,{level:9})),
+      chunk('IEND',Buffer.alloc(0))]))
+}
+writeStartupNote()
+
 function writeIcon(size) {
   const raw=Buffer.alloc(size*(size*4+1))
   for(let y=0;y<size;y++) {
