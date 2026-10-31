@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useRef, useState } from 'react'
-import { getCoverArtUrl } from '@/api/httpClient'
+import { getImmediateCoverArtUrl } from '@/api/httpClient'
 import { CoverArt } from '@/types/coverArtType'
 
 interface ImageLoaderProps {
@@ -15,47 +15,17 @@ export function ImageLoader({
   size = 300,
   children,
 }: ImageLoaderProps) {
-  const [src, setSrc] = useState<string>('')
-  const [isLoading, setIsLoading] = useState(true)
-  const abortControllerRef = useRef<AbortController | null>(null)
+  const immediate = () => getImmediateCoverArtUrl(id, type, size.toString())
+  const [src, setSrc] = useState<string>(immediate)
+  const [isLoading, setIsLoading] = useState(false)
+  const lastKey = useRef('')
 
   useEffect(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
-
-    setIsLoading(true)
-    setSrc('')
-
-    if (!id) {
-      setIsLoading(false)
-      return
-    }
-
-    const abortController = new AbortController()
-    abortControllerRef.current = abortController
-
-    const fetchImage = async () => {
-      try {
-        const url = await getCoverArtUrl(id, type, size.toString())
-
-        if (!abortController.signal.aborted) {
-          setSrc(url)
-          setIsLoading(false)
-        }
-      } catch (error) {
-        if (!abortController.signal.aborted) {
-          console.error('Error fetching image:', error)
-          setIsLoading(false)
-        }
-      }
-    }
-
-    fetchImage()
-
-    return () => {
-      abortController.abort()
-    }
+    const key = `${type}:${id || ''}:${size}`
+    if (lastKey.current === key) return
+    lastKey.current = key
+    setSrc(immediate())
+    setIsLoading(false)
   }, [id, type, size])
 
   return <>{children(src, isLoading)}</>

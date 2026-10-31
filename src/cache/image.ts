@@ -64,7 +64,7 @@ function scheduleWarm(url: string) {
   }
 }
 
-export async function getCachedImage(url: string): Promise<string> {
+export function getCachedImage(url: string): string {
   const cached = memoryImages.get(url)
   if (cached) {
     touchMemoryImage(url, cached)

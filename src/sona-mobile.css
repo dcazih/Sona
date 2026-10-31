@@ -2347,12 +2347,8 @@
    even when iOS Safari resizes the layout viewport simultaneously. */
 @media(max-width:767px){
   .sona-search-morph{
-    transition:width .43s cubic-bezier(.19,1,.24,1),
-      height .35s cubic-bezier(.19,1,.24,1),
-      top .18s cubic-bezier(.25,.82,.25,1),
-      bottom .18s cubic-bezier(.25,.82,.25,1),
-      border-radius .42s cubic-bezier(.2,1,.23,1),
-      background .28s ease,box-shadow .3s ease!important;
+    contain:layout paint;will-change:transform,opacity;
+    transition:transform .3s cubic-bezier(.2,.9,.2,1),opacity .22s ease!important;
   }
   .sona-search-morph.is-expanded{
     position:fixed!important;
@@ -2365,8 +2361,8 @@
     border-radius:27px!important;
     background:rgba(28,27,33,.57)!important;
     border:1px solid rgba(255,255,255,.17)!important;
-    -webkit-backdrop-filter:blur(36px) saturate(1.65)!important;
-    backdrop-filter:blur(36px) saturate(1.65)!important;
+    -webkit-backdrop-filter:blur(20px) saturate(1.45)!important;
+    backdrop-filter:blur(20px) saturate(1.45)!important;
   }
   .sona-search-morph.is-expanded.is-focused{
     background:rgba(28,27,33,.62)!important;
@@ -2525,7 +2521,7 @@
   .sona-mobile-artist-art img{width:100%;height:100%;object-fit:cover}
   .sona-mobile-artist-copy{text-align:center;width:100%}.sona-mobile-artist-copy p{font-size:10px;letter-spacing:.14em;color:#aaa5af;font-weight:800;margin:0 0 7px}.sona-mobile-artist-copy h1{font-size:clamp(29px,9vw,40px);font-weight:850;letter-spacing:-.06em;line-height:1.05;margin:0}.sona-mobile-artist-copy span{display:block;color:#aaa5af;font-size:13px;margin-top:10px}
   .sona-request-page{height:calc(100dvh - 64px);padding:12px 0 160px!important;display:flex;flex-direction:column;background:#171719;overflow:hidden}.sona-request-my{padding:8px 20px 14px;border-bottom:1px solid #ffffff1b;flex:none}.sona-request-my h1{margin:0;font-size:27px!important;font-weight:830;letter-spacing:-.05em}.sona-request-my p{margin:4px 0 0;color:#98949e;font-size:12px}.sona-request-portal{flex:1;min-height:480px;overflow:hidden;border:0;border-radius:0}.sona-request-portal iframe{display:block;width:100%;height:calc(100% + 148px);border:0;transform:translateY(-74px);background:#171719}
-  .sona-search-morph.is-expanded{display:grid!important;grid-template-columns:42px 42px minmax(0,1fr)!important;gap:5px;isolation:isolate;background:transparent!important;border:0!important;backdrop-filter:none!important;box-shadow:none!important;opacity:.48;transform:scaleX(.97);transition:top .28s cubic-bezier(.2,.9,.2,1),height .38s cubic-bezier(.2,1,.2,1),opacity .28s ease,transform .42s cubic-bezier(.2,1,.2,1)!important}.sona-search-morph.is-expanded::before{content:"";position:absolute;z-index:-1;left:49px;right:0;top:0;bottom:0;border-radius:27px;background:rgba(28,27,33,.62);border:1px solid rgba(255,255,255,.17);backdrop-filter:blur(36px) saturate(1.65)}.sona-search-morph.is-expanded.is-focused{height:54px!important;opacity:1;transform:scaleX(1)}.sona-search-morph.is-expanded .sona-search-exit{grid-column:1;grid-row:1;background:rgba(38,34,40,.86)!important;border:1px solid #ffffff1c!important}.sona-search-morph.is-expanded .sona-search-orb{grid-column:2;grid-row:1}.sona-search-morph.is-expanded .sona-search-morph-field{grid-column:3;grid-row:1;min-width:0;opacity:.72}.sona-search-morph.is-expanded.is-focused .sona-search-morph-field{opacity:1}.sona-app-shell:has(.sona-search-morph.is-expanded.is-focused) .sona-player[data-mobile-active="true"]{transform:translateY(7px)!important;transition:transform .3s cubic-bezier(.2,.9,.2,1)!important}
+  .sona-search-morph.is-expanded{display:grid!important;grid-template-columns:42px 42px minmax(0,1fr)!important;gap:5px;isolation:isolate;background:transparent!important;border:0!important;backdrop-filter:none!important;box-shadow:none!important;opacity:.48;transform:scaleX(.97);transform-origin:right bottom;transition:transform .3s cubic-bezier(.2,.9,.2,1),opacity .22s ease!important}.sona-search-morph.is-expanded::before{content:"";position:absolute;z-index:-1;left:49px;right:0;top:0;bottom:0;border-radius:27px;background:rgba(28,27,33,.82);border:1px solid rgba(255,255,255,.17);backdrop-filter:blur(20px) saturate(1.45)}.sona-search-morph.is-expanded.is-focused{height:54px!important;opacity:1;transform:scaleX(1)}.sona-search-morph.is-expanded .sona-search-exit{grid-column:1;grid-row:1;background:rgba(38,34,40,.92)!important;border:1px solid #ffffff1c!important}.sona-search-morph.is-expanded .sona-search-orb{grid-column:2;grid-row:1}.sona-search-morph.is-expanded .sona-search-morph-field{grid-column:3;grid-row:1;min-width:0;opacity:.72}.sona-search-morph.is-expanded.is-focused .sona-search-morph-field{opacity:1}.sona-app-shell:has(.sona-search-morph.is-expanded.is-focused) .sona-player[data-mobile-active="true"]{transform:translateY(7px)!important;transition:transform .3s cubic-bezier(.2,.9,.2,1)!important}
   .sona-now-overlay,.sona-now-overlay.is-open{border-radius:0!important;transition:transform .46s cubic-bezier(.2,.86,.2,1),opacity .28s ease,border-radius .24s cubic-bezier(.55,.055,.675,.19)!important}.sona-now-overlay.is-dragging{border-radius:clamp(0px,calc(var(--sona-drag-progress,0) * 34px),34px)!important;transition:border-radius .14s cubic-bezier(.55,.055,.675,.19)!important;overflow:hidden!important}
 
   /* Mobile surfaces never expose browser scrollbars. */
@@ -2563,6 +2559,9 @@
 
   /* Music Profiles is the request page; its own embedded chrome is removed there. */
   .sona-request-page{padding:0 0 calc(132px + env(safe-area-inset-bottom,0px))!important}
+  .sona-persistent-requests{display:none;position:absolute;inset:0;z-index:5;background:#171719;overflow:hidden}
+  .sona-persistent-requests.is-active{display:block}
+  .sona-persistent-requests .sona-request-page{height:100%!important}
   .sona-request-portal{min-height:100%;height:100%!important;position:relative}
   .sona-request-portal iframe{width:100%!important;height:100%!important;transform:none!important;border:0!important}
   .sona-request-page.is-loading,.sona-request-page.is-loading .sona-request-portal{overflow:hidden!important;touch-action:none!important;overscroll-behavior:none!important}

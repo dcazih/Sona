@@ -1,4 +1,5 @@
-import { memo } from 'react'
+import { memo, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { MainDrawerPage } from '@/app/components/drawer/page'
 import { FullscreenMode } from '@/app/components/fullscreen/page'
 import { Player } from '@/app/components/player/player'
@@ -15,6 +16,7 @@ import { usePlayerStore } from '@/store/player.store'
 import { SonaMobileNavigation } from '@/app/components/sona/mobile-navigation'
 import { MainRoutes } from './main'
 import { SonaReloadPlayback } from '@/app/components/sona/reload-playback'
+import SonaMobileRequests from '@/app/components/sona/mobile-requests'
 
 const MemoHeader = memo(Header)
 const MemoPlayer = memo(Player)
@@ -24,6 +26,12 @@ const MemoMainDrawerPage = memo(MainDrawerPage)
 const MemoFullscreenMode = memo(FullscreenMode)
 
 export default function BaseLayout() {
+  const { pathname } = useLocation()
+  const requestsActive = pathname === '/mobile-request'
+  const [requestsMounted, setRequestsMounted] = useState(requestsActive)
+  useEffect(() => {
+    if (requestsActive) setRequestsMounted(true)
+  }, [requestsActive])
   const hasMedia = usePlayerStore((state) => Boolean(
     state.songlist.currentList.length || state.songlist.radioList.length || state.songlist.podcastList.length,
   ))
@@ -34,6 +42,10 @@ export default function BaseLayout() {
         <AppSidebar />
         <MainSidebarInset>
           <MainRoutes />
+          {requestsMounted && <div className={'sona-persistent-requests' + (requestsActive ? ' is-active' : '')}
+            aria-hidden={!requestsActive}>
+            <SonaMobileRequests />
+          </div>}
         </MainSidebarInset>
         <MemoPlayer />
         <SonaMobileNavigation />

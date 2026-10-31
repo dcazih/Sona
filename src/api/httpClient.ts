@@ -140,6 +140,17 @@ export async function getCoverArtUrl(
   return getCachedImage(url)
 }
 
+/** Synchronous cover source for first render and route remounts. */
+export function getImmediateCoverArtUrl(
+  id?: string,
+  type: CoverArt = 'album',
+  size = '300',
+): string {
+  const url = getSimpleCoverArtUrl(id, type, size)
+  if (!id || !useAppStore.getState().pages.imagesCacheLayerEnabled) return url
+  return getCachedImage(url)
+}
+
 export function getSongStreamUrl(
   id: string,
   maxBitRate?: string,

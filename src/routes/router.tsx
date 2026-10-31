@@ -25,6 +25,9 @@ import { albumsLoader } from '@/routes/loaders/albumsLoader'
 import { loginLoader } from '@/routes/loginLoader'
 import { podcastsLoader, protectedLoader } from '@/routes/protectedLoader'
 import { ROUTES } from '@/routes/routesList'
+import Home from '@/app/pages/home'
+import SonaMobileLibrary from '@/app/components/sona/mobile-library'
+import SonaMobileSearch from '@/app/components/sona/mobile-search'
 
 const BaseLayout = lazy(() => import('@/app/layout/base'))
 const Album = lazy(() => import('@/app/pages/albums/album'))
@@ -38,10 +41,6 @@ const PlaylistsPage = lazy(() => import('@/app/pages/playlists/list'))
 const Playlist = lazy(() => import('@/app/pages/playlists/playlist'))
 const Radios = lazy(() => import('@/app/pages/radios/radios-list'))
 const SongList = lazy(() => import('@/app/pages/songs/songlist'))
-const Home = lazy(() => import('@/app/pages/home'))
-const SonaMobileLibrary = lazy(() => import('@/app/components/sona/mobile-library'))
-const SonaMobileSearch = lazy(() => import('@/app/components/sona/mobile-search'))
-const SonaMobileRequests = lazy(() => import('@/app/components/sona/mobile-requests'))
 const GenresList = lazy(() => import('@/app/pages/genres/list'))
 const GenrePage = lazy(() => import('@/app/pages/genres/genre'))
 
@@ -57,6 +56,7 @@ export const router = createHashRouter([
     path: ROUTES.LIBRARY.HOME,
     element: <BaseLayout />,
     loader: protectedLoader,
+    shouldRevalidate: () => false,
     children: [
       {
         id: 'home',
@@ -80,11 +80,7 @@ export const router = createHashRouter([
       {
         id: 'sona-mobile-request',
         path: '/mobile-request',
-        element: (
-          <Suspense fallback={<HomeFallback />}>
-            <SonaMobileRequests />
-          </Suspense>
-        ),
+        element: <div className="sona-request-route-anchor" />,
       },
       {
         id: 'sona-mobile-search',
