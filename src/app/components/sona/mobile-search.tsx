@@ -182,7 +182,7 @@ export default function SonaMobileSearch() {
                     style={{ background: 'linear-gradient(145deg,' + genre.colors[0] + ',' + genre.colors[1] + ')' }}>
                     <ImageLoader id={genre.cover} type="album" size={400}>
                       {(src) => <ArtworkImage src={src} alt="" loading="lazy"
-                        wrapperClassName="absolute inset-0 z-[-2] opacity-60" />}
+                        wrapperClassName="sona-am-genre-art" />}
                     </ImageLoader>
                     <span>{genre.name}</span>
                   </Link>

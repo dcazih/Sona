@@ -38,17 +38,18 @@ export function SonaMobileNowPlaying() {
     setSupportsAirplay(Boolean((audioRef as HTMLAudioElement & { webkitShowPlaybackTargetPicker?: () => void } | null)?.webkitShowPlaybackTargetPicker))
   }, [audioRef, isFullscreen])
 
-  // Keep the notch color until the closing sheet finishes its transition.
-  // The normal toolbar is intentionally never recolored.
-  const notchReset = useRef<number | null>(null)
+  const underlyingNotchColor = () => {
+    const root = document.documentElement
+    return root.style.getPropertyValue('--sona-album-notch-color') ||
+      root.style.getPropertyValue('--sona-tab-notch-color') || '#171719'
+  }
+
+  // The normal toolbar is intentionally never recolored. Now Playing owns the
+  // notch only while open and gives it back synchronously on close/remount.
   useEffect(() => {
     if (window.innerWidth >= 768) return
     const root = document.documentElement
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
-    if (notchReset.current !== null) {
-      window.clearTimeout(notchReset.current)
-      notchReset.current = null
-    }
     if (isFullscreen) {
       const color = String((ambientStyle as Record<string, string>)['--sona-ambient-color'] || '#755265')
       const channels = /^#[0-9a-f]{6}$/i.test(color)
@@ -62,25 +63,24 @@ export function SonaMobileNowPlaying() {
       return
     }
     if (root.dataset.sonaNotchOwner !== 'player') return
-    notchReset.current = window.setTimeout(() => {
-      if (root.dataset.sonaNotchOwner !== 'player') return
-      const restore = root.style.getPropertyValue('--sona-album-notch-color') || '#080809'
-      root.style.setProperty('--sona-notch-color',restore)
-      meta?.setAttribute('content',restore)
-      delete root.dataset.sonaNotchOwner
-      notchReset.current = null
-    }, 500)
+    const restore = underlyingNotchColor()
+    root.style.setProperty('--sona-notch-color',restore)
+    meta?.setAttribute('content',restore)
+    delete root.dataset.sonaNotchOwner
   }, [isFullscreen,ambientStyle])
 
   useEffect(() => () => {
-    if (notchReset.current !== null) window.clearTimeout(notchReset.current)
+    const root = document.documentElement
+    if (root.dataset.sonaNotchOwner !== 'player') return
+    const restore = underlyingNotchColor()
+    root.style.setProperty('--sona-notch-color',restore)
+    document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute('content',restore)
+    delete root.dataset.sonaNotchOwner
   }, [])
 
   function restoreNotchImmediately() {
     const root = document.documentElement
-    if (notchReset.current !== null) window.clearTimeout(notchReset.current)
-    notchReset.current = null
-    const restore = root.style.getPropertyValue('--sona-album-notch-color') || '#080809'
+    const restore = underlyingNotchColor()
     root.style.setProperty('--sona-notch-color', restore)
     document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute('content', restore)
     delete root.dataset.sonaNotchOwner

@@ -54,6 +54,18 @@ export function SonaMobileNavigation() {
   }
   const selectedIndex = dragIndex ?? indexForPath()
 
+  useEffect(() => {
+    if (window.innerWidth >= 768) return
+    const root = document.documentElement
+    const tabColor = isSearch ? '#080809' : '#171719'
+    root.style.setProperty('--sona-tab-notch-color', tabColor)
+    if (root.dataset.sonaNotchOwner !== 'player' &&
+        !root.style.getPropertyValue('--sona-album-notch-color')) {
+      root.style.setProperty('--sona-notch-color', tabColor)
+      document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute('content', tabColor)
+    }
+  }, [pathname, isSearch])
+
   function leaveSearch() {
     inputRef.current?.blur()
     recognition.current?.stop()
