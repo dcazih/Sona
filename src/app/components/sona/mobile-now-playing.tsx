@@ -123,8 +123,13 @@ export function SonaMobileNowPlaying() {
     if (!start) return
     const dx = event.touches[0].clientX - start.x
     const dy = event.touches[0].clientY - start.y
+
+    // iOS paints the notch from the theme color independently of the sheet.
+    // Restore the page color on the first downward pixel so it changes with
+    // the finger instead of waiting for the drag direction or close threshold.
+    if (dy > 0 && lastDrag.current === 0) restoreNotchImmediately()
+
     if (dy > 0 && dy > Math.abs(dx) * 1.15) {
-      if (lastDrag.current === 0) restoreNotchImmediately()
       // Progressive resistance keeps the drawer attached to the fingertip
       // while avoiding a sudden snap near the bottom of the screen.
       const travel = Math.min(dy, window.innerHeight)
@@ -170,6 +175,9 @@ export function SonaMobileNowPlaying() {
       aria-modal={isFullscreen ? 'true' : undefined}
       aria-hidden={!isFullscreen}
       aria-label="Now Playing"
+      onTouchStart={beginSwipe}
+      onTouchMove={moveSwipe}
+      onTouchEnd={endSwipe}
       style={{
         ...ambientStyle,
         '--sona-drag-y': String(dragY) + 'px',
@@ -177,14 +185,14 @@ export function SonaMobileNowPlaying() {
       } as CSSProperties}
     >
       <div className="sona-now-background" />
-      <div className="sona-now-top" onTouchStart={beginSwipe} onTouchMove={moveSwipe} onTouchEnd={endSwipe}>
+      <div className="sona-now-top">
         <button className="sona-now-drag-handle" type="button"
           aria-label="Minimize Now Playing" onClick={() => setIsFullscreen(false)}>
           <span className="sona-now-drag-capsule" aria-hidden="true" />
         </button>
       </div>
 
-      <div className="sona-now-stage" onTouchStart={beginSwipe} onTouchMove={moveSwipe} onTouchEnd={endSwipe}>
+      <div className="sona-now-stage">
         {view === 'playing' && (
           <div className="sona-now-art-area"
             onTouchStart={(event) => { artTouchX.current = event.touches[0].clientX }}
