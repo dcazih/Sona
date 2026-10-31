@@ -91,7 +91,7 @@ export function ToastContainer() {
     newestOnTop
     limit={2}
     stacked={false}
-    autoClose={2600}
+    autoClose={2000}
     hideProgressBar
     pauseOnHover={false}
     pauseOnFocusLoss={false}

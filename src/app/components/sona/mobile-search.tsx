@@ -72,6 +72,11 @@ export default function SonaMobileSearch() {
   }
   const onScopeDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return
+    // Keep Safari's keyboard active when toggling between search scopes.
+    const active = document.activeElement
+    if (active instanceof HTMLInputElement && active.closest('.sona-search-morph-field')) {
+      event.preventDefault()
+    }
     scopeGesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false }
   }
   const onScopeMove = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -94,10 +99,9 @@ export default function SonaMobileSearch() {
   const onScopeUp = (event: ReactPointerEvent<HTMLDivElement>) => {
     const gesture = scopeGesture.current
     if (!gesture || event.pointerId !== gesture.id) return
-    if (gesture.moved) {
-      blockScopeClickUntil.current = Date.now() + 320
-      chooseScope(progressFromPointer(event.clientX) >= .5 ? 'library' : 'sona')
-    }
+    // Tap and drag both resolve here; the button doesn't need to take focus.
+    blockScopeClickUntil.current = Date.now() + 320
+    chooseScope(progressFromPointer(event.clientX) >= .5 ? 'library' : 'sona')
     scopeGesture.current = null
     setScopeDrag(null)
   }

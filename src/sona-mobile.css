@@ -2891,3 +2891,35 @@
    font-weight:730!important;letter-spacing:-.024em!important
  }
 }
+
+/* Precise mobile docking: 10px outer margins and matching 5px internal gaps. */
+@media(max-width:767px){
+  .sona-app-shell .sona-bottom-nav-split{
+    left:10px!important;width:calc(100dvw - 89px)!important
+  }
+  .sona-search-morph.is-expanded,
+  .sona-search-morph.is-expanded.is-focused{
+    box-sizing:border-box!important;position:fixed!important;
+    left:10px!important;right:10px!important;
+    width:calc(100dvw - 20px)!important;
+    max-width:calc(100dvw - 20px)!important;
+    grid-template-columns:54px 54px minmax(0,1fr)!important;
+    gap:0!important;margin:0!important;transform:none!important
+  }
+  .sona-search-morph.is-expanded::before{
+    left:59px!important;right:0!important;
+    border-radius:27px!important
+  }
+  .sona-search-morph.is-expanded .sona-search-morph-field{
+    min-width:0!important;max-width:100%!important;
+    box-sizing:border-box!important
+  }
+  .sona-featured-play,
+  .sona-featured-play:focus,
+  .sona-featured-play:focus-visible,
+  .sona-featured-play:active{
+    border:0!important;outline:0!important;box-shadow:none!important;
+    -webkit-tap-highlight-color:transparent!important
+  }
+  .sona-featured-play:focus-visible{background:rgba(255,255,255,.23)!important}
+}
