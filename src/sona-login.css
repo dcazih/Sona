@@ -311,3 +311,50 @@
 @media(prefers-reduced-motion:reduce){
  .sona-login-language-popover,.sona-login-server-content{animation-duration:.01ms!important}
 }
+
+/* Login v16: consistent 7px gaps and an independently animated server field. */
+.sona-login-fields{display:flex!important;flex-direction:column!important;gap:7px!important}
+.sona-login-fields>.sona-login-field,
+.sona-login-fields>.sona-login-server-field,
+.sona-login-field+.sona-login-field,
+.sona-login-field+.sona-login-server-field,
+.sona-login-server-field{margin-top:0!important;margin-bottom:0!important}
+.sona-login-server-panel{
+ display:grid!important;grid-template-rows:0fr;opacity:0;visibility:hidden;
+ pointer-events:none;overflow:hidden;
+ transition:grid-template-rows .32s cubic-bezier(.22,.8,.22,1),
+ opacity .22s cubic-bezier(.2,.8,.2,1),visibility 0s linear .32s!important
+}
+.sona-login-server-panel.is-open{
+ grid-template-rows:1fr;opacity:1;visibility:visible;pointer-events:auto;
+ transition:grid-template-rows .32s cubic-bezier(.22,.8,.22,1),
+ opacity .24s cubic-bezier(.2,.8,.2,1),visibility 0s!important
+}
+.sona-login-server-panel-inner{min-height:0;overflow:hidden}
+.sona-login-server-panel .sona-login-server-content{
+ display:flex!important;flex-direction:column!important;gap:9px!important;
+ margin:10px 1px 2px!important;padding:0!important;
+ overflow:visible!important;transform:none!important;animation:none!important
+}
+.sona-login-language-option .sona-language-label{
+ display:inline-flex!important;align-items:center!important;
+ gap:10px!important;white-space:nowrap
+}
+.sona-login-language-option .sona-language-label > span:last-child{margin:0!important}
+.sona-login-language-popover{
+ max-height:min(65dvh,calc(100dvh - 38px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)))!important;
+ overflow:hidden!important
+}
+.sona-login-language-popover [data-radix-select-viewport]{
+ height:auto!important;min-height:0!important;max-height:min(58dvh,calc(100dvh - 95px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)))!important;
+ overflow-y:auto!important;overscroll-behavior:contain!important;
+ padding:5px 5px 24px!important;box-sizing:border-box!important
+}
+.sona-login-language-popover[data-state=closed]{
+ animation:sona-language-close .19s cubic-bezier(.35,0,.7,.25) both!important
+}
+.sona-login-main-mark{border-radius:11%!important}
+.sona-app-brand .sona-brand-mark,.sona-login-topbar .sona-brand-mark{border-radius:11%!important;overflow:hidden}
+@media(prefers-reduced-motion:reduce){
+ .sona-login-server-panel,.sona-login-server-panel.is-open{transition:none!important}
+}

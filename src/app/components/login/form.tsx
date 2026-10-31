@@ -11,7 +11,6 @@ import { queryServerInfo } from '@/api/queryServerInfo'
 import { LangToggle } from '@/app/components/login/lang-toggle'
 import { Button } from '@/app/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/app/components/ui/card'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/app/components/ui/collapsible'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/app/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/app/components/ui/form'
 import { Input } from '@/app/components/ui/input'
@@ -125,9 +124,11 @@ export function LoginForm() {
               )} />
               <FormField control={form.control} name="url" render={({ field }) => (
                 <FormItem className="sona-login-server-field">
-                  <Collapsible open={serverOpen} onOpenChange={setServerOpen}>
-                    <CollapsibleTrigger asChild>
+                  <div className="sona-login-server">
                       <button type="button" className="sona-login-server-trigger"
+                        aria-expanded={serverOpen}
+                        aria-controls="sona-login-server-settings"
+                        onClick={() => setServerOpen(open => !open)}
                         aria-label={'Server: ' + displayServer(currentServer) + '. Change server'}>
                         <span className="sona-login-server-indicator"><Server size={16} strokeWidth={1.8} /></span>
                         <span className="sona-login-server-name">
@@ -136,12 +137,16 @@ export function LoginForm() {
                         <ChevronDown className={'sona-login-server-chevron' + (serverOpen ? ' is-open' : '')}
                           size={18} strokeWidth={1.8} aria-hidden="true" />
                       </button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="sona-login-server-content" id="sona-login-server-settings">
+                    <div id="sona-login-server-settings"
+                      className={'sona-login-server-panel' + (serverOpen ? ' is-open' : '')}
+                      aria-hidden={!serverOpen}>
+                      <div className="sona-login-server-panel-inner">
+                        <div className="sona-login-server-content">
                       <FormLabel>Server URL</FormLabel>
                       <FormControl>
                         <Input {...field} id="url" type="url" inputMode="url"
                           autoCorrect="off" autoCapitalize="none" spellCheck={false}
+                          tabIndex={serverOpen ? 0 : -1}
                           placeholder={DEFAULT_SERVER}
                           onBlur={(event) => {
                             field.onBlur()
@@ -150,8 +155,10 @@ export function LoginForm() {
                       </FormControl>
                       <FormMessage />
                       <p className="sona-login-server-help">Enter a full HTTPS address. Your device must be able to reach the server.</p>
-                    </CollapsibleContent>
-                  </Collapsible>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </FormItem>
               )} />
             </CardContent>

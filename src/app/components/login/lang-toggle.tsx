@@ -21,15 +21,15 @@ export function LangToggle() {
           <ReactCountryFlag countryCode={flag} svg />
         </SelectValue>
       </SelectTrigger>
-      <SelectContent align="end" sideOffset={8} position="popper"
+      <SelectContent align="end" sideOffset={8} position="popper" collisionPadding={16}
         className="sona-login-language-popover">
         <SelectGroup>
           <SelectLabel className="sona-login-language-heading">Main Languages</SelectLabel>
           {mainLanguages.map(language => (
             <SelectItem className="sona-login-language-option"
               key={language.langCode} value={language.langCode}>
-              <ReactCountryFlag countryCode={language.flag} svg />
-              <span>{language.nativeName}</span>
+              <span className="sona-language-label"><ReactCountryFlag countryCode={language.flag} svg />
+                <span>{language.nativeName}</span></span>
             </SelectItem>
           ))}
         </SelectGroup>
@@ -39,8 +39,8 @@ export function LangToggle() {
           {otherLanguages.map(language => (
             <SelectItem className="sona-login-language-option"
               key={language.langCode} value={language.langCode}>
-              <ReactCountryFlag countryCode={language.flag} svg />
-              <span>{language.nativeName}</span>
+              <span className="sona-language-label"><ReactCountryFlag countryCode={language.flag} svg />
+                <span>{language.nativeName}</span></span>
             </SelectItem>
           ))}
         </SelectGroup>
