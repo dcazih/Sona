@@ -142,7 +142,7 @@ export function SonaMobileNavigation() {
     // when the keyboard never appeared.
     if (!keyboardVisible) { setSearchVisible(false); return }
     setSearchVisible(false)
-    const timer = window.setTimeout(() => setSearchVisible(true), 1500)
+    const timer = window.setTimeout(() => setSearchVisible(true), 500)
     return () => window.clearTimeout(timer)
   }, [focused, keyboardVisible])
 
@@ -215,7 +215,7 @@ export function SonaMobileNavigation() {
         root.style.setProperty('--sona-keyboard-offset', Math.round(keyboardHeight) + 'px')
         window.clearTimeout(keyboardSettleTimer)
         if (keyboardHeight > 100) {
-          // Wait for VisualViewport to stop changing so the 1.5 second reveal
+          // Wait for VisualViewport to stop changing before the short reveal
           // begins after the keyboard has finished mounting.
           keyboardSettleTimer = window.setTimeout(
             () => setKeyboardVisible(true),
