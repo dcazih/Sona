@@ -1,4 +1,4 @@
-/* Sona's Apple Music-inspired mobile shell, ported from homelab/cassette-web.
+/* Sona's Apple Music-inspired mobile shell.
    Aonsoku's native music and account behavior is retained. Desktop is untouched. */
 @media (max-width: 767px) {
   :root {
