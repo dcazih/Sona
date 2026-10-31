@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { AlbumGridCard } from '@/app/components/albums/album-grid-card'
+import { useSonaMomentumSnap } from '@/app/hooks/use-sona-momentum-snap'
 import {
   Carousel,
   type CarouselApi,
@@ -27,6 +28,7 @@ export default function PreviewList({
   moreRoute,
 }: PreviewListProps) {
   const [api, setApi] = useState<CarouselApi>()
+  const gestures = useSonaMomentumSnap(api, Math.min(16, list.length))
   const [canScrollPrev, setCanScrollPrev] = useState<boolean>()
   const [canScrollNext, setCanScrollNext] = useState<boolean>()
   const { t } = useTranslation()
@@ -87,12 +89,14 @@ export default function PreviewList({
 
       <div className="transform-gpu">
         <Carousel
+          {...gestures}
           opts={{
             align: 'start',
             slidesToScroll: 1,
             containScroll: 'trimSnaps',
             dragFree: false,
-            duration: 27,
+            skipSnaps: true,
+            duration: 26,
           }}
           setApi={setApi}
           data-testid="preview-list-carousel"

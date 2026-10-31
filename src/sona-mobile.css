@@ -2255,3 +2255,34 @@
  }
  .sona-player .sona-player-track a[href*="/artists/"]{pointer-events:none!important}
 }
+
+/* Smaller centred cards, with a sliver of the previous and next item.
+   Embla handles the smooth snap; high-speed flicks use measured momentum. */
+@media(max-width:767px){
+  .sona-featured-carousel{width:100%!important;overflow:hidden!important}
+  .sona-featured-carousel>div{overflow:visible!important}
+  .sona-featured-track{
+    padding-left:0!important;padding-right:0!important;
+    margin-left:0!important;gap:0!important;
+  }
+  .sona-featured-slide{
+    flex:0 0 min(71vw,315px)!important;
+    max-width:min(71vw,315px)!important;
+    padding:0 6px!important;
+  }
+  .sona-featured-card{border-radius:17px!important}
+  .sona-featured-art{border-radius:17px 17px 0 0!important}
+  .sona-featured-details{min-height:96px!important;padding:10px 12px 12px!important}
+  .sona-featured-eyebrow{font-size:8px!important}
+  .sona-featured-text h3{font-size:14px!important}
+  .sona-featured-text p{font-size:11px!important}
+  .sona-featured-album-name{margin-top:5px!important;font-size:9px!important}
+  .sona-featured-play{width:34px!important;height:34px!important}
+  .sona-featured-loading-slide{
+    flex:0 0 min(71vw,315px)!important;
+    max-width:min(71vw,315px)!important;
+    padding:0 6px!important;
+  }
+  .sona-featured-loading-row{padding-left:max(0px,calc((100vw - min(71vw,315px))/2))!important}
+  .sona-featured-loading-details{min-height:96px!important;padding:10px 12px 12px!important}
+}

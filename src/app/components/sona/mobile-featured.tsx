@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight, Play } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
+import { useSonaMomentumSnap } from '@/app/hooks/use-sona-momentum-snap'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/app/components/ui/carousel'
 import { openSonaAlbumFromCover } from '@/app/components/sona/album-morph'
@@ -9,7 +10,7 @@ import { subsonic } from '@/service/subsonic'
 import { usePlayerActions } from '@/store/player.store'
 import type { ISong } from '@/types/responses/song'
 
-let featuredIndex = 0
+let featuredSongId: string | null = null
 
 /** iOS-style featured music: one finger swipe advances exactly one card. */
 export function SonaMobileFeatured({ songs }: { songs: ISong[] }) {
@@ -18,13 +19,13 @@ export function SonaMobileFeatured({ songs }: { songs: ISong[] }) {
   const [next, setNext] = useState(false)
   const navigate = useNavigate()
   const { setSongList } = usePlayerActions()
+  const gestures = useSonaMomentumSnap(api, songs.length)
 
   useEffect(() => {
     if (!api) return
-    api.scrollTo(featuredIndex, true)
     function update() {
       if (!api) return
-      featuredIndex = api.selectedScrollSnap()
+      featuredSongId = songs[api.selectedScrollSnap()]?.id ?? null
       setPrevious(api.canScrollPrev())
       setNext(api.canScrollNext())
     }
@@ -32,7 +33,7 @@ export function SonaMobileFeatured({ songs }: { songs: ISong[] }) {
     api.on('select', update)
     api.on('reInit', update)
     return () => { api.off('select', update); api.off('reInit', update) }
-  }, [api])
+  }, [api, songs])
 
   async function play(song: ISong) {
     try {
@@ -59,8 +60,11 @@ export function SonaMobileFeatured({ songs }: { songs: ISong[] }) {
         </div>
       </div>
       <Carousel className="sona-featured-carousel" setApi={setApi}
-        opts={{ align: 'start', containScroll: 'trimSnaps',
-          slidesToScroll: 1, dragFree: false, duration: 27 }}>
+        {...gestures}
+        opts={{ align: 'center', containScroll: false,
+          startIndex: Math.max(0, songs.findIndex(song => song.id === featuredSongId)),
+          loop: songs.length > 2, slidesToScroll: 1, dragFree: false,
+          skipSnaps: true, duration: 26 }}>
         <CarouselContent className="sona-featured-track">
           {songs.map(song => (
             <CarouselItem key={song.id} className="sona-featured-slide">
