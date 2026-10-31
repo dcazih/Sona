@@ -159,7 +159,30 @@ export function SonaMobileNavigation() {
     }
     document.scrollingElement?.scrollTo({ top: 0, behavior: 'auto' })
     window.scrollTo(0, 0)
+    // iOS can pan the visual viewport to keep the focused input visible even
+    // though the app itself is fixed. Undo that pan so the page stays at its
+    // normal top while the keyboard mounts.
+    window.visualViewport?.scrollTo({ left: 0, top: 0 })
   }
+
+  useEffect(() => {
+    if (!isSearch || !focused) return
+    let frame = 0
+    const keepSearchAtTop = () => {
+      if (frame) cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(forceSearchTop)
+    }
+    keepSearchAtTop()
+    window.visualViewport?.addEventListener('resize', keepSearchAtTop)
+    window.visualViewport?.addEventListener('scroll', keepSearchAtTop)
+    window.addEventListener('resize', keepSearchAtTop)
+    return () => {
+      if (frame) cancelAnimationFrame(frame)
+      window.visualViewport?.removeEventListener('resize', keepSearchAtTop)
+      window.visualViewport?.removeEventListener('scroll', keepSearchAtTop)
+      window.removeEventListener('resize', keepSearchAtTop)
+    }
+  }, [isSearch, focused])
 
   function resetSearchAfterKeyboard() {
     scrollResetTimers.current.forEach(window.clearTimeout)
@@ -341,6 +364,7 @@ export function SonaMobileNavigation() {
             onFocus={() => {
               setEngaged(true)
               setFocused(true)
+              requestAnimationFrame(forceSearchTop)
             }}
             onBlur={() => setFocused(false)}
             onChange={(event) => setTerm(event.target.value)}

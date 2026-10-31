@@ -2402,6 +2402,11 @@
     transform:none!important;
     transition:none!important;
   }
+  /* Safari may pan its visual viewport upward when the bottom search input
+     receives focus. Keep the page's top edge attached to the visible screen. */
+  .sona-app-shell:has(.sona-am-search-page):has(.sona-search-morph.is-focused) #main-scroll-area{
+    top:calc(env(safe-area-inset-top,0px) + var(--sona-visual-top,0px))!important;
+  }
   .sona-app-shell:has(.sona-am-search-page){position:fixed!important;inset:0!important;width:100vw!important;overflow:hidden!important}
   .sona-app-shell:has(.sona-am-search-page) #main-scroll-area #scroll-viewport{
     height:100%!important;max-height:100%!important;
