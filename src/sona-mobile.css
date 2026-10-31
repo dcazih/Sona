@@ -2937,3 +2937,21 @@
   /* Keep request loading cover centered but lift its content 100px. */
   .sona-request-loading-content{transform:translateY(-100px)!important}
 }
+
+/* Never let a scroll boundary reload the Sona PWA or retrigger data fetching.
+   Retain normal momentum scrolling within lists and nested carousels. */
+@media (max-width:767px){
+ html,body,#root,.sona-app-shell{
+   overscroll-behavior:none!important;
+   overscroll-behavior-y:none!important
+ }
+ body{overflow:hidden!important}
+ .sona-app-shell #main-scroll-area,
+ .sona-app-shell #scroll-viewport,
+ .sona-app-shell [data-radix-scroll-area-viewport],
+ .sona-app-shell [data-slot="sidebar-inset"],
+ .sona-app-shell .sona-persistent-requests{
+   overscroll-behavior-y:none!important;
+   overscroll-behavior-x:contain!important
+ }
+}

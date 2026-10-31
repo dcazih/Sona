@@ -159,3 +159,46 @@ body:has(.sona-login-screen) .sona-toast-exit{
   }
   .sona-toast-spin{animation:none}
 }
+
+/* Global fallback for Toastify portals: ensures the native default WHITE bar
+   cannot show even if an old wrapper misses the Sona class. */
+.Toastify__toast-container--top-center,
+.Toastify__toast-container.sona-toast-container{
+  position:fixed!important;top:calc(var(--header-height,44px) + 5px)!important;
+  left:50%!important;right:auto!important;bottom:auto!important;
+  width:80vw!important;max-width:80vw!important;padding:0!important;
+  transform:translateX(-50%)!important;
+  z-index:69!important;background:transparent!important;pointer-events:none
+}
+.Toastify__toast-container--top-center .Toastify__toast,
+.Toastify__toast-container.sona-toast-container .Toastify__toast{
+  width:100%!important;height:40px!important;min-height:40px!important;
+  max-height:40px!important;border-radius:999px!important;
+  padding:5px 10px!important;margin:0 0 6px!important;
+  background:#303033!important;color:#f8f8fa!important;
+  display:flex!important;align-items:center!important;
+  box-sizing:border-box!important;overflow:hidden!important;
+  border:1px solid #ffffff19!important;
+  box-shadow:0 8px 22px #0005!important;
+  pointer-events:auto!important;
+}
+.Toastify__toast-container--top-center .Toastify__toast-body{
+  display:flex!important;align-items:center!important;
+  min-width:0!important;max-width:100%!important;
+  padding:0!important;margin:0!important;
+  font-size:12px!important;line-height:1.2!important;
+  color:#f8f8fa!important;
+}
+.Toastify__toast-container--top-center .Toastify__toast-body>div:last-child{
+  min-width:0!important;white-space:nowrap!important;overflow:hidden!important;
+  text-overflow:ellipsis!important;font-size:12px!important;color:#f8f8fa!important
+}
+.Toastify__toast-container--top-center .Toastify__toast-icon{
+  flex:0 0 24px!important;width:24px!important;height:24px!important;
+  margin-inline-end:8px!important
+}
+.Toastify__toast-container--top-center .Toastify__close-button,
+.Toastify__toast-container--top-center .Toastify__progress-bar--wrp{display:none!important}
+body:has(.sona-login-screen) .Toastify__toast-container--top-center{
+  top:calc(env(safe-area-inset-top,0px) + 5px)!important;z-index:10030!important
+}

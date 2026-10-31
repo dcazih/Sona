@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { deflateSync, inflateSync } from 'node:zlib'
 
-const output = join(process.cwd(), 'public', 'pwa-startup-v16')
+const output = join(process.cwd(), 'public', 'pwa-startup-v17')
 mkdirSync(output, { recursive: true })
 const devices = [[375,667,2],[414,736,3],[375,812,3],[360,780,3],[414,896,2],[414,896,3],[390,844,3],[428,926,3],[393,852,3],[430,932,3],[402,874,3],[440,956,3],[375,812,2],[320,568,2],[393,852,2],[420,912,3]]
 const stops = [[0,[255,144,168]],[.34,[255,71,115]],[.66,[255,39,80]],[1,[255,2,46]]]

@@ -88,6 +88,36 @@ function useSwipeUpDismiss() {
 export function ToastContainer() {
   useSwipeUpDismiss()
   return <Container
+    style={{
+      position: 'fixed',
+      top: 'calc(var(--header-height, 44px) + 5px)',
+      left: '50%',
+      right: 'auto',
+      width: '80vw',
+      maxWidth: '80vw',
+      padding: 0,
+      transform: 'translateX(-50%)',
+      zIndex: 69,
+      pointerEvents: 'none',
+    }}
+    toastStyle={{
+      boxSizing: 'border-box',
+      display: 'flex',
+      alignItems: 'center',
+      width: '100%',
+      height: 40,
+      minHeight: 40,
+      maxHeight: 40,
+      margin: '0 0 6px',
+      padding: '5px 10px',
+      borderRadius: 999,
+      border: '1px solid rgba(255,255,255,.1)',
+      background: '#303033',
+      color: '#f8f8fa',
+      boxShadow: '0 8px 22px rgba(0,0,0,.32)',
+      overflow: 'hidden',
+      pointerEvents: 'auto',
+    }}
     containerClassName="sona-toast-container"
     toastClassName="sona-toast"
     bodyClassName="sona-toast-body"
