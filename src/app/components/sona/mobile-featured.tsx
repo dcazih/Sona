@@ -11,7 +11,7 @@ import type { ISong } from '@/types/responses/song'
 
 /** A finite horizontal list with browser-native touch momentum. */
 export function SonaMobileFeatured({ songs }: { songs: ISong[] }) {
-  const rail = useMusicRail(songs.length)
+  const rail = useMusicRail(songs.length, 'featured')
   const navigate = useNavigate()
   const { setSongList } = usePlayerActions()
 

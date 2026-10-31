@@ -2295,8 +2295,7 @@
  .sona-player .sona-player-track a[href*="/artists/"]{pointer-events:none!important}
 }
 
-/* Smaller centred cards, with a sliver of the previous and next item.
-   Embla handles the smooth snap; high-speed flicks use measured momentum. */
+/* Compact featured card appearance. */
 @media(max-width:767px){
   .sona-featured-card{border-radius:17px!important}
   .sona-featured-art{border-radius:17px 17px 0 0!important}

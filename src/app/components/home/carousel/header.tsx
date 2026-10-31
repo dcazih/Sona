@@ -43,6 +43,7 @@ export function HomeHeader() {
       className="w-full overflow-hidden z-10"
       opts={{
         loop: loopEnabled,
+        breakpoints: { '(max-width: 767px)': { active: false } },
       }}
       plugins={[
         Autoplay({

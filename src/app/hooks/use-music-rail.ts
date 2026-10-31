@@ -1,9 +1,19 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
-/** Native scrolling owns touch, inertia and snapping. JS only operates arrows. */
-export function useMusicRail(itemCount: number) {
+// Preserve the featured position when its route unmounts.
+const positions = new Map<string, number>()
+
+/** Native scrolling owns gestures; JS restores position and operates arrows. */
+export function useMusicRail(itemCount: number, positionKey?: string) {
   const ref = useRef<HTMLUListElement>(null)
   const [edges, setEdges] = useState({ previous: false, next: false })
+
+  useLayoutEffect(() => {
+    const rail = ref.current
+    if (!rail || !positionKey) return
+    rail.scrollLeft = positions.get(positionKey) ?? 0
+    return () => { positions.set(positionKey, rail.scrollLeft) }
+  }, [positionKey])
 
   useEffect(() => {
     const rail = ref.current

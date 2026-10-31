@@ -93,7 +93,7 @@ describe('PreviewList Component', () => {
     })
   })
 
-  it('should increase albums size on HD displays', () => {
+  it('fits six complete album cards on HD displays', () => {
     cy.viewport(1280, 720)
 
     cy.fixture('albums/mostPlayed').then((albums: Albums[]) => {
@@ -107,13 +107,37 @@ describe('PreviewList Component', () => {
         />,
       )
 
-      albums.forEach((_, index) => {
-        cy.getByTestId(`preview-list-carousel-item-${index}`).should(
-          'have.css',
-          'flex-basis',
-          '20%',
-        )
+      cy.getByTestId('preview-list-carousel').should(($rail) => {
+        const rail = $rail[0]
+        const bounds = rail.getBoundingClientRect()
+        const items = rail.children
+        expect(items[0].getBoundingClientRect().left).to.be.closeTo(bounds.left, 1)
+        expect(items[5].getBoundingClientRect().right).to.be.closeTo(bounds.right, 1)
+        expect(items[6].getBoundingClientRect().left).to.be.greaterThan(bounds.right)
       })
+    })
+  })
+
+  it('scrolls the mobile row with a native swipe without moving the page', () => {
+    cy.viewport(390, 844)
+    cy.fixture('albums/mostPlayed').then((albums: Albums[]) => {
+      cy.mount(<div style={{ padding: 16 }}><PreviewList list={albums} title="Albums" /></div>)
+      cy.getByTestId('preview-list-carousel').as('rail')
+      cy.get('@rail').realSwipe('toLeft', { x: 280, y: 70, length: 220, step: 20 })
+      cy.get('@rail').should(($rail) => {
+        expect($rail[0].scrollLeft).to.be.greaterThan(100)
+        expect($rail[0].ownerDocument.scrollingElement?.scrollTop).to.equal(0)
+      })
+      cy.get('@rail').scrollTo('right').should(($rail) => {
+        const rail = $rail[0]
+        const last = rail.lastElementChild!.getBoundingClientRect()
+        const bounds = rail.getBoundingClientRect()
+        expect(last.right).to.be.at.most(bounds.right)
+        expect(last.left).to.be.at.least(bounds.left)
+      })
+      cy.getByTestId('preview-list-next-button').should('be.disabled')
+      cy.get('@rail').scrollTo('left')
+      cy.getByTestId('preview-list-prev-button').should('be.disabled')
     })
   })
 
