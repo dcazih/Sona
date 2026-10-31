@@ -239,6 +239,7 @@ export function SonaMobileNavigation() {
       root.style.removeProperty('--sona-visual-height')
       root.style.removeProperty('--sona-visual-top')
       root.style.removeProperty('--sona-keyboard-offset')
+      root.style.removeProperty('--sona-keyboard-bottom-offset')
       return
     }
     let frame = 0
@@ -261,6 +262,11 @@ export function SonaMobileNavigation() {
         root.style.setProperty('--sona-visual-height', Math.round(height) + 'px')
         root.style.setProperty('--sona-visual-top', Math.round(top) + 'px')
         root.style.setProperty('--sona-keyboard-offset', Math.round(keyboardHeight) + 'px')
+        // The dock is fixed to the layout viewport. Account for both keyboard
+        // height and Safari's visual-viewport pan so it sits at the keyboard's
+        // actual top edge instead of being offset twice.
+        const keyboardBottomOffset = Math.max(0, baseline - (top + height))
+        root.style.setProperty('--sona-keyboard-bottom-offset', Math.round(keyboardBottomOffset) + 'px')
         window.clearTimeout(keyboardSettleTimer)
         if (keyboardHeight > 100) {
           if (previousKeyboardHeight > 100 && keyboardHeight < previousKeyboardHeight - 8) {
@@ -302,6 +308,7 @@ export function SonaMobileNavigation() {
       root.style.removeProperty('--sona-visual-height')
       root.style.removeProperty('--sona-visual-top')
       root.style.removeProperty('--sona-keyboard-offset')
+      root.style.removeProperty('--sona-keyboard-bottom-offset')
       root.style.removeProperty('--sona-layout-height')
     }
   }, [isSearch])

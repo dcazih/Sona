@@ -1155,7 +1155,7 @@
     background:rgba(31,31,35,.80);
   }
   .sona-search-morph.is-focused{
-    bottom:calc(7px + var(--sona-keyboard-offset,0px))!important;
+    bottom:calc(7px + var(--sona-keyboard-bottom-offset,0px))!important;
     background:rgba(35,35,40,.9);
     border-color:rgba(255,255,255,.27);
   }
@@ -2358,7 +2358,7 @@
   .sona-search-morph.is-expanded{
     position:fixed!important;
     top:auto!important;
-    bottom:calc(var(--sona-keyboard-offset,0px) + 7px)!important;
+    bottom:calc(var(--sona-keyboard-bottom-offset,0px) + 7px)!important;
     left:10px!important;right:10px!important;
     width:calc(100vw - 20px)!important;
     max-width:none!important;
@@ -2375,7 +2375,7 @@
     background:transparent!important;
     border-color:transparent!important;
     top:auto!important;
-    bottom:calc(var(--sona-keyboard-offset,0px) + 7px)!important;
+    bottom:calc(var(--sona-keyboard-bottom-offset,0px) + 7px)!important;
   }
   .sona-search-morph.is-expanded .sona-search-orb{
     height:42px!important;width:42px!important;min-width:42px!important;
