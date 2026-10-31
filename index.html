@@ -53,9 +53,13 @@
 
   <body>
     <div id="sona-startup" role="status" aria-label="Loading Sona">
-      <img class="sona-startup-gif" src="/icons8-music.gif?v=11" width="90" height="90" alt=""
-           onload="this.classList.add('is-loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-      <span class="sona-startup-fallback" aria-hidden="true">♫</span>
+      <div class="sona-startup-content" aria-hidden="true">
+        <img class="sona-startup-logo" src="/apple-music-logo.png?v=12" width="118" height="118" alt=""
+          onerror="this.onerror=null;this.src='/sona-brand.svg?v=12'">
+        <img class="sona-startup-gif" src="/icons8-music.gif?v=12" width="34" height="34" alt=""
+          onload="this.classList.add('is-loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <span class="sona-startup-fallback" aria-hidden="true">♫</span>
+      </div>
       <div class="sona-startup-error" role="alert">
         Sona couldn't finish starting. Check your connection and try again.
         <div><button class="sona-startup-retry" type="button" onclick="window.location.reload()">Retry</button></div>

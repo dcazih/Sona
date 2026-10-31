@@ -1,5 +1,5 @@
 import { Compass, House, Library, ListPlus, Mic, Search, X } from 'lucide-react'
-import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type TouchEvent } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ROUTES } from '@/routes/routesList'
 import { getMainScrollElement } from '@/utils/scrollPageToTop'
@@ -24,7 +24,7 @@ type SpeechWindow = Window & {
   SpeechRecognition?: new () => Recognition
   webkitSpeechRecognition?: new () => Recognition
 }
-type Swipe = { startX: number; startY: number; moved: boolean; index: number }
+type Swipe = { pointerId: number; startX: number; startY: number; moved: boolean; index: number }
 
 export function SonaMobileNavigation() {
   const navigate = useNavigate()
@@ -35,6 +35,7 @@ export function SonaMobileNavigation() {
   const swipeRef = useRef<Swipe | null>(null)
   const blockClickUntil = useRef(0)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [dragPosition, setDragPosition] = useState<number | null>(null)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
   const [keyboardClosing, setKeyboardClosing] = useState(false)
   const [searchVisible, setSearchVisible] = useState(false)
@@ -87,37 +88,58 @@ export function SonaMobileNavigation() {
     if (!box) return 0
     return Math.max(0, Math.min(tabs.length - 1, Math.floor((x - box.left) / box.width * tabs.length)))
   }
-  function navStart(event: TouchEvent<HTMLElement>) {
-    if (event.touches.length !== 1 || isSearch) return
-    const touch = event.touches[0]
-    swipeRef.current = { startX: touch.clientX, startY: touch.clientY, moved: false, index: getIndexFromX(touch.clientX) }
+  function positionFromX(x: number): number {
+    const box = navRef.current?.getBoundingClientRect()
+    if (!box) return 0
+    const fraction = (x - box.left - 4) / Math.max(1, box.width - 8)
+    return Math.max(0, Math.min(tabs.length - 1, fraction * tabs.length - 0.5))
   }
-  function navMove(event: TouchEvent<HTMLElement>) {
+  function navStart(event: ReactPointerEvent<HTMLElement>) {
+    if (!event.isPrimary || isSearch || (event.pointerType === 'mouse' && event.button !== 0)) return
+    swipeRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX, startY: event.clientY,
+      moved: false, index: getIndexFromX(event.clientX),
+    }
+  }
+  function navMove(event: ReactPointerEvent<HTMLElement>) {
     const swipe = swipeRef.current
-    if (!swipe) return
-    const t = event.touches[0]
-    const dx = t.clientX - swipe.startX
-    const dy = t.clientY - swipe.startY
+    if (!swipe || swipe.pointerId !== event.pointerId) return
+    const dx = event.clientX - swipe.startX
+    const dy = event.clientY - swipe.startY
     if (!swipe.moved && Math.abs(dy) > Math.abs(dx) * 1.3) {
       swipeRef.current = null
       setDragIndex(null)
+      setDragPosition(null)
       return
     }
-    if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
-      swipe.moved = true
-      swipe.index = getIndexFromX(t.clientX)
+    if (Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
+      if (!swipe.moved) {
+        swipe.moved = true
+        event.currentTarget.setPointerCapture(event.pointerId)
+      }
+      const position = positionFromX(event.clientX)
+      swipe.index = Math.round(position)
+      setDragPosition(position)
       setDragIndex(swipe.index)
       if (event.cancelable) event.preventDefault()
     }
   }
-  function navEnd() {
+  function navEnd(event: ReactPointerEvent<HTMLElement>) {
     const swipe = swipeRef.current
+    if (!swipe || swipe.pointerId !== event.pointerId) return
     swipeRef.current = null
+    setDragPosition(null)
     setDragIndex(null)
-    if (swipe?.moved) {
-      blockClickUntil.current = Date.now() + 350
+    if (swipe.moved) {
+      blockClickUntil.current = Date.now() + 400
       goTo(tabs[swipe.index].url)
     }
+  }
+  function navCancel() {
+    swipeRef.current = null
+    setDragIndex(null)
+    setDragPosition(null)
   }
   function tabClick(url: string) {
     if (Date.now() < blockClickUntil.current) return
@@ -355,11 +377,11 @@ export function SonaMobileNavigation() {
         ref={navRef}
         className={'sona-bottom-nav sona-bottom-nav-split' + (isSearch ? ' is-searching' : '') + (dragIndex !== null ? ' is-dragging' : '')}
         aria-label="Music navigation"
-        style={{ '--sona-nav-index': selectedIndex < 0 ? 0 : selectedIndex } as CSSProperties}
-        onTouchStart={navStart}
-        onTouchMove={navMove}
-        onTouchEnd={navEnd}
-        onTouchCancel={() => { swipeRef.current = null; setDragIndex(null) }}>
+        style={{ '--sona-nav-index': selectedIndex < 0 ? 0 : selectedIndex, '--sona-nav-progress': dragPosition ?? (selectedIndex < 0 ? 0 : selectedIndex) } as CSSProperties}
+        onPointerDown={navStart}
+        onPointerMove={navMove}
+        onPointerUp={navEnd}
+        onPointerCancel={navCancel}>
         <span className={'sona-nav-highlight' + (selectedIndex < 0 ? ' is-hidden' : '')} aria-hidden="true" />
         {tabs.map(({ key, label, icon: Icon, url }, i) => (
           <button key={key} type="button"

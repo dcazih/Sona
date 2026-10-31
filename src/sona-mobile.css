@@ -2640,3 +2640,30 @@
   .sona-now-overlay{bottom:0!important;min-height:100vh!important;height:100vh!important}
   .sona-now-background{bottom:calc(-90px - env(safe-area-inset-bottom,0px))!important}
 }
+
+/* Keep the floating navigation and expanded search at one iOS bottom baseline.
+   The previous nav (9px+safe-area) and search (7px) positions diverged. */
+@media (max-width:767px) {
+  :root { --sona-dock-bottom: calc(env(safe-area-inset-bottom,0px) + 4px); }
+  .sona-app-shell .sona-bottom-nav-split {
+    bottom:var(--sona-dock-bottom)!important;
+    touch-action:pan-y!important;
+    user-select:none!important;
+    -webkit-user-select:none!important;
+  }
+  .sona-bottom-nav-split .sona-tab { touch-action:pan-y!important; }
+  .sona-bottom-nav-split .sona-nav-highlight {
+    transform:translate3d(calc(var(--sona-nav-progress,var(--sona-nav-index,0)) * 100%),0,0)!important;
+  }
+  .sona-bottom-nav-split.is-dragging .sona-nav-highlight {
+    transition:none!important;
+  }
+  .sona-search-morph:not(.is-focused),
+  .sona-search-morph.is-expanded:not(.is-focused) {
+    bottom:var(--sona-dock-bottom)!important;
+  }
+  .sona-search-morph.is-expanded,
+  .sona-search-morph.is-expanded.is-focused {
+    bottom:max(var(--sona-dock-bottom),calc(var(--sona-keyboard-bottom-offset,0px) + 4px))!important;
+  }
+}
