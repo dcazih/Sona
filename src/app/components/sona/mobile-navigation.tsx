@@ -238,6 +238,7 @@ export function SonaMobileNavigation() {
       root.style.removeProperty('--sona-visual-top')
       root.style.removeProperty('--sona-keyboard-offset')
       root.style.removeProperty('--sona-keyboard-bottom-offset')
+      delete root.dataset.sonaKeyboardOpen
       return
     }
     let frame = 0
@@ -256,6 +257,8 @@ export function SonaMobileNavigation() {
         const height = visual?.height || window.innerHeight
         if (height > baseline) baseline = height
         const keyboardHeight = Math.max(0, baseline - height)
+        if (keyboardHeight > 100) root.dataset.sonaKeyboardOpen = 'true'
+        else delete root.dataset.sonaKeyboardOpen
         root.style.setProperty('--sona-visual-bottom', Math.round(top + height) + 'px')
         root.style.setProperty('--sona-visual-height', Math.round(height) + 'px')
         root.style.setProperty('--sona-visual-top', Math.round(top) + 'px')
@@ -307,6 +310,7 @@ export function SonaMobileNavigation() {
       root.style.removeProperty('--sona-keyboard-offset')
       root.style.removeProperty('--sona-keyboard-bottom-offset')
       root.style.removeProperty('--sona-layout-height')
+      delete root.dataset.sonaKeyboardOpen
     }
   }, [isSearch])
 

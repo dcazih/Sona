@@ -2597,7 +2597,7 @@
   .sona-app-shell:has(.sona-am-search-page) #scroll-viewport>div{padding-bottom:0!important}
   .sona-app-shell:has(.sona-am-search-page) .sona-am-search-page{box-sizing:border-box!important;padding-bottom:72px!important}
   .sona-app-shell:has(.sona-am-search-page) .sona-am-live-results{padding-bottom:0!important;min-height:0!important}
-  .sona-search-morph.is-expanded,.sona-search-morph.is-expanded.is-focused{height:54px!important;grid-template-columns:54px 56px minmax(0,1fr)!important;gap:0!important;padding:0!important;opacity:1!important;transform:none!important}
+  .sona-search-morph.is-expanded,.sona-search-morph.is-expanded.is-focused{height:54px!important;grid-template-columns:54px 56px minmax(0,1fr)!important;gap:0!important;padding:0!important;opacity:1;transform:none!important}
   .sona-search-morph.is-expanded::before{left:68px!important;border-radius:27px!important;clip-path:inset(0 round 27px);background:rgba(15,15,17,.92)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:opacity .34s ease!important}
   .sona-search-morph.is-expanded .sona-search-orb{justify-self:end!important;padding-left:7px!important}
   .sona-search-morph.is-expanded .sona-search-exit{width:54px!important;min-width:54px!important;height:54px!important;border-radius:50%!important}
@@ -2834,9 +2834,6 @@
 
 /* Search v15: no fade-in/out of the search control. It stays visible in Search. */
 @media(max-width:767px){
- .sona-search-morph,
- .sona-search-morph.is-expanded,
- .sona-search-morph.is-expanded.is-focused,
  .sona-search-morph.is-expanded::before,
  .sona-search-morph.is-expanded .sona-search-exit,
  .sona-search-morph.is-expanded .sona-search-orb,
@@ -2979,4 +2976,77 @@
   .sona-app-shell .sona-now-overlay.is-dragging{
     transition:border-radius 0s,transform .2s cubic-bezier(.22,1,.36,1)!important
   }
+}
+
+/* Search v18: mini-player-matched 50px floating controls. */
+@media(max-width:767px){
+ :root{--sona-search-dock-height:50px}
+ .sona-search-morph:not(.is-expanded){
+   width:var(--sona-search-dock-height)!important;
+   min-width:var(--sona-search-dock-height)!important;
+   height:var(--sona-search-dock-height)!important;
+   min-height:var(--sona-search-dock-height)!important;
+   border-radius:50%!important;
+   box-sizing:border-box!important;
+   padding:0!important;
+ }
+ .sona-search-morph:not(.is-expanded) .sona-search-orb{
+   width:100%!important;height:100%!important;min-width:0!important;
+ }
+ .sona-search-morph.is-expanded,
+ .sona-search-morph.is-expanded.is-focused{
+   height:var(--sona-search-dock-height)!important;
+   min-height:var(--sona-search-dock-height)!important;
+   grid-template-columns:50px 50px minmax(0,1fr)!important;
+   border:0!important;box-sizing:border-box!important;
+   padding:0!important;opacity:1;
+ }
+ .sona-search-morph.is-expanded::before{
+   left:55px!important;right:0!important;
+   top:0!important;bottom:0!important;
+   border-radius:25px!important;clip-path:inset(0 round 25px)!important
+ }
+ .sona-search-morph.is-expanded .sona-search-exit{
+   width:50px!important;height:50px!important;min-width:50px!important;
+ }
+ .sona-search-morph.is-expanded .sona-search-orb{
+   width:50px!important;height:50px!important;min-width:50px!important;
+   padding-left:5px!important;justify-self:stretch!important
+ }
+ .sona-search-morph.is-expanded .sona-search-morph-field,
+ .sona-search-morph.is-expanded .sona-search-morph-field input{
+   min-height:0!important;height:50px!important;
+ }
+ .sona-search-morph.is-expanded .sona-search-morph-field input{font-size:16px!important}
+ /* Preserve the previous dock baseline when the keyboard is closed. */
+ :root[data-sona-keyboard-open="true"] .sona-search-morph.is-expanded,
+ :root[data-sona-keyboard-open="true"] .sona-search-morph.is-expanded.is-focused{
+   bottom:calc(var(--sona-keyboard-bottom-offset,0px) + 5px)!important
+ }
+ /* Quick focus-only fade upward; search's ordinary open/close stays immediate. */
+ @keyframes sona-search-focus-rise{
+   from{opacity:.35;translate:0 8px}
+   to{opacity:1;translate:0 0}
+ }
+ .sona-search-morph.is-expanded.is-focused{
+   animation:sona-search-focus-rise .19s cubic-bezier(.2,.85,.22,1) both!important
+ }
+ /* Keep source selector above all Search content even when not typing. */
+ .sona-am-search-page>.sona-search-scope{
+   position:sticky!important;top:2px!important;z-index:8!important;
+   margin:0 0 16px!important
+ }
+ .sona-am-recent-content{
+   opacity:1;transform:translate3d(0,0,0);
+   transition:opacity .24s cubic-bezier(.32,0,.67,1),
+     transform .24s cubic-bezier(.32,0,.67,1)!important;
+ }
+ .sona-am-recent-content.is-clearing{
+   opacity:0!important;transform:translate3d(0,-7px,0)!important;
+   pointer-events:none!important
+ }
+}
+@media(max-width:767px) and (prefers-reduced-motion:reduce){
+ .sona-search-morph.is-expanded.is-focused{animation:none!important}
+ .sona-am-recent-content{transition:none!important}
 }
