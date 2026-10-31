@@ -47,8 +47,6 @@ export default function SonaMobileSearch() {
   const setFilter = useSonaSearch((state) => state.setFilter)
   const [query, setQuery] = useState('')
   const [recent, setRecent] = useState<RecentItem[]>(loadRecents)
-  const [clearingRecents, setClearingRecents] = useState(false)
-  const clearRecentsTimer = useRef<number | null>(null)
   const [errorMessage, setErrorMessage] = useState('')
   const [searchScope, setSearchScope] = useState<SearchScope>(lastSearchScope)
   const [scopeDrag, setScopeDrag] = useState<number | null>(null)
@@ -193,20 +191,9 @@ export default function SonaMobileSearch() {
   }
 
   function clearRecent() {
-    if (clearingRecents) return
-    // Keep the list mounted for the exit animation, including its title and Clear.
-    setClearingRecents(true)
-    if (clearRecentsTimer.current !== null) window.clearTimeout(clearRecentsTimer.current)
-    clearRecentsTimer.current = window.setTimeout(() => {
-      setRecent([])
-      try { localStorage.removeItem(RECENTS_KEY) } catch { /* private browsing */ }
-      setClearingRecents(false)
-      clearRecentsTimer.current = null
-    }, 240)
+    setRecent([])
+    try { localStorage.removeItem(RECENTS_KEY) } catch { /* private browsing */ }
   }
-  useEffect(() => () => {
-    if (clearRecentsTimer.current !== null) window.clearTimeout(clearRecentsTimer.current)
-  }, [])
 
   useEffect(() => {
     const onSubmit = (event: Event) => {
@@ -286,20 +273,6 @@ export default function SonaMobileSearch() {
   return (
     <div className={'sona-am-search-page ' + (activeSearch ? 'is-search-active' : '')}>
       <div ref={pageTopRef} className="sona-search-visible-top" aria-hidden="true" />
-      {/* Scope is always above browse, recent searches and live results. */}
-      <div ref={scopeEl}
-            className={'sona-search-scope' + (scopeDrag !== null ? ' is-dragging' : '')}
-            role="group" aria-label="Search source"
-            style={{ '--sona-scope-progress': scopeDrag ?? (searchScope === 'library' ? 1 : 0) } as CSSProperties}
-            onPointerDown={onScopeDown} onPointerMove={onScopeMove}
-            onPointerUp={onScopeUp} onPointerCancel={onScopeCancel}>
-            <span className="sona-search-scope-thumb" aria-hidden="true" />
-            <button type="button" className={searchScope === 'sona' ? 'is-selected' : ''}
-              aria-pressed={searchScope === 'sona'} onClick={() => onScopeClick('sona')}>Sona Music</button>
-            <button type="button" className={searchScope === 'library' ? 'is-selected' : ''}
-              aria-pressed={searchScope === 'library'} onClick={() => onScopeClick('library')}>Library</button>
-          </div>
-
       {!activeSearch ? (
         <>
           <h1 className="sona-am-search-heading">Search</h1>
@@ -324,18 +297,28 @@ export default function SonaMobileSearch() {
         </>
       ) : (
         <>
+          <div ref={scopeEl}
+            className={'sona-search-scope' + (scopeDrag !== null ? ' is-dragging' : '')}
+            role="group" aria-label="Search source"
+            style={{ '--sona-scope-progress': scopeDrag ?? (searchScope === 'library' ? 1 : 0) } as CSSProperties}
+            onPointerDown={onScopeDown} onPointerMove={onScopeMove}
+            onPointerUp={onScopeUp} onPointerCancel={onScopeCancel}>
+            <span className="sona-search-scope-thumb" aria-hidden="true" />
+            <button type="button" className={searchScope === 'sona' ? 'is-selected' : ''}
+              aria-pressed={searchScope === 'sona'} onClick={() => onScopeClick('sona')}>Sona Music</button>
+            <button type="button" className={searchScope === 'library' ? 'is-selected' : ''}
+              aria-pressed={searchScope === 'library'} onClick={() => onScopeClick('library')}>Library</button>
+          </div>
           {term.trim().length === 0 ? (
             <section className="sona-am-recent">
-              {recent.length > 0 && (
-                <div className={'sona-am-recent-content' + (clearingRecents ? ' is-clearing' : '')}
-                  aria-hidden={clearingRecents}>
-                  <div className="sona-am-section-bar sona-am-recent-title">
-                    <h2>Recently Searched</h2>
-                    <button type="button" onClick={clearRecent} disabled={clearingRecents}>Clear</button>
-                  </div>
-                  {recent.map((item) => renderRow(item))}
+
+              {recent.length > 0 && <>
+                <div className="sona-am-section-bar sona-am-recent-title">
+                  <h2>Recently Searched</h2>
+                  <button type="button" onClick={clearRecent}>Clear</button>
                 </div>
-              )}
+                {recent.map((item) => renderRow(item))}
+              </>}
             </section>
           ) : (
             <div className="sona-am-live-results">
