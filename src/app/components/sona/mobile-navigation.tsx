@@ -36,6 +36,7 @@ export function SonaMobileNavigation() {
   const blockClickUntil = useRef(0)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
+  const [keyboardClosing, setKeyboardClosing] = useState(false)
   const [searchVisible, setSearchVisible] = useState(false)
   const [voiceError, setVoiceError] = useState('')
   const recognition = useRef<Recognition | null>(null)
@@ -133,18 +134,26 @@ export function SonaMobileNavigation() {
   }, [isSearch, setFocused])
 
   useEffect(() => {
-    if (!focused) {
+    if (!isSearch) {
+      setSearchVisible(false)
+      return
+    }
+    // Hide as soon as the keyboard begins closing. Show again only after the
+    // visual viewport has settled with the keyboard gone.
+    if (keyboardClosing || (keyboardVisible && !focused)) {
+      setSearchVisible(false)
+      return
+    }
+    if (!focused && !keyboardVisible) {
       setSearchVisible(true)
       return
     }
-    // Keep the control usable until iOS reports an actual keyboard viewport.
-    // Once mounted, run the requested delayed fade. No guessed timeout is used
-    // when the keyboard never appeared.
+    // Wait for the keyboard to finish mounting before revealing the dock.
     if (!keyboardVisible) { setSearchVisible(false); return }
     setSearchVisible(false)
     const timer = window.setTimeout(() => setSearchVisible(true), 500)
     return () => window.clearTimeout(timer)
-  }, [focused, keyboardVisible])
+  }, [isSearch, focused, keyboardVisible, keyboardClosing])
 
   useEffect(() => () => {
     scrollResetTimers.current.forEach(window.clearTimeout)
@@ -167,22 +176,35 @@ export function SonaMobileNavigation() {
 
   useEffect(() => {
     if (!isSearch || !focused) return
-    let frame = 0
-    const keepSearchAtTop = () => {
-      if (frame) cancelAnimationFrame(frame)
-      frame = requestAnimationFrame(forceSearchTop)
+    const viewport = getMainScrollElement()
+    if (!viewport) return
+    let startX = 0
+    let startY = 0
+    let dismissed = false
+    const start = (event: globalThis.TouchEvent) => {
+      const touch = event.touches[0]
+      startX = touch.clientX
+      startY = touch.clientY
+      dismissed = false
     }
-    keepSearchAtTop()
-    window.visualViewport?.addEventListener('resize', keepSearchAtTop)
-    window.visualViewport?.addEventListener('scroll', keepSearchAtTop)
-    window.addEventListener('resize', keepSearchAtTop)
+    const move = (event: globalThis.TouchEvent) => {
+      if (dismissed || event.touches.length !== 1) return
+      const touch = event.touches[0]
+      const dx = touch.clientX - startX
+      const dy = touch.clientY - startY
+      if (Math.abs(dy) < 8 || Math.abs(dy) < Math.abs(dx) * 1.2) return
+      dismissed = true
+      setKeyboardClosing(true)
+      inputRef.current?.blur()
+      setFocused(false)
+    }
+    viewport.addEventListener('touchstart', start, { passive: true })
+    viewport.addEventListener('touchmove', move, { passive: true })
     return () => {
-      if (frame) cancelAnimationFrame(frame)
-      window.visualViewport?.removeEventListener('resize', keepSearchAtTop)
-      window.visualViewport?.removeEventListener('scroll', keepSearchAtTop)
-      window.removeEventListener('resize', keepSearchAtTop)
+      viewport.removeEventListener('touchstart', start)
+      viewport.removeEventListener('touchmove', move)
     }
-  }, [isSearch, focused])
+  }, [isSearch, focused, setFocused])
 
   function resetSearchAfterKeyboard() {
     scrollResetTimers.current.forEach(window.clearTimeout)
@@ -211,6 +233,8 @@ export function SonaMobileNavigation() {
     const vp = window.visualViewport
     const root = document.documentElement
     if (!isSearch) {
+      setKeyboardVisible(false)
+      setKeyboardClosing(false)
       root.style.removeProperty('--sona-visual-bottom')
       root.style.removeProperty('--sona-visual-height')
       root.style.removeProperty('--sona-visual-top')
@@ -219,6 +243,7 @@ export function SonaMobileNavigation() {
     }
     let frame = 0
     let keyboardSettleTimer = 0
+    let previousKeyboardHeight = 0
     // Track the visual viewport itself, not only the difference between
     // window.innerHeight and viewport.height. Safari can resize both while
     // raising its keyboard, which previously made the offset appear zero.
@@ -238,15 +263,26 @@ export function SonaMobileNavigation() {
         root.style.setProperty('--sona-keyboard-offset', Math.round(keyboardHeight) + 'px')
         window.clearTimeout(keyboardSettleTimer)
         if (keyboardHeight > 100) {
+          if (previousKeyboardHeight > 100 && keyboardHeight < previousKeyboardHeight - 8) {
+            setKeyboardClosing(true)
+            setSearchVisible(false)
+          }
           // Wait for VisualViewport to stop changing before the short reveal
           // begins after the keyboard has finished mounting.
           keyboardSettleTimer = window.setTimeout(
-            () => setKeyboardVisible(true),
+            () => {
+              setKeyboardVisible(true)
+              setKeyboardClosing(false)
+            },
             160,
           )
         } else {
-          setKeyboardVisible(false)
+          keyboardSettleTimer = window.setTimeout(() => {
+            setKeyboardVisible(false)
+            setKeyboardClosing(false)
+          }, 120)
         }
+        previousKeyboardHeight = keyboardHeight
         frame = 0
       })
     }
@@ -372,7 +408,9 @@ export function SonaMobileNavigation() {
           />
           {term.length > 0
             ? <button type="button" className="sona-search-inline-action" tabIndex={isSearch ? 0 : -1}
-                aria-label="Clear search" onClick={() => { setTerm(''); inputRef.current?.focus() }}>
+                aria-label="Clear search"
+                onPointerDown={(event) => event.preventDefault()}
+                onClick={() => setTerm('')}>
                 <X size={17} />
               </button>
             : <button type="button" className="sona-search-inline-action" tabIndex={isSearch ? 0 : -1}

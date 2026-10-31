@@ -2426,7 +2426,9 @@
     background:transparent!important;
     animation:none!important;
   }
-  .sona-am-search-page.is-search-active{padding-top:76px!important}
+  .sona-am-search-page.is-search-active{padding-top:2px!important}
+  .sona-search-scope{height:40px!important;grid-template-columns:1fr 1fr!important;gap:3px!important;margin:0 0 20px!important;padding:2px!important}
+  .sona-search-scope button{height:34px!important;font-size:15px!important}
   .sona-am-live-results{padding:0 0 92px!important}
   .sona-am-in,.sona-am-live-results{animation:none!important;transition:none!important;transform:none!important;opacity:1!important}
   @keyframes sona-results-arrive{
@@ -2603,7 +2605,17 @@
   .sona-search-morph.is-focused.is-search-visible::before,.sona-search-morph.is-focused.is-search-visible .sona-search-exit,.sona-search-morph.is-focused.is-search-visible .sona-search-orb,.sona-search-morph.is-focused.is-search-visible .sona-search-morph-field{opacity:1!important;transition:opacity .36s ease!important}
   .sona-search-morph.is-focused .sona-search-morph-field{pointer-events:auto!important}
   .sona-search-morph.is-expanded .sona-search-inline-action{width:43px!important;min-width:43px!important;padding-right:10px!important}
-  .sona-am-search-page.is-search-active{padding-top:76px!important}
+  .sona-am-search-page.is-search-active{padding-top:2px!important}
+  .sona-search-scope{height:40px!important;margin-top:0!important;margin-bottom:20px!important;padding:2px!important}
+  .sona-search-scope button{height:34px!important}
+  .sona-search-morph.is-expanded:not(.is-search-visible)::before,
+  .sona-search-morph.is-expanded:not(.is-search-visible) .sona-search-exit,
+  .sona-search-morph.is-expanded:not(.is-search-visible) .sona-search-orb,
+  .sona-search-morph.is-expanded:not(.is-search-visible) .sona-search-morph-field{opacity:0!important;transition:opacity .16s ease!important}
+  .sona-search-morph.is-expanded.is-search-visible::before,
+  .sona-search-morph.is-expanded.is-search-visible .sona-search-exit,
+  .sona-search-morph.is-expanded.is-search-visible .sona-search-orb,
+  .sona-search-morph.is-expanded.is-search-visible .sona-search-morph-field{opacity:1!important;transition:opacity .16s ease!important}
 
   .sona-app-shell:has(.sona-persistent-requests.is-active) .sona-header,
   .sona-app-shell:has(.sona-persistent-requests.is-active)::before{background:#171719!important}
