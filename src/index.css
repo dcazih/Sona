@@ -401,6 +401,13 @@ svg#bars .eq-bar--4 {
 
 .sona-artwork-managed.is-loaded { opacity: 1; }
 
+html,body,* { scrollbar-width: none !important; }
+html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
 @media all and (display-mode: picture-in-picture) {
   body,
   html {

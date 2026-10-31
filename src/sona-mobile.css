@@ -336,13 +336,13 @@
     overflow:hidden;display:flex;align-items:stretch;cursor:pointer;min-width:0;
     background:#25252b;transition:transform .18s ease,filter .18s ease}
   .sona-am-genre-card:active{transform:scale(.975);filter:brightness(1.13)}
-  .sona-am-genre-card .sona-am-genre-art{position:absolute;inset:0 auto 0 0;width:62%;height:100%;z-index:0;background:#25252b;border-radius:0!important}
-  .sona-am-genre-card .sona-am-genre-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.76;filter:saturate(.78) contrast(.96);transform:none}
+  .sona-am-genre-card .sona-am-genre-art{position:absolute;inset:0 auto 0 0;width:74%;height:100%;z-index:0;background:transparent;border-radius:0!important;-webkit-mask-image:linear-gradient(90deg,#000 0%,#000 58%,transparent 100%);mask-image:linear-gradient(90deg,#000 0%,#000 58%,transparent 100%)}
+  .sona-am-genre-card .sona-am-genre-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.68;filter:saturate(.72) contrast(.94);transform:none}
   .sona-am-genre-card:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
     background:linear-gradient(90deg,transparent 36%,color-mix(in srgb,currentColor 8%,transparent) 51%,#0000 66%)}
   .sona-am-genre-card span{font-size:19px;line-height:1.1;font-weight:800;letter-spacing:-.03em;
     position:relative;z-index:2;width:42%;margin-left:auto;padding:12px 10px;
-    display:flex;align-items:center;justify-content:center;text-align:left;
+    display:flex;align-items:center;justify-content:center;text-align:center;
     overflow-wrap:anywhere;text-shadow:0 2px 9px #0008}
   .sona-am-browse-loading{padding:22px 0;color:#a3a3ad;font-size:14px}
   .sona-am-search-page.is-search-active {padding-top:15px}
@@ -2396,6 +2396,8 @@
     max-height:none!important;
     overflow:hidden!important;
     background:#080809!important;
+    transform:translate3d(0,var(--sona-visual-top,0px),0)!important;
+    transition:none!important;
   }
   .sona-app-shell:has(.sona-am-search-page) #main-scroll-area #scroll-viewport{
     height:100%!important;max-height:100%!important;
@@ -2563,6 +2565,8 @@
   .sona-request-page{padding:0 0 calc(132px + env(safe-area-inset-bottom,0px))!important}
   .sona-request-portal{min-height:100%;height:100%!important;position:relative}
   .sona-request-portal iframe{width:100%!important;height:100%!important;transform:none!important;border:0!important}
+  .sona-request-page.is-loading,.sona-request-page.is-loading .sona-request-portal{overflow:hidden!important;touch-action:none!important;overscroll-behavior:none!important}
+  .sona-request-page.is-loading iframe{pointer-events:none!important}
   .sona-request-loading{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px;text-align:center;background:#000;color:#fff;opacity:1;visibility:visible;transition:opacity .42s cubic-bezier(.22,.78,.24,1),visibility 0s linear .42s}
   .sona-request-loading.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
   .sona-request-loading strong{font-size:18px;font-weight:750;letter-spacing:-.025em}
@@ -2574,10 +2578,11 @@
   /* Expanded search geometry and keyboard timing. */
   .sona-app-shell:has(.sona-am-search-page) .sona-player[data-mobile-active="true"]{bottom:calc(67px + env(safe-area-inset-bottom,0px))!important;transform:none!important;transition:bottom .32s cubic-bezier(.2,.9,.2,1)!important;will-change:bottom}
   .sona-app-shell:has(.sona-am-search-page) .sona-player-layout{grid-template-columns:minmax(0,1fr) 72px!important}
-  .sona-app-shell:has(.sona-am-search-page) .sona-player-controls{width:72px!important;min-width:72px!important;max-width:72px!important;contain:layout paint}
+  .sona-app-shell:has(.sona-am-search-page) .sona-player-controls{width:72px!important;min-width:72px!important;max-width:72px!important}
   .sona-app-shell:has(.sona-am-search-page) .sona-player-controls>div:first-child{width:72px!important;min-width:72px!important;justify-content:flex-end!important;gap:0!important}
   .sona-app-shell:has(.sona-am-search-page) .sona-player-controls [data-testid^="player-button-"]{flex:0 0 32px!important;transform:none!important;transition:none!important;animation:none!important}
   .sona-app-shell:has(.sona-am-search-page) .sona-player-controls [data-testid^="player-button-"] svg{transform:none!important;transition:none!important;animation:none!important}
+  .sona-app-shell:has(.sona-am-search-page) .sona-player-controls>div:nth-child(2){position:absolute!important;left:0!important;right:0!important;bottom:-2px!important;width:auto!important;transform:none!important}
   .sona-app-shell:has(.sona-am-search-page){height:var(--sona-layout-height,100dvh)!important;min-height:var(--sona-layout-height,100dvh)!important}
   .sona-app-shell:has(.sona-am-search-page) .sona-am-search-page{min-height:calc(var(--sona-layout-height,100dvh) - env(safe-area-inset-top,0px))!important;padding-bottom:105px!important}
   .sona-app-shell:has(.sona-am-search-page) .sona-am-live-results{padding-bottom:105px!important}
@@ -2589,6 +2594,13 @@
   .sona-search-morph.is-focused.is-search-visible::before,.sona-search-morph.is-focused.is-search-visible .sona-search-orb,.sona-search-morph.is-focused.is-search-visible .sona-search-morph-field{opacity:1!important;transition:opacity .36s ease!important}
   .sona-search-morph.is-focused .sona-search-morph-field{pointer-events:auto!important}
   .sona-am-search-page.is-search-active{padding-top:12px!important}
+
+  .sona-app-shell:has(.sona-header-album-view) #main-scroll-area,
+  .sona-app-shell:has(.sona-header-album-view) #scroll-viewport,
+  .sona-app-shell:has(.sona-header-album-view) #scroll-viewport>div,
+  .sona-mobile-album-hero,.sona-mobile-album-cover,.sona-mobile-album-details{
+    scroll-behavior:auto!important;transform:none!important;will-change:auto!important;
+  }
 
   html:has(.sona-now-overlay.is-dragging),html:has(.sona-now-overlay.is-dragging) body,html:has(.sona-now-overlay.is-dragging) #root{transition:none!important}
   .sona-app-shell:has(.sona-now-overlay.is-dragging)::before{transition:none!important}

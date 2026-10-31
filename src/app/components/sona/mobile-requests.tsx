@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAppStore } from '@/store/app.store'
 import { saltWord } from '@/utils/salt'
+import { getMainScrollElement } from '@/utils/scrollPageToTop'
 
 const PROFILE_URL = 'https://profiles.hippocampus-polaris.ts.net/?embed=sona'
 const PROFILE_ORIGIN = 'https://profiles.hippocampus-polaris.ts.net'
@@ -42,6 +43,19 @@ export default function SonaMobileRequests() {
     return () => window.removeEventListener('message', receiveProfileStatus)
   }, [username, token, authType])
 
+  useEffect(() => {
+    const viewport = getMainScrollElement()
+    if (!viewport || status === 'ready') return
+    const overflow = viewport.style.overflow
+    const touchAction = viewport.style.touchAction
+    viewport.style.overflow = 'hidden'
+    viewport.style.touchAction = 'none'
+    return () => {
+      viewport.style.overflow = overflow
+      viewport.style.touchAction = touchAction
+    }
+  }, [status])
+
   function retry() {
     setError('')
     setStatus('loading')
@@ -50,7 +64,7 @@ export default function SonaMobileRequests() {
   }
 
   return (
-    <main className="sona-request-page">
+    <main className={'sona-request-page' + (status !== 'ready' ? ' is-loading' : '')}>
       <section className="sona-request-portal" aria-label="Music request portal">
         {showLoader && <div className={'sona-request-loading' + (status === 'ready' ? ' is-leaving' : '')}
           role="status" aria-live="polite" onTransitionEnd={(event) => {

@@ -44,6 +44,19 @@ export function SonaMobileNowPlaying() {
       root.style.getPropertyValue('--sona-tab-notch-color') || '#171719'
   }
 
+  function applyPlayerNotch() {
+    const root = document.documentElement
+    const color = String((ambientStyle as Record<string, string>)['--sona-ambient-color'] || '#755265')
+    const channels = /^#[0-9a-f]{6}$/i.test(color)
+      ? [0,2,4].map(i => parseInt(color.slice(i+1,i+3),16))
+      : [117,82,101]
+    const tint = '#' + channels.map((v,i) => Math.round(v*.72 + [25,24,29][i]*.28)
+      .toString(16).padStart(2,'0')).join('')
+    root.dataset.sonaNotchOwner = 'player'
+    root.style.setProperty('--sona-notch-color',tint)
+    document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute('content',tint)
+  }
+
   // The normal toolbar is intentionally never recolored. Now Playing owns the
   // notch only while open and gives it back synchronously on close/remount.
   useEffect(() => {
@@ -51,15 +64,7 @@ export function SonaMobileNowPlaying() {
     const root = document.documentElement
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
     if (isFullscreen) {
-      const color = String((ambientStyle as Record<string, string>)['--sona-ambient-color'] || '#755265')
-      const channels = /^#[0-9a-f]{6}$/i.test(color)
-        ? [0,2,4].map(i => parseInt(color.slice(i+1,i+3),16))
-        : [117,82,101]
-      const tint = '#' + channels.map((v,i) => Math.round(v*.72 + [25,24,29][i]*.28)
-        .toString(16).padStart(2,'0')).join('')
-      root.dataset.sonaNotchOwner = 'player'
-      root.style.setProperty('--sona-notch-color',tint)
-      meta?.setAttribute('content',tint)
+      applyPlayerNotch()
       return
     }
     if (root.dataset.sonaNotchOwner !== 'player') return
@@ -154,7 +159,16 @@ export function SonaMobileNowPlaying() {
     setDragY(0)
     if (dy > 112 && dy > Math.abs(dx) * 1.15) {
       setIsFullscreen(false)
+    } else if (isFullscreen) {
+      applyPlayerNotch()
     }
+  }
+
+  function cancelSwipe() {
+    gesture.current = null
+    lastDrag.current = 0
+    setDragY(0)
+    if (isFullscreen) applyPlayerNotch()
   }
 
   function endArtworkSwipe(event: TouchEvent<HTMLDivElement>) {
@@ -178,6 +192,7 @@ export function SonaMobileNowPlaying() {
       onTouchStart={beginSwipe}
       onTouchMove={moveSwipe}
       onTouchEnd={endSwipe}
+      onTouchCancel={cancelSwipe}
       style={{
         ...ambientStyle,
         '--sona-drag-y': String(dragY) + 'px',
