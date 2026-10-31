@@ -2,11 +2,19 @@ import { httpClient } from '@/api/httpClient'
 import { SubsonicResponse } from '@/types/responses/subsonicResponse'
 
 async function pingInfo() {
-  const response = await httpClient<SubsonicResponse>('/ping.view', {
-    method: 'GET',
-  })
-
-  return response?.data
+  // Prevent a stalled Navidrome/Tailscale request from blocking initial routing.
+  // AbortController works in iOS Safari and installed PWAs.
+  const controller = new AbortController()
+  const timer = window.setTimeout(() => controller.abort(), 5000)
+  try {
+    const response = await httpClient<SubsonicResponse>('/ping.view', {
+      method: 'GET',
+      signal: controller.signal,
+    })
+    return response?.data
+  } finally {
+    window.clearTimeout(timer)
+  }
 }
 
 async function pingView() {

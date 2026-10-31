@@ -7,9 +7,9 @@ export async function loginLoader() {
   const { url, username, password, isServerConfigured } =
     useAppStore.getState().data
 
-  const hasUrl = url || url !== ''
-  const hasPassword = password || password !== ''
-  const hasUser = username || username !== ''
+  const hasUrl = Boolean(url?.trim())
+  const hasPassword = Boolean(password?.trim())
+  const hasUser = Boolean(username?.trim())
 
   if (hasUrl && hasPassword && hasUser && isServerConfigured) {
     const isServerUp = await subsonic.ping.pingView()
