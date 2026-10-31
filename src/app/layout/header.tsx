@@ -15,7 +15,7 @@ export function Header() {
   const { pathname, search } = useLocation()
   const navigate = useNavigate()
   const albumId = /^\/library\/albums\/([^/]+)$/.exec(pathname)?.[1]
-  const isNewTab = pathname + search === '/library/albums?filter=recentlyAdded'
+  const isNewTab = pathname + search === '/library/albums?filter=newest'
   const mobileTitle = pathname === '/' ? 'Home'
     : pathname === '/mobile-library' ? 'Library'
     : pathname === '/mobile-request' ? 'Request'
