@@ -13,6 +13,7 @@ export default function SonaMobileRequests() {
   const frame = useRef<HTMLIFrameElement>(null)
   const [frameKey, setFrameKey] = useState(0)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+  const [showLoader, setShowLoader] = useState(true)
   const [error, setError] = useState('')
   const username = useAppStore((state) => state.data.username)
   const token = useAppStore((state) => state.data.password)
@@ -44,14 +45,18 @@ export default function SonaMobileRequests() {
   function retry() {
     setError('')
     setStatus('loading')
+    setShowLoader(true)
     setFrameKey((value) => value + 1)
   }
 
   return (
     <main className="sona-request-page">
       <section className="sona-request-portal" aria-label="Music request portal">
-        {status !== 'ready' && <div className="sona-request-loading" role="status" aria-live="polite">
-          {status === 'loading' ? <>
+        {showLoader && <div className={'sona-request-loading' + (status === 'ready' ? ' is-leaving' : '')}
+          role="status" aria-live="polite" onTransitionEnd={(event) => {
+            if (status === 'ready' && event.propertyName === 'opacity') setShowLoader(false)
+          }}>
+          {status !== 'error' ? <>
             <span className="sona-request-spinner" aria-hidden="true" />
             <strong>Loading Music Requests</strong>
             <span>Connecting your Sona profile…</span>

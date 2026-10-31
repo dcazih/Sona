@@ -375,13 +375,20 @@ svg#bars .eq-bar--4 {
   display: grid;
   place-items: center;
   color: rgba(255, 255, 255, .72);
+  overflow: hidden;
+  isolation: isolate;
 }
 
 .sona-artwork-note-fallback svg {
-  width: 34%;
-  height: 34%;
-  max-width: 96px;
-  max-height: 96px;
+  display: block;
+  width: clamp(22px, 28%, 72px);
+  height: clamp(22px, 28%, 72px);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
 }
 
 .sona-artwork-managed {

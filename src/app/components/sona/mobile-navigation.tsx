@@ -149,6 +149,7 @@ export function SonaMobileNavigation() {
     // window.innerHeight and viewport.height. Safari can resize both while
     // raising its keyboard, which previously made the offset appear zero.
     let baseline = Math.max(window.innerHeight, vp?.height || 0)
+    root.style.setProperty('--sona-layout-height', Math.round(baseline) + 'px')
     const update = () => {
       if (frame) cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() => {
@@ -190,6 +191,7 @@ export function SonaMobileNavigation() {
       root.style.removeProperty('--sona-visual-bottom')
       root.style.removeProperty('--sona-visual-height')
       root.style.removeProperty('--sona-keyboard-offset')
+      root.style.removeProperty('--sona-layout-height')
     }
   }, [isSearch])
 
