@@ -1,14 +1,8 @@
-import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { AlbumGridCard } from '@/app/components/albums/album-grid-card'
-import { useSonaMomentumSnap } from '@/app/hooks/use-sona-momentum-snap'
-import {
-  Carousel,
-  type CarouselApi,
-  CarouselContent,
-  CarouselItem,
-} from '@/app/components/ui/carousel'
+import { useMusicRail } from '@/app/hooks/use-music-rail'
+import '@/app/components/sona/music-rail.css'
 import { CarouselButton } from '@/app/components/ui/carousel-button'
 import { Albums } from '@/types/responses/album'
 
@@ -27,10 +21,7 @@ export default function PreviewList({
   moreTitle,
   moreRoute,
 }: PreviewListProps) {
-  const [api, setApi] = useState<CarouselApi>()
-  const gestures = useSonaMomentumSnap(api, Math.min(16, list.length))
-  const [canScrollPrev, setCanScrollPrev] = useState<boolean>()
-  const [canScrollNext, setCanScrollNext] = useState<boolean>()
+  const rail = useMusicRail(Math.min(16, list.length))
   const { t } = useTranslation()
 
   moreTitle = moreTitle || t('generic.seeMore')
@@ -38,20 +29,6 @@ export default function PreviewList({
   if (list.length > 16) {
     list = list.slice(0, 16)
   }
-
-  useEffect(() => {
-    if (!api) {
-      return
-    }
-
-    setCanScrollPrev(api.canScrollPrev())
-    setCanScrollNext(api.canScrollNext())
-
-    api.on('select', () => {
-      setCanScrollPrev(api.canScrollPrev())
-      setCanScrollNext(api.canScrollNext())
-    })
-  }, [api])
 
   return (
     <div className="w-full flex flex-col mt-4">
@@ -73,47 +50,28 @@ export default function PreviewList({
           <div className="flex gap-2">
             <CarouselButton
               direction="prev"
-              disabled={!canScrollPrev}
-              onClick={() => api?.scrollPrev()}
+              disabled={!rail.previous}
+              onClick={() => rail.step(-1)}
               data-testid="preview-list-prev-button"
             />
             <CarouselButton
               direction="next"
-              disabled={!canScrollNext}
-              onClick={() => api?.scrollNext()}
+              disabled={!rail.next}
+              onClick={() => rail.step(1)}
               data-testid="preview-list-next-button"
             />
           </div>
         </div>
       </div>
 
-      <div className="transform-gpu">
-        <Carousel
-          {...gestures}
-          opts={{
-            align: 'start',
-            slidesToScroll: 1,
-            containScroll: 'trimSnaps',
-            dragFree: false,
-            skipSnaps: false,
-            duration: 30,
-          }}
-          setApi={setApi}
-          data-testid="preview-list-carousel"
-        >
-          <CarouselContent>
-            {list.map((album, index) => (
-              <CarouselItem
-                key={album.id}
-                className="basis-1/6 2xl:basis-1/8"
-                data-testid={`preview-list-carousel-item-${index}`}
-              >
-                <AlbumGridCard album={album} />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
-      </div>
+      <ul ref={rail.ref} className="sona-music-rail sona-music-rail--albums"
+        aria-label={title} data-testid="preview-list-carousel">
+        {list.map((album, index) => (
+          <li key={album.id} data-testid={`preview-list-carousel-item-${index}`}>
+            <AlbumGridCard album={album} />
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

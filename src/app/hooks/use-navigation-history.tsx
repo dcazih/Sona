@@ -69,6 +69,7 @@ const useNavigationHistory = () => {
     let lastFired = 0
 
     const handleWheel = (e: WheelEvent) => {
+      if (e.target instanceof Element && e.target.closest('.sona-music-rail')) return
       const now = Date.now()
       const isHorizontalDominant = Math.abs(e.deltaX) > Math.abs(e.deltaY)
 

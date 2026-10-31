@@ -11,7 +11,6 @@
   .sona-app-shell [data-slot="sidebar-wrapper"] {padding-top:var(--header-height)!important;padding-bottom:var(--player-height)!important}
   .sona-app-shell [data-slot="sidebar-inset"] {min-width:0;width:100%!important;background:#171719!important}
   .sona-app-shell #main-scroll-area {min-width:0;width:100%;background:linear-gradient(180deg,#242428 0px,#171719 265px)!important;color:#f6f6f7}
-  .sona-app-shell #main-scroll-area [data-testid^="preview-list-carousel-item"] {flex:0 0 45%;max-width:45%}
   .sona-app-shell #main-scroll-area [data-testid="preview-list-title"] {font-size:21px;letter-spacing:-.025em;font-weight:700}
   .sona-app-shell #main-scroll-area [data-testid="preview-list-prev-button"],
   .sona-app-shell #main-scroll-area [data-testid="preview-list-next-button"] {display:none}
@@ -162,8 +161,6 @@
 /* Final mobile interaction layer. Keep these rules last so legacy experiments
    cannot override the active album, artist, search, request, and player UI. */
 @media(max-width:767px){
-  .sona-featured-track{padding-left:14px!important;padding-right:0!important}
-  .sona-featured-slide{flex:0 0 min(82vw,356px)!important;max-width:min(82vw,356px)!important;padding:0 10px 0 0!important}
   .sona-featured-loading-row{padding-left:14px!important}
   .sona-featured-loading-slide{flex:0 0 min(82vw,356px)!important;max-width:min(82vw,356px)!important;padding:0 10px 0 0!important}
 
@@ -2100,7 +2097,7 @@
 }
 @media(min-width:768px){.sona-home-radio{display:none}}
 
-/* Apple Music-style Home carousels. Embla owns the snap and eased momentum. */
+/* Featured card appearance. Scrolling layout lives in music-rail.css. */
 @media(max-width:767px){
   .sona-app-shell #main-scroll-area{
     overscroll-behavior-x:contain;
@@ -2127,17 +2124,6 @@
   }
   .sona-featured-arrows button:active:not(:disabled){transform:scale(.9)}
   .sona-featured-arrows button:disabled{opacity:.25}
-  .sona-featured-carousel{overflow:visible!important}
-  .sona-featured-carousel>div{overflow:hidden!important}
-  .sona-featured-track{
-    display:flex;gap:0!important;margin:0!important;
-    padding-left:20px;padding-right:18vw;
-    touch-action:pan-y pinch-zoom;
-  }
-  .sona-featured-slide{
-    flex:0 0 min(76vw,355px)!important;max-width:min(76vw,355px)!important;
-    min-width:0!important;padding:0 13px 0 0!important;
-  }
   .sona-featured-card{
     display:flex;flex-direction:column;min-width:0;overflow:hidden;
     background:#29282c;border-radius:20px;
@@ -2169,14 +2155,6 @@
   .sona-featured-play:active{transform:scale(.92)}
   .sona-featured-album-name{font-size:10px;color:#8f8b95;overflow:hidden;
     text-overflow:ellipsis;white-space:nowrap;margin-top:9px}
-  /* Each album row uses the exact same one-card Embla snap settings.
-     A visible sliver of the next album cues the horizontal gesture. */
-  .sona-app-shell #main-scroll-area [data-testid^="preview-list-carousel-item"]{
-    flex:0 0 43%!important;max-width:43%!important;padding-left:12px!important;
-  }
-  .sona-app-shell #main-scroll-area [data-testid="preview-list-carousel"]{
-    touch-action:pan-y pinch-zoom;
-  }
 }
 
 /* Safe-area and header share the same exact artwork-aware paint; no
@@ -2320,17 +2298,6 @@
 /* Smaller centred cards, with a sliver of the previous and next item.
    Embla handles the smooth snap; high-speed flicks use measured momentum. */
 @media(max-width:767px){
-  .sona-featured-carousel{width:100%!important;overflow:hidden!important}
-  .sona-featured-carousel>div{overflow:visible!important}
-  .sona-featured-track{
-    padding-left:0!important;padding-right:0!important;
-    margin-left:0!important;gap:0!important;
-  }
-  .sona-featured-slide{
-    flex:0 0 min(71vw,315px)!important;
-    max-width:min(71vw,315px)!important;
-    padding:0 6px!important;
-  }
   .sona-featured-card{border-radius:17px!important}
   .sona-featured-art{border-radius:17px 17px 0 0!important}
   .sona-featured-details{min-height:96px!important;padding:10px 12px 12px!important}
@@ -2509,8 +2476,6 @@
 
 /* Active final overrides. */
 @media(max-width:767px){
-  .sona-featured-track{padding-left:14px!important;padding-right:0!important}
-  .sona-featured-slide{flex:0 0 min(82vw,356px)!important;max-width:min(82vw,356px)!important;padding:0 10px 0 0!important}
   .sona-mobile-album-actions{position:relative;width:100%;display:grid!important;grid-template-columns:56px minmax(150px,1fr) 56px;gap:12px;align-items:center;margin-top:2px}
   .sona-mobile-album-round,.sona-mobile-album-play{height:56px;border:0;display:flex;align-items:center;justify-content:center;transition:transform .18s ease,background .2s ease}
   .sona-mobile-album-round{width:56px;border-radius:50%;background:#ffffff16;color:#fff}
@@ -2537,35 +2502,10 @@
   html,body,#root,.sona-app-shell,.sona-app-shell *{scrollbar-width:none!important}
   html::-webkit-scrollbar,body::-webkit-scrollbar,#root::-webkit-scrollbar,.sona-app-shell *::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
   [data-slot="scroll-area-scrollbar"]{display:none!important;visibility:hidden!important;pointer-events:none!important}
-
-  /* Compact, centered, finite Top Picks carousel. */
-  .sona-featured-track{padding-left:20px!important;padding-right:20px!important;gap:12px!important}
-  .sona-featured-slide{flex:0 0 min(58vw,250px)!important;max-width:min(58vw,250px)!important;padding:0!important}
   .sona-featured-details{min-height:82px!important;padding:9px 12px 10px!important}
   .sona-featured-album-name{margin-top:3px!important}
   .sona-featured-loading-row{padding-left:20px!important;gap:12px!important}
   .sona-featured-loading-slide{flex:0 0 min(58vw,250px)!important;max-width:min(58vw,250px)!important;padding:0!important}
-
-  /* Album rails own their edge spacing. Removing Embla's negative track
-     margin keeps the first cover out from under the clipped viewport. */
-  .sona-app-shell #main-scroll-area [data-testid="preview-list-carousel"]{
-    width:calc(100% + 32px)!important;margin-left:-16px!important;
-  }
-  .sona-album-page [data-testid="preview-list-carousel"],
-  .sona-artist-page [data-testid="preview-list-carousel"]{
-    width:calc(100% + 40px)!important;margin-left:-20px!important;
-  }
-  .sona-app-shell #main-scroll-area [data-testid="preview-list-carousel"]>div{
-    overflow:hidden!important;
-  }
-  .sona-app-shell #main-scroll-area [data-testid="preview-list-carousel"]>div>div{
-    box-sizing:border-box!important;margin-left:0!important;
-    padding-left:20px!important;padding-right:20px!important;gap:12px!important;
-  }
-  .sona-app-shell #main-scroll-area [data-testid^="preview-list-carousel-item"]{
-    box-sizing:border-box!important;flex:0 0 min(42vw,178px)!important;
-    max-width:min(42vw,178px)!important;padding:0!important;
-  }
 
   /* Music Profiles is the request page; its own embedded chrome is removed there. */
   .sona-request-page{padding:0 0 calc(132px + env(safe-area-inset-bottom,0px))!important}

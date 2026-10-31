@@ -36,7 +36,7 @@ export function SonaImplicitRefresh() {
     function startTouch(event: TouchEvent) {
       if (event.touches.length !== 1 || viewport.scrollTop > 1 ||
         (event.target as Element).closest(
-          'input, textarea, select, [contenteditable], [role="slider"], .sona-search-dock'
+          'input, textarea, select, [contenteditable], [role="slider"], .sona-search-dock, .sona-music-rail'
         )) {
         start = null
         return

@@ -1,39 +1,19 @@
 import { ChevronLeft, ChevronRight, Play } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
 import { ArtworkImage } from '@/app/components/artwork-image'
-import { useSonaMomentumSnap } from '@/app/hooks/use-sona-momentum-snap'
-import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/app/components/ui/carousel'
+import { useMusicRail } from '@/app/hooks/use-music-rail'
+import './music-rail.css'
 import { openSonaAlbumFromCover } from '@/app/components/sona/album-morph'
 import { subsonic } from '@/service/subsonic'
 import { usePlayerActions } from '@/store/player.store'
 import type { ISong } from '@/types/responses/song'
 
-let featuredSongId: string | null = null
-
-/** iOS-style featured music: one finger swipe advances exactly one card. */
+/** A finite horizontal list with browser-native touch momentum. */
 export function SonaMobileFeatured({ songs }: { songs: ISong[] }) {
-  const [api, setApi] = useState<CarouselApi>()
-  const [previous, setPrevious] = useState(false)
-  const [next, setNext] = useState(false)
+  const rail = useMusicRail(songs.length)
   const navigate = useNavigate()
   const { setSongList } = usePlayerActions()
-  const gestures = useSonaMomentumSnap(api, songs.length)
-
-  useEffect(() => {
-    if (!api) return
-    function update() {
-      if (!api) return
-      featuredSongId = songs[api.selectedScrollSnap()]?.id ?? null
-      setPrevious(api.canScrollPrev())
-      setNext(api.canScrollNext())
-    }
-    update()
-    api.on('select', update)
-    api.on('reInit', update)
-    return () => { api.off('select', update); api.off('reInit', update) }
-  }, [api, songs])
 
   async function play(song: ISong) {
     try {
@@ -53,21 +33,15 @@ export function SonaMobileFeatured({ songs }: { songs: ISong[] }) {
       <div className="sona-featured-heading">
         <h2>Top Picks for You</h2>
         <div className="sona-featured-arrows" aria-label="Featured music controls">
-          <button type="button" disabled={!previous} onClick={() => api?.scrollPrev()}
+          <button type="button" disabled={!rail.previous} onClick={() => rail.step(-1)}
             aria-label="Previous featured song"><ChevronLeft size={21}/></button>
-          <button type="button" disabled={!next} onClick={() => api?.scrollNext()}
+          <button type="button" disabled={!rail.next} onClick={() => rail.step(1)}
             aria-label="Next featured song"><ChevronRight size={21}/></button>
         </div>
       </div>
-      <Carousel className="sona-featured-carousel" setApi={setApi}
-        {...gestures}
-        opts={{ align: 'start', containScroll: 'trimSnaps',
-          startIndex: Math.max(0, songs.findIndex(song => song.id === featuredSongId)),
-          loop: false, slidesToScroll: 1, dragFree: false,
-          skipSnaps: false, duration: 30 }}>
-        <CarouselContent className="sona-featured-track">
+      <ul ref={rail.ref} className="sona-music-rail sona-music-rail--featured" aria-label="Featured music">
           {songs.map(song => (
-            <CarouselItem key={song.id} className="sona-featured-slide">
+            <li key={song.id}>
               <article className="sona-featured-card">
                 <button type="button" className="sona-featured-art"
                   aria-label={'Open album ' + song.album}
@@ -93,10 +67,9 @@ export function SonaMobileFeatured({ songs }: { songs: ISong[] }) {
                   <span className="sona-featured-album-name">{song.album}</span>
                 </div>
               </article>
-            </CarouselItem>
+            </li>
           ))}
-        </CarouselContent>
-      </Carousel>
+      </ul>
     </section>
   )
 }

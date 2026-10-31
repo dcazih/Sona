@@ -1,0 +1,37 @@
+/* One scroll container, one list: no transformed track or JS touch handlers. */
+.sona-music-rail {
+  --rail-gap: 16px;
+  --rail-inset: 0px;
+  display: flex;
+  gap: var(--rail-gap);
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0 var(--rail-inset) 8px;
+  list-style: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--rail-inset);
+  scrollbar-width: none;
+}
+.sona-music-rail::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.sona-music-rail > li {
+  flex: 0 0 calc((100% - 5 * var(--rail-gap)) / 6);
+  min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+@media (min-width: 1536px) {
+  .sona-music-rail--albums > li { flex-basis: calc((100% - 7 * var(--rail-gap)) / 8); }
+}
+@media (max-width: 767px) {
+  .sona-music-rail { --rail-gap: 12px; --rail-inset: 20px; }
+  .sona-music-rail--featured > li { flex-basis: min(58vw, 250px); }
+  .sona-music-rail--albums { width: calc(100% + 32px); margin-inline: -16px; }
+  .sona-album-page .sona-music-rail--albums,
+  .sona-artist-page .sona-music-rail--albums { width: calc(100% + 40px); margin-inline: -20px; }
+  .sona-music-rail--albums > li { flex-basis: min(42vw, 178px); }
+}
