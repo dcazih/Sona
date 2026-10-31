@@ -39,7 +39,8 @@ export function SonaMobileNavigation() {
   const [searchVisible, setSearchVisible] = useState(false)
   const [voiceError, setVoiceError] = useState('')
   const recognition = useRef<Recognition | null>(null)
-  const scrollTopAfterKeyboard = useRef(false)
+  const scrollResetTimers = useRef<number[]>([])
+  const scrollViewportCleanup = useRef<(() => void) | null>(null)
   const term = useSonaSearch((state) => state.term)
   const focused = useSonaSearch((state) => state.focused)
   const setTerm = useSonaSearch((state) => state.setTerm)
@@ -145,11 +146,43 @@ export function SonaMobileNavigation() {
     return () => window.clearTimeout(timer)
   }, [focused, keyboardVisible])
 
-  useEffect(() => {
-    if (keyboardVisible || !scrollTopAfterKeyboard.current) return
-    scrollTopAfterKeyboard.current = false
-    requestAnimationFrame(() => getMainScrollElement()?.scrollTo({ top: 0, behavior: 'auto' }))
-  }, [keyboardVisible])
+  useEffect(() => () => {
+    scrollResetTimers.current.forEach(window.clearTimeout)
+    scrollViewportCleanup.current?.()
+  }, [])
+
+  function forceSearchTop() {
+    const viewport = getMainScrollElement()
+    if (viewport) {
+      viewport.scrollTop = 0
+      viewport.scrollTo({ top: 0, behavior: 'auto' })
+    }
+    document.scrollingElement?.scrollTo({ top: 0, behavior: 'auto' })
+    window.scrollTo(0, 0)
+  }
+
+  function resetSearchAfterKeyboard() {
+    scrollResetTimers.current.forEach(window.clearTimeout)
+    scrollResetTimers.current = []
+    scrollViewportCleanup.current?.()
+    requestAnimationFrame(forceSearchTop)
+    const viewport = window.visualViewport
+    const onViewportChange = () => forceSearchTop()
+    viewport?.addEventListener('resize', onViewportChange)
+    viewport?.addEventListener('scroll', onViewportChange)
+    scrollViewportCleanup.current = () => {
+      viewport?.removeEventListener('resize', onViewportChange)
+      viewport?.removeEventListener('scroll', onViewportChange)
+      scrollViewportCleanup.current = null
+    }
+    for (const delay of [120, 280, 520, 850]) {
+      scrollResetTimers.current.push(window.setTimeout(forceSearchTop, delay))
+    }
+    scrollResetTimers.current.push(window.setTimeout(() => {
+      scrollViewportCleanup.current?.()
+      forceSearchTop()
+    }, 950))
+  }
 
   useEffect(() => {
     const vp = window.visualViewport
@@ -244,10 +277,10 @@ export function SonaMobileNavigation() {
     const value = term.trim()
     if (!value) return
     setEngaged(true)
-    scrollTopAfterKeyboard.current = true
     window.dispatchEvent(new CustomEvent('sona-search-submit', { detail: value }))
     inputRef.current?.blur()
     setFocused(false)
+    resetSearchAfterKeyboard()
   }
 
   return (
