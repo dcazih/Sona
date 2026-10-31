@@ -38,31 +38,43 @@ export function SonaMobileNowPlaying() {
     setSupportsAirplay(Boolean((audioRef as HTMLAudioElement & { webkitShowPlaybackTargetPicker?: () => void } | null)?.webkitShowPlaybackTargetPicker))
   }, [audioRef, isFullscreen])
 
+  // Keep the notch color until the closing sheet finishes its transition.
+  // The normal toolbar is intentionally never recolored.
+  const notchReset = useRef<number | null>(null)
   useEffect(() => {
-    if (!isFullscreen || window.innerWidth >= 768) return
-    // Match the actual playing song's ambient tint in standalone iOS chrome.
-    const color = String((ambientStyle as Record<string, string>)['--sona-ambient-color'] || '#755265')
-    const channels = /^#[0-9a-f]{6}$/i.test(color)
-      ? [0,2,4].map(i => parseInt(color.slice(i+1,i+3),16))
-      : [117,82,101]
-    const tint = '#' + channels.map((v,i) => Math.round(v*.7 + [31,27,38][i]*.3)
-      .toString(16).padStart(2,'0')).join('')
+    if (window.innerWidth >= 768) return
     const root = document.documentElement
-    const previous = root.style.getPropertyValue('--sona-top-chrome-color')
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
-    const priorMeta = meta?.content
-    root.style.setProperty('--sona-top-chrome-color',tint)
-    meta?.setAttribute('content',tint)
-    return () => {
-      if (document.querySelector('.sona-mobile-album-hero') && previous) {
-        root.style.setProperty('--sona-top-chrome-color',previous)
-        if (priorMeta) meta?.setAttribute('content',priorMeta)
-      } else {
-        root.style.removeProperty('--sona-top-chrome-color')
-        meta?.setAttribute('content','#080809')
-      }
+    if (notchReset.current !== null) {
+      window.clearTimeout(notchReset.current)
+      notchReset.current = null
     }
+    if (isFullscreen) {
+      const color = String((ambientStyle as Record<string, string>)['--sona-ambient-color'] || '#755265')
+      const channels = /^#[0-9a-f]{6}$/i.test(color)
+        ? [0,2,4].map(i => parseInt(color.slice(i+1,i+3),16))
+        : [117,82,101]
+      const tint = '#' + channels.map((v,i) => Math.round(v*.72 + [25,24,29][i]*.28)
+        .toString(16).padStart(2,'0')).join('')
+      root.dataset.sonaNotchOwner = 'player'
+      root.style.setProperty('--sona-notch-color',tint)
+      meta?.setAttribute('content',tint)
+      return
+    }
+    if (root.dataset.sonaNotchOwner !== 'player') return
+    notchReset.current = window.setTimeout(() => {
+      if (root.dataset.sonaNotchOwner !== 'player') return
+      const restore = root.style.getPropertyValue('--sona-album-notch-color') || '#080809'
+      root.style.setProperty('--sona-notch-color',restore)
+      meta?.setAttribute('content',restore)
+      delete root.dataset.sonaNotchOwner
+      notchReset.current = null
+    }, 500)
   }, [isFullscreen,ambientStyle])
+
+  useEffect(() => () => {
+    if (notchReset.current !== null) window.clearTimeout(notchReset.current)
+  }, [])
 
 
   useEffect(() => {

@@ -27,14 +27,20 @@ export function SonaMobileAlbumHero({ album }: { album: SingleAlbum }) {
     const rgb = /^#([0-9a-f]{6})$/i.exec(color)?.[1]
     const mix = rgb ? [0,2,4].map(i => {
       const channel = parseInt(rgb.slice(i,i+2),16)
-      return Math.round(channel*.38 + 19*.62).toString(16).padStart(2,'0')
+      return Math.round(channel*.48 + 15*.52).toString(16).padStart(2,'0')
     }).join('') : '24202a'
-    const chrome = '#' + mix
-    root.style.setProperty('--sona-top-chrome-color',chrome)
-    meta?.setAttribute('content',chrome)
+    const notch = '#' + mix
+    root.style.setProperty('--sona-album-notch-color',notch)
+    if (root.dataset.sonaNotchOwner !== 'player') {
+      root.style.setProperty('--sona-notch-color',notch)
+      meta?.setAttribute('content',notch)
+    }
     return () => {
-      root.style.removeProperty('--sona-top-chrome-color')
-      meta?.setAttribute('content','#080809')
+      root.style.removeProperty('--sona-album-notch-color')
+      if (root.dataset.sonaNotchOwner !== 'player') {
+        root.style.setProperty('--sona-notch-color','#080809')
+        meta?.setAttribute('content','#080809')
+      }
     }
   }, [color])
 

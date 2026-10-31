@@ -2386,3 +2386,28 @@
     animation:none!important;transition-duration:.01ms!important
   }
 }
+
+/* Header never changes color. Only the page-owned status-bar/notch surface
+   follows album art or Now Playing; it persists through the close animation. */
+@media(max-width:767px){
+ :root{
+   --sona-top-chrome-color:#080809!important;
+   --sona-notch-color:#080809;
+ }
+ html,body,#root{
+   background-color:var(--sona-notch-color)!important;
+   transition:background-color .38s cubic-bezier(.2,.9,.2,1);
+ }
+ .sona-app-shell .sona-header,
+ .sona-app-shell .sona-header.sona-header-album-view{
+   background:#080809!important;background-image:none!important;
+   border:0!important;box-shadow:none!important;
+   -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+   transition:none!important;
+ }
+ .sona-app-shell::before{
+   background:var(--sona-notch-color)!important;background-image:none!important;
+   -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+   transition:background-color .38s cubic-bezier(.2,.9,.2,1)!important;
+ }
+}
