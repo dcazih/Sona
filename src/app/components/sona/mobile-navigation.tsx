@@ -57,7 +57,7 @@ export function SonaMobileNavigation() {
   useEffect(() => {
     if (window.innerWidth >= 768) return
     const root = document.documentElement
-    const tabColor = isSearch ? '#080809' : '#171719'
+    const tabColor = pathname === '/mobile-request' ? '#171719' : '#080809'
     root.style.setProperty('--sona-tab-notch-color', tabColor)
     if (root.dataset.sonaNotchOwner !== 'player' &&
         !root.style.getPropertyValue('--sona-album-notch-color')) {

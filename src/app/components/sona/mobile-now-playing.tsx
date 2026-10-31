@@ -196,7 +196,7 @@ export function SonaMobileNowPlaying() {
       style={{
         ...ambientStyle,
         '--sona-drag-y': String(dragY) + 'px',
-        '--sona-drag-progress': String(Math.min(1, dragY / 310)),
+        '--sona-drag-progress': String(Math.min(1, dragY / 155)),
       } as CSSProperties}
     >
       <div className="sona-now-background" />

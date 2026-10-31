@@ -25,16 +25,10 @@ export function SonaMobileAlbumHero({ album }: { album: SingleAlbum }) {
     // derived from the artwork's dominant color rather than a separate overlay.
     const root = document.documentElement
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
-    const rgb = /^#([0-9a-f]{6})$/i.exec(color)?.[1]
-    const mix = rgb ? [0,2,4].map(i => {
-      const channel = parseInt(rgb.slice(i,i+2),16)
-      return Math.round(channel*.48 + 15*.52).toString(16).padStart(2,'0')
-    }).join('') : '24202a'
-    const notch = '#' + mix
-    root.style.setProperty('--sona-album-notch-color',notch)
+    root.style.setProperty('--sona-album-notch-color','#080809')
     if (root.dataset.sonaNotchOwner !== 'player') {
-      root.style.setProperty('--sona-notch-color',notch)
-      meta?.setAttribute('content',notch)
+      root.style.setProperty('--sona-notch-color','#080809')
+      meta?.setAttribute('content','#080809')
     }
     return () => {
       root.style.removeProperty('--sona-album-notch-color')

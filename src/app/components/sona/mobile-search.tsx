@@ -40,7 +40,7 @@ export default function SonaMobileSearch() {
   const [query, setQuery] = useState('')
   const [recent, setRecent] = useState<RecentItem[]>(loadRecents)
   const [errorMessage, setErrorMessage] = useState('')
-  const [stageKey, setStageKey] = useState(0)
+  const [searchScope, setSearchScope] = useState<'sona' | 'library'>('sona')
   const { playSong, setSongList } = usePlayerActions()
 
   useEffect(() => {
@@ -56,10 +56,6 @@ export default function SonaMobileSearch() {
     // rather than inheriting Safari's previous scroll position.
     const viewport = getMainScrollElement()
     viewport?.scrollTo({ top: 0, behavior: 'instant' })
-  }, [query, filter])
-
-  useEffect(() => {
-    if (query.length) setStageKey((value) => value + 1)
   }, [query, filter])
 
   const { data: searchData, isFetching, isError } = useQuery({
@@ -168,7 +164,6 @@ export default function SonaMobileSearch() {
 
   return (
     <div className={'sona-am-search-page ' + (activeSearch ? 'is-search-active' : '')}>
-      {activeSearch && <div className="sona-search-page-veil" key={'veil-' + stageKey} aria-hidden="true" />}
       {!activeSearch ? (
         <>
           <h1 className="sona-am-search-heading">Search</h1>
@@ -194,25 +189,27 @@ export default function SonaMobileSearch() {
       ) : (
         <>
           {term.trim().length === 0 ? (
-            <section className="sona-am-recent sona-am-in">
+            <section className="sona-am-recent">
+              <div className="sona-search-scope" role="group" aria-label="Search source">
+                <button type="button" className={searchScope === 'sona' ? 'is-selected' : ''}
+                  aria-pressed={searchScope === 'sona'} onClick={() => setSearchScope('sona')}>Sona Music</button>
+                <button type="button" className={searchScope === 'library' ? 'is-selected' : ''}
+                  aria-pressed={searchScope === 'library'} onClick={() => setSearchScope('library')}>Library</button>
+              </div>
+              <div className="sona-am-section-bar">
+                <h2>Recently Searched</h2>
+                {recent.length > 0 && <button type="button" onClick={clearRecent}>Clear</button>}
+              </div>
               {recent.length > 0 ? (
                 <>
-                  <div className="sona-am-section-bar">
-                    <h2>Recently Searched</h2>
-                    <button type="button" onClick={clearRecent}>Clear</button>
-                  </div>
                   {recent.map((item) => renderRow(item))}
                 </>
               ) : (
-                <div className="sona-am-empty-search">
-                  <Search size={32} />
-                  <h2>Find what you love.</h2>
-                  <p>Search songs, albums and artists in your music library.</p>
-                </div>
+                <p className="sona-am-no-recents">No recent searches</p>
               )}
             </section>
           ) : (
-            <div className="sona-am-live-results sona-am-in" key={'results-' + stageKey}>
+            <div className="sona-am-live-results">
               <div className="sona-am-filter-pills" role="group" aria-label="Filter search results">
                 {([['all','All'],['songs','Songs'],['albums','Albums'],['artists','Artists']] as [SearchFilter,string][]).map(([value,label])=> (
                   <button type="button" key={value} aria-pressed={filter===value}
