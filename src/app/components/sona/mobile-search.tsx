@@ -2,14 +2,13 @@ import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, ChevronRight, Play, Search } from 'lucide-react'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { ArtworkImage } from '@/app/components/artwork-image'
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
 import { ROUTES } from '@/routes/routesList'
 import { subsonic } from '@/service/subsonic'
 import { usePlayerActions } from '@/store/player.store'
 import { useSonaSearch, type SearchFilter } from './search-state'
-import { getMainScrollElement } from '@/utils/scrollPageToTop'
 
 type RecentItem = { id: string; title: string; subtitle: string; type: 'song' | 'album' | 'artist' | 'query'; coverArt?: string; albumId?: string }
 const RECENTS_KEY = 'sona-mobile-recent-searches'
@@ -53,9 +52,6 @@ export default function SonaMobileSearch() {
   const scopeGesture = useRef<{ id: number; x: number; y: number; moved: boolean; preserveKeyboard: boolean } | null>(null)
   const scopeEl = useRef<HTMLDivElement>(null)
   const blockScopeClickUntil = useRef(0)
-  const pageTopRef = useRef<HTMLDivElement>(null)
-  const pendingVisibleTop = useRef(false)
-  const topResetTimers = useRef<number[]>([])
   const { playSong, setSongList } = usePlayerActions()
 
   const chooseScope = (scope: SearchScope) => {
@@ -144,29 +140,6 @@ export default function SonaMobileSearch() {
     return () => window.clearTimeout(timeout)
   }, [term])
 
-  function alignVisibleTop() {
-    const viewport = getMainScrollElement()
-    if (viewport) {
-      viewport.scrollTop = 0
-      viewport.scrollTo({ top: 0, behavior: 'auto' })
-    }
-    pageTopRef.current?.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' })
-    document.scrollingElement?.scrollTo({ top: 0, behavior: 'auto' })
-  }
-
-  function holdVisibleTop() {
-    pendingVisibleTop.current = true
-    topResetTimers.current.forEach(window.clearTimeout)
-    topResetTimers.current = []
-    alignVisibleTop()
-    for (const delay of [80, 180, 360, 650, 1000, 1500]) {
-      topResetTimers.current.push(window.setTimeout(alignVisibleTop, delay))
-    }
-    topResetTimers.current.push(window.setTimeout(() => { pendingVisibleTop.current = false }, 1650))
-  }
-
-  useEffect(() => () => topResetTimers.current.forEach(window.clearTimeout), [])
-
   const { data: searchData, isFetching, isError } = useQuery({
     queryKey: ['sona-mobile-search-v2', query],
     queryFn: () => subsonic.search.get({ query, albumCount: 35, artistCount: 35, songCount: 60 }),
@@ -184,10 +157,6 @@ export default function SonaMobileSearch() {
     queryFn: () => subsonic.albums.getAlbumList({ type: 'frequent', size: 100 }),
     staleTime: 300000,
   })
-
-  useLayoutEffect(() => {
-    if (pendingVisibleTop.current) alignVisibleTop()
-  }, [query, searchData, isFetching])
 
   const resultsReady = term.trim() === query
   const songs = resultsReady ? searchData?.song ?? [] : []
@@ -225,7 +194,6 @@ export default function SonaMobileSearch() {
       if (!value) return
       remember({ id: 'query:' + value.toLocaleLowerCase(), type: 'query', title: value, subtitle: 'Search' })
       setEngaged(true)
-      holdVisibleTop()
     }
     window.addEventListener('sona-search-submit', onSubmit)
     return () => window.removeEventListener('sona-search-submit', onSubmit)
@@ -237,7 +205,6 @@ export default function SonaMobileSearch() {
       setTerm(item.title)
       setFilter('all')
       setEngaged(true)
-      holdVisibleTop()
       return
     }
     if (item.type === 'artist') navigate(ROUTES.ARTIST.PAGE(item.id))
@@ -296,7 +263,7 @@ export default function SonaMobileSearch() {
 
   return (
     <div className={'sona-am-search-page ' + (activeSearch ? 'is-search-active' : '')}>
-      <div ref={pageTopRef} className="sona-search-visible-top" aria-hidden="true" />
+      <div className="sona-search-visible-top" aria-hidden="true" />
       {!activeSearch ? (
         <>
           <h1 className="sona-am-search-heading">Search</h1>

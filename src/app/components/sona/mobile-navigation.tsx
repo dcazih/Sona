@@ -40,8 +40,6 @@ export function SonaMobileNavigation() {
   const [, setKeyboardClosing] = useState(false)
   const [voiceError, setVoiceError] = useState('')
   const recognition = useRef<Recognition | null>(null)
-  const scrollResetTimers = useRef<number[]>([])
-  const scrollViewportCleanup = useRef<(() => void) | null>(null)
   const term = useSonaSearch((state) => state.term)
   const focused = useSonaSearch((state) => state.focused)
   const setTerm = useSonaSearch((state) => state.setTerm)
@@ -153,25 +151,6 @@ export function SonaMobileNavigation() {
     }
   }, [isSearch, setFocused])
 
-  useEffect(() => () => {
-    scrollResetTimers.current.forEach(window.clearTimeout)
-    scrollViewportCleanup.current?.()
-  }, [])
-
-  function forceSearchTop() {
-    const viewport = getMainScrollElement()
-    if (viewport) {
-      viewport.scrollTop = 0
-      viewport.scrollTo({ top: 0, behavior: 'auto' })
-    }
-    document.scrollingElement?.scrollTo({ top: 0, behavior: 'auto' })
-    window.scrollTo(0, 0)
-    // iOS can pan the visual viewport to keep the focused input visible even
-    // though the app itself is fixed. Undo that pan so the page stays at its
-    // normal top while the keyboard mounts.
-    window.visualViewport?.scrollTo({ left: 0, top: 0 })
-  }
-
   useEffect(() => {
     if (!isSearch || !focused) return
     const viewport = getMainScrollElement()
@@ -203,29 +182,6 @@ export function SonaMobileNavigation() {
       viewport.removeEventListener('touchmove', move)
     }
   }, [isSearch, focused, setFocused])
-
-  function resetSearchAfterKeyboard() {
-    scrollResetTimers.current.forEach(window.clearTimeout)
-    scrollResetTimers.current = []
-    scrollViewportCleanup.current?.()
-    requestAnimationFrame(forceSearchTop)
-    const viewport = window.visualViewport
-    const onViewportChange = () => forceSearchTop()
-    viewport?.addEventListener('resize', onViewportChange)
-    viewport?.addEventListener('scroll', onViewportChange)
-    scrollViewportCleanup.current = () => {
-      viewport?.removeEventListener('resize', onViewportChange)
-      viewport?.removeEventListener('scroll', onViewportChange)
-      scrollViewportCleanup.current = null
-    }
-    for (const delay of [120, 280, 520, 850]) {
-      scrollResetTimers.current.push(window.setTimeout(forceSearchTop, delay))
-    }
-    scrollResetTimers.current.push(window.setTimeout(() => {
-      scrollViewportCleanup.current?.()
-      forceSearchTop()
-    }, 950))
-  }
 
   useEffect(() => {
     const vp = window.visualViewport
@@ -343,7 +299,6 @@ export function SonaMobileNavigation() {
     window.dispatchEvent(new CustomEvent('sona-search-submit', { detail: value }))
     inputRef.current?.blur()
     setFocused(false)
-    resetSearchAfterKeyboard()
   }
 
   return (
@@ -396,12 +351,9 @@ export function SonaMobileNavigation() {
             type="search"
             aria-label="Search artists, albums, songs"
             tabIndex={isSearch ? 0 : -1}
-            enterKeyHint={term.trim() ? 'search' : 'done'}
-            inputMode="search"
+            enterKeyHint="search"
             spellCheck={false}
             autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="none"
             placeholder={focused ? 'Artists, albums, songs…' : 'Search Your Library'}
             value={term}
             onPointerDown={() => {
@@ -418,14 +370,7 @@ export function SonaMobileNavigation() {
             }}
             onBlur={() => setFocused(false)}
             onChange={(event) => setTerm(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') leaveSearch()
-              if (event.key === 'Enter' && !term.trim()) {
-                event.preventDefault()
-                // iOS doesn't let web apps disable the native keyboard key.
-                // Empty Search is a no-op and must not dismiss the keyboard.
-              }
-            }}
+            onKeyDown={(event) => { if (event.key === 'Escape') leaveSearch() }}
           />
           {term.length > 0
             ? <button type="button" className="sona-search-inline-action" tabIndex={isSearch ? 0 : -1}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { toast } from 'react-toastify'
 import { useAppStore } from '@/store/app.store'
 import { saltWord } from '@/utils/salt'
 import { getMainScrollElement } from '@/utils/scrollPageToTop'
@@ -14,7 +15,8 @@ export default function SonaMobileRequests() {
   const frame = useRef<HTMLIFrameElement>(null)
   const scrollRequestId = useRef(0)
   const scrollAcknowledged = useRef(0)
-  const scrollFallbackTimer = useRef<number | null>(null)
+  const scrollAckTimer = useRef<number | null>(null)
+  const pendingScroll = useRef(false)
   const [frameKey, setFrameKey] = useState(0)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [showLoader, setShowLoader] = useState(true)
@@ -23,30 +25,40 @@ export default function SonaMobileRequests() {
   const token = useAppStore((state) => state.data.password)
   const authType = useAppStore((state) => state.data.authType)
 
+  function sendScrollToRequest() {
+    if (!frame.current?.contentWindow) return
+    const requestId = ++scrollRequestId.current
+    scrollAcknowledged.current = 0
+    frame.current.contentWindow.postMessage({
+      type: 'sona-profile-scroll-to-request', requestId,
+    }, PROFILE_ORIGIN)
+    // A cross-origin iframe must explicitly support this event. Never reload
+    // the iframe or modify its URL when the NAS is running an older version.
+    if (scrollAckTimer.current !== null) window.clearTimeout(scrollAckTimer.current)
+    scrollAckTimer.current = window.setTimeout(() => {
+      if (scrollAcknowledged.current !== requestId) {
+        toast.warning('Update Music Requests on NAS to enable this shortcut', {
+          autoClose: 2000,
+          toastId: 'sona-requests-scroll-update',
+        })
+      }
+    }, 1200)
+  }
+
   useEffect(() => {
     const scrollToForm = () => {
-      const iframe = frame.current
-      if (!iframe?.contentWindow) return
-      const requestId = ++scrollRequestId.current
-      if (scrollFallbackTimer.current !== null) window.clearTimeout(scrollFallbackTimer.current)
-      // Preferred path: scroll within the cross-origin embedded Music Profiles page.
-      iframe.contentWindow.postMessage({
-        type: 'sona-profile-scroll-to-request', requestId,
-      }, PROFILE_ORIGIN)
-      // Older NAS deployments may not have the message handler yet. A
-      // same-document hash navigation gives Safari a separate, standard
-      // anchor-scroll path without requiring access to the iframe's DOM.
-      scrollFallbackTimer.current = window.setTimeout(() => {
-        if (scrollAcknowledged.current === requestId || frame.current !== iframe) return
-        const base = PROFILE_URL.split('#')[0]
-        iframe.setAttribute('src', base + '#upload')
-      }, 450)
+      if (status !== 'ready') {
+        pendingScroll.current = true
+        return
+      }
+      sendScrollToRequest()
     }
     window.addEventListener('sona:request-scroll-to-form', scrollToForm)
-    return () => {
-      window.removeEventListener('sona:request-scroll-to-form', scrollToForm)
-      if (scrollFallbackTimer.current !== null) window.clearTimeout(scrollFallbackTimer.current)
-    }
+    return () => window.removeEventListener('sona:request-scroll-to-form', scrollToForm)
+  }, [status])
+
+  useEffect(() => () => {
+    if (scrollAckTimer.current !== null) window.clearTimeout(scrollAckTimer.current)
   }, [])
 
   function handoffProfileSession() {
@@ -61,7 +73,7 @@ export default function SonaMobileRequests() {
       if (event.data?.type === 'sona-profile-scroll-complete') {
         if (event.data.requestId === scrollRequestId.current) {
           scrollAcknowledged.current = scrollRequestId.current
-          if (scrollFallbackTimer.current !== null) window.clearTimeout(scrollFallbackTimer.current)
+          if (scrollAckTimer.current !== null) window.clearTimeout(scrollAckTimer.current)
         }
       }
       if (event.data?.type === 'sona-profile-handoff-ready') handoffProfileSession()
@@ -77,6 +89,13 @@ export default function SonaMobileRequests() {
     window.addEventListener('message', receiveProfileStatus)
     return () => window.removeEventListener('message', receiveProfileStatus)
   }, [username, token, authType])
+
+  useEffect(() => {
+    if (status === 'ready' && pendingScroll.current) {
+      pendingScroll.current = false
+      sendScrollToRequest()
+    }
+  }, [status])
 
   useEffect(() => {
     const viewport = getMainScrollElement()
