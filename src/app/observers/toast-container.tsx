@@ -82,7 +82,6 @@ function useSwipeUpDismiss() {
 export function ToastContainer() {
   useSwipeUpDismiss()
   return <Container
-    containerId="sona"
     containerClassName="sona-toast-container"
     toastClassName="sona-toast"
     bodyClassName="sona-toast-body"
