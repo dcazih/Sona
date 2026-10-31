@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, ChevronRight, Play, Search } from 'lucide-react'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { ArtworkImage } from '@/app/components/artwork-image'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
 import { ROUTES } from '@/routes/routesList'
@@ -43,12 +43,42 @@ export default function SonaMobileSearch() {
   const [recent, setRecent] = useState<RecentItem[]>(loadRecents)
   const [errorMessage, setErrorMessage] = useState('')
   const [searchScope, setSearchScope] = useState<'sona' | 'library'>('sona')
+  const pageTopRef = useRef<HTMLDivElement>(null)
+  const pendingVisibleTop = useRef(false)
+  const topResetTimers = useRef<number[]>([])
   const { playSong, setSongList } = usePlayerActions()
 
   useEffect(() => {
     const timeout = window.setTimeout(() => setQuery(term.trim()), 320)
     return () => window.clearTimeout(timeout)
   }, [term])
+
+  function alignVisibleTop() {
+    const viewport = getMainScrollElement()
+    if (viewport) {
+      viewport.scrollTop = 0
+      viewport.scrollTo({ top: 0, behavior: 'auto' })
+    }
+    pageTopRef.current?.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' })
+    document.scrollingElement?.scrollTo({ top: 0, behavior: 'auto' })
+  }
+
+  function holdVisibleTop() {
+    pendingVisibleTop.current = true
+    topResetTimers.current.forEach(window.clearTimeout)
+    topResetTimers.current = []
+    alignVisibleTop()
+    for (const delay of [80, 180, 360, 650, 1000, 1500]) {
+      topResetTimers.current.push(window.setTimeout(alignVisibleTop, delay))
+    }
+    topResetTimers.current.push(window.setTimeout(() => { pendingVisibleTop.current = false }, 1650))
+  }
+
+  useLayoutEffect(() => {
+    if (pendingVisibleTop.current) alignVisibleTop()
+  }, [query, searchData, isFetching])
+
+  useEffect(() => () => topResetTimers.current.forEach(window.clearTimeout), [])
 
   const { data: searchData, isFetching, isError } = useQuery({
     queryKey: ['sona-mobile-search-v2', query],
@@ -104,7 +134,7 @@ export default function SonaMobileSearch() {
       if (!value) return
       remember({ id: 'query:' + value.toLocaleLowerCase(), type: 'query', title: value, subtitle: 'Search' })
       setEngaged(true)
-      getMainScrollElement()?.scrollTo({ top: 0, behavior: 'auto' })
+      holdVisibleTop()
     }
     window.addEventListener('sona-search-submit', onSubmit)
     return () => window.removeEventListener('sona-search-submit', onSubmit)
@@ -116,7 +146,7 @@ export default function SonaMobileSearch() {
       setTerm(item.title)
       setFilter('all')
       setEngaged(true)
-      getMainScrollElement()?.scrollTo({ top: 0, behavior: 'auto' })
+      holdVisibleTop()
       return
     }
     if (item.type === 'artist') navigate(ROUTES.ARTIST.PAGE(item.id))
@@ -175,6 +205,7 @@ export default function SonaMobileSearch() {
 
   return (
     <div className={'sona-am-search-page ' + (activeSearch ? 'is-search-active' : '')}>
+      <div ref={pageTopRef} className="sona-search-visible-top" aria-hidden="true" />
       {!activeSearch ? (
         <>
           <h1 className="sona-am-search-heading">Search</h1>
