@@ -11,7 +11,7 @@
   "productName": "Aonsoku",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "node scripts/generate-pwa-launch.mjs && tsc && vite build",
     "preview": "vite preview",
     "lint": "biome lint",
     "lint:fix": "biome lint --write",

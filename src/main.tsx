@@ -52,23 +52,6 @@ createRoot(document.getElementById('root') as HTMLElement).render(
   </StrictMode>,
 )
 
-// Fade the startup cover only after the first React render has been scheduled.
-// This is a boot splash, not a claim that the Navidrome library is ready.
-const sonaStartup = document.getElementById('sona-startup')
-if (sonaStartup) {
-  let removed = false
-  const dismiss = () => {
-    if (removed) return
-    sonaStartup.classList.add('is-fading')
-    window.setTimeout(() => {
-      sonaStartup.remove()
-      removed = true
-    }, 480)
-  }
-  window.requestAnimationFrame(() => window.requestAnimationFrame(dismiss))
-  window.setTimeout(dismiss, 8000)
-}
-
 // Lazy-load CJK fonts off the critical path from Google Fonts.
 const cjkFontLink = document.createElement('link')
 cjkFontLink.rel = 'stylesheet'

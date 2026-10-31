@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="sona-booting">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=overlays-content" />
@@ -14,7 +14,7 @@
     
     
     <meta name="msapplication-TileColor" content="#17171c">
-    <meta name="theme-color" content="#080809">
+    <meta name="theme-color" content="#ff2859">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,6 +22,22 @@
   <link rel="icon" type="image/svg+xml" href="/sona-brand.svg?v=8">
     <link rel="apple-touch-icon" href="/sona-app-icon-180-v6.png">
     <link rel="manifest" href="/favicons/site.webmanifest?v=8">
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/pwa-startup/750x1334.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/pwa-startup/1242x2208.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/pwa-startup/1125x2436.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 360px) and (device-height: 780px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/pwa-startup/1080x2340.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/pwa-startup/828x1792.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/pwa-startup/1242x2688.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/pwa-startup/1170x2532.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/pwa-startup/1284x2778.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/pwa-startup/1179x2556.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/pwa-startup/1290x2796.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/pwa-startup/1206x2622.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/pwa-startup/1320x2868.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/pwa-startup/750x1624.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/pwa-startup/640x1136.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/pwa-startup/786x1704.png?v=11">
+    <link rel="apple-touch-startup-image" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/pwa-startup/1260x2736.png?v=11">
     <style>
       html,body{margin:0;width:100%;min-height:100%;background:#ff2859}
       #root{min-height:100%;background:#171719}
@@ -36,32 +52,48 @@
   </head>
 
   <body>
-    <div id="sona-startup" role="status" aria-label="Loading Sona"><img class="sona-startup-gif" src="/icons8-music.gif" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="sona-startup-fallback" aria-hidden="true">♫</span></div>
+    <div id="sona-startup" role="status" aria-label="Loading Sona">
+      <img class="sona-startup-gif" src="/icons8-music.gif?v=11" width="90" height="90" alt=""
+           onload="this.classList.add('is-loaded')" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="sona-startup-fallback" aria-hidden="true">♫</span>
+      <div class="sona-startup-error" role="alert">
+        Sona couldn't finish starting. Check your connection and try again.
+        <div><button class="sona-startup-retry" type="button" onclick="window.location.reload()">Retry</button></div>
+      </div>
+    </div>
     <script>
-      // Runs independently of the app bundle, so a failed JS import cannot trap the user.
+      // Boot guard lives in HTML; no bundle or router errors can leave an immortal overlay.
       (function(){
         var splash=document.getElementById('sona-startup');
-        if(!splash)return;
-        var finished=false;
-        function dismiss(){
-          if(finished)return;
-          finished=true;
+        var started=Date.now(), minVisible=900, done=false, pending=false;
+        var watchdog;
+        function fade(){
+          if(done || !splash)return;
+          done=true;
+          clearTimeout(watchdog);
           splash.classList.add('is-fading');
           splash.style.pointerEvents='none';
-          setTimeout(function(){splash.remove()},500);
+          setTimeout(function(){
+            splash.remove();
+            document.documentElement.classList.remove('sona-booting');
+          },600);
         }
-        window.__sonaDismissStartup=dismiss;
-        var timer=setTimeout(dismiss,5500);
-        var observer=new MutationObserver(function(){
-          var root=document.getElementById('root');
-          if(root&&root.children.length){
-            observer.disconnect();
-            clearTimeout(timer);
-            setTimeout(dismiss,350);
-          }
-        });
-        observer.observe(document.body,{childList:true,subtree:true});
-        window.addEventListener('pageshow',function(e){if(e.persisted)dismiss()});
+        function ready(){
+          if(pending||done)return;
+          pending=true;
+          var wait=Math.max(0,minVisible-(Date.now()-started));
+          setTimeout(function(){
+            requestAnimationFrame(function(){requestAnimationFrame(fade)});
+          },wait);
+        }
+        document.addEventListener('sona:ready',ready,{once:true});
+        window.addEventListener('pageshow',function(event){if(event.persisted)ready()});
+        watchdog=setTimeout(function(){
+          if(done||pending)return;
+          var app=document.querySelector('.sona-app-shell,.sona-login-screen');
+          if(app){ready();return}
+          splash.classList.add('has-error');
+        },12000);
       })();
     </script>
     <div id="root"></div>
