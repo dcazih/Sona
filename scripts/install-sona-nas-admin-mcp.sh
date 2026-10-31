@@ -81,9 +81,6 @@ def run_host_command(command: str, timeout_seconds: int = 30) -> dict:
     return _on_host(command, timeout_seconds)
 
 
-core = mcp.streamable_http_app()
-
-
 app = mcp.streamable_http_app()
 PY
 # Download versioned OAuth modules into the temporary Docker build context.
@@ -130,6 +127,32 @@ if [ -f /mnt/Pool/shared/sona-nas-admin-mcp/token ]; then
   rm -f /mnt/Pool/shared/sona-nas-admin-mcp/token || \
     echo 'WARNING: Delete the old token at /mnt/Pool/shared/sona-nas-admin-mcp/token manually.' >&2
 fi
+# Verify OAuth startup and discovery before stopping the old gateway.
+PROBE="${CONTAINER}-oauth-smoke"
+docker rm -f "$PROBE" >/dev/null 2>&1 || true
+docker run -d \
+  --name "$PROBE" \
+  --publish "127.0.0.1::8080" \
+  --mount "type=volume,src=${SECRET_VOL},dst=/run/secrets,readonly" \
+  --mount "type=volume,src=${AUDIT_VOL},dst=/audit" \
+  sona-nas-admin-mcp:local >/dev/null
+PROBE_BIND="$(docker port "$PROBE" 8080/tcp | head -n 1)"
+PROBE_PORT="${PROBE_BIND##*:}"
+PROBE_STATUS=''
+for i in $(seq 1 25); do
+  PROBE_STATUS=$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 2 \
+    "http://127.0.0.1:${PROBE_PORT}/.well-known/oauth-authorization-server" || true)
+  [ "$PROBE_STATUS" = '200' ] && break
+  sleep 1
+done
+if [ "$PROBE_STATUS" != '200' ]; then
+  echo 'OAuth preflight failed; existing gateway is unchanged.' >&2
+  docker logs --tail 50 "$PROBE" >&2 || true
+  docker rm -f "$PROBE" >/dev/null 2>&1 || true
+  exit 1
+fi
+docker rm -f "$PROBE" >/dev/null
+echo 'OAuth discovery preflight passed.'
 if docker inspect "$CONTAINER" >/dev/null 2>&1; then docker rm -f "$CONTAINER"; fi
 
 PORT=''
