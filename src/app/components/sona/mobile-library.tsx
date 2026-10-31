@@ -240,9 +240,6 @@ export default function SonaMobileLibrary() {
       </nav>
       <div className="sona-apple-library-albums-title">
         <h2>Recently Added</h2>
-        <Link to={ROUTES.ALBUMS.RECENTLY_ADDED} aria-label="See all recently added albums">
-          <ChevronRight size={23}/>
-        </Link>
       </div>
       {albumsQuery.isError ? (
         <div className="sona-apple-library-state" role="alert">

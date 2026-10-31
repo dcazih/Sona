@@ -2923,3 +2923,60 @@
   }
   .sona-featured-play:focus-visible{background:rgba(255,255,255,.23)!important}
 }
+
+/* Sona v17: header action stays mounted across Library -> Requests and morphs. */
+@media(max-width:767px){
+  .sona-header .sona-library-header-button{
+    position:relative;display:grid;place-items:center;
+    color:#ff4776!important
+  }
+  .sona-library-header-icon-dots,
+  .sona-library-header-icon-chevron{
+    display:grid;place-items:center;grid-area:1/1;
+    transition:opacity .22s cubic-bezier(.22,.8,.22,1),
+      transform .25s cubic-bezier(.16,1,.3,1)!important
+  }
+  .sona-library-header-icon-dots{opacity:1;transform:scale(1) rotate(0deg)}
+  .sona-library-header-icon-chevron{opacity:0;transform:scale(.85) rotate(-22deg);pointer-events:none}
+  .sona-library-header-control.is-request-tab .sona-library-header-icon-dots{
+    opacity:0;transform:scale(.85) rotate(20deg);pointer-events:none
+  }
+  .sona-library-header-control.is-request-tab .sona-library-header-icon-chevron{
+    opacity:1;transform:scale(1) rotate(0deg)
+  }
+  .sona-apple-library-albums-title h2{
+    font-size:23px!important;font-weight:780!important;
+    letter-spacing:-.042em!important
+  }
+  .sona-apple-library-albums-title>a{display:none!important}
+  /* Header + status/notch area are pure black unless Now Playing owns the notch. */
+  :root{--sona-top-chrome-color:#000000!important;--sona-tab-notch-color:#000000}
+  .sona-app-shell .sona-header,
+  .sona-app-shell .sona-header.sona-header-album-view,
+  .sona-app-shell:has(.sona-persistent-requests.is-active) .sona-header{
+    background:#000000!important;background-image:none!important;
+    border:0!important;box-shadow:none!important;
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important
+  }
+  .sona-app-shell::before,
+  .sona-app-shell:has(.sona-persistent-requests.is-active)::before{
+    background:#000000!important;background-image:none!important;
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important
+  }
+  .sona-app-shell:has(.sona-now-overlay.is-open)::before,
+  .sona-app-shell:has(.sona-now-overlay.is-dragging)::before{
+    background:var(--sona-notch-color,#000000)!important
+  }
+  /* The outside of either player surface has zero corner radius, including while dragged. */
+  .sona-app-shell .sona-player,
+  .sona-app-shell .sona-player-layout,
+  .sona-app-shell .sona-player::before,
+  .sona-app-shell .sona-now-overlay,
+  .sona-app-shell .sona-now-overlay.is-open,
+  .sona-app-shell .sona-now-overlay.is-dragging{
+    border-radius:0!important;overflow:hidden!important
+  }
+  .sona-app-shell .sona-now-overlay.is-dragging{
+    transition:border-radius 0s,transform .2s cubic-bezier(.22,1,.36,1)!important
+  }
+}

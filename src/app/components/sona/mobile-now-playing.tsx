@@ -41,7 +41,7 @@ export function SonaMobileNowPlaying() {
   const underlyingNotchColor = () => {
     const root = document.documentElement
     return root.style.getPropertyValue('--sona-album-notch-color') ||
-      root.style.getPropertyValue('--sona-tab-notch-color') || '#171719'
+      root.style.getPropertyValue('--sona-tab-notch-color') || '#000000'
   }
 
   function applyPlayerNotch() {

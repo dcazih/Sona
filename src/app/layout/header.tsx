@@ -1,5 +1,5 @@
 import { NavigationButtons } from '@/app/components/header/navigation-buttons'
-import { Check, ChevronLeft, Ellipsis } from 'lucide-react'
+import { Check, ChevronDown, ChevronLeft, Ellipsis } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { closeSonaAlbumToCover } from '@/app/components/sona/album-morph'
@@ -16,6 +16,8 @@ export function Header() {
   const { pathname, search } = useLocation()
   const navigate = useNavigate()
   const isLibraryTab = pathname === '/mobile-library'
+  const isRequestTab = pathname === '/mobile-request'
+  const showLibraryRequestAction = isLibraryTab || isRequestTab
   const [libraryMenuOpen, setLibraryMenuOpen] = useState(false)
   const [editingLibrary, setEditingLibrary] = useState(false)
   const libraryControlRef = useRef<HTMLDivElement>(null)
@@ -82,19 +84,26 @@ export function Header() {
         <div className="sona-desktop-settings"><SettingsButton /></div>
         <div className="sona-desktop-account"><UserDropdown /></div>
         <div ref={libraryControlRef}
-          className={'sona-library-header-control md:hidden' + (isLibraryTab ? ' is-visible' : '')}>
+          className={'sona-library-header-control md:hidden' + (showLibraryRequestAction ? ' is-visible' : '') + (isRequestTab ? ' is-request-tab' : '')}>
           <button type="button" className="sona-library-header-button"
-            aria-label={editingLibrary ? 'Save library sections' : 'Library options'}
-            aria-expanded={editingLibrary ? undefined : libraryMenuOpen}
-            tabIndex={isLibraryTab ? 0 : -1}
+            aria-label={isRequestTab ? 'Scroll to Make a Request' : editingLibrary ? 'Save library sections' : 'Library options'}
+            aria-expanded={isLibraryTab && !editingLibrary ? libraryMenuOpen : undefined}
+            tabIndex={showLibraryRequestAction ? 0 : -1}
             onClick={() => {
-              if (editingLibrary) {
+              if (isRequestTab) {
+                window.dispatchEvent(new CustomEvent('sona:request-scroll-to-form'))
+              } else if (editingLibrary) {
                 window.dispatchEvent(new CustomEvent('sona:library-edit-request', { detail: 'save' }))
               } else {
                 setLibraryMenuOpen(open => !open)
               }
             }}>
-            {editingLibrary ? <Check size={23} strokeWidth={2.6}/> : <Ellipsis size={24} strokeWidth={2.6}/>}
+            <span className="sona-library-header-icon-dots" aria-hidden="true">
+              {editingLibrary && isLibraryTab ? <Check size={23} strokeWidth={2.6}/> : <Ellipsis size={24} strokeWidth={2.6}/>}
+            </span>
+            <span className="sona-library-header-icon-chevron" aria-hidden="true">
+              <ChevronDown size={25} strokeWidth={2.7}/>
+            </span>
           </button>
           {isLibraryTab && libraryMenuOpen && !editingLibrary &&
             <div className="sona-library-header-menu" role="menu">

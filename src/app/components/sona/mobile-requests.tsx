@@ -20,6 +20,18 @@ export default function SonaMobileRequests() {
   const token = useAppStore((state) => state.data.password)
   const authType = useAppStore((state) => state.data.authType)
 
+  useEffect(() => {
+    const scrollToForm = () => {
+      // Requests runs at a different origin, so the host must ask the embedded
+      // page to scroll itself. The Bridge validates the parent origin.
+      frame.current?.contentWindow?.postMessage(
+        { type: 'sona-profile-scroll-to-request' }, PROFILE_ORIGIN,
+      )
+    }
+    window.addEventListener('sona:request-scroll-to-form', scrollToForm)
+    return () => window.removeEventListener('sona:request-scroll-to-form', scrollToForm)
+  }, [])
+
   function handoffProfileSession() {
     frame.current?.contentWindow?.postMessage({
       type: 'sona-profile-auth', username, token, salt: saltWord, authType,
