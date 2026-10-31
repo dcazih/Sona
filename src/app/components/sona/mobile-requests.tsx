@@ -1,18 +1,30 @@
-const DISCOVERY_URL = 'https://discover.hippocampus-polaris.ts.net/'
+import { useRef } from 'react'
+import { useAppStore } from '@/store/app.store'
+import { saltWord } from '@/utils/salt'
+
+const PROFILE_URL = 'https://profiles.hippocampus-polaris.ts.net/?embed=sona'
 
 /**
- * The request service remains the authentication owner. Its outer chrome is
- * cropped so the portal reads as a flat, inline Sona page.
+ * Music Profiles owns request data. Sona hands it the already validated
+ * Subsonic credential so the embedded request page opens without another login.
  */
 export default function SonaMobileRequests() {
+  const frame = useRef<HTMLIFrameElement>(null)
+  const username = useAppStore((state) => state.data.username)
+  const token = useAppStore((state) => state.data.password)
+  const authType = useAppStore((state) => state.data.authType)
+
+  function handoffProfileSession() {
+    frame.current?.contentWindow?.postMessage({
+      type: 'sona-profile-auth', username, token, salt: saltWord, authType,
+    }, 'https://profiles.hippocampus-polaris.ts.net')
+  }
+
   return (
     <main className="sona-request-page">
-      <section className="sona-request-my" aria-labelledby="sona-my-requests-heading">
-        <h1 id="sona-my-requests-heading">My Requests</h1>
-        <p>Your active and completed music requests appear first.</p>
-      </section>
       <section className="sona-request-portal" aria-label="Music request portal">
-        <iframe title="Music Requests" src={DISCOVERY_URL} allow="clipboard-write" />
+        <iframe ref={frame} title="Music Requests" src={PROFILE_URL}
+          allow="clipboard-write" onLoad={handoffProfileSession} />
       </section>
     </main>
   )

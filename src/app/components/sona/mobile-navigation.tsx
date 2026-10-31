@@ -36,6 +36,7 @@ export function SonaMobileNavigation() {
   const blockClickUntil = useRef(0)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
+  const [searchVisible, setSearchVisible] = useState(false)
   const [voiceError, setVoiceError] = useState('')
   const recognition = useRef<Recognition | null>(null)
   const term = useSonaSearch((state) => state.term)
@@ -112,8 +113,18 @@ export function SonaMobileNavigation() {
       recognition.current?.stop()
       setKeyboardVisible(false)
       setFocused(false)
+      setSearchVisible(false)
     }
   }, [isSearch, setFocused])
+
+  useEffect(() => {
+    if (!keyboardVisible) {
+      setSearchVisible(false)
+      return
+    }
+    const timer = window.setTimeout(() => setSearchVisible(true), 1500)
+    return () => window.clearTimeout(timer)
+  }, [keyboardVisible])
 
   useEffect(() => {
     const vp = window.visualViewport
@@ -239,7 +250,7 @@ export function SonaMobileNavigation() {
         ))}
       </nav>
       <div
-        className={'sona-search-morph' + (isSearch ? ' is-expanded' : '') + (focused || keyboardVisible ? ' is-focused' : '')}
+        className={'sona-search-morph' + (isSearch ? ' is-expanded' : '') + (focused || keyboardVisible ? ' is-focused' : '') + (searchVisible ? ' is-search-visible' : '')}
         role={isSearch ? 'search' : undefined}
         aria-label={isSearch ? 'Search your music library' : undefined}>
         <button type="button" className="sona-search-exit" tabIndex={isSearch ? 0 : -1}

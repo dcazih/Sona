@@ -76,6 +76,16 @@ export function SonaMobileNowPlaying() {
     if (notchReset.current !== null) window.clearTimeout(notchReset.current)
   }, [])
 
+  function restoreNotchImmediately() {
+    const root = document.documentElement
+    if (notchReset.current !== null) window.clearTimeout(notchReset.current)
+    notchReset.current = null
+    const restore = root.style.getPropertyValue('--sona-album-notch-color') || '#080809'
+    root.style.setProperty('--sona-notch-color', restore)
+    document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute('content', restore)
+    delete root.dataset.sonaNotchOwner
+  }
+
 
   useEffect(() => {
     if (!isFullscreen) {
@@ -114,6 +124,7 @@ export function SonaMobileNowPlaying() {
     const dx = event.touches[0].clientX - start.x
     const dy = event.touches[0].clientY - start.y
     if (dy > 0 && dy > Math.abs(dx) * 1.15) {
+      if (lastDrag.current === 0) restoreNotchImmediately()
       // Progressive resistance keeps the drawer attached to the fingertip
       // while avoiding a sudden snap near the bottom of the screen.
       const travel = Math.min(dy, window.innerHeight)
