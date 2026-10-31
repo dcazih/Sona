@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, ChevronRight, Play, Search } from 'lucide-react'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
+import { ArtworkImage } from '@/app/components/artwork-image'
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
@@ -143,7 +144,9 @@ export default function SonaMobileSearch() {
           <span className={'sona-am-result-art ' + (item.type === 'artist' ? 'is-artist' : '')}>
             {item.coverArt ? (
               <ImageLoader id={item.coverArt} type={item.type === 'song' ? 'song' : item.type === 'album' ? 'album' : 'artist'} size={130}>
-                {(src) => <img src={src} alt="" loading="lazy" />}
+                {(src) => item.type === 'artist'
+                  ? <img src={src} alt="" loading="lazy" />
+                  : <ArtworkImage src={src} alt="" loading="lazy" />}
               </ImageLoader>
             ) : <SonaNoteGlyph size={23}/>}
           </span>
@@ -177,11 +180,10 @@ export default function SonaMobileSearch() {
                   <Link to={ROUTES.ALBUMS.GENRE(genre.name)} key={genre.name}
                     className="sona-am-genre-card"
                     style={{ background: 'linear-gradient(145deg,' + genre.colors[0] + ',' + genre.colors[1] + ')' }}>
-                    {genre.cover && (
-                      <ImageLoader id={genre.cover} type="album" size={400}>
-                        {(src) => <img src={src} alt="" loading="lazy"/>}
-                      </ImageLoader>
-                    )}
+                    <ImageLoader id={genre.cover} type="album" size={400}>
+                      {(src) => <ArtworkImage src={src} alt="" loading="lazy"
+                        wrapperClassName="absolute inset-0 z-[-2] opacity-60" />}
+                    </ImageLoader>
                     <span>{genre.name}</span>
                   </Link>
                 ))}

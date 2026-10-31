@@ -3,6 +3,7 @@ import { memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { openSonaAlbumFromCover } from '@/app/components/sona/album-morph'
 import { EqualizerBars } from '@/app/components/icons/equalizer-bars'
+import { ArtworkImage } from '@/app/components/artwork-image'
 import { ImageLoader } from '@/app/components/image-loader'
 import { PreviewCard } from '@/app/components/preview-card/card'
 import { ROUTES } from '@/routes/routesList'
@@ -48,7 +49,8 @@ function AlbumCard({ album }: AlbumCardProps) {
           openSonaAlbumFromCover(event, navigate, album.id)
         }}>
         <ImageLoader id={album.coverArt} type="album" size={300}>
-          {(src) => <PreviewCard.Image src={src} alt={album.name} />}
+          {(src) => <ArtworkImage src={src} alt={album.name} loading="lazy"
+            data-testid="card-image" />}
         </ImageLoader>
         {isAlbumPlaying ? (
           <PreviewCard.PauseButton onClick={handlePlayPause} />

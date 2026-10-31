@@ -10,6 +10,7 @@ import {
 } from '@/utils/scrollPageToTop'
 import { Actions } from './actions'
 import { ImageLoader } from './image-loader'
+import { ArtworkImage } from './artwork-image'
 
 type StickyHeaderProps = ComponentPropsWithoutRef<'div'> & {
   contentClassName?: string
@@ -160,8 +161,11 @@ export function StickyHeaderImage({
   return (
     <ImageLoader id={id} type={type} size={size}>
       {(src) => (
-        <div className="w-10 h-10 min-w-10 min-h-10 shrink-0 bg-skeleton rounded overflow-hidden shadow-md">
-          {src ? (
+        <div className="relative w-10 h-10 min-w-10 min-h-10 shrink-0 bg-skeleton rounded overflow-hidden shadow-md">
+          {type === 'album' ? (
+            <ArtworkImage {...props} src={src} crossOrigin="anonymous"
+              id={STICKY_HEADER_IMAGE_ID} />
+          ) : src ? (
             <LazyLoadImage
               {...props}
               src={src}

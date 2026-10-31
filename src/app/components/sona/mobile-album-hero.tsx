@@ -1,7 +1,7 @@
 import { useEffect, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
-import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
+import { ArtworkImage } from '@/app/components/artwork-image'
 import { useAlbumColor } from '@/app/hooks/use-album-color'
 import { ROUTES } from '@/routes/routesList'
 import type { SingleAlbum } from '@/types/responses/album'
@@ -58,10 +58,8 @@ export function SonaMobileAlbumHero({ album }: { album: SingleAlbum }) {
       aria-label={'Album: ' + album.name}>
       <div className="sona-mobile-album-cover">
         <ImageLoader id={album.coverArt} type="album" size={700}>
-          {(src) => src
-            ? <img id="sona-mobile-album-art" src={src} alt={album.name}
-                crossOrigin="anonymous" onLoad={handleLoadImage} onError={handleError} />
-            : <SonaNoteGlyph size={72} />}
+          {(src) => <ArtworkImage id="sona-mobile-album-art" src={src} alt={album.name}
+            crossOrigin="anonymous" onLoad={handleLoadImage} onError={handleError} />}
         </ImageLoader>
       </div>
       <div className="sona-mobile-album-details">

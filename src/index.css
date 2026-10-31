@@ -359,6 +359,41 @@ svg#bars .eq-bar--4 {
   @apply bg-foreground/30 hover:bg-foreground/40;
 }
 
+.sona-artwork-shell {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  overflow: hidden;
+  background: linear-gradient(145deg, #343139, #211f25);
+}
+
+.sona-artwork-note-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, .72);
+}
+
+.sona-artwork-note-fallback svg {
+  width: 34%;
+  height: 34%;
+  max-width: 96px;
+  max-height: 96px;
+}
+
+.sona-artwork-managed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+
+.sona-artwork-managed.is-loaded { opacity: 1; }
+
 @media all and (display-mode: picture-in-picture) {
   body,
   html {

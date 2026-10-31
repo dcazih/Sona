@@ -1,6 +1,6 @@
 import clsx from 'clsx'
+import * as Slider from '@radix-ui/react-slider'
 import { RefObject, useCallback, useEffect, useMemo, useState } from 'react'
-import { ProgressSlider } from '@/app/components/ui/slider'
 import { podcasts } from '@/service/podcasts'
 import {
   usePlayerActions,
@@ -111,7 +111,8 @@ export function PlayerProgress({ audioRef }: PlayerProgressProps) {
   return (
     <div
       className={clsx(
-        'flex w-full justify-center items-center gap-2',
+        'sona-web-player-progress flex w-full justify-center items-center gap-2',
+        isSeeking && 'is-scrubbing',
         isEmpty && 'opacity-50',
       )}
     >
@@ -125,13 +126,14 @@ export function PlayerProgress({ audioRef }: PlayerProgressProps) {
         {currentTime}
       </small>
       {!isEmpty || isPodcast ? (
-        <ProgressSlider
+        <Slider.Root
           defaultValue={[0]}
           value={isSeeking ? [localProgress] : [progress]}
-          tooltipTransformer={convertSecondsToTime}
-          max={currentDuration}
+          max={Math.max(1, currentDuration || 0)}
           step={1}
-          className="cursor-pointer w-[32rem]"
+          className="sona-mobile-scrubber cursor-pointer w-[32rem]"
+          onPointerDown={() => { isSeeking = true; setLocalProgress(progress) }}
+          onPointerCancel={() => { isSeeking = false; setLocalProgress(progress) }}
           onValueChange={([value]) => handleSeeking(value)}
           onValueCommit={([value]) => handleSeeked(value)}
           // Sometimes onValueCommit doesn't work properly
@@ -140,15 +142,25 @@ export function PlayerProgress({ audioRef }: PlayerProgressProps) {
           onPointerUp={handleSeekedFallback}
           onMouseUp={handleSeekedFallback}
           data-testid="player-progress-slider"
-        />
+        >
+          <Slider.Track className="sona-scrubber-track">
+            <Slider.Range className="sona-scrubber-range" />
+          </Slider.Track>
+          <Slider.Thumb className="sona-scrubber-thumb" aria-label="Seek song" />
+        </Slider.Root>
       ) : (
-        <ProgressSlider
+        <Slider.Root
           defaultValue={[0]}
           max={100}
           step={1}
           disabled={true}
-          className="cursor-pointer w-[32rem] pointer-events-none"
-        />
+          className="sona-mobile-scrubber cursor-pointer w-[32rem] pointer-events-none"
+        >
+          <Slider.Track className="sona-scrubber-track">
+            <Slider.Range className="sona-scrubber-range" />
+          </Slider.Track>
+          <Slider.Thumb className="sona-scrubber-thumb" />
+        </Slider.Root>
       )}
       <small
         className={clsx(

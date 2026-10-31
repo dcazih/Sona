@@ -10,6 +10,7 @@ import { ImageHeaderEffect } from '@/app/components/album/header-effect'
 import { AlbumHeaderFallback } from '@/app/components/fallbacks/album-fallbacks'
 import { BadgesData, HeaderInfoGenerator } from '@/app/components/header-info'
 import { ImageLoader } from '@/app/components/image-loader'
+import { ArtworkImage } from '@/app/components/artwork-image'
 import { CustomLightBox } from '@/app/components/lightbox'
 import { useAlbumColor } from '@/app/hooks/use-album-color'
 import { cn } from '@/lib/utils'
@@ -83,20 +84,18 @@ export default function ImageHeader({
                 'hover:scale-[1.02] ease-linear duration-100',
               )}
             >
-              <LazyLoadImage
-                key={coverArtId}
-                effect="opacity"
-                crossOrigin="anonymous"
-                id="cover-art-image"
-                src={src}
-                alt={coverArtAlt}
-                className="aspect-square object-cover w-full h-full cursor-pointer"
-                width="100%"
-                height="100%"
-                onLoad={handleLoadImage}
-                onError={handleError}
-                onClick={() => setOpen(true)}
-              />
+              {coverArtType === 'album' ? (
+                <ArtworkImage key={coverArtId} crossOrigin="anonymous"
+                  id="cover-art-image" src={src} alt={coverArtAlt}
+                  className="cursor-pointer" onLoad={handleLoadImage}
+                  onError={handleError} onClick={() => setOpen(true)} />
+              ) : (
+                <LazyLoadImage key={coverArtId} effect="opacity" crossOrigin="anonymous"
+                  id="cover-art-image" src={src} alt={coverArtAlt}
+                  className="aspect-square object-cover w-full h-full cursor-pointer"
+                  width="100%" height="100%" onLoad={handleLoadImage}
+                  onError={handleError} onClick={() => setOpen(true)} />
+              )}
 
               <AnimatedCoverVideo
                 artist={animatedArtworkArtist}

@@ -1,5 +1,6 @@
 import { Pause, Play } from 'lucide-react'
 import Image from '@/app/components/image'
+import { ArtworkImage } from '@/app/components/artwork-image'
 import { ImageLoader } from '@/app/components/image-loader'
 import { Button } from '@/app/components/ui/button'
 import { CoverArt } from '@/types/coverArtType'
@@ -25,14 +26,14 @@ export function ResultItem({
     <div className="flex w-full justify-between items-center">
       <div className="flex gap-2 w-[420px]">
         <ImageLoader id={coverArt} type={coverArtType} size={100}>
-          {(src) => (
-            <Image
-              src={src}
-              width={40}
-              height={40}
+          {(src) => coverArtType === 'album' ? (
+            <span className="relative block w-10 h-10 rounded overflow-hidden shadow">
+              <ArtworkImage src={src} alt={`${artist} - ${title}`} loading="lazy" />
+            </span>
+          ) : (
+            <Image src={src} width={40} height={40}
               className="aspect-square object-cover rounded shadow"
-              alt={`${artist} - ${title}`}
-            />
+              alt={`${artist} - ${title}`} />
           )}
         </ImageLoader>
         <div className="flex flex-col justify-center w-full">

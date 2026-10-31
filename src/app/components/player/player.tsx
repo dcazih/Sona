@@ -244,7 +244,7 @@ export function Player() {
           {isPodcast && <MemoPodcastInfo podcast={podcast} />}
         </div>
         {/* Main Controls */}
-        <div className="sona-player-controls col-span-2 flex flex-col justify-center items-center px-4 gap-1">
+        <div className="sona-player-controls flex flex-col justify-center items-center px-4 gap-1">
           <MemoPlayerControls
             song={song}
             radio={radio}

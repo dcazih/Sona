@@ -2,8 +2,8 @@ import { ChevronLeft, ChevronRight, Play } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
+import { ArtworkImage } from '@/app/components/artwork-image'
 import { useSonaMomentumSnap } from '@/app/hooks/use-sona-momentum-snap'
-import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/app/components/ui/carousel'
 import { openSonaAlbumFromCover } from '@/app/components/sona/album-morph'
 import { subsonic } from '@/service/subsonic'
@@ -73,10 +73,8 @@ export function SonaMobileFeatured({ songs }: { songs: ISong[] }) {
                   aria-label={'Open album ' + song.album}
                   onClick={event => openSonaAlbumFromCover(event, navigate, song.albumId)}>
                   <ImageLoader id={song.coverArt} type="song" size={700}>
-                    {(src) => src
-                      ? <img src={src} alt={song.album || song.title} loading="lazy"
-                          draggable={false} />
-                      : <SonaNoteGlyph size={70}/>}
+                    {(src) => <ArtworkImage src={src} alt={song.album || song.title}
+                      loading="lazy" draggable={false} />}
                   </ImageLoader>
                 </button>
                 <div className="sona-featured-details">
