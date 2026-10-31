@@ -233,8 +233,8 @@ export function Player() {
         <div className="sona-player-track flex items-center gap-2 w-full min-w-0"
           onClickCapture={(event) => {
             if (window.innerWidth >= 768 || !song) return
-            // Artist links retain their navigation even inside the mini-player.
-            if ((event.target as Element).closest('[data-testid="track-artist-url"], a[href*="/library/artists/"]')) return
+            // The entire mobile mini-player opens Now Playing, including
+            // artist and song text. Desktop artist links remain navigable.
             event.preventDefault()
             event.stopPropagation()
             setIsFullscreen(true)

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { ArrowRight, ChevronRight, Music2, Play, Search } from 'lucide-react'
+import { ArrowRight, ChevronRight, Play, Search } from 'lucide-react'
+import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
@@ -130,7 +131,7 @@ export default function SonaMobileSearch() {
               <ImageLoader id={item.coverArt} type={item.type === 'song' ? 'song' : item.type === 'album' ? 'album' : 'artist'} size={130}>
                 {(src) => <img src={src} alt="" loading="lazy" />}
               </ImageLoader>
-            ) : <Music2 size={23}/>}
+            ) : <SonaNoteGlyph size={23}/>}
           </span>
           <span className="sona-am-result-copy">
             <strong>{item.title}</strong>

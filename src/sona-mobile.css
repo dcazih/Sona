@@ -2232,3 +2232,26 @@
       #171719 84%)!important;
   }
 }
+
+/* Mobile mini-player: unified tap area and a little more leading inset. */
+@media(max-width:767px){
+ .sona-player[data-mobile-active="true"] .sona-player-layout{
+   padding-left:15px!important;padding-right:8px!important;
+ }
+ .sona-player[data-mobile-active="true"] .sona-player-track{
+   margin-left:3px!important;gap:10px!important;min-width:0;
+   cursor:pointer;
+ }
+ .sona-player[data-mobile-active="true"] .sona-player-cover{
+   width:27px!important;height:27px!important;min-width:27px!important;max-width:27px!important;
+   border-radius:7px!important;
+ }
+ .sona-player[data-mobile-active="true"] .sona-mini-artist-text{
+   display:block;max-width:100%;width:max-content;
+   font-size:11px!important;line-height:1.1!important;color:#bcb9c3;
+   padding:2px 0 0!important;white-space:nowrap;overflow:hidden;
+   text-overflow:ellipsis;pointer-events:none!important;
+   text-decoration:none!important;
+ }
+ .sona-player .sona-player-track a[href*="/artists/"]{pointer-events:none!important}
+}

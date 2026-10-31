@@ -5,6 +5,7 @@ import { Fragment } from 'react/jsx-runtime'
 import { useTranslation } from 'react-i18next'
 import { LazyLoadImage } from 'react-lazy-load-image-component'
 import { Link } from 'react-router-dom'
+import { useIsMobile } from '@/app/hooks/use-mobile'
 
 import { MarqueeTitle } from '@/app/components/fullscreen/marquee-title'
 import { AnimatedCoverVideo } from '@/app/components/album/animated-cover-video'
@@ -148,6 +149,11 @@ type ArtistLinkProps = {
 }
 
 function ArtistLink({ id, name }: ArtistLinkProps) {
+  const isMobile = useIsMobile()
+  if (isMobile) {
+    // Never render a link on mobile: any tap must open the full player.
+    return <span data-testid="track-artist-mobile" className="sona-mini-artist-text">{name}</span>
+  }
   return (
     <Link
       to={ROUTES.ARTIST.PAGE(id ?? '')}
