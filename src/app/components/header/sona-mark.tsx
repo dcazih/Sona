@@ -1,23 +1,10 @@
-import { useId, type SVGProps } from 'react'
-import { SonaNoteGlyph } from './sona-note-glyph'
-
+import type { SVGProps } from 'react'
 type Props = SVGProps<SVGSVGElement> & { size?: number }
-
-/** Same continuous-corner double-note mark everywhere in the Sona interface. */
+/** Shared Sona gradient logo. Matches the SVG favicon and PWA app icon. */
 export function SonaMark({ size = 32, ...props }: Props) {
-  const gradient = useId()
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size}
-      viewBox="0 0 80 80" role="img" aria-label="Sona double music note" {...props}>
-      <defs>
-        <linearGradient id={gradient} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#f0718c"/>
-          <stop offset="58%" stopColor="#d34a6b"/>
-          <stop offset="100%" stopColor="#b8395b"/>
-        </linearGradient>
-      </defs>
-      <path d="M40 0C17.9 0 9.2 0 4.6 4.6S0 17.9 0 40s0 30.8 4.6 35.4S17.9 80 40 80s30.8 0 35.4-4.6S80 62.1 80 40s0-30.8-4.6-35.4S62.1 0 40 0Z" fill={'url(#' + gradient + ')'}/>
-      <SonaNoteGlyph x={8} y={8} width={64} height={64} color="#fff"/>
-    </svg>
-  )
+  return <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 512 512" role="img" aria-label="Sona" {...props}>
+    <defs><linearGradient id="sona-gradient" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#ff9385"/><stop offset="45%" stopColor="#ff315c"/><stop offset="100%" stopColor="#d60064"/></linearGradient><linearGradient id="sona-sheen" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#fff" stopOpacity=".15"/><stop offset="70%" stopColor="#fff" stopOpacity="0"/></linearGradient><clipPath id="sona-corners"><rect width="512" height="512" rx="116"/></clipPath></defs>
+    <g clipPath="url(#sona-corners)"><rect width="512" height="512" fill="url(#sona-gradient)"/><path d="M0 0H512V114C381 118 292 194 214 254 140 312 67 301 0 309Z" fill="url(#sona-sheen)"/><path d="M0 428C166 459 322 352 512 275V512H0Z" fill="#c50060" opacity=".065"/></g>
+    <g fill="#fff" transform="translate(51.2 51.2) scale(.64)"><path d="M182 182Q182 169 195 166L472 106Q488 102 488 119V382H431V191L239 234V430H182V182Z"/><ellipse cx="154" cy="432" rx="90" ry="67" transform="rotate(-10 154 432)"/><ellipse cx="404" cy="384" rx="90" ry="67" transform="rotate(-10 404 384)"/></g>
+  </svg>
 }

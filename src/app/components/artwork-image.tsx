@@ -1,5 +1,5 @@
 import { useEffect, useState, type ImgHTMLAttributes } from 'react'
-import { Music2 } from 'lucide-react'
+import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { cn } from '@/lib/utils'
 
 type Props = Omit<ImgHTMLAttributes<HTMLImageElement>, 'src'> & {
@@ -25,7 +25,7 @@ export function ArtworkImage({
     <span className={cn('sona-artwork-shell', wrapperClassName)}>
       {!loaded && (
         <span className="sona-artwork-note-fallback" aria-hidden="true">
-          <Music2 />
+          <SonaNoteGlyph />
         </span>
       )}
       {src && (

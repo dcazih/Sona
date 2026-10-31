@@ -1,4 +1,5 @@
 import { Skeleton } from '@/app/components/ui/skeleton'
+import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 
 export function HeaderFallback() {
   return (
@@ -16,7 +17,7 @@ export function HeaderFallback() {
           {[0,1].map(index => (
             <div key={index} className="sona-featured-loading-slide">
               <div className="sona-featured-loading-card">
-                <Skeleton className="sona-featured-loading-cover" />
+                <div className="sona-featured-loading-cover sona-loading-note-cover"><SonaNoteGlyph aria-hidden="true" /></div>
                 <div className="sona-featured-loading-details">
                   <Skeleton className="sona-featured-loading-tag" />
                   <Skeleton className="sona-featured-loading-song" />
@@ -30,7 +31,7 @@ export function HeaderFallback() {
       </section>
       <div className="sona-home-hero-fallback hidden md:flex w-full bg-skeleton h-[250px] 2xl:h-[300px] px-8 py-6 gap-4"
         aria-label="Loading featured music">
-        <Skeleton className="sona-home-hero-fallback-cover bg-background/50 h-full aspect-square rounded-lg" />
+        <div className="sona-home-hero-fallback-cover sona-loading-note-cover bg-background/50 h-full aspect-square rounded-lg"><SonaNoteGlyph aria-hidden="true" /></div>
         <div className="sona-home-hero-fallback-content flex flex-col gap-3 w-full h-full justify-end">
           <Skeleton className="sona-home-hero-fallback-title w-80 h-9 bg-background/50" />
           <Skeleton className="sona-home-hero-fallback-artist w-48 h-6 bg-background/50" />
@@ -84,7 +85,7 @@ export function SongsCarouselFallback() {
       <div className="hidden 2xl:flex gap-4">
         {Array.from({ length: 8 }).map((_, index) => (
           <div className="basis-1/8" key={'large-' + index}>
-            <Skeleton className="aspect-square" />
+            <div className="aspect-square sona-loading-note-cover"><SonaNoteGlyph aria-hidden="true" /></div>
             <Skeleton className="h-[13px] w-11/12 mt-2" />
             <Skeleton className="h-3 w-1/2 mt-[7px]" />
           </div>
@@ -93,7 +94,7 @@ export function SongsCarouselFallback() {
       <div className="flex 2xl:hidden gap-4">
         {Array.from({ length: 6 }).map((_, index) => (
           <div className="basis-1/5" key={'small-' + index}>
-            <Skeleton className="aspect-square" />
+            <div className="aspect-square sona-loading-note-cover"><SonaNoteGlyph aria-hidden="true" /></div>
             <Skeleton className="h-[13px] w-11/12 mt-2" />
             <Skeleton className="h-3 w-1/2 mt-[7px]" />
           </div>

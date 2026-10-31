@@ -374,7 +374,8 @@ svg#bars .eq-bar--4 {
   inset: 0;
   display: grid;
   place-items: center;
-  color: rgba(255, 255, 255, .72);
+  color: #dfdfe3;
+  opacity: 1;
   overflow: hidden;
   isolation: isolate;
 }
@@ -383,11 +384,8 @@ svg#bars .eq-bar--4 {
   display: block;
   width: clamp(22px, 28%, 72px);
   height: clamp(22px, 28%, 72px);
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.65;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  fill: currentColor;
+  stroke: none;
   overflow: visible;
 }
 
@@ -423,3 +421,7 @@ div[data-test-id="table-row"]:hover {
     @apply text-foreground;
   }
 }
+
+/* Full-opacity cool-white double note on unloaded music artwork and home cards. */
+.sona-loading-note-cover{display:grid!important;place-items:center;overflow:hidden;background:linear-gradient(145deg,#343139,#211f25)!important;color:#dfdfe3!important;opacity:1!important}
+.sona-loading-note-cover>svg{display:block;width:28%;height:28%;min-width:22px;min-height:22px;max-width:72px;max-height:72px;fill:currentColor!important;stroke:none!important;opacity:1!important}

@@ -12,19 +12,19 @@
   "display": "standalone",
   "icons": [
     {
-      "src": "/sona-icon.svg?v=5",
+      "src": "/sona-icon.svg?v=6",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/sona-app-icon-192-v5.png",
+      "src": "/sona-app-icon-192-v6.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/sona-app-icon-512-v5.png",
+      "src": "/sona-app-icon-512-v6.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
