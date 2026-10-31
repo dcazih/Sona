@@ -20,7 +20,8 @@ import { ROUTES } from '@/routes/routesList'
 import { useAppActions } from '@/store/app.store'
 import { removeSlashFromUrl } from '@/utils/removeSlashFromUrl'
 
-const DEFAULT_SERVER = 'https://homelab.hippocampus-polaris.ts.net'
+// Prefer the Navidrome endpoint supplied by the deployment, with the NAS music service as the fallback.
+const DEFAULT_SERVER = window.SERVER_URL?.trim() || 'https://music.hippocampus-polaris.ts.net'
 const loginSchema = z.object({
   url: z.string()
     .url({ message: 'login.form.validations.url' })

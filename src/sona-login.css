@@ -154,3 +154,20 @@
  .sona-login-intro{margin-bottom:10px!important}
  .sona-login-main-mark{width:53px;height:53px}
 }
+
+/* iOS Safari and home-screen PWAs paint a yellow native autofill background.
+   Keep password-manager autofill available while matching Sona's dark input surface. */
+.sona-login-input-wrap input:-webkit-autofill,
+.sona-login-input-wrap input:-webkit-autofill:hover,
+.sona-login-input-wrap input:-webkit-autofill:focus,
+.sona-login-input-wrap input:-webkit-autofill:active {
+  -webkit-text-fill-color: #fff !important;
+  caret-color: #fff !important;
+  -webkit-box-shadow: 0 0 0 1000px #343238 inset !important;
+  box-shadow: 0 0 0 1000px #343238 inset !important;
+  transition: background-color 9999s ease-out 0s !important;
+}
+.sona-login-input-wrap:focus-within input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #444047 inset !important;
+  box-shadow: 0 0 0 1000px #444047 inset !important;
+}

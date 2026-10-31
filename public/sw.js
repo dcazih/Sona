@@ -1,6 +1,6 @@
 /* Sona service worker: network-first application updates, opt-in audio cache.
    Previous cache-first JS/CSS/favicon policy could freeze old branding/UI. */
-const APP_CACHE = 'sona-app-v7'
+const APP_CACHE = 'sona-app-v8'
 const MEDIA_CACHE = 'sona-media-v1'
 let mediaPreferences = { enabled: true, maxTracks: 40, allowCellular: false }
 
@@ -57,16 +57,19 @@ self.addEventListener('fetch', (event) => {
   if (/\.(?:js|css|woff2?|ttf|png|svg|ico|webp)$/.test(url.pathname)) {
     event.respondWith((async () => {
       const cache = await caches.open(APP_CACHE)
-      const cached = await cache.match(request)
-      if (cached) {
-        event.waitUntil(fetch(request).then((response) => {
-          if (response.ok) return cache.put(request, response.clone())
-        }).catch(() => undefined))
-        return cached
+      // Prefer new assets immediately; fall back to cached assets only if offline.
+      try {
+        const response = await fetch(request)
+        if (response.ok) {
+          await cache.put(request, response.clone())
+          return response
+        }
+        return (await cache.match(request)) || response
+      } catch (error) {
+        const cached = await cache.match(request)
+        if (cached) return cached
+        throw error
       }
-      const response = await fetch(request)
-      if (response.ok) await cache.put(request, response.clone())
-      return response
     })())
   }
 })
