@@ -7,11 +7,11 @@
     <meta name="application-name" content="Sona">
     <meta name="apple-mobile-web-app-title" content="Sona">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="icon" type="image/svg+xml" href="/sona-icon.svg?v=6">
-    <link rel="apple-touch-icon" sizes="180x180" href="/sona-app-icon-180-v6.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/sona-app-icon-32-v6.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/sona-app-icon-16-v6.png">
-    <link rel="manifest" href="/favicons/site.webmanifest?v=6">
+    
+    
+    
+    
+    
     
     <meta name="msapplication-TileColor" content="#17171c">
     <meta name="theme-color" content="#080809">
@@ -19,9 +19,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="./env-config.js"></script>
+  <link rel="icon" type="image/svg+xml" href="/sona-brand.svg?v=8">
+    <link rel="apple-touch-icon" href="/sona-app-icon-180-v6.png">
+    <link rel="manifest" href="/favicons/site.webmanifest?v=8">
+    <style>
+      html,body,#root{margin:0;min-height:100%;background:#171719}
+      #sona-startup{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;overflow:hidden;background:linear-gradient(155deg,#ff5477 0%,#ff2859 48%,#ff003c 100%);opacity:1;transition:opacity .45s ease;pointer-events:auto}
+      #sona-startup.is-fading{opacity:0;pointer-events:none}
+      #sona-startup .sona-startup-gif{width:92px;height:92px;object-fit:contain;image-rendering:auto;filter:brightness(0) invert(1)}
+      #sona-startup .sona-startup-fallback{display:none;font-size:82px;color:#fff}
+      @media(prefers-reduced-motion:reduce){#sona-startup{transition-duration:.15s}}
+    </style>
   </head>
 
   <body>
+    <div id="sona-startup" role="status" aria-label="Loading Sona"><img class="sona-startup-gif" src="/icons8-music.gif" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="sona-startup-fallback" aria-hidden="true">♫</span></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
