@@ -12,6 +12,9 @@ const PROFILE_ORIGIN = 'https://profiles.hippocampus-polaris.ts.net'
  */
 export default function SonaMobileRequests() {
   const frame = useRef<HTMLIFrameElement>(null)
+  const scrollRequestId = useRef(0)
+  const scrollAcknowledged = useRef(0)
+  const scrollFallbackTimer = useRef<number | null>(null)
   const [frameKey, setFrameKey] = useState(0)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [showLoader, setShowLoader] = useState(true)
@@ -22,14 +25,28 @@ export default function SonaMobileRequests() {
 
   useEffect(() => {
     const scrollToForm = () => {
-      // Requests runs at a different origin, so the host must ask the embedded
-      // page to scroll itself. The Bridge validates the parent origin.
-      frame.current?.contentWindow?.postMessage(
-        { type: 'sona-profile-scroll-to-request' }, PROFILE_ORIGIN,
-      )
+      const iframe = frame.current
+      if (!iframe?.contentWindow) return
+      const requestId = ++scrollRequestId.current
+      if (scrollFallbackTimer.current !== null) window.clearTimeout(scrollFallbackTimer.current)
+      // Preferred path: scroll within the cross-origin embedded Music Profiles page.
+      iframe.contentWindow.postMessage({
+        type: 'sona-profile-scroll-to-request', requestId,
+      }, PROFILE_ORIGIN)
+      // Older NAS deployments may not have the message handler yet. A
+      // same-document hash navigation gives Safari a separate, standard
+      // anchor-scroll path without requiring access to the iframe's DOM.
+      scrollFallbackTimer.current = window.setTimeout(() => {
+        if (scrollAcknowledged.current === requestId || frame.current !== iframe) return
+        const base = PROFILE_URL.split('#')[0]
+        iframe.setAttribute('src', base + '#upload')
+      }, 450)
     }
     window.addEventListener('sona:request-scroll-to-form', scrollToForm)
-    return () => window.removeEventListener('sona:request-scroll-to-form', scrollToForm)
+    return () => {
+      window.removeEventListener('sona:request-scroll-to-form', scrollToForm)
+      if (scrollFallbackTimer.current !== null) window.clearTimeout(scrollFallbackTimer.current)
+    }
   }, [])
 
   function handoffProfileSession() {
@@ -41,6 +58,12 @@ export default function SonaMobileRequests() {
   useEffect(() => {
     const receiveProfileStatus = (event: MessageEvent) => {
       if (event.origin !== PROFILE_ORIGIN || event.source !== frame.current?.contentWindow) return
+      if (event.data?.type === 'sona-profile-scroll-complete') {
+        if (event.data.requestId === scrollRequestId.current) {
+          scrollAcknowledged.current = scrollRequestId.current
+          if (scrollFallbackTimer.current !== null) window.clearTimeout(scrollFallbackTimer.current)
+        }
+      }
       if (event.data?.type === 'sona-profile-handoff-ready') handoffProfileSession()
       if (event.data?.type === 'sona-profile-ready') {
         setError('')

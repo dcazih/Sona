@@ -396,9 +396,12 @@ export function SonaMobileNavigation() {
             type="search"
             aria-label="Search artists, albums, songs"
             tabIndex={isSearch ? 0 : -1}
-            enterKeyHint="search"
+            enterKeyHint={term.trim() ? 'search' : 'done'}
+            inputMode="search"
             spellCheck={false}
             autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
             placeholder={focused ? 'Artists, albums, songs…' : 'Search Your Library'}
             value={term}
             onPointerDown={() => {
@@ -415,7 +418,14 @@ export function SonaMobileNavigation() {
             }}
             onBlur={() => setFocused(false)}
             onChange={(event) => setTerm(event.target.value)}
-            onKeyDown={(event) => { if (event.key === 'Escape') leaveSearch() }}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') leaveSearch()
+              if (event.key === 'Enter' && !term.trim()) {
+                event.preventDefault()
+                // iOS doesn't let web apps disable the native keyboard key.
+                // Empty Search is a no-op and must not dismiss the keyboard.
+              }
+            }}
           />
           {term.length > 0
             ? <button type="button" className="sona-search-inline-action" tabIndex={isSearch ? 0 : -1}
