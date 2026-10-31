@@ -2356,8 +2356,8 @@
   }
   .sona-search-morph.is-expanded{
     position:fixed!important;
-    top:calc(var(--sona-visual-bottom,100dvh) - 58px)!important;
-    bottom:auto!important;
+    top:auto!important;
+    bottom:calc(var(--sona-keyboard-offset,0px) + 7px)!important;
     left:10px!important;right:10px!important;
     width:calc(100vw - 20px)!important;
     max-width:none!important;
@@ -2371,8 +2371,8 @@
   .sona-search-morph.is-expanded.is-focused{
     background:rgba(28,27,33,.62)!important;
     border-color:rgba(255,255,255,.19)!important;
-    top:calc(var(--sona-visual-bottom,100dvh) - 58px)!important;
-    bottom:auto!important;
+    top:auto!important;
+    bottom:calc(var(--sona-keyboard-offset,0px) + 7px)!important;
   }
   .sona-search-morph.is-expanded .sona-search-orb{
     height:42px!important;width:42px!important;min-width:42px!important;
@@ -2396,12 +2396,12 @@
     max-height:none!important;
     overflow:hidden!important;
     background:#080809!important;
-    transform:translate3d(0,var(--sona-visual-top,0px),0)!important;
+    transform:none!important;
     transition:none!important;
   }
   .sona-app-shell:has(.sona-am-search-page) #main-scroll-area #scroll-viewport{
     height:100%!important;max-height:100%!important;
-    overflow-y:auto!important;overscroll-behavior-y:contain!important;
+    overflow-y:auto!important;overscroll-behavior-y:auto!important;touch-action:pan-y!important;
     scroll-padding-top:0!important;
     -webkit-overflow-scrolling:touch!important;
   }
@@ -2585,12 +2585,13 @@
   .sona-app-shell:has(.sona-am-search-page) .sona-am-search-page{min-height:calc(var(--sona-layout-height,100dvh) - env(safe-area-inset-top,0px))!important;padding-bottom:105px!important}
   .sona-app-shell:has(.sona-am-search-page) .sona-am-live-results{padding-bottom:105px!important}
   .sona-search-morph.is-expanded,.sona-search-morph.is-expanded.is-focused{height:54px!important;grid-template-columns:54px 56px minmax(0,1fr)!important;gap:0!important;padding:0!important;opacity:1!important;transform:none!important}
-  .sona-search-morph.is-expanded::before{left:68px!important;border-radius:27px!important;transition:opacity .34s ease!important}
-  .sona-search-morph.is-expanded .sona-search-orb{justify-self:end!important}
+  .sona-search-morph.is-expanded::before{left:68px!important;border-radius:27px!important;clip-path:inset(0 round 27px);transition:opacity .34s ease!important}
+  .sona-search-morph.is-expanded .sona-search-orb{justify-self:end!important;padding-left:7px!important}
   .sona-search-morph.is-expanded .sona-search-exit{width:54px!important;min-width:54px!important;height:54px!important;border-radius:50%!important}
-  .sona-search-morph.is-focused::before,.sona-search-morph.is-focused .sona-search-orb,.sona-search-morph.is-focused .sona-search-morph-field{opacity:0!important}
-  .sona-search-morph.is-focused.is-search-visible::before,.sona-search-morph.is-focused.is-search-visible .sona-search-orb,.sona-search-morph.is-focused.is-search-visible .sona-search-morph-field{opacity:1!important;transition:opacity .36s ease!important}
+  .sona-search-morph.is-focused::before,.sona-search-morph.is-focused .sona-search-exit,.sona-search-morph.is-focused .sona-search-orb,.sona-search-morph.is-focused .sona-search-morph-field{opacity:0!important}
+  .sona-search-morph.is-focused.is-search-visible::before,.sona-search-morph.is-focused.is-search-visible .sona-search-exit,.sona-search-morph.is-focused.is-search-visible .sona-search-orb,.sona-search-morph.is-focused.is-search-visible .sona-search-morph-field{opacity:1!important;transition:opacity .36s ease!important}
   .sona-search-morph.is-focused .sona-search-morph-field{pointer-events:auto!important}
+  .sona-search-morph.is-expanded .sona-search-inline-action{width:43px!important;min-width:43px!important;padding-right:10px!important}
   .sona-am-search-page.is-search-active{padding-top:12px!important}
 
   .sona-app-shell:has(.sona-persistent-requests.is-active) .sona-header,

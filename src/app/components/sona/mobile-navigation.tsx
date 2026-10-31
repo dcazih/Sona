@@ -1,8 +1,7 @@
 import { Compass, House, Library, ListPlus, Mic, Search, X } from 'lucide-react'
-import { useEffect, useRef, useState, type CSSProperties, type TouchEvent } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type TouchEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ROUTES } from '@/routes/routesList'
-import { getMainScrollElement } from '@/utils/scrollPageToTop'
 import { useSonaSearch } from './search-state'
 
 const tabs = [
@@ -43,6 +42,7 @@ export function SonaMobileNavigation() {
   const focused = useSonaSearch((state) => state.focused)
   const setTerm = useSonaSearch((state) => state.setTerm)
   const setFocused = useSonaSearch((state) => state.setFocused)
+  const setEngaged = useSonaSearch((state) => state.setEngaged)
   const reset = useSonaSearch((state) => state.reset)
 
   function indexForPath(): number {
@@ -137,10 +137,7 @@ export function SonaMobileNavigation() {
     // Keep the control usable until iOS reports an actual keyboard viewport.
     // Once mounted, run the requested delayed fade. No guessed timeout is used
     // when the keyboard never appeared.
-    if (!keyboardVisible) {
-      setSearchVisible(true)
-      return
-    }
+    if (!keyboardVisible) { setSearchVisible(false); return }
     setSearchVisible(false)
     const timer = window.setTimeout(() => setSearchVisible(true), 1500)
     return () => window.clearTimeout(timer)
@@ -169,10 +166,9 @@ export function SonaMobileNavigation() {
         const visual = window.visualViewport
         const top = visual?.offsetTop || 0
         const height = visual?.height || window.innerHeight
-        const bottom = top + height
         if (height > baseline) baseline = height
-        const keyboardHeight = Math.max(0, baseline - bottom)
-        root.style.setProperty('--sona-visual-bottom', Math.round(bottom) + 'px')
+        const keyboardHeight = Math.max(0, baseline - height)
+        root.style.setProperty('--sona-visual-bottom', Math.round(top + height) + 'px')
         root.style.setProperty('--sona-visual-height', Math.round(height) + 'px')
         root.style.setProperty('--sona-visual-top', Math.round(top) + 'px')
         root.style.setProperty('--sona-keyboard-offset', Math.round(keyboardHeight) + 'px')
@@ -210,34 +206,6 @@ export function SonaMobileNavigation() {
     }
   }, [isSearch])
 
-  useEffect(() => {
-    if (!isSearch) return
-    const viewport = getMainScrollElement()
-    if (!viewport) return
-    let start: { x: number; y: number } | null = null
-    const onStart = (event: globalThis.TouchEvent) => {
-      if (event.touches.length === 1) {
-        start = { x: event.touches[0].clientX, y: event.touches[0].clientY }
-      }
-    }
-    const onMove = (event: globalThis.TouchEvent) => {
-      if (!start || document.activeElement !== inputRef.current) return
-      const dx = event.touches[0].clientX - start.x
-      const dy = event.touches[0].clientY - start.y
-      if (Math.abs(dy) > 15 && Math.abs(dy) > Math.abs(dx) * 1.2) {
-        inputRef.current?.blur()
-        setFocused(false)
-        start = null
-      }
-    }
-    viewport.addEventListener('touchstart', onStart, { passive: true })
-    viewport.addEventListener('touchmove', onMove, { passive: true })
-    return () => {
-      viewport.removeEventListener('touchstart', onStart)
-      viewport.removeEventListener('touchmove', onMove)
-    }
-  }, [isSearch, setFocused])
-
   function startVoiceSearch() {
     const w = window as SpeechWindow
     const SpeechRecognition = w.SpeechRecognition || w.webkitSpeechRecognition
@@ -261,6 +229,16 @@ export function SonaMobileNavigation() {
     } catch {
       setVoiceError('Voice search could not start.')
     }
+  }
+
+  function submitSearch(event: FormEvent) {
+    event.preventDefault()
+    const value = term.trim()
+    if (!value) return
+    setEngaged(true)
+    window.dispatchEvent(new CustomEvent('sona-search-submit', { detail: value }))
+    inputRef.current?.blur()
+    setFocused(false)
   }
 
   return (
@@ -287,7 +265,7 @@ export function SonaMobileNavigation() {
         ))}
       </nav>
       <div
-        className={'sona-search-morph' + (isSearch ? ' is-expanded' : '') + (focused || keyboardVisible ? ' is-focused' : '') + (searchVisible ? ' is-search-visible' : '')}
+        className={'sona-search-morph' + (isSearch ? ' is-expanded' : '') + (focused ? ' is-focused' : '') + (searchVisible ? ' is-search-visible' : '')}
         role={isSearch ? 'search' : undefined}
         aria-label={isSearch ? 'Search your music library' : undefined}>
         <button type="button" className="sona-search-exit" tabIndex={isSearch ? 0 : -1}
@@ -302,11 +280,12 @@ export function SonaMobileNavigation() {
               navigate('/mobile-search')
               return
             }
+            setEngaged(true)
             inputRef.current?.focus({ preventScroll: true })
           }}>
           <Search size={24} strokeWidth={isSearch ? 2.3 : 1.9} />
         </button>
-        <div className="sona-search-morph-field" aria-hidden={!isSearch}>
+        <form className="sona-search-morph-field" aria-hidden={!isSearch} onSubmit={submitSearch}>
           <input
             ref={inputRef}
             type="search"
@@ -318,10 +297,8 @@ export function SonaMobileNavigation() {
             placeholder={focused ? 'Artists, albums, songs…' : 'Search Your Library'}
             value={term}
             onFocus={() => {
+              setEngaged(true)
               setFocused(true)
-              requestAnimationFrame(() => {
-                getMainScrollElement()?.scrollTo({ top: 0, behavior: 'instant' })
-              })
             }}
             onBlur={() => setFocused(false)}
             onChange={(event) => setTerm(event.target.value)}
@@ -334,7 +311,7 @@ export function SonaMobileNavigation() {
               </button>
             : <button type="button" className="sona-search-inline-action" tabIndex={isSearch ? 0 : -1}
                 aria-label="Voice search" onClick={startVoiceSearch}><Mic size={19} /></button>}
-        </div>
+        </form>
         {voiceError && <span role="status" className="sona-search-voice-error">{voiceError}</span>}
       </div>
     </>

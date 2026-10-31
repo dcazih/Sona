@@ -2,16 +2,15 @@ import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, ChevronRight, Play, Search } from 'lucide-react'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { ArtworkImage } from '@/app/components/artwork-image'
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
 import { ROUTES } from '@/routes/routesList'
 import { subsonic } from '@/service/subsonic'
 import { usePlayerActions } from '@/store/player.store'
 import { useSonaSearch, type SearchFilter } from './search-state'
-import { getMainScrollElement } from '@/utils/scrollPageToTop'
 
-type RecentItem = { id: string; title: string; subtitle: string; type: 'song' | 'album' | 'artist'; coverArt?: string; albumId?: string }
+type RecentItem = { id: string; title: string; subtitle: string; type: 'song' | 'album' | 'artist' | 'query'; coverArt?: string; albumId?: string }
 const RECENTS_KEY = 'sona-mobile-recent-searches'
 const genresColors = [
   ['#635fef', '#17193c'], ['#e563a3','#48162d'], ['#1f9f87','#07362c'],
@@ -34,6 +33,8 @@ export default function SonaMobileSearch() {
   const term = useSonaSearch((state) => state.term)
   const setTerm = useSonaSearch((state) => state.setTerm)
   const focused = useSonaSearch((state) => state.focused)
+  const engaged = useSonaSearch((state) => state.engaged)
+  const setEngaged = useSonaSearch((state) => state.setEngaged)
   const setFocused = useSonaSearch((state) => state.setFocused)
   const filter = useSonaSearch((state) => state.filter)
   const setFilter = useSonaSearch((state) => state.setFilter)
@@ -44,19 +45,9 @@ export default function SonaMobileSearch() {
   const { playSong, setSongList } = usePlayerActions()
 
   useEffect(() => {
-    // A new query must always start at the top of the result list, even
-    // when the user entered Search while scrolled far down.
-    getMainScrollElement()?.scrollTo({ top: 0, behavior: 'auto' })
     const timeout = window.setTimeout(() => setQuery(term.trim()), 320)
     return () => window.clearTimeout(timeout)
   }, [term])
-
-  useLayoutEffect(() => {
-    // After a new search, the first results must remain visible at the top
-    // rather than inheriting Safari's previous scroll position.
-    const viewport = getMainScrollElement()
-    viewport?.scrollTo({ top: 0, behavior: 'instant' })
-  }, [query, filter])
 
   const { data: searchData, isFetching, isError } = useQuery({
     queryKey: ['sona-mobile-search-v2', query],
@@ -81,7 +72,7 @@ export default function SonaMobileSearch() {
   const albums = resultsReady ? searchData?.album ?? [] : []
   const artists = resultsReady ? searchData?.artist ?? [] : []
   const hasResults = songs.length > 0 || albums.length > 0 || artists.length > 0
-  const activeSearch = focused || term.length > 0
+  const activeSearch = engaged || term.length > 0
 
   const browse = useMemo(() => {
     const options = (genres ?? []).filter((g) => (g.albumCount || g.songCount) > 0)
@@ -106,8 +97,25 @@ export default function SonaMobileSearch() {
     try { localStorage.removeItem(RECENTS_KEY) } catch { /* private browsing */ }
   }
 
+  useEffect(() => {
+    const onSubmit = (event: Event) => {
+      const value = (event as CustomEvent<string>).detail?.trim()
+      if (!value) return
+      remember({ id: 'query:' + value.toLocaleLowerCase(), type: 'query', title: value, subtitle: 'Search' })
+      setEngaged(true)
+    }
+    window.addEventListener('sona-search-submit', onSubmit)
+    return () => window.removeEventListener('sona-search-submit', onSubmit)
+  })
+
   function visit(item: RecentItem) {
     remember(item)
+    if (item.type === 'query') {
+      setTerm(item.title)
+      setFilter('all')
+      setEngaged(true)
+      return
+    }
     if (item.type === 'artist') navigate(ROUTES.ARTIST.PAGE(item.id))
     else navigate(ROUTES.ALBUM.PAGE(item.albumId || item.id))
     setFocused(false)
@@ -144,11 +152,11 @@ export default function SonaMobileSearch() {
                   ? <img src={src} alt="" loading="lazy" />
                   : <ArtworkImage src={src} alt="" loading="lazy" />}
               </ImageLoader>
-            ) : <SonaNoteGlyph size={23}/>}
+            ) : item.type === 'query' ? <Search size={22}/> : <SonaNoteGlyph size={23}/>}
           </span>
           <span className="sona-am-result-copy">
             <strong>{item.title}</strong>
-            <small>{item.type === 'song' ? 'Song' : item.type === 'album' ? 'Album' : 'Artist'}{item.subtitle ? ' · ' + item.subtitle : ''}</small>
+            <small>{item.type === 'song' ? 'Song' : item.type === 'album' ? 'Album' : item.type === 'artist' ? 'Artist' : 'Search'}{item.type !== 'query' && item.subtitle ? ' · ' + item.subtitle : ''}</small>
           </span>
           {!onPlay && <ChevronRight size={20} className="sona-am-row-chevron"/>}
         </button>
