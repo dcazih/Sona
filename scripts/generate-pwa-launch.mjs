@@ -70,11 +70,26 @@ function rgbFor(t) {
  const ratio=Math.max(0,Math.min(1,(t-lo[0])/(hi[0]-lo[0])))
  return [0,1,2].map(c=>Math.round(lo[1][c]*(1-ratio)+hi[1][c]*ratio))
 }
+// Isolate the bright note pixels from the original supplied Apple Music icon.
+// A full-bleed app icon must not bake in the source image's rounded
+// transparent corners or its white outer stroke (iOS rounds icons itself).
+function noteAlpha(x,y) {
+  if(x<30||x>164||y<22||y>166)return 0
+  const index=logo.indices[y*logo.width+x]
+  const green=logo.palette[index*3+1]
+  const transparency=(logo.transparency[index]??255)/255
+  return Math.max(0,Math.min(1,(green-107)/100))*transparency
+}
+function noteAt(nx,ny) {
+  if(nx<0||ny<0||nx>=logo.width||ny>=logo.height)return 0
+  return noteAlpha(Math.floor(nx),Math.floor(ny))
+}
+
 function writeSplash(logicalW, logicalH, dpr) {
  const width=logicalW*dpr,height=logicalH*dpr, rowBytes=width*4+1
  const raw=Buffer.alloc(rowBytes*height)
- const icon=Math.round(118*dpr)
- const left=Math.floor((width-icon)/2), top=Math.floor((height-icon)/2)-29*dpr
+ const icon=Math.round(174*dpr)
+ const left=Math.floor((width-icon)/2), top=Math.floor((height-icon)/2)
  for (let y=0;y<height;y++) {
    const [r,g,b]=rgbFor(y/(height-1))
    const row=y*rowBytes
@@ -82,15 +97,10 @@ function writeSplash(logicalW, logicalH, dpr) {
    const ny=Math.floor((y-top)*logo.height/icon)
    for(let x=0;x<width;x++){
      const off=row+1+x*4, nx=Math.floor((x-left)*logo.width/icon)
-     let rr=r,gg=g,bb=b
-     if(nx>=0&&nx<logo.width&&ny>=0&&ny<logo.height){
-       const index=logo.indices[ny*logo.width+nx]
-       const alpha=(logo.transparency[index]??255)/255
-       const base=index*3
-       rr=Math.round(logo.palette[base]*alpha+rr*(1-alpha))
-       gg=Math.round(logo.palette[base+1]*alpha+gg*(1-alpha))
-       bb=Math.round(logo.palette[base+2]*alpha+bb*(1-alpha))
-     }
+     const a=noteAt(nx,ny)
+     const rr=Math.round(r*(1-a)+255*a)
+     const gg=Math.round(g*(1-a)+255*a)
+     const bb=Math.round(b*(1-a)+255*a)
      raw[off]=rr
      raw[off+1]=gg
      raw[off+2]=bb
@@ -121,23 +131,27 @@ for(const [w,h,dpr] of devices){
 function writeIcon(size) {
   const raw=Buffer.alloc(size*(size*4+1))
   for(let y=0;y<size;y++) {
-    const row=y*(size*4+1);raw[row]=0
+    const row=y*(size*4+1)
+    raw[row]=0
+    const [r,g,b]=rgbFor(y/(size-1))
     const sourceY=Math.min(logo.height-1,Math.floor(y*logo.height/size))
-    for(let x=0;x<size;x++) {
+    for(let x=0;x<size;x++){
       const sourceX=Math.min(logo.width-1,Math.floor(x*logo.width/size))
-      const index=logo.indices[sourceY*logo.width+sourceX],base=index*3,at=row+1+x*4
-      raw[at]=logo.palette[base]
-      raw[at+1]=logo.palette[base+1]
-      raw[at+2]=logo.palette[base+2]
-      raw[at+3]=logo.transparency[index]??255
+      const a=noteAlpha(sourceX,sourceY)
+      const at=row+1+x*4
+      raw[at]=Math.round(r*(1-a)+255*a)
+      raw[at+1]=Math.round(g*(1-a)+255*a)
+      raw[at+2]=Math.round(b*(1-a)+255*a)
+      raw[at+3]=255
     }
   }
   const header=Buffer.alloc(13)
-  header.writeUInt32BE(size,0);header.writeUInt32BE(size,4)
+  header.writeUInt32BE(size,0)
+  header.writeUInt32BE(size,4)
   header[8]=8;header[9]=6
   const bytes=Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),
     chunk('IHDR',header),chunk('IDAT',deflateSync(raw,{level:9})),
     chunk('IEND',Buffer.alloc(0))])
-  writeFileSync(join(process.cwd(),'public','sona-icon-v12-'+size+'.png'),bytes)
+  writeFileSync(join(process.cwd(),'public','sona-icon-v13-'+size+'.png'),bytes)
 }
 for(const size of [16,32,180,192,512])writeIcon(size)

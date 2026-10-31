@@ -171,3 +171,52 @@
   -webkit-box-shadow: 0 0 0 1000px #444047 inset !important;
   box-shadow: 0 0 0 1000px #444047 inset !important;
 }
+
+/* Sona sign-in v13: Jakarta branding and softer Apple Music color language. */
+@font-face{
+  font-family:"Sona Jakarta";
+  src:url("/fonts/jakarta.ttf") format("truetype");
+  font-display:swap;
+}
+.sona-login-screen{background:#171719!important}
+.sona-login-intro{display:flex!important;flex-direction:column!important;align-items:center!important;gap:0!important;margin:0 0 27px!important}
+.sona-login-main-mark{width:94px!important;height:94px!important;border-radius:22px;overflow:hidden;filter:drop-shadow(0 8px 20px #0003)}
+.sona-login-brand-title{
+  display:block!important;font-family:"Sona Jakarta","Plus Jakarta Sans",sans-serif!important;
+  font-size:33px!important;font-weight:800!important;letter-spacing:-.045em!important;
+  line-height:1.15!important;margin:14px 0 0!important;color:#faf9fa!important
+}
+.sona-login-brand-tagline{
+  display:block!important;font-family:"Sona Jakarta",system-ui,sans-serif!important;
+  font-size:12px!important;line-height:1.45!important;font-weight:450!important;
+  color:#aaa5b0!important;margin:5px 0 0!important;letter-spacing:.01em!important
+}
+.sona-login-field label.sr-only{
+  position:absolute!important;width:1px!important;height:1px!important;
+  margin:-1px!important;padding:0!important;overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important
+}
+.sona-login-fields{gap:15px!important;padding-bottom:0!important}
+.sona-login-input-wrap{border-radius:23px!important;height:54px!important}
+.sona-login-server-trigger{border-radius:23px!important;min-height:54px!important}
+.sona-login-server-content input{border-radius:22px!important}
+.sona-login-submit-wrap{
+  display:flex!important;justify-content:center!important;align-items:center!important;
+  padding:24px 0 0!important
+}
+.sona-login-submit{
+  flex:0 0 50%!important;width:50%!important;max-width:214px!important;
+  min-width:158px!important;min-height:54px!important;
+  border-radius:999px!important;
+  background:linear-gradient(112deg,#ff7994 0%,#ff527a 33%,#ff2a61 71%,#f90c49 100%)!important;
+  box-shadow:0 10px 27px rgba(255,34,91,.24)!important;
+  font-family:"Sona Jakarta",system-ui,sans-serif!important;
+  font-weight:730!important;font-size:15px!important
+}
+.sona-login-submit:hover:not(:disabled){filter:brightness(1.05)}
+@media(max-width:600px){
+  .sona-login-intro{margin-bottom:24px!important}
+  .sona-login-main-mark{width:90px!important;height:90px!important}
+  .sona-login-brand-title{font-size:31px!important}
+  .sona-login-submit-wrap{padding-top:25px!important}
+}

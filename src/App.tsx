@@ -14,25 +14,24 @@ function StartupReadyObserver() {
   useEffect(() => {
     let signalled = false
     let raf = 0
-    // Router loaders can still be waiting on Navidrome while React has mounted.
-    // Only release the native/HTML splash when an actual usable app or login shell exists.
     const verify = () => {
-      if (signalled || !router.state.initialized) return
-      const ready = document.querySelector('.sona-login-screen, .sona-app-shell #main-scroll-area')
-      if (!ready) return
+      if (signalled) return
+      // A rendered login or routed music shell is enough for the initial
+      // splash; data queries can continue loading within their own pages.
+      const page = document.querySelector('.sona-login-screen, .sona-app-shell')
+      if (!page || !router.state.initialized) return
       signalled = true
-      cancelAnimationFrame(raf)
-      raf = requestAnimationFrame(() => {
+      raf = window.requestAnimationFrame(() => {
         document.dispatchEvent(new Event('sona:ready'))
       })
     }
     const unsubscribe = router.subscribe(verify)
-    const poll = window.setInterval(verify, 120)
+    const poll = window.setInterval(verify, 100)
     verify()
     return () => {
       unsubscribe()
       window.clearInterval(poll)
-      cancelAnimationFrame(raf)
+      window.cancelAnimationFrame(raf)
     }
   }, [])
   return null

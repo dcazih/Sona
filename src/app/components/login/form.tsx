@@ -100,11 +100,11 @@ export function LoginForm() {
             <CardContent className="sona-login-fields">
               <FormField control={form.control} name="username" render={({ field }) => (
                 <FormItem className="sona-login-field">
-                  <FormLabel>{t('login.form.username')}</FormLabel>
+                  <FormLabel className="sr-only">{t('login.form.username')}</FormLabel>
                   <div className="sona-login-input-wrap">
                     <FormControl>
                       <Input {...field} id="username" type="text" autoComplete="username"
-                        placeholder={t('login.form.usernamePlaceholder')}
+                        placeholder="Username"
                         autoCorrect="off" autoCapitalize="none" spellCheck={false} />
                     </FormControl>
                   </div>
@@ -113,11 +113,11 @@ export function LoginForm() {
               )} />
               <FormField control={form.control} name="password" render={({ field }) => (
                 <FormItem className="sona-login-field">
-                  <FormLabel>{t('login.form.password')}</FormLabel>
+                  <FormLabel className="sr-only">{t('login.form.password')}</FormLabel>
                   <div className="sona-login-input-wrap">
                     <FormControl>
                       <Password {...field} id="password" autoComplete="current-password"
-                        placeholder="Enter your password" />
+                        placeholder="Password" />
                     </FormControl>
                   </div>
                   <FormMessage />
