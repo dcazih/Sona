@@ -2,17 +2,17 @@
   "name": "Sona",
   "short_name": "Sona",
   "description": "Your music, wherever you are. A mobile-friendly music player for your Navidrome library.",
-  "theme_color": "#080809",
+  "theme_color": "#ff2859",
   "categories": [
     "music",
     "entertainment"
   ],
-  "background_color": "#17171c",
+  "background_color": "#ff2859",
   "start_url": "/",
   "display": "standalone",
   "icons": [
     {
-      "src": "/sona-icon.svg?v=6",
+      "src": "/sona-brand.svg?v=8",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
