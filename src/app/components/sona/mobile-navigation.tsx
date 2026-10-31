@@ -2,6 +2,7 @@ import { Compass, House, Library, ListPlus, Mic, Search, X } from 'lucide-react'
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type TouchEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ROUTES } from '@/routes/routesList'
+import { getMainScrollElement } from '@/utils/scrollPageToTop'
 import { useSonaSearch } from './search-state'
 
 const tabs = [
@@ -38,6 +39,7 @@ export function SonaMobileNavigation() {
   const [searchVisible, setSearchVisible] = useState(false)
   const [voiceError, setVoiceError] = useState('')
   const recognition = useRef<Recognition | null>(null)
+  const scrollTopAfterKeyboard = useRef(false)
   const term = useSonaSearch((state) => state.term)
   const focused = useSonaSearch((state) => state.focused)
   const setTerm = useSonaSearch((state) => state.setTerm)
@@ -131,7 +133,7 @@ export function SonaMobileNavigation() {
 
   useEffect(() => {
     if (!focused) {
-      setSearchVisible(false)
+      setSearchVisible(true)
       return
     }
     // Keep the control usable until iOS reports an actual keyboard viewport.
@@ -142,6 +144,12 @@ export function SonaMobileNavigation() {
     const timer = window.setTimeout(() => setSearchVisible(true), 1500)
     return () => window.clearTimeout(timer)
   }, [focused, keyboardVisible])
+
+  useEffect(() => {
+    if (keyboardVisible || !scrollTopAfterKeyboard.current) return
+    scrollTopAfterKeyboard.current = false
+    requestAnimationFrame(() => getMainScrollElement()?.scrollTo({ top: 0, behavior: 'auto' }))
+  }, [keyboardVisible])
 
   useEffect(() => {
     const vp = window.visualViewport
@@ -236,6 +244,7 @@ export function SonaMobileNavigation() {
     const value = term.trim()
     if (!value) return
     setEngaged(true)
+    scrollTopAfterKeyboard.current = true
     window.dispatchEvent(new CustomEvent('sona-search-submit', { detail: value }))
     inputRef.current?.blur()
     setFocused(false)
