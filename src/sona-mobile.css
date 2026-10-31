@@ -2831,3 +2831,63 @@
  }
  .sona-search-morph.is-expanded::before{right:0!important}
 }
+
+/* Search v15: no fade-in/out of the search control. It stays visible in Search. */
+@media(max-width:767px){
+ .sona-search-morph,
+ .sona-search-morph.is-expanded,
+ .sona-search-morph.is-expanded.is-focused,
+ .sona-search-morph.is-expanded::before,
+ .sona-search-morph.is-expanded .sona-search-exit,
+ .sona-search-morph.is-expanded .sona-search-orb,
+ .sona-search-morph.is-expanded .sona-search-morph-field{
+   opacity:1!important;filter:none!important;visibility:visible!important;
+   transition:none!important;animation:none!important
+ }
+ .sona-search-morph.is-expanded,
+ .sona-search-morph.is-expanded.is-focused{
+   transform:none!important
+ }
+ .sona-search-morph.is-expanded:not(.is-search-visible)::before,
+ .sona-search-morph.is-expanded:not(.is-search-visible) .sona-search-exit,
+ .sona-search-morph.is-expanded:not(.is-search-visible) .sona-search-orb,
+ .sona-search-morph.is-expanded:not(.is-search-visible) .sona-search-morph-field,
+ .sona-search-morph.is-focused:not(.is-search-visible)::before,
+ .sona-search-morph.is-focused:not(.is-search-visible) .sona-search-exit,
+ .sona-search-morph.is-focused:not(.is-search-visible) .sona-search-orb,
+ .sona-search-morph.is-focused:not(.is-search-visible) .sona-search-morph-field{
+   opacity:1!important;transition:none!important
+ }
+ /* Sliding two-way scope track with finger-follow and cubic snap on release. */
+ .sona-search-scope{
+   position:relative!important;isolation:isolate;
+   touch-action:pan-y;user-select:none;-webkit-user-select:none;
+   height:40px!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+   overflow:hidden!important;gap:0!important;padding:3px!important;
+ }
+ .sona-search-scope-thumb{
+   position:absolute!important;z-index:-1!important;left:3px;top:3px;
+   bottom:3px;width:calc((100% - 6px)/2);
+   border-radius:999px;background:#38383c;
+   box-shadow:0 2px 9px #0007;
+   pointer-events:none;
+   transform:translate3d(calc(var(--sona-scope-progress,0) * 100%),0,0);
+   transition:transform .3s cubic-bezier(.18,.86,.22,1)!important
+ }
+ .sona-search-scope.is-dragging .sona-search-scope-thumb{
+   transition:none!important
+ }
+ .sona-search-scope button,
+ .sona-search-scope button.is-selected{
+   position:relative;z-index:1;
+   height:34px!important;background:transparent!important;
+   box-shadow:none!important;touch-action:pan-y;
+   transition:color .14s ease!important
+ }
+ .sona-search-scope button:not(.is-selected){color:#a3a1aa!important}
+ .sona-search-scope button.is-selected{color:#fff!important}
+ .sona-am-recent-title h2{
+   font-size:16px!important;line-height:1.3!important;
+   font-weight:730!important;letter-spacing:-.024em!important
+ }
+}

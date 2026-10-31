@@ -38,7 +38,6 @@ export function SonaMobileNavigation() {
   const [dragPosition, setDragPosition] = useState<number | null>(null)
   const [keyboardVisible, setKeyboardVisible] = useState(false)
   const [keyboardClosing, setKeyboardClosing] = useState(false)
-  const [searchVisible, setSearchVisible] = useState(false)
   const [voiceError, setVoiceError] = useState('')
   const recognition = useRef<Recognition | null>(null)
   const scrollResetTimers = useRef<number[]>([])
@@ -151,31 +150,8 @@ export function SonaMobileNavigation() {
       recognition.current?.stop()
       setKeyboardVisible(false)
       setFocused(false)
-      setSearchVisible(false)
     }
   }, [isSearch, setFocused])
-
-  useEffect(() => {
-    if (!isSearch) {
-      setSearchVisible(false)
-      return
-    }
-    // Hide as soon as the keyboard begins closing. Show again only after the
-    // visual viewport has settled with the keyboard gone.
-    if (keyboardClosing || (keyboardVisible && !focused)) {
-      setSearchVisible(false)
-      return
-    }
-    if (!focused && !keyboardVisible) {
-      setSearchVisible(true)
-      return
-    }
-    // Wait for the keyboard to finish mounting before revealing the dock.
-    if (!keyboardVisible) { setSearchVisible(false); return }
-    setSearchVisible(false)
-    const timer = window.setTimeout(() => setSearchVisible(true), 500)
-    return () => window.clearTimeout(timer)
-  }, [isSearch, focused, keyboardVisible, keyboardClosing])
 
   useEffect(() => () => {
     scrollResetTimers.current.forEach(window.clearTimeout)
@@ -293,8 +269,7 @@ export function SonaMobileNavigation() {
         if (keyboardHeight > 100) {
           if (previousKeyboardHeight > 100 && keyboardHeight < previousKeyboardHeight - 8) {
             setKeyboardClosing(true)
-            setSearchVisible(false)
-          }
+                }
           // Wait for VisualViewport to stop changing before the short reveal
           // begins after the keyboard has finished mounting.
           keyboardSettleTimer = window.setTimeout(
@@ -395,7 +370,7 @@ export function SonaMobileNavigation() {
         ))}
       </nav>
       <div
-        className={'sona-search-morph' + (isSearch ? ' is-expanded' : '') + (focused ? ' is-focused' : '') + (searchVisible ? ' is-search-visible' : '')}
+        className={'sona-search-morph' + (isSearch ? ' is-expanded' : '') + (focused ? ' is-focused' : '') + (isSearch ? ' is-search-visible' : '')}
         role={isSearch ? 'search' : undefined}
         aria-label={isSearch ? 'Search your music library' : undefined}>
         <button type="button" className="sona-search-exit" tabIndex={isSearch ? 0 : -1}

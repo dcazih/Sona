@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, ChevronRight, Play, Search } from 'lucide-react'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { ArtworkImage } from '@/app/components/artwork-image'
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
 import { ROUTES } from '@/routes/routesList'
@@ -13,6 +13,12 @@ import { getMainScrollElement } from '@/utils/scrollPageToTop'
 
 type RecentItem = { id: string; title: string; subtitle: string; type: 'song' | 'album' | 'artist' | 'query'; coverArt?: string; albumId?: string }
 const RECENTS_KEY = 'sona-mobile-recent-searches'
+const SCOPE_KEY = 'sona-mobile-search-scope'
+type SearchScope = 'sona' | 'library'
+function lastSearchScope(): SearchScope {
+  try { return window.localStorage.getItem(SCOPE_KEY) === 'library' ? 'library' : 'sona' }
+  catch { return 'sona' }
+}
 const genresColors = [
   ['#635fef', '#17193c'], ['#e563a3','#48162d'], ['#1f9f87','#07362c'],
   ['#f19a3a','#5c1924'], ['#3772e3','#191d50'], ['#e44f54','#511c37'],
@@ -42,11 +48,68 @@ export default function SonaMobileSearch() {
   const [query, setQuery] = useState('')
   const [recent, setRecent] = useState<RecentItem[]>(loadRecents)
   const [errorMessage, setErrorMessage] = useState('')
-  const [searchScope, setSearchScope] = useState<'sona' | 'library'>('sona')
+  const [searchScope, setSearchScope] = useState<SearchScope>(lastSearchScope)
+  const [scopeDrag, setScopeDrag] = useState<number | null>(null)
+  const scopeGesture = useRef<{ id: number; x: number; y: number; moved: boolean } | null>(null)
+  const scopeEl = useRef<HTMLDivElement>(null)
+  const blockScopeClickUntil = useRef(0)
   const pageTopRef = useRef<HTMLDivElement>(null)
   const pendingVisibleTop = useRef(false)
   const topResetTimers = useRef<number[]>([])
   const { playSong, setSongList } = usePlayerActions()
+
+  const chooseScope = (scope: SearchScope) => {
+    setSearchScope(scope)
+    try { window.localStorage.setItem(SCOPE_KEY, scope) } catch { /* unavailable in private browsing */ }
+  }
+
+  const progressFromPointer = (x: number) => {
+    const rect = scopeEl.current?.getBoundingClientRect()
+    if (!rect) return searchScope === 'library' ? 1 : 0
+    // Offset from the midpoint of the left capsule to the right capsule.
+    const half = rect.width / 2
+    return Math.max(0, Math.min(1, (x - rect.left - half / 2) / half))
+  }
+  const onScopeDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return
+    scopeGesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false }
+  }
+  const onScopeMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const gesture = scopeGesture.current
+    if (!gesture || event.pointerId !== gesture.id) return
+    const dx = event.clientX - gesture.x, dy = event.clientY - gesture.y
+    if (!gesture.moved && Math.abs(dy) > Math.abs(dx) * 1.3) {
+      scopeGesture.current = null
+      setScopeDrag(null)
+      return
+    }
+    if (Math.abs(dx) < 5 && !gesture.moved) return
+    if (!gesture.moved) {
+      gesture.moved = true
+      event.currentTarget.setPointerCapture(event.pointerId)
+    }
+    setScopeDrag(progressFromPointer(event.clientX))
+    if (event.cancelable) event.preventDefault()
+  }
+  const onScopeUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const gesture = scopeGesture.current
+    if (!gesture || event.pointerId !== gesture.id) return
+    if (gesture.moved) {
+      blockScopeClickUntil.current = Date.now() + 320
+      chooseScope(progressFromPointer(event.clientX) >= .5 ? 'library' : 'sona')
+    }
+    scopeGesture.current = null
+    setScopeDrag(null)
+  }
+  const onScopeCancel = () => {
+    scopeGesture.current = null
+    setScopeDrag(null)
+  }
+  const onScopeClick = (scope: SearchScope) => {
+    if (Date.now() < blockScopeClickUntil.current) return
+    chooseScope(scope)
+  }
+
 
   useEffect(() => {
     const timeout = window.setTimeout(() => setQuery(term.trim()), 320)
@@ -230,25 +293,28 @@ export default function SonaMobileSearch() {
         </>
       ) : (
         <>
+          <div ref={scopeEl}
+            className={'sona-search-scope' + (scopeDrag !== null ? ' is-dragging' : '')}
+            role="group" aria-label="Search source"
+            style={{ '--sona-scope-progress': scopeDrag ?? (searchScope === 'library' ? 1 : 0) } as CSSProperties}
+            onPointerDown={onScopeDown} onPointerMove={onScopeMove}
+            onPointerUp={onScopeUp} onPointerCancel={onScopeCancel}>
+            <span className="sona-search-scope-thumb" aria-hidden="true" />
+            <button type="button" className={searchScope === 'sona' ? 'is-selected' : ''}
+              aria-pressed={searchScope === 'sona'} onClick={() => onScopeClick('sona')}>Sona Music</button>
+            <button type="button" className={searchScope === 'library' ? 'is-selected' : ''}
+              aria-pressed={searchScope === 'library'} onClick={() => onScopeClick('library')}>Library</button>
+          </div>
           {term.trim().length === 0 ? (
             <section className="sona-am-recent">
-              <div className="sona-search-scope" role="group" aria-label="Search source">
-                <button type="button" className={searchScope === 'sona' ? 'is-selected' : ''}
-                  aria-pressed={searchScope === 'sona'} onClick={() => setSearchScope('sona')}>Sona Music</button>
-                <button type="button" className={searchScope === 'library' ? 'is-selected' : ''}
-                  aria-pressed={searchScope === 'library'} onClick={() => setSearchScope('library')}>Library</button>
-              </div>
-              <div className="sona-am-section-bar">
-                <h2>Recently Searched</h2>
-                {recent.length > 0 && <button type="button" onClick={clearRecent}>Clear</button>}
-              </div>
-              {recent.length > 0 ? (
-                <>
-                  {recent.map((item) => renderRow(item))}
-                </>
-              ) : (
-                <p className="sona-am-no-recents">No recent searches</p>
-              )}
+
+              {recent.length > 0 && <>
+                <div className="sona-am-section-bar sona-am-recent-title">
+                  <h2>Recently Searched</h2>
+                  <button type="button" onClick={clearRecent}>Clear</button>
+                </div>
+                {recent.map((item) => renderRow(item))}
+              </>}
             </section>
           ) : (
             <div className="sona-am-live-results">
