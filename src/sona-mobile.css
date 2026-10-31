@@ -340,7 +340,7 @@
   .sona-am-genre-card .sona-am-genre-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.68;filter:saturate(.72) contrast(.94);transform:none}
   .sona-am-genre-card:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
     background:linear-gradient(90deg,transparent 36%,color-mix(in srgb,currentColor 8%,transparent) 51%,#0000 66%)}
-  .sona-am-genre-card span{font-size:19px;line-height:1.1;font-weight:800;letter-spacing:-.03em;
+  .sona-am-genre-card > span{font-size:19px;line-height:1.1;font-weight:800;letter-spacing:-.03em;
     position:absolute;inset:0;z-index:2;width:100%;margin:0;padding:12px 14px;
     display:flex;align-items:center;justify-content:center;text-align:center;
     overflow-wrap:anywhere;text-shadow:0 2px 9px #0008}
@@ -2667,3 +2667,65 @@
     bottom:max(var(--sona-dock-bottom),calc(var(--sona-keyboard-bottom-offset,0px) + 4px))!important;
   }
 }
+
+/* Apple Music-style library with persistent, per-user editable sections. */
+@media (max-width:767px) {
+ .sona-apple-library{min-height:100%;padding:20px 20px calc(178px + env(safe-area-inset-bottom,0px));background:#171719;color:#f5f4f7}
+ .sona-apple-library-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+ .sona-apple-library-top h1{font-size:37px;font-weight:820;letter-spacing:-.055em;line-height:1.1;margin:0}
+ .sona-apple-library-more{width:36px;height:36px;flex:none;display:grid;place-items:center;border-radius:50%;color:#fa496c;background:rgba(255,255,255,.07)}
+ .sona-apple-library-sections{display:flex;flex-direction:column}
+ .sona-apple-library-row{display:flex;align-items:center;gap:14px;height:54px;min-height:54px;border-bottom:1px solid rgba(255,255,255,.12);color:#f3f3f7!important;text-decoration:none!important;font-size:20px;font-weight:650;letter-spacing:-.028em}
+ .sona-apple-library-row:last-child{border-bottom:0}
+ .sona-apple-library-row-icon{flex:none;color:#fb5072}
+ .sona-apple-library-chevron{flex:none;color:#77777d;margin-left:auto}
+ .sona-apple-library-divider{height:1px;background:rgba(255,255,255,.14);margin:22px 0 19px}
+ .sona-apple-library-albums-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+ .sona-apple-library-albums-title h2{font-size:26px;line-height:1.1;font-weight:770;letter-spacing:-.045em}
+ .sona-apple-library-albums-title>a{color:#f65179;display:grid;place-items:center;min-width:38px;min-height:38px}
+ .sona-apple-library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px;row-gap:22px}
+ .sona-apple-library-album{min-width:0;color:#fff!important;text-decoration:none!important;display:flex;flex-direction:column;gap:0}
+ .sona-apple-library-album-cover{display:block;width:100%;aspect-ratio:1;overflow:hidden;border-radius:9px;background:#302e35;box-shadow:0 3px 10px #0005}
+ .sona-apple-library-album-cover .sona-artwork-shell,.sona-apple-library-album-cover img{display:block;width:100%;height:100%;object-fit:cover}
+ .sona-apple-library-album-name{display:block;font-size:14px;font-weight:650;line-height:1.28;letter-spacing:-.014em;margin-top:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f6f5f7}
+ .sona-apple-library-album-artist{display:block;font-size:13px;line-height:1.26;color:#a8a6ae;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+ .sona-apple-library-skeleton>div{width:100%;aspect-ratio:1;background:#333138;border-radius:9px;animation:sona-library-pulse 1.25s ease-in-out infinite alternate}
+ .sona-apple-library-skeleton>span{height:12px;width:90%;display:block;background:#323138;border-radius:5px;margin-top:9px}
+ .sona-apple-library-skeleton>span:last-child{width:67%;height:10px;margin-top:6px}
+ @keyframes sona-library-pulse{from{opacity:.55}to{opacity:1}}
+ .sona-apple-library-state{text-align:center;padding:24px 10px;color:#adaab4;font-size:14px}
+ .sona-apple-library-state button{display:block;color:#fa4d73;margin:9px auto;font-weight:700}
+ .sona-apple-library-load-marker{height:2px}
+ .sona-apple-library-loading{text-align:center;color:#98949c;padding:16px}
+ .sona-am-genre-card .sona-am-genre-art:has(.sona-artwork-note-fallback){
+   width:100%!important;left:0!important;right:0!important;
+   -webkit-mask-image:none!important;mask-image:none!important;
+ }
+ .sona-am-genre-card .sona-am-genre-art .sona-artwork-note-fallback{
+   position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+   display:grid!important;place-items:center!important;margin:0!important;
+   padding:0!important;z-index:0!important;transform:none!important;
+ }
+ .sona-am-genre-card .sona-am-genre-art .sona-artwork-note-fallback svg{
+   width:44px!important;height:44px!important;position:static!important;margin:auto!important
+ }
+ .sona-request-loading{background:#171719!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important}
+ .sona-request-loading-content{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;width:100%;max-width:360px;padding:24px;text-align:center;opacity:1;transition:opacity .25s ease!important}
+ .sona-request-loading.is-leaving .sona-request-loading-content{opacity:0}
+ .sona-request-loading.is-leaving{opacity:0!important;transition:opacity .42s ease .25s,visibility 0s linear .67s!important}
+ .sona-request-loading:not(.is-leaving){opacity:1;visibility:visible}
+}
+.sona-library-editor-backdrop{position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:center;background:#0009;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.sona-library-editor{background:#27272c;color:#fff;width:100%;max-width:530px;max-height:83dvh;overflow:auto;border-radius:24px 24px 0 0;padding:20px 20px calc(22px + env(safe-area-inset-bottom,0px));box-shadow:0 -16px 55px #0007}
+.sona-library-editor header{position:static;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 0 12px;background:transparent;border:0}
+.sona-library-editor header strong{font-size:21px;font-weight:760;letter-spacing:-.035em}
+.sona-library-editor header p{font-size:12px;color:#aba9b0;margin-top:3px}
+.sona-library-editor header>button{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:#ffffff13}
+.sona-library-editor-row{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #ffffff17;min-height:50px}
+.sona-library-editor-toggle{display:flex;align-items:center;gap:13px;flex:1;text-align:left;font-size:16px;font-weight:590;min-height:50px}
+.sona-library-editor-toggle>span{width:23px;height:23px;display:grid;place-items:center;border:1.5px solid #ffffff5f;border-radius:7px}
+.sona-library-editor-toggle>span.is-enabled{background:#f64c72;border-color:#f64c72}
+.sona-library-editor-order{display:flex;align-items:center;gap:1px}
+.sona-library-editor-order button{width:32px;height:38px;display:grid;place-items:center;color:#fff9}
+.sona-library-editor-order button:disabled{opacity:.26}
+.sona-library-editor-done{width:100%;background:#f05278;color:white;border-radius:14px;min-height:48px;margin-top:20px;font-size:16px;font-weight:740}

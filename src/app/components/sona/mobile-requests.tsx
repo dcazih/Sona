@@ -68,8 +68,9 @@ export default function SonaMobileRequests() {
       <section className="sona-request-portal" aria-label="Music request portal">
         {showLoader && <div className={'sona-request-loading' + (status === 'ready' ? ' is-leaving' : '')}
           role="status" aria-live="polite" onTransitionEnd={(event) => {
-            if (status === 'ready' && event.propertyName === 'opacity') setShowLoader(false)
+            if (status === 'ready' && event.target === event.currentTarget && event.propertyName === 'opacity') setShowLoader(false)
           }}>
+          <div className="sona-request-loading-content">
           {status !== 'error' ? <>
             <span className="sona-request-spinner" aria-hidden="true" />
             <strong>Loading Music Requests</strong>
@@ -79,6 +80,7 @@ export default function SonaMobileRequests() {
             <span>{error}</span>
             <button type="button" onClick={retry}>Try Again</button>
           </>}
+          </div>
         </div>}
         <iframe key={frameKey} ref={frame} title="Music Requests" src={PROFILE_URL}
           allow="clipboard-write" onLoad={handoffProfileSession} />
