@@ -3,7 +3,8 @@
 set -Eeuo pipefail
 if [ "$(id -u)" -ne 0 ]; then echo "Run using sudo bash" >&2; exit 1; fi
 NAS_IP='192.168.1.152'
-APP_DIR='/mnt/Pool/shared/sona-nas-admin-mcp'
+APP_DIR="$(mktemp -d /tmp/sona-nas-admin-mcp.XXXXXXXX)"
+trap 'rm -rf -- "$APP_DIR"' EXIT
 CONTAINER='sona-nas-admin-mcp'
 TAILSCALE_CONTAINER='ix-tailscale-tailscale-1'
 command -v docker >/dev/null || { echo 'Docker not available on the TrueNAS host' >&2; exit 1; }
@@ -11,10 +12,11 @@ command -v curl >/dev/null || { echo 'curl is required' >&2; exit 1; }
 docker inspect "$TAILSCALE_CONTAINER" >/dev/null 2>&1 || { echo 'Tailscale app container not found' >&2; exit 1; }
 [ -d /mnt/Pool/shared ] || { echo 'The /mnt/Pool/shared dataset is missing' >&2; exit 1; }
 umask 077
-mkdir -p "$APP_DIR/audit"
-[ -s "$APP_DIR/token" ] || python3 -c 'import secrets,sys;open(sys.argv[1],"w").write(secrets.token_urlsafe(48))' "$APP_DIR/token"
-chmod 600 "$APP_DIR/token"
-chmod 700 "$APP_DIR/audit"
+# Do not store root-admin credentials or executable gateway source in SMB/shared datasets.
+SECRET_VOL='sona-nas-admin-private'
+AUDIT_VOL='sona-nas-admin-audit'
+docker volume create "$SECRET_VOL" >/dev/null
+docker volume create "$AUDIT_VOL" >/dev/null
 cat > "$APP_DIR/server.py" <<'PY'
 """Authenticated MCP gateway for the TrueNAS host."""
 import hashlib
@@ -26,7 +28,7 @@ import time
 from datetime import datetime, timezone
 from mcp.server.fastmcp import FastMCP
 
-TOKEN = Path('/run/secrets/nas_mcp_token').read_text().strip()
+TOKEN = Path('/run/secrets/token').read_text().strip()
 if len(TOKEN) < 48:
     raise RuntimeError('Missing or weak server authentication secret')
 
@@ -106,6 +108,27 @@ CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080", "--no-acces
 DOCKER
 
 docker build -t sona-nas-admin-mcp:local "$APP_DIR"
+# Create or preserve the authentication secret in a Docker-managed, non-SMB volume.
+docker run --rm --mount "type=volume,src=${SECRET_VOL},dst=/private" \
+  --entrypoint python sona-nas-admin-mcp:local -c '
+import os
+import pathlib
+import secrets
+p = pathlib.Path("/private/token")
+if not p.exists():
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    fd = os.open(str(p), flags, 0o600)
+    with os.fdopen(fd, "w") as file:
+        file.write(secrets.token_urlsafe(48))
+os.chmod(str(p), 0o600)
+if len(p.read_text().strip()) < 48:
+    raise ValueError("Refusing to use a weak token")
+'
+# The earlier broken installer may have left a secret inside the SMB-shared dataset.
+if [ -f /mnt/Pool/shared/sona-nas-admin-mcp/token ]; then
+  rm -f /mnt/Pool/shared/sona-nas-admin-mcp/token || \
+    echo 'WARNING: Delete the old token at /mnt/Pool/shared/sona-nas-admin-mcp/token manually.' >&2
+fi
 if docker inspect "$CONTAINER" >/dev/null 2>&1; then docker rm -f "$CONTAINER"; fi
 
 PORT=''
@@ -122,8 +145,8 @@ docker run -d \
   --privileged \
   --pid host \
   --publish "${NAS_IP}:${PORT}:8080" \
-  --mount "type=bind,src=${APP_DIR}/token,dst=/run/secrets/nas_mcp_token,readonly" \
-  --mount "type=bind,src=${APP_DIR}/audit,dst=/audit" \
+  --mount "type=volume,src=${SECRET_VOL},dst=/run/secrets,readonly" \
+  --mount "type=volume,src=${AUDIT_VOL},dst=/audit" \
   sona-nas-admin-mcp:local >/dev/null
 status=''
 for i in $(seq 1 25); do
@@ -140,8 +163,8 @@ fi
 docker exec "$TAILSCALE_CONTAINER" tailscale funnel --bg "http://${NAS_IP}:${PORT}"
 echo 'MCP endpoint: https://homelab.hippocampus-polaris.ts.net/mcp'
 echo "NAS gateway: http://${NAS_IP}:${PORT}/mcp"
-echo "Authentication token file: ${APP_DIR}/token"
-echo "Read privately: sudo cat ${APP_DIR}/token"
+echo 'Authentication token is stored in the Docker-managed sona-nas-admin-private volume.'
+echo 'Read privately: sudo docker exec sona-nas-admin-mcp cat /run/secrets/token'
 echo 'Never paste the token into a chat or public issue; configure it in the MCP plugin authentication UI.'
 echo 'Unauthenticated probe: curl -i https://homelab.hippocampus-polaris.ts.net/mcp (expect 401)'
 echo 'Security: anyone possessing the token has full root administration.'
