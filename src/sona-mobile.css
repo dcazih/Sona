@@ -901,13 +901,13 @@
   .sona-now-drag-capsule{
     display:block!important;position:absolute!important;
     left:50%;top:calc(env(safe-area-inset-top,0px) + 27px);
-    transform:translateX(-50%) scaleX(calc(.7 + .3 * var(--sona-drag-progress)));
+    transform:translateX(-50%);
     width:78px;height:6px;border-radius:99px;
     background:rgba(255,255,255,.78);
     z-index:10;
     opacity:clamp(0,calc(var(--sona-drag-progress) * 2.6),1)!important;
     pointer-events:none;
-    transition:opacity .13s ease,transform .14s ease!important;
+    transition:opacity .13s ease!important;
   }
 }
 @media (max-width:375px){
@@ -1430,9 +1430,9 @@
     width:41px!important;height:4px!important;
     border-radius:99px!important;
     background:#ffffffe0!important;
-    opacity:clamp(.55,calc(.55 + var(--sona-drag-progress) * .45),1)!important;
-    transform:scaleX(calc(1 + var(--sona-drag-progress) * .92))!important;
-    transition:opacity .16s ease,transform .17s ease!important;
+    opacity:.82!important;
+    transform:none!important;
+    transition:opacity .16s ease!important;
     box-shadow:0 1px 9px #0004;
   }
   .sona-now-overlay.is-dragging{
@@ -2535,11 +2535,26 @@
   .sona-featured-album-name{margin-top:3px!important}
   .sona-featured-loading-slide{flex:0 0 min(74vw,310px)!important;max-width:min(74vw,310px)!important;padding:0 7px!important}
 
-  /* Album rails break out of the page padding while their first card remains fully visible. */
-  .sona-album-page [data-testid="preview-list-carousel"]{width:calc(100vw - 0px)!important;margin-left:-20px!important}
-  .sona-album-page [data-testid="preview-list-carousel"]>div{overflow:hidden!important}
-  .sona-album-page [data-testid="preview-list-carousel"]>div>div{margin-left:0!important;padding-left:16px!important;padding-right:16px!important}
-  .sona-album-page [data-testid^="preview-list-carousel-item"]{flex:0 0 43%!important;max-width:43%!important;padding:0 12px 0 0!important}
+  /* Album rails own their edge spacing. Removing Embla's negative track
+     margin keeps the first cover out from under the clipped viewport. */
+  .sona-app-shell #main-scroll-area [data-testid="preview-list-carousel"]{
+    width:calc(100% + 32px)!important;margin-left:-16px!important;
+  }
+  .sona-album-page [data-testid="preview-list-carousel"],
+  .sona-artist-page [data-testid="preview-list-carousel"]{
+    width:calc(100% + 40px)!important;margin-left:-20px!important;
+  }
+  .sona-app-shell #main-scroll-area [data-testid="preview-list-carousel"]>div{
+    overflow:hidden!important;
+  }
+  .sona-app-shell #main-scroll-area [data-testid="preview-list-carousel"]>div>div{
+    box-sizing:border-box!important;margin-left:0!important;
+    padding-left:20px!important;padding-right:20px!important;gap:12px!important;
+  }
+  .sona-app-shell #main-scroll-area [data-testid^="preview-list-carousel-item"]{
+    box-sizing:border-box!important;flex:0 0 min(42vw,178px)!important;
+    max-width:min(42vw,178px)!important;padding:0!important;
+  }
 
   /* Music Profiles is the request page; its own embedded chrome is removed there. */
   .sona-request-page{padding:0 0 calc(132px + env(safe-area-inset-bottom,0px))!important}
@@ -2555,7 +2570,7 @@
   .sona-search-morph.is-focused::before,.sona-search-morph.is-focused .sona-search-orb,.sona-search-morph.is-focused .sona-search-morph-field{opacity:0!important}
   .sona-search-morph.is-focused.is-search-visible::before,.sona-search-morph.is-focused.is-search-visible .sona-search-orb,.sona-search-morph.is-focused.is-search-visible .sona-search-morph-field{opacity:1!important;transition:opacity .36s ease!important}
   .sona-search-morph.is-focused .sona-search-morph-field{pointer-events:auto!important}
-  .sona-am-search-page.is-search-active{padding-top:64px!important}
+  .sona-am-search-page.is-search-active{padding-top:12px!important}
 
   html:has(.sona-now-overlay.is-dragging),html:has(.sona-now-overlay.is-dragging) body,html:has(.sona-now-overlay.is-dragging) #root{transition:none!important}
   .sona-app-shell:has(.sona-now-overlay.is-dragging)::before{transition:none!important}

@@ -118,13 +118,20 @@ export function SonaMobileNavigation() {
   }, [isSearch, setFocused])
 
   useEffect(() => {
-    if (!keyboardVisible) {
+    if (!focused) {
       setSearchVisible(false)
       return
     }
-    const timer = window.setTimeout(() => setSearchVisible(true), 1500)
+    setSearchVisible(false)
+    // visualViewport does not consistently announce the software keyboard in
+    // an installed iOS PWA. Use its mounted signal when available, with a
+    // bounded fallback so the focused search control can never stay invisible.
+    const timer = window.setTimeout(
+      () => setSearchVisible(true),
+      keyboardVisible ? 1500 : 1900,
+    )
     return () => window.clearTimeout(timer)
-  }, [keyboardVisible])
+  }, [focused, keyboardVisible])
 
   useEffect(() => {
     const vp = window.visualViewport
