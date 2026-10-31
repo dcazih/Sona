@@ -10,11 +10,6 @@ const DISCOVERY_URL = 'https://discover.hippocampus-polaris.ts.net'
 export default function SonaMobileRequests() {
   return (
     <div className="sona-request-page">
-      <p className="sona-request-eyebrow">YOUR MUSIC</p>
-      <h1>Request</h1>
-      <p className="sona-request-subtitle">
-        Missing something? Search the family request portal.
-      </p>
       <div className="sona-request-main-card">
         <div className="sona-request-icon"><CirclePlus size={30} strokeWidth={1.7}/></div>
         <h2>Find your next favorite.</h2>

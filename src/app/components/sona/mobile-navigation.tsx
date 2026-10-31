@@ -6,7 +6,7 @@ import { getMainScrollElement } from '@/utils/scrollPageToTop'
 import { useSonaSearch } from './search-state'
 
 const tabs = [
-  { key: 'home', label: 'Home', icon: House, url: ROUTES.LIBRARY.HOME },
+  { key: 'home', label: 'Sona', icon: House, url: ROUTES.LIBRARY.HOME },
   { key: 'new', label: 'New', icon: Compass, url: ROUTES.ALBUMS.RECENTLY_ADDED },
   { key: 'request', label: 'Request', icon: ListPlus, url: '/mobile-request' },
   { key: 'library', label: 'Library', icon: Library, url: '/mobile-library' },

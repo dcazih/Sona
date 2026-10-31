@@ -17,9 +17,6 @@ const pages = [
 export default function SonaMobileLibrary() {
   return (
     <div className="sona-library-home">
-      <p className="sona-eyebrow">YOUR MUSIC</p>
-      <h1>Your Library</h1>
-      <p className="sona-library-description">Everything you love, all in one place.</p>
       <div className="sona-library-links">
         {pages.map(({ name, icon: Icon, href }) => (
           <Link key={name} to={href} className="sona-library-link">
