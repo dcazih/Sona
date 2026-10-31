@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs><linearGradient id="apple-music-pink" x1=".15" y1="0" x2=".8" y2="1"><stop stop-color="#ff637c"/><stop offset=".42" stop-color="#ff315c"/><stop offset="1" stop-color="#ff003c"/></linearGradient><linearGradient id="note" x1=".1" y1="0" x2=".8" y2="1"><stop stop-color="#fff1f4"/><stop offset="1" stop-color="#ffacc2"/></linearGradient></defs>
+<rect width="512" height="512" rx="115" fill="url(#apple-music-pink)"/>
+<path fill="url(#note)" stroke="#fff5f7" stroke-width="4" d="M201 166Q201 151 216 148L367 114Q383 110 383 126V329Q383 371 341 384Q297 398 283 372Q265 340 306 322Q324 315 346 314V205L241 228V375Q241 418 200 430Q155 445 141 416Q124 384 165 366Q183 358 201 357Z"/>
+</svg>
