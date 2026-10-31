@@ -74,10 +74,6 @@ export default function SonaMobileSearch() {
     topResetTimers.current.push(window.setTimeout(() => { pendingVisibleTop.current = false }, 1650))
   }
 
-  useLayoutEffect(() => {
-    if (pendingVisibleTop.current) alignVisibleTop()
-  }, [query, searchData, isFetching])
-
   useEffect(() => () => topResetTimers.current.forEach(window.clearTimeout), [])
 
   const { data: searchData, isFetching, isError } = useQuery({
@@ -97,6 +93,10 @@ export default function SonaMobileSearch() {
     queryFn: () => subsonic.albums.getAlbumList({ type: 'frequent', size: 100 }),
     staleTime: 300000,
   })
+
+  useLayoutEffect(() => {
+    if (pendingVisibleTop.current) alignVisibleTop()
+  }, [query, searchData, isFetching])
 
   const resultsReady = term.trim() === query
   const songs = resultsReady ? searchData?.song ?? [] : []
