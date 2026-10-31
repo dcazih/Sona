@@ -2191,3 +2191,44 @@
   .sona-featured-loading-artist{width:54%;height:12px;background:#ffffff13!important}
   .sona-featured-loading-album{width:66%;height:9px;margin-top:3px;background:#ffffff10!important}
 }
+
+/* Apple Music-like full-bleed album route. The shared page occupies the
+   status safe-area and has only a back arrow, not the normal Sona toolbar. */
+@media(max-width:767px){
+  .sona-app-shell .sona-header.sona-header-album-view{
+    height:calc(58px + env(safe-area-inset-top,0px))!important;
+    padding-top:env(safe-area-inset-top,0px)!important;
+    background:var(--sona-top-chrome-color,#080809)!important;
+    border:0!important;box-shadow:none!important;
+    pointer-events:none!important;z-index:71!important;
+  }
+  .sona-app-shell .sona-header.sona-header-album-view>div{
+    display:none!important;
+  }
+  .sona-app-shell .sona-header.sona-header-album-view>.sona-album-header-back{
+    pointer-events:auto!important;position:relative;z-index:2;
+    width:43px;height:43px;
+    display:grid!important;place-items:center;
+    padding:0;margin:0 0 0 3px;
+    color:#fff;border:0!important;border-radius:50%;
+    background:#ffffff1b!important;
+    -webkit-backdrop-filter:blur(15px);backdrop-filter:blur(15px);
+    touch-action:manipulation;
+    transition:transform .2s cubic-bezier(.2,1,.2,1);
+  }
+  .sona-app-shell .sona-header.sona-header-album-view>.sona-album-header-back:active{
+    transform:scale(.92);
+  }
+  .sona-app-shell:has(.sona-header-album-view) #main-scroll-area #scroll-viewport>div{
+    padding-top:env(safe-area-inset-top,0px)!important;
+  }
+  .sona-app-shell:has(.sona-header-album-view) .sona-mobile-album-hero{
+    padding-top:76px!important;
+    padding-bottom:26px!important;
+  }
+  .sona-app-shell:has(.sona-header-album-view) #main-scroll-area{
+    background:radial-gradient(ellipse 120% 65% at 50% 0%,
+      color-mix(in srgb,var(--sona-page-album-color,#554253) 45%,#17171a),
+      #171719 84%)!important;
+  }
+}

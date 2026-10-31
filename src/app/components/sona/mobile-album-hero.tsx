@@ -1,7 +1,4 @@
 import { useEffect, type CSSProperties } from 'react'
-import { ChevronLeft } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-import { closeSonaAlbumToCover } from '@/app/components/sona/album-morph'
 import { Link } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
@@ -12,7 +9,6 @@ import { convertSecondsToHumanRead } from '@/utils/convertSecondsToTime'
 
 /** Standalone mobile header. It doesn't inherit the desktop's fixed-height banner. */
 export function SonaMobileAlbumHero({ album }: { album: SingleAlbum }) {
-  const navigate = useNavigate()
   const { bgColor, handleLoadImage, handleError } = useAlbumColor('sona-mobile-album-art')
   const color = bgColor || '#342730'
 
@@ -53,10 +49,6 @@ export function SonaMobileAlbumHero({ album }: { album: SingleAlbum }) {
     <section className="sona-mobile-album-hero"
       style={{ '--sona-page-album-color': color } as CSSProperties}
       aria-label={'Album: ' + album.name}>
-      <button type="button" className="sona-mobile-album-back"
-        aria-label="Back to music" onClick={() => closeSonaAlbumToCover(navigate, album.id)}>
-        <ChevronLeft size={23} strokeWidth={2.2}/>
-      </button>
       <div className="sona-mobile-album-cover">
         <ImageLoader id={album.coverArt} type="album" size={700}>
           {(src) => src
