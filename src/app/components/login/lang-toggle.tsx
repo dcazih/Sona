@@ -1,35 +1,46 @@
 import { ReactCountryFlag } from 'react-country-flag'
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectGroup, SelectItem,
+  SelectLabel, SelectSeparator, SelectTrigger, SelectValue,
 } from '@/app/components/ui/select'
 import { languages } from '@/i18n/languages'
 import { useLang } from '@/store/lang.store'
 
+const mainLanguageIds = ['en-US', 'es-ES', 'de']
+const mainLanguages = mainLanguageIds.flatMap(id =>
+  languages.filter(language => language.langCode === id))
+const otherLanguages = languages.filter(language => !mainLanguageIds.includes(language.langCode))
+
 export function LangToggle() {
   const { langCode, setLang, flag } = useLang()
-
   return (
-    <Select value={langCode} onValueChange={(lang) => setLang(lang)}>
-      <SelectTrigger className="w-[70px] h-8 ring-offset-transparent focus:ring-0">
+    <Select value={langCode} onValueChange={setLang}>
+      <SelectTrigger aria-label="Choose language"
+        className="sona-login-language-trigger">
         <SelectValue>
           <ReactCountryFlag countryCode={flag} svg />
         </SelectValue>
       </SelectTrigger>
-      <SelectContent align="end">
+      <SelectContent align="end" sideOffset={8} position="popper"
+        className="sona-login-language-popover">
         <SelectGroup>
-          {languages.map((language) => (
-            <SelectItem
-              key={language.langCode}
-              value={language.langCode}
-              disabled={language.langCode === langCode}
-            >
+          <SelectLabel className="sona-login-language-heading">Main Languages</SelectLabel>
+          {mainLanguages.map(language => (
+            <SelectItem className="sona-login-language-option"
+              key={language.langCode} value={language.langCode}>
               <ReactCountryFlag countryCode={language.flag} svg />
-              <span className="ml-1">{language.nativeName}</span>
+              <span>{language.nativeName}</span>
+            </SelectItem>
+          ))}
+        </SelectGroup>
+        <SelectSeparator className="sona-login-language-divider" />
+        <SelectGroup>
+          <SelectLabel className="sona-login-language-heading">Other Languages</SelectLabel>
+          {otherLanguages.map(language => (
+            <SelectItem className="sona-login-language-option"
+              key={language.langCode} value={language.langCode}>
+              <ReactCountryFlag countryCode={language.flag} svg />
+              <span>{language.nativeName}</span>
             </SelectItem>
           ))}
         </SelectGroup>

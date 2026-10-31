@@ -220,3 +220,94 @@
   .sona-login-brand-title{font-size:31px!important}
   .sona-login-submit-wrap{padding-top:25px!important}
 }
+
+/* Refinements: compact sign-in, reversed field spacing and animated menus. */
+.sona-login-card-header h3{font-size:20px!important;line-height:1.2!important;font-weight:700!important}
+.sona-login-fields{gap:0!important}
+.sona-login-field+.sona-login-field{margin-top:21px!important}
+.sona-login-field+.sona-login-server-field,.sona-login-server-field{margin-top:11px!important}
+.sona-login-submit{min-height:43px!important;height:43px!important;padding:0 15px!important;font-size:14px!important}
+.sona-login-submit>span{font-size:19px}
+.sona-login-language [role=combobox]{
+  height:38px!important;min-width:63px!important;width:63px!important;
+  border-radius:15px!important;background:#343238!important;
+  border:0!important;outline:none!important;
+  box-shadow:none!important;--tw-ring-shadow:0 0 #0000!important;
+  --tw-ring-offset-shadow:0 0 #0000!important
+}
+.sona-login-language [role=combobox]:focus,
+.sona-login-language [role=combobox]:focus-visible,
+.sona-login-language [role=combobox][data-state=open]{
+  outline:0!important;outline-offset:0!important;border:0!important;
+  box-shadow:none!important;--tw-ring-shadow:0 0 #0000!important;
+  --tw-ring-offset-shadow:0 0 #0000!important;
+}
+.sona-login-language-popover{
+  z-index:9999!important;min-width:235px!important;max-height:min(65dvh,460px)!important;
+  padding:7px!important;border-radius:22px!important;
+  background:#27262d!important;color:#f8f6f9!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  box-shadow:0 20px 55px #0009,0 1px 0 #ffffff0b inset!important;
+  -webkit-backdrop-filter:blur(26px) saturate(1.25)!important;
+  backdrop-filter:blur(26px) saturate(1.25)!important;
+  transform-origin:var(--radix-select-content-transform-origin)!important;
+}
+.sona-login-language-popover [data-radix-select-viewport]{
+  height:auto!important;min-width:220px!important;
+  max-height:min(60dvh,430px)!important;overflow-y:auto!important;
+  padding:5px!important;scrollbar-width:none
+}
+.sona-login-language-popover [data-radix-select-viewport]::-webkit-scrollbar{display:none}
+.sona-login-language-heading{
+  color:#a5a0aa!important;padding:11px 10px 6px!important;font-size:11px!important;
+  text-transform:uppercase;letter-spacing:.09em;font-weight:800!important
+}
+.sona-login-language-option{
+  min-height:41px!important;padding:8px 13px 8px 33px!important;margin:1px 0;
+  border-radius:12px!important;display:flex!important;align-items:center!important;
+  font-size:14px!important;color:#eceaf0!important
+}
+.sona-login-language-option span:has(svg){display:inline-flex;align-items:center}
+.sona-login-language-option[data-highlighted]{
+  background:#ffffff18!important;color:#fff!important;outline:0!important
+}
+.sona-login-language-option[data-state=checked]{
+  background:rgba(255,63,109,.15)!important;color:#ff809d!important
+}
+.sona-login-language-divider{height:1px!important;margin:9px 5px!important;background:#ffffff19!important}
+@keyframes sona-language-open{
+ from{opacity:0;transform:translateY(-7px) scale(.965)}
+ to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes sona-language-close{
+ from{opacity:1;transform:translateY(0) scale(1)}
+ to{opacity:0;transform:translateY(-6px) scale(.975)}
+}
+.sona-login-language-popover[data-state=open]{
+ animation:sona-language-open .24s cubic-bezier(.2,.85,.25,1) both!important
+}
+.sona-login-language-popover[data-state=closed]{
+ animation:sona-language-close .19s cubic-bezier(.25,.6,.35,1) both!important
+}
+/* Radix must keep this content measurable while its closing animation runs. */
+.sona-login-server-content{
+ display:flex!important;flex-direction:column!important;
+ overflow:hidden!important;will-change:height,opacity;transform-origin:top
+}
+@keyframes sona-server-expand{
+ from{height:0;opacity:0;transform:translateY(-5px)}
+ to{height:var(--radix-collapsible-content-height);opacity:1;transform:translateY(0)}
+}
+@keyframes sona-server-collapse{
+ from{height:var(--radix-collapsible-content-height);opacity:1;transform:translateY(0)}
+ to{height:0;opacity:0;transform:translateY(-5px)}
+}
+.sona-login-server-content[data-state=open]{
+ animation:sona-server-expand .31s cubic-bezier(.2,.85,.25,1) both!important
+}
+.sona-login-server-content[data-state=closed]{
+ animation:sona-server-collapse .26s cubic-bezier(.4,0,.7,.25) both!important
+}
+@media(prefers-reduced-motion:reduce){
+ .sona-login-language-popover,.sona-login-server-content{animation-duration:.01ms!important}
+}
