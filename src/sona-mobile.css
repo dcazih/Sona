@@ -2631,3 +2631,12 @@
   html:has(.sona-now-overlay.is-dragging),html:has(.sona-now-overlay.is-dragging) body,html:has(.sona-now-overlay.is-dragging) #root{transition:none!important}
   .sona-app-shell:has(.sona-now-overlay.is-dragging)::before{transition:none!important}
 }
+
+/* Installed PWA: paint behind the home-indicator area without moving tap targets. */
+@media (max-width:767px) and (display-mode:standalone) {
+  html,body,#root{min-height:100vh!important;background:#171719!important}
+  .sona-app-shell{min-height:100vh!important;height:100vh!important;background:#171719!important}
+  .sona-bottom-nav{bottom:0!important;padding-bottom:max(8px,env(safe-area-inset-bottom,0px))!important;background:#222228!important}
+  .sona-now-overlay{bottom:0!important;min-height:100vh!important;height:100vh!important}
+  .sona-now-background{bottom:calc(-90px - env(safe-area-inset-bottom,0px))!important}
+}
