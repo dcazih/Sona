@@ -32,7 +32,13 @@ TOKEN = Path('/run/secrets/token').read_text().strip()
 if len(TOKEN) < 48:
     raise RuntimeError('Missing or weak server authentication secret')
 
-mcp = FastMCP('TrueNAS Admin', host='0.0.0.0', stateless_http=True, json_response=True)
+from oauth_provider import provider
+from oauth_settings import auth_settings
+from oauth_login import install_login_routes
+
+mcp = FastMCP('TrueNAS Admin', host='0.0.0.0', stateless_http=True, json_response=True,
+              auth=auth_settings(), auth_server_provider=provider)
+install_login_routes(mcp)
 AUDIT = Path('/audit/commands.jsonl')
 
 
@@ -78,31 +84,26 @@ def run_host_command(command: str, timeout_seconds: int = 30) -> dict:
 core = mcp.streamable_http_app()
 
 
-class AuthenticationGateway:
-    async def __call__(self, scope, receive, send):
-        if scope['type'] == 'http':
-            headers = dict((k.lower(), v) for k, v in scope.get('headers', []))
-            supplied = headers.get(b'authorization', b'').decode('latin-1', errors='replace')
-            if not hmac.compare_digest(supplied, 'Bearer ' + TOKEN):
-                await send({'type':'http.response.start','status':401,
-                            'headers':[(b'content-type',b'text/plain'),
-                                       (b'www-authenticate',b'Bearer realm="nas-mcp"'),
-                                       (b'cache-control',b'no-store')]})
-                await send({'type':'http.response.body','body':b'Unauthorized'})
-                return
-        await core(scope, receive, send)
-
-
-app = AuthenticationGateway()
+app = mcp.streamable_http_app()
 PY
+# Download versioned OAuth modules into the temporary Docker build context.
+# Set SONA_SOURCE_REF to an immutable commit SHA to pin these dependencies.
+SOURCE_REF="${SONA_SOURCE_REF:-sona-cassette-mobile}"
+RAW_OAUTH="https://raw.githubusercontent.com/dcazih/Sona/${SOURCE_REF}/scripts"
+curl --fail --silent --show-error --location --retry 3 \
+  "${RAW_OAUTH}/sona-nas-oauth-provider.py" -o "$APP_DIR/oauth_provider.py"
+curl --fail --silent --show-error --location --retry 3 \
+  "${RAW_OAUTH}/sona-nas-oauth-login.py" -o "$APP_DIR/oauth_login.py"
+curl --fail --silent --show-error --location --retry 3 \
+  "${RAW_OAUTH}/sona-nas-oauth-settings.py" -o "$APP_DIR/oauth_settings.py"
 cat > "$APP_DIR/Dockerfile" <<'DOCKER'
 FROM python:3.12-slim-bookworm
 RUN apt-get update && apt-get install -y --no-install-recommends util-linux && \
     rm -rf /var/lib/apt/lists/* && \
-    pip install --no-cache-dir 'mcp>=1.28,<2' 'uvicorn>=0.30,<1'
+    pip install --no-cache-dir 'mcp==1.28.0' 'uvicorn>=0.30,<1' 'python-multipart>=0.0.9,<1'
 RUN mkdir -p /run/secrets /audit
 WORKDIR /app
-COPY server.py /app/server.py
+COPY server.py oauth_provider.py oauth_login.py oauth_settings.py /app/
 EXPOSE 8080
 CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080", "--no-access-log"]
 DOCKER
@@ -165,6 +166,8 @@ echo 'MCP endpoint: https://homelab.hippocampus-polaris.ts.net/mcp'
 echo "NAS gateway: http://${NAS_IP}:${PORT}/mcp"
 echo 'Authentication token is stored in the Docker-managed sona-nas-admin-private volume.'
 echo 'Read privately: sudo docker exec sona-nas-admin-mcp cat /run/secrets/token'
-echo 'Never paste the token into a chat or public issue; configure it in the MCP plugin authentication UI.'
+echo 'Use the owner secret only on the NAS OAuth consent page opened by ChatGPT. Never paste it in this chat.'
 echo 'Unauthenticated probe: curl -i https://homelab.hippocampus-polaris.ts.net/mcp (expect 401)'
-echo 'Security: anyone possessing the token has full root administration.'
+echo 'OAuth metadata: https://homelab.hippocampus-polaris.ts.net/.well-known/oauth-authorization-server'
+echo 'MCP resource metadata: https://homelab.hippocampus-polaris.ts.net/.well-known/oauth-protected-resource/mcp'
+echo 'Security: An authorized OAuth connection retains unrestricted root administration.'
