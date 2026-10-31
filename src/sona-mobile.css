@@ -2583,7 +2583,9 @@
   .sona-app-shell:has(.sona-am-search-page) .sona-player-controls>div:nth-child(2){position:absolute!important;left:0!important;right:0!important;bottom:-2px!important;width:auto!important;transform:none!important}
   .sona-app-shell:has(.sona-am-search-page){height:var(--sona-layout-height,100dvh)!important;min-height:var(--sona-layout-height,100dvh)!important}
   .sona-app-shell:has(.sona-am-search-page) .sona-am-search-page{min-height:calc(var(--sona-layout-height,100dvh) - env(safe-area-inset-top,0px))!important;padding-bottom:105px!important}
-  .sona-app-shell:has(.sona-am-search-page) .sona-am-live-results{padding-bottom:105px!important}
+  .sona-app-shell:has(.sona-am-search-page) #scroll-viewport>div{padding-bottom:0!important}
+  .sona-app-shell:has(.sona-am-search-page) .sona-am-search-page{box-sizing:border-box!important;padding-bottom:96px!important}
+  .sona-app-shell:has(.sona-am-search-page) .sona-am-live-results{padding-bottom:0!important;min-height:0!important}
   .sona-search-morph.is-expanded,.sona-search-morph.is-expanded.is-focused{height:54px!important;grid-template-columns:54px 56px minmax(0,1fr)!important;gap:0!important;padding:0!important;opacity:1!important;transform:none!important}
   .sona-search-morph.is-expanded::before{left:68px!important;border-radius:27px!important;clip-path:inset(0 round 27px);transition:opacity .34s ease!important}
   .sona-search-morph.is-expanded .sona-search-orb{justify-self:end!important;padding-left:7px!important}

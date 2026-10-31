@@ -9,6 +9,7 @@ import { ROUTES } from '@/routes/routesList'
 import { subsonic } from '@/service/subsonic'
 import { usePlayerActions } from '@/store/player.store'
 import { useSonaSearch, type SearchFilter } from './search-state'
+import { getMainScrollElement } from '@/utils/scrollPageToTop'
 
 type RecentItem = { id: string; title: string; subtitle: string; type: 'song' | 'album' | 'artist' | 'query'; coverArt?: string; albumId?: string }
 const RECENTS_KEY = 'sona-mobile-recent-searches'
@@ -103,6 +104,7 @@ export default function SonaMobileSearch() {
       if (!value) return
       remember({ id: 'query:' + value.toLocaleLowerCase(), type: 'query', title: value, subtitle: 'Search' })
       setEngaged(true)
+      getMainScrollElement()?.scrollTo({ top: 0, behavior: 'auto' })
     }
     window.addEventListener('sona-search-submit', onSubmit)
     return () => window.removeEventListener('sona-search-submit', onSubmit)
@@ -114,6 +116,7 @@ export default function SonaMobileSearch() {
       setTerm(item.title)
       setFilter('all')
       setEngaged(true)
+      getMainScrollElement()?.scrollTo({ top: 0, behavior: 'auto' })
       return
     }
     if (item.type === 'artist') navigate(ROUTES.ARTIST.PAGE(item.id))
