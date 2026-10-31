@@ -2,14 +2,14 @@ import type { SVGProps } from 'react'
 
 type Props = SVGProps<SVGSVGElement> & { size?: number }
 
-/** Font Awesome Free 7.3.1 music glyph, CC BY 4.0 SVG (Fonticons, Inc.).
- *  Shared double-note icon for Sona's empty states and playing indicators.
- */
+/** Sona's balanced double-note mark, shared by branding and player surfaces. */
 export function SonaNoteGlyph({ size = 21, ...props }: Props) {
   return (
     <svg width={size} height={size} viewBox="0 0 640 640" fill="currentColor"
       xmlns="http://www.w3.org/2000/svg" aria-hidden="true" {...props}>
-      <path d="M532 71C539.6 77.1 544 86.3 544 96L544 400C544 444.2 501 480 448 480C395 480 352 444.2 352 400C352 355.8 395 320 448 320C459.2 320 470 321.6 480 324.6L480 207.9L256 257.7L256 464C256 508.2 213 544 160 544C107 544 64 508.2 64 464C64 419.8 107 384 160 384C171.2 384 182 385.6 192 388.6L192 160C192 145 202.4 132 217.1 128.8L505.1 64.8C514.6 62.7 524.5 65 532.1 71.1z" />
+      <path d="M182 182Q182 169 195 166L472 106Q488 102 488 119V382H431V191L239 234V430H182V182Z" />
+      <ellipse cx="154" cy="432" rx="90" ry="67" transform="rotate(-10 154 432)" />
+      <ellipse cx="404" cy="384" rx="90" ry="67" transform="rotate(-10 404 384)" />
     </svg>
   )
 }

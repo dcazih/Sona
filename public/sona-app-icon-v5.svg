@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Sona app icon">
+  <rect width="1024" height="1024" fill="#d94a70"/>
+  <g fill="#fff" transform="translate(0 16)">
+    <path d="M291 291Q291 270 312 266L755 170Q781 164 781 191V612H690V304L382 372V687H291V291Z"/>
+    <path d="M102 690C102 631 166 583 246 583S390 631 390 690 326 797 246 797 102 749 102 690Z"/>
+    <path d="M502 614C502 555 566 507 646 507S790 555 790 614 726 721 646 721 502 673 502 614Z"/>
+  </g>
+</svg>

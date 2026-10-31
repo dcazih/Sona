@@ -3,7 +3,7 @@ import { SonaNoteGlyph } from './sona-note-glyph'
 
 type Props = SVGProps<SVGSVGElement> & { size?: number }
 
-/** Same double-note SVG everywhere: branding, login, Home and favicon. */
+/** Same continuous-corner double-note mark everywhere in the Sona interface. */
 export function SonaMark({ size = 32, ...props }: Props) {
   const gradient = useId()
   return (
@@ -16,7 +16,7 @@ export function SonaMark({ size = 32, ...props }: Props) {
           <stop offset="100%" stopColor="#b8395b"/>
         </linearGradient>
       </defs>
-      <rect width="80" height="80" rx="21" fill={'url(#' + gradient + ')'}/>
+      <path d="M40 0C17.9 0 9.2 0 4.6 4.6S0 17.9 0 40s0 30.8 4.6 35.4S17.9 80 40 80s30.8 0 35.4-4.6S80 62.1 80 40s0-30.8-4.6-35.4S62.1 0 40 0Z" fill={'url(#' + gradient + ')'}/>
       <SonaNoteGlyph x={8} y={8} width={64} height={64} color="#fff"/>
     </svg>
   )
