@@ -102,7 +102,7 @@ export function LoginForm() {
                   <FormLabel className="sr-only">{t('login.form.username')}</FormLabel>
                   <div className="sona-login-input-wrap">
                     <FormControl>
-                      <Input {...field} id="username" type="text" autoComplete="username"
+                      <Input {...field} id="username" type="text" autoComplete="username" autoFocus={false}
                         placeholder="Username"
                         autoCorrect="off" autoCapitalize="none" spellCheck={false} />
                     </FormControl>
@@ -115,7 +115,7 @@ export function LoginForm() {
                   <FormLabel className="sr-only">{t('login.form.password')}</FormLabel>
                   <div className="sona-login-input-wrap">
                     <FormControl>
-                      <Password {...field} id="password" autoComplete="current-password"
+                      <Password {...field} id="password" autoComplete="current-password" autoFocus={false}
                         placeholder="Password" />
                     </FormControl>
                   </div>
