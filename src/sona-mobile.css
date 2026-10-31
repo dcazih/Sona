@@ -2967,14 +2967,17 @@
   .sona-app-shell:has(.sona-now-overlay.is-dragging)::before{
     background:var(--sona-notch-color,#000000)!important
   }
-  /* The outside of either player surface has zero corner radius, including while dragged. */
-  .sona-app-shell .sona-player,
-  .sona-app-shell .sona-player-layout,
-  .sona-app-shell .sona-player::before,
+  /* Only the FULL-SCREEN Now Playing sheet is square. Never flatten the mini-player. */
   .sona-app-shell .sona-now-overlay,
   .sona-app-shell .sona-now-overlay.is-open,
   .sona-app-shell .sona-now-overlay.is-dragging{
     border-radius:0!important;overflow:hidden!important
+  }
+  .sona-app-shell .sona-player[data-mobile-active="true"]{
+    border-radius:33px!important;overflow:hidden!important
+  }
+  .sona-app-shell .sona-player[data-mobile-active="true"]::before{
+    border-radius:inherit!important
   }
   .sona-app-shell .sona-now-overlay.is-dragging{
     transition:border-radius 0s,transform .2s cubic-bezier(.22,1,.36,1)!important

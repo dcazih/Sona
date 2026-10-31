@@ -50,7 +50,7 @@ export default function SonaMobileSearch() {
   const [errorMessage, setErrorMessage] = useState('')
   const [searchScope, setSearchScope] = useState<SearchScope>(lastSearchScope)
   const [scopeDrag, setScopeDrag] = useState<number | null>(null)
-  const scopeGesture = useRef<{ id: number; x: number; y: number; moved: boolean } | null>(null)
+  const scopeGesture = useRef<{ id: number; x: number; y: number; moved: boolean; preserveKeyboard: boolean } | null>(null)
   const scopeEl = useRef<HTMLDivElement>(null)
   const blockScopeClickUntil = useRef(0)
   const pageTopRef = useRef<HTMLDivElement>(null)
@@ -77,7 +77,11 @@ export default function SonaMobileSearch() {
     if (active instanceof HTMLInputElement && active.closest('.sona-search-morph-field')) {
       event.preventDefault()
     }
-    scopeGesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false }
+    scopeGesture.current = {
+      id: event.pointerId, x: event.clientX, y: event.clientY, moved: false,
+      preserveKeyboard: active instanceof HTMLInputElement &&
+        Boolean(active.closest('.sona-search-morph-field')),
+    }
   }
   const onScopeMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     const gesture = scopeGesture.current
@@ -101,6 +105,10 @@ export default function SonaMobileSearch() {
     if (!gesture || event.pointerId !== gesture.id) return
     // Tap and drag both resolve here; the button doesn't need to take focus.
     blockScopeClickUntil.current = Date.now() + 320
+    if (gesture.preserveKeyboard) {
+      const input = document.querySelector<HTMLInputElement>('.sona-search-morph-field input')
+      if (input && document.activeElement !== input) input.focus({ preventScroll: true })
+    }
     chooseScope(progressFromPointer(event.clientX) >= .5 ? 'library' : 'sona')
     scopeGesture.current = null
     setScopeDrag(null)
@@ -114,6 +122,22 @@ export default function SonaMobileSearch() {
     chooseScope(scope)
   }
 
+
+  // iOS Safari can blur focused inputs on touchstart even when pointerdown was
+  // prevented. Suppress ONLY that native touch default while search is focused.
+  // Listeners are non-passive, because a passive touchstart cannot prevent blur.
+  useEffect(() => {
+    const scope = scopeEl.current
+    if (!scope) return
+    const keepFocus = (event: TouchEvent) => {
+      const input = document.querySelector<HTMLInputElement>('.sona-search-morph-field input')
+      if (input && document.activeElement === input && event.cancelable) {
+        event.preventDefault()
+      }
+    }
+    scope.addEventListener('touchstart', keepFocus, { capture: true, passive: false })
+    return () => scope.removeEventListener('touchstart', keepFocus, true)
+  }, [focused, engaged])
 
   useEffect(() => {
     const timeout = window.setTimeout(() => setQuery(term.trim()), 320)
