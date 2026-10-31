@@ -1,5 +1,6 @@
 import { NavigationButtons } from '@/app/components/header/navigation-buttons'
-import { ChevronLeft, Ellipsis } from 'lucide-react'
+import { Check, ChevronLeft, Ellipsis } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { closeSonaAlbumToCover } from '@/app/components/sona/album-morph'
 import { UserDropdown } from '@/app/components/header/user-dropdown'
@@ -14,6 +15,31 @@ export function Header() {
   const { isFullscreen } = useAppWindow()
   const { pathname, search } = useLocation()
   const navigate = useNavigate()
+  const isLibraryTab = pathname === '/mobile-library'
+  const [libraryMenuOpen, setLibraryMenuOpen] = useState(false)
+  const [editingLibrary, setEditingLibrary] = useState(false)
+  const libraryControlRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setLibraryMenuOpen(false)
+    if (!isLibraryTab) setEditingLibrary(false)
+  }, [isLibraryTab])
+
+  useEffect(() => {
+    const listener = (event: Event) =>
+      setEditingLibrary(Boolean((event as CustomEvent<boolean>).detail))
+    window.addEventListener('sona:library-edit-state', listener)
+    return () => window.removeEventListener('sona:library-edit-state', listener)
+  }, [])
+
+  useEffect(() => {
+    if (!libraryMenuOpen) return
+    const handleOutside = (event: PointerEvent) => {
+      if (!libraryControlRef.current?.contains(event.target as Node)) setLibraryMenuOpen(false)
+    }
+    document.addEventListener('pointerdown', handleOutside)
+    return () => document.removeEventListener('pointerdown', handleOutside)
+  }, [libraryMenuOpen])
   const albumId = /^\/library\/albums\/([^/]+)$/.exec(pathname)?.[1]
   const artistId = /^\/library\/artists\/([^/]+)$/.exec(pathname)?.[1]
   const isMobileDetail = Boolean(albumId || artistId)
@@ -55,6 +81,29 @@ export function Header() {
       <div className="flex justify-end items-center gap-2">
         <div className="sona-desktop-settings"><SettingsButton /></div>
         <div className="sona-desktop-account"><UserDropdown /></div>
+        <div ref={libraryControlRef}
+          className={'sona-library-header-control md:hidden' + (isLibraryTab ? ' is-visible' : '')}>
+          <button type="button" className="sona-library-header-button"
+            aria-label={editingLibrary ? 'Save library sections' : 'Library options'}
+            aria-expanded={editingLibrary ? undefined : libraryMenuOpen}
+            tabIndex={isLibraryTab ? 0 : -1}
+            onClick={() => {
+              if (editingLibrary) {
+                window.dispatchEvent(new CustomEvent('sona:library-edit-request', { detail: 'save' }))
+              } else {
+                setLibraryMenuOpen(open => !open)
+              }
+            }}>
+            {editingLibrary ? <Check size={23} strokeWidth={2.6}/> : <Ellipsis size={24} strokeWidth={2.6}/>}
+          </button>
+          {isLibraryTab && libraryMenuOpen && !editingLibrary &&
+            <div className="sona-library-header-menu" role="menu">
+              <button type="button" role="menuitem" onClick={() => {
+                setLibraryMenuOpen(false)
+                window.dispatchEvent(new CustomEvent('sona:library-edit-request', { detail: 'start' }))
+              }}>Edit Sections</button>
+            </div>}
+        </div>
         <SonaMobileAccount />
         {isWindows && !isFullscreen && <div className="w-[122px]" />}
         {isLinux && !isFullscreen && <div className="w-[94px]" />}

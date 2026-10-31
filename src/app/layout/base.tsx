@@ -32,6 +32,30 @@ export default function BaseLayout() {
   useEffect(() => {
     if (requestsActive) setRequestsMounted(true)
   }, [requestsActive])
+  useEffect(() => {
+    if (!requestsMounted) return
+    const overlay = document.querySelector<HTMLElement>('.sona-persistent-requests')
+    const header = document.querySelector<HTMLElement>('.sona-header')
+    const parent = overlay?.parentElement
+    if (!overlay || !header || !parent) return
+    // Anchor the embedded page to the *actual* header bottom. Subtract the
+    // containing block's origin so this works even when the sidebar inset is offset.
+    const position = () => {
+      const top = Math.max(0, header.getBoundingClientRect().bottom - parent.getBoundingClientRect().top)
+      overlay.style.setProperty('--sona-requests-top', Math.ceil(top) + 'px')
+    }
+    const observer = new ResizeObserver(position)
+    observer.observe(header)
+    observer.observe(parent)
+    position()
+    window.addEventListener('resize', position)
+    window.visualViewport?.addEventListener('resize', position)
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', position)
+      window.visualViewport?.removeEventListener('resize', position)
+    }
+  }, [requestsMounted, requestsActive])
   const hasMedia = usePlayerStore((state) => Boolean(
     state.songlist.currentList.length || state.songlist.radioList.length || state.songlist.podcastList.length,
   ))
