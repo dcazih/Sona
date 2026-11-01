@@ -29,6 +29,8 @@ import Home from '@/app/pages/home'
 import SonaMobileLibrary from '@/app/components/sona/mobile-library'
 import SonaMobileSearch from '@/app/components/sona/mobile-search'
 import SonaMobileNew from '@/app/components/sona/mobile-new'
+import SonaResponsive from '@/app/components/sona/mobile-responsive'
+import { SonaArtistsList, SonaGenresList, SonaGenreDetail, SonaPlaylistsList, SonaPlaylistDetail, SonaSongsList, SonaDownloadsList } from '@/app/components/sona/mobile-section-pages'
 
 const BaseLayout = lazy(() => import('@/app/layout/base'))
 const Album = lazy(() => import('@/app/pages/albums/album'))
@@ -98,12 +100,17 @@ export const router = createHashRouter([
         ),
       },
       {
+        id: 'sona-downloads',
+        path: '/library/downloads',
+        element: <SonaDownloadsList />,
+      },
+      {
         id: 'artists',
         path: ROUTES.LIBRARY.ARTISTS,
         errorElement: <ErrorPage />,
         element: (
           <Suspense fallback={<ArtistsFallback />}>
-            <ArtistsList />
+            <SonaResponsive mobile={<SonaArtistsList/>} desktop={<ArtistsList/>}/>
           </Suspense>
         ),
       },
@@ -113,7 +120,7 @@ export const router = createHashRouter([
         errorElement: <ErrorPage />,
         element: (
           <Suspense fallback={<InfinitySongListFallback />}>
-            <SongList />
+            <SonaResponsive mobile={<SonaSongsList/>} desktop={<SongList/>}/>
           </Suspense>
         ),
       },
@@ -144,7 +151,7 @@ export const router = createHashRouter([
         errorElement: <ErrorPage />,
         element: (
           <Suspense fallback={<SongListFallback />}>
-            <PlaylistsPage />
+            <SonaResponsive mobile={<SonaPlaylistsList/>} desktop={<PlaylistsPage/>}/>
           </Suspense>
         ),
       },
@@ -164,7 +171,7 @@ export const router = createHashRouter([
         errorElement: <ErrorPage />,
         element: (
           <Suspense fallback={<GenresFallback />}>
-            <GenresList />
+            <SonaResponsive mobile={<SonaGenresList/>} desktop={<GenresList/>}/>
           </Suspense>
         ),
       },
@@ -174,7 +181,7 @@ export const router = createHashRouter([
         errorElement: <ErrorPage />,
         element: (
           <Suspense fallback={<GenreFallback />}>
-            <GenrePage />
+            <SonaResponsive mobile={<SonaGenreDetail/>} desktop={<GenrePage/>}/>
           </Suspense>
         ),
       },
@@ -204,7 +211,7 @@ export const router = createHashRouter([
         errorElement: <ErrorPage />,
         element: (
           <Suspense fallback={<PlaylistFallback />}>
-            <Playlist />
+            <SonaResponsive mobile={<SonaPlaylistDetail/>} desktop={<Playlist/>}/>
           </Suspense>
         ),
       },
