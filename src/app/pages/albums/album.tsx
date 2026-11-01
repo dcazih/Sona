@@ -1,37 +1,32 @@
+import { lazy, Suspense } from 'react'
 import { useIsMobile } from '@/app/hooks/use-mobile'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { AlbumComment } from '@/app/components/album/comment'
-import ImageHeader from '@/app/components/album/image-header'
-import { AlbumInfo } from '@/app/components/album/info'
 import { RecordLabelsInfo } from '@/app/components/album/record-labels'
-import { AlbumStickyHeader } from '@/app/components/album/sticky-header'
-import { AlbumFallback } from '@/app/components/fallbacks/album-fallbacks'
+import { AlbumFallback, AlbumHeaderFallback } from '@/app/components/fallbacks/album-fallbacks'
+import { TableFallback } from '@/app/components/fallbacks/table-fallbacks'
 import { PreviewListFallback } from '@/app/components/fallbacks/home-fallbacks'
-import { BadgesData } from '@/app/components/header-info'
 import PreviewList from '@/app/components/home/preview-list'
 import ListWrapper from '@/app/components/list-wrapper'
 import { SonaMobileAlbumTracks } from '@/app/components/sona/mobile-album-tracks'
 import { SonaMobileAlbumHero } from '@/app/components/sona/mobile-album-hero'
-import { DataTable } from '@/app/components/ui/data-table'
 import {
   useGetAlbum,
   useGetArtistAlbums,
   useGetGenreAlbums,
 } from '@/app/hooks/use-album'
 import ErrorPage from '@/app/pages/error-page'
-import { songsColumns } from '@/app/tables/songs-columns'
 import { ROUTES } from '@/routes/routesList'
-import { usePlayerActions } from '@/store/player.store'
-import { ColumnFilter } from '@/types/columnFilter'
 import { Albums } from '@/types/responses/album'
 import { sortRecentAlbums } from '@/utils/album'
-import { convertSecondsToHumanRead } from '@/utils/convertSecondsToTime'
+
+const DesktopHeader = lazy(() => import('@/app/components/album/desktop-album').then(module => ({ default: module.DesktopAlbumHeader })))
+const DesktopTracks = lazy(() => import('@/app/components/album/desktop-album').then(module => ({ default: module.DesktopAlbumTracks })))
 
 export default function Album() {
   const isMobile = useIsMobile()
   const { albumId } = useParams() as { albumId: string }
-  const { setSongList } = usePlayerActions()
   const { t } = useTranslation()
 
   const {
@@ -52,44 +47,6 @@ export default function Album() {
     return <ErrorPage status={404} statusText="Not Found" />
   }
   if (!album) return <AlbumFallback />
-
-  const columns = isMobile ? [] : songsColumns()
-
-  const albumDuration = album.duration
-    ? convertSecondsToHumanRead(album.duration)
-    : null
-
-  const badges: BadgesData = [
-    { content: album.year?.toString() ?? null, type: 'text' },
-    {
-      content: album.genre ?? null,
-      type: 'link',
-      link: ROUTES.ALBUMS.GENRE(album.genre),
-    },
-    {
-      content: album.songCount
-        ? t('playlist.songCount', { count: album.songCount })
-        : null,
-      type: 'text',
-    },
-    {
-      content: albumDuration
-        ? t('playlist.duration', { duration: albumDuration })
-        : null,
-      type: 'text',
-    },
-  ]
-
-  const columnsToShow: ColumnFilter[] = [
-    'trackNumber',
-    'title',
-    'duration',
-    'playCount',
-    'played',
-    'bitRate',
-    'contentType',
-    'select',
-  ]
 
   function removeCurrentAlbumFromList(moreAlbums: Albums[], sort = false) {
     if (moreAlbums.length === 0 || !album) return null
@@ -120,43 +77,14 @@ export default function Album() {
 
   return (
     <div className="sona-album-page w-full relative">
-      {!isMobile && <AlbumStickyHeader album={album} />}
-
-      {!isMobile && <div className="hidden md:block"><ImageHeader
-        type={t('album.headline')}
-        title={album.name}
-        subtitle={album.artist}
-        artistId={album.artistId}
-        artists={album.artists}
-        coverArtId={album.coverArt}
-        coverArtType="album"
-        coverArtSize="700"
-        coverArtAlt={album.name}
-        animatedArtworkArtist={album.artist}
-        animatedArtworkAlbum={album.name}
-        badges={badges}
-      /></div>}
-      {isMobile && <div className="md:hidden"><SonaMobileAlbumHero album={album} /></div>}
+      {isMobile
+        ? <div className="md:hidden"><SonaMobileAlbumHero album={album} /></div>
+        : <Suspense fallback={<AlbumHeaderFallback />}><DesktopHeader album={album} /></Suspense>}
 
       <ListWrapper>
-        {!isMobile && <div className="hidden md:block"><AlbumInfo album={album} /></div>}
-
-        {isMobile && <div className="md:hidden"><SonaMobileAlbumTracks album={album} /></div>}
-        {!isMobile && <div className="hidden md:block"><DataTable
-          columns={columns}
-          data={album.song}
-          handlePlaySong={(row) =>
-            setSongList(album.song, row.index, false, {
-              id: album.id,
-              name: album.name,
-              type: 'album',
-            })
-          }
-          columnFilter={columnsToShow}
-          showDiscNumber={true}
-          variant="modern"
-          enableVirtualization={true}
-        /></div>}
+        {isMobile
+          ? <div className="md:hidden"><SonaMobileAlbumTracks album={album} /></div>
+          : <Suspense fallback={<TableFallback variant="modern" />}><DesktopTracks album={album} /></Suspense>}
 
         {albumComment && <AlbumComment comment={albumComment} />}
 

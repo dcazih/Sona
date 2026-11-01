@@ -16,6 +16,7 @@ import type { ISimilarArtist } from '@/types/responses/artist'
 import type { Playlist } from '@/types/responses/playlist'
 import type { ISong } from '@/types/responses/song'
 import { queryKeys } from '@/utils/queryKeys'
+import { openSonaAlbumFromCover } from './album-morph'
 import { useSectionSettings } from './mobile-section-header'
 
 function useSectionAction(action: (type: string, value?: string) => void) {
@@ -115,7 +116,13 @@ export function SonaGenresList(){
  </section>
 }
 function AlbumTile({album}:{album:Albums}){
- return <Link className="sona-section-album-tile" to={ROUTES.ALBUM.PAGE(album.id)}>
+ const navigate=useNavigate()
+ return <Link className="sona-section-album-tile" data-sona-album-id={album.id}
+   to={ROUTES.ALBUM.PAGE(album.id)} onClick={event=>{
+     if(event.defaultPrevented||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return
+     event.preventDefault()
+     openSonaAlbumFromCover(event,navigate,album.id)
+   }}>
    <SectionArt id={album.coverArt} name={album.name}/>
    <strong>{album.name}</strong><span>{album.artist}</span>
   </Link>

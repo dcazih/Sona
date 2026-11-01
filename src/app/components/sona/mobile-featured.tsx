@@ -43,7 +43,7 @@ export function SonaMobileFeatured({ songs }: { songs: ISong[] }) {
           {songs.map(song => (
             <li key={song.id}>
               <article className="sona-featured-card">
-                <button type="button" className="sona-featured-art" data-sona-featured-album-id={song.albumId}
+                <button type="button" className="sona-featured-art" data-sona-featured-album-id={song.albumId} data-sona-featured-song-id={song.id}
                   aria-label={'Open album ' + song.album}
                   onClick={event => openSonaAlbumFromCover(event, navigate, song.albumId)}>
                   <ImageLoader id={song.coverArt} type="song" size={700}>

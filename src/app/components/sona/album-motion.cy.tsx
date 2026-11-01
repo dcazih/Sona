@@ -62,7 +62,7 @@ describe('Mobile album loading and navigation', () => {
       })
       cy.get('.sona-album-song-row').should('have.length', album.song.length)
       cy.get('#image-header-container').should('not.exist')
-      cy.get('table').should('not.exist')
+      cy.get('[role="table"]').should('not.exist')
     })
   })
 
@@ -79,4 +79,16 @@ describe('Mobile album loading and navigation', () => {
       cy.get('html').should('not.have.attr', 'data-sona-album-morph')
     })
   })
+  it('keeps the desktop album artwork and song table available', () => {
+    cy.viewport(1280, 900)
+    cy.intercept('**/rest/getAlbumInfo2*', { body: { 'subsonic-response': { status: 'ok', albumInfo: {} } } })
+    withAlbum((album) => {
+      cy.intercept('**/rest/getAlbum?*', { body: { 'subsonic-response': { status: 'ok', album } } })
+      cy.mount(<App album={album} />, { routerProps: { initialEntries: ['/library/albums/' + album.id] } })
+      cy.get('#image-header-container').should('exist')
+      cy.get('[role="table"]').should('exist')
+      cy.get('.sona-mobile-album-hero').should('not.exist')
+    })
+  })
+
 })

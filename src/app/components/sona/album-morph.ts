@@ -5,7 +5,7 @@ import { queryClient } from '@/lib/queryClient'
 import { subsonic } from '@/service/subsonic'
 import { queryKeys } from '@/utils/queryKeys'
 
-type Source = { albumId: string; rect: DOMRect; image: string }
+type Source = { albumId: string; image: string; selector: string }
 let lastSource: Source | null = null
 let cancelMorph: (() => void) | undefined
 
@@ -76,7 +76,13 @@ export function openSonaAlbumFromCover(event: MouseEvent<HTMLElement>, navigate:
   const image = element?.currentSrc || element?.src
   const rect = element?.getBoundingClientRect()
   if (mobileMotion() && image && rect && rect.width >= 12) {
-    lastSource = { albumId, rect, image }
+    const featured = element.closest('[data-sona-featured-song-id]')
+    const rail = element.closest('.sona-music-rail')
+    const scope = rail ? '.sona-music-rail[aria-label="' + CSS.escape(rail.getAttribute('aria-label') || '') + '"] ' : ''
+    const selector = featured
+      ? '[data-sona-featured-song-id="' + CSS.escape(featured.getAttribute('data-sona-featured-song-id') || '') + '"] img'
+      : '[data-sona-album-id="' + CSS.escape(albumId) + '"] img'
+    lastSource = { albumId, image, selector: scope + selector }
     morphAfterNavigation(image, rect, () => document.querySelector('.sona-mobile-album-cover'))
   }
   navigate(path)
@@ -87,8 +93,7 @@ export function closeSonaAlbumToCover(navigate: NavigateFunction, albumId: strin
   const cover = document.querySelector<HTMLElement>('.sona-mobile-album-cover')
   if (mobileMotion() && source?.albumId === albumId && cover) {
     morphAfterNavigation(source.image, cover.getBoundingClientRect(), () =>
-      document.querySelector('[data-sona-album-id="' + CSS.escape(albumId) + '"] img') ||
-      document.querySelector('[data-sona-featured-album-id="' + CSS.escape(albumId) + '"] img'))
+      document.querySelector(source.selector))
   }
   lastSource = null
   navigate(-1)
