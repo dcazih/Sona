@@ -99,7 +99,7 @@ export function SonaArtistsList(){
 
 export function SonaGenresList(){
  const {data:genres=[],isLoading}=useQuery({queryKey:[queryKeys.genre.all],queryFn:subsonic.genres.get})
- const filtered=useMemo(()=>[...genres].filter(g=>g.albumCount>=2).sort((a,b)=>a.value.localeCompare(b.value)),[genres])
+ const filtered=useMemo(()=>[...genres].sort((a,b)=>a.value.localeCompare(b.value)),[genres])
  return <section className="sona-section-page sona-genres-list"><SectionTitle>Genres</SectionTitle>
   {isLoading?<Empty message="Loading genres…"/>:
     <div className="sona-section-simple-list">{filtered.map(g=><Link key={g.value} to={ROUTES.GENRE.PAGE(g.value)}>
@@ -176,6 +176,14 @@ export function SonaPlaylistsList(){
  const settings=useSectionSettings(pathname)
  const {data:playlists=[],isLoading}=useQuery({queryKey:[queryKeys.playlist.all],queryFn:subsonic.playlists.getAll})
  const [favoriteIds,setFavoriteIds]=useState(playlistFavorites)
+ useEffect(()=>{
+  if(!playlists.length) return
+  try {
+   if(localStorage.getItem('sona-playlist-favorites') !== null)return
+   const initial=new Set(playlists.filter(p=>/favorite/i.test(p.name)).map(p=>p.id))
+   saveSet('sona-playlist-favorites',initial);setFavoriteIds(initial)
+  } catch {}
+ },[playlists])
  const downloaded=trackedDownloads()
  const toggleFavorite=(id:string)=>{
   const next=new Set(favoriteIds)
@@ -183,7 +191,7 @@ export function SonaPlaylistsList(){
   setFavoriteIds(next);saveSet('sona-playlist-favorites',next)
  }
  const shown=useMemo(()=>playlistSort(playlists.filter(p=>
-  settings.filter==='all'||(settings.filter==='favorites'&&(favoriteIds.has(p.id)||/favorite/i.test(p.name)))||
+  settings.filter==='all'||(settings.filter==='favorites'&&favoriteIds.has(p.id))||
   (settings.filter==='downloads'&&downloaded.has(p.id))
  ),settings.sort),[playlists,settings,favoriteIds])
  return <section className="sona-section-page sona-playlists-list">
@@ -193,9 +201,9 @@ export function SonaPlaylistsList(){
    <Link className="sona-section-playlist-tile" to={ROUTES.PLAYLIST.PAGE(p.id)} key={p.id}><SectionArt id={p.coverArt} name={p.name}/><span>{p.name}</span></Link>)}</div>:
    <div className="sona-section-playlist-list">{shown.map(p=>
     <div className="sona-section-playlist-row" key={p.id}>
-     <button type="button" className={'sona-section-star-toggle'+(favoriteIds.has(p.id)||/favorite/i.test(p.name)?' is-starred':'')}
+     <button type="button" className={'sona-section-star-toggle'+(favoriteIds.has(p.id)?' is-starred':'')}
       aria-label={(favoriteIds.has(p.id)?'Unfavorite ':'Favorite ')+p.name} onClick={()=>toggleFavorite(p.id)}>
-      <Star size={14} fill={favoriteIds.has(p.id)||/favorite/i.test(p.name)?'currentColor':'none'}/>
+      <Star size={14} fill={favoriteIds.has(p.id)?'currentColor':'none'}/>
      </button>
      <button type="button" className="sona-section-playlist-target" onClick={()=>navigate(ROUTES.PLAYLIST.PAGE(p.id))}>
       <SectionArt id={p.coverArt} name={p.name}/>

@@ -278,3 +278,20 @@
  .sona-section-album-list .sona-section-album-tile strong{grid-column:2;grid-row:1;font-size:14px}
  .sona-section-album-list .sona-section-album-tile>span:last-child{grid-column:2;grid-row:2;font-size:12px}
 }
+
+@media(max-width:767px){
+ /* Crossfade the regular Library heading/account into each section toolbar. */
+ .sona-header>.flex,
+ .sona-header>.sona-header-title-slot{
+   opacity:1;
+   transition:opacity .23s cubic-bezier(.2,.8,.2,1),
+     visibility 0s linear 0s!important;
+ }
+ .sona-app-shell .sona-header.sona-header-section-view>.flex,
+ .sona-app-shell .sona-header.sona-header-section-view>.sona-header-title-slot{
+   display:flex!important;
+   opacity:0!important;visibility:hidden!important;pointer-events:none!important;
+   transition:opacity .23s cubic-bezier(.2,.8,.2,1),
+     visibility 0s linear .23s!important
+ }
+}

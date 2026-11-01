@@ -64,7 +64,7 @@ export function Header() {
 
   return (
     <header className={'sona-header w-full grid grid-cols-[auto_minmax(0,1fr)_auto] md:grid-cols-header h-header px-3 md:px-4 fixed top-0 right-0 left-0 z-20 bg-background border-b electron-drag' + (isMobileDetail ? ' sona-header-detail-view' : '') + (isSectionView ? ' sona-header-section-view' : '') + (albumId ? ' sona-header-album-view' : '')}>
-      {isSectionView&&<SonaSectionHeader/>}
+      {isSectionView&&<SonaSectionHeader key={pathname}/>}
       {isMobileDetail && <button className="sona-album-header-back md:hidden"
         type="button" aria-label="Back to music"
         onClick={() => albumId ? closeSonaAlbumToCover(navigate, albumId) : navigate(-1)}>
