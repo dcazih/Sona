@@ -10,7 +10,7 @@ type Filter = 'all' | 'favorites' | 'downloads'
 export type SectionSettings = { view: View; sort: Sort; filter: Filter }
 export const defaultSettings: SectionSettings = { view:'list', sort:'title', filter:'all' }
 export function getSectionSettings(path: string): SectionSettings {
- const initial = { ...defaultSettings, view: /^\\/library\\/genres\\/[^/]+$/.test(path) ? 'grid' as const : 'list' as const }
+ const initial: SectionSettings = { ...defaultSettings, view: path.startsWith('/library/genres/') ? 'grid' : 'list' }
  try {
   const parsed = JSON.parse(localStorage.getItem('sona-section-settings:'+path) || 'null')
   return { ...initial, ...parsed }
