@@ -13,7 +13,7 @@ import { isLinux, isMacOS, isWindows } from '@/utils/desktop'
 
 export function Header() {
   const { isFullscreen } = useAppWindow()
-  const { pathname, search } = useLocation()
+  const { pathname } = useLocation()
   const navigate = useNavigate()
   const isLibraryTab = pathname === '/mobile-library'
   const isRequestTab = pathname === '/mobile-request'

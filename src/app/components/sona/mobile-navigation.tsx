@@ -28,7 +28,7 @@ type Swipe = { pointerId: number; startX: number; startY: number; moved: boolean
 
 export function SonaMobileNavigation() {
   const navigate = useNavigate()
-  const { pathname, search } = useLocation()
+  const { pathname } = useLocation()
   const isSearch = pathname === '/mobile-search'
   const inputRef = useRef<HTMLInputElement>(null)
   const navRef = useRef<HTMLElement>(null)
