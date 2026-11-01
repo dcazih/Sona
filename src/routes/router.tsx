@@ -26,6 +26,7 @@ import { loginLoader } from '@/routes/loginLoader'
 import { podcastsLoader, protectedLoader } from '@/routes/protectedLoader'
 import { ROUTES } from '@/routes/routesList'
 import Home from '@/app/pages/home'
+import ErrorPage from '@/app/pages/error-page'
 import SonaMobileLibrary from '@/app/components/sona/mobile-library'
 import SonaMobileSearch from '@/app/components/sona/mobile-search'
 import SonaMobileNew from '@/app/components/sona/mobile-new'
@@ -37,7 +38,7 @@ const Album = lazy(() => import('@/app/pages/albums/album'))
 const AlbumsList = lazy(() => import('@/app/pages/albums/list'))
 const Artist = lazy(() => import('@/app/pages/artists/artist'))
 const ArtistsList = lazy(() => import('@/app/pages/artists/list'))
-const ErrorPage = lazy(() => import('@/app/pages/error-page'))
+
 const Favorites = lazy(() => import('@/app/pages/favorites/songlist'))
 const Login = lazy(() => import('@/app/pages/login'))
 const PlaylistsPage = lazy(() => import('@/app/pages/playlists/list'))
@@ -57,7 +58,7 @@ const LatestEpisodes = lazy(
 export const router = createHashRouter([
   {
     path: ROUTES.LIBRARY.HOME,
-    element: <BaseLayout />,
+    element: <Suspense fallback={<HomeFallback />}><BaseLayout /></Suspense>,
     loader: protectedLoader,
     shouldRevalidate: () => false,
     children: [
