@@ -70,10 +70,17 @@
 }
 
 @media(max-width:767px){
- .sona-now-overlay .sona-now-panel{translate:0 27px;}
+ .sona-now-overlay .sona-now-panel{translate:0 39px;}
  .sona-now-control-stack{display:grid;gap:19px;margin-top:8px;margin-bottom:9px;}
  .sona-now-overlay .sona-now-control-stack>.sona-now-progress,
  .sona-now-overlay .sona-now-control-stack>.sona-now-transport,
  .sona-now-overlay .sona-now-control-stack>.sona-now-volume{margin:0!important;}
  .sona-player-track{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none;}
+}
+
+@media(max-width:767px){
+ /* Song times sit beneath the seek bar. Compensate so both visible tracks
+    have the same distance to the transport center, without lowering the footer. */
+ .sona-now-overlay .sona-now-control-stack>.sona-now-volume{margin-top:12px!important;}
+ .sona-now-overlay .sona-now-bottom-actions{translate:0 -12px;}
 }

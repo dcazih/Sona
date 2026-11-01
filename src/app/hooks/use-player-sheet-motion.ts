@@ -12,6 +12,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
   const coverGhost = useRef<HTMLDivElement | null>(null)
   const cleanupExtras = useRef<() => void>(() => {})
   const distance = useRef(0)
+  const lastCorners = useRef('')
   const dragShape = useRef({ x: 0, sx: 1, sy: 1 })
   const onClosedRef = useRef(onClosed)
   onClosedRef.current = onClosed
@@ -26,7 +27,10 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     sheet.style.transform = `translate3d(${x}px,${distance.current}px,0) scale(${sx},${sy})`
     const radius = playerDragRadius(distance.current)
     const corners = `${(radius / sx).toFixed(1)}px ${(radius / sx).toFixed(1)}px 0 0 / ${(radius / sy).toFixed(1)}px ${(radius / sy).toFixed(1)}px 0 0`
-    if (sheet.style.borderRadius !== corners) sheet.style.borderRadius = corners
+    if (lastCorners.current !== corners) {
+      sheet.style.borderRadius = corners
+      lastCorners.current = corners
+    }
     sheet.style.opacity = '1'
   }
 
@@ -237,6 +241,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     if (!sheet) return
     // A grab can interrupt an opening/snap-back animation. Preserve its
     // current visual position instead of jumping to the old target.
+    lastCorners.current = ''
     const rect = sheet.getBoundingClientRect()
     const matrix = new DOMMatrixReadOnly(getComputedStyle(sheet).transform)
     dragShape.current = { x: matrix.e, sx: Math.max(.01, matrix.a), sy: Math.max(.01, matrix.d) }

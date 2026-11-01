@@ -38,7 +38,7 @@ export function SonaMobileAlbumTracks({ album, showHeading = true, sourceType = 
                 play(index)
               }}>
               <span className="sona-album-song-index">
-                {active ? <SonaNoteGlyph size={20}/> : (song.track || index + 1)}
+                {active ? <SonaNoteGlyph size={20}/> : (sourceType === 'favourite' ? index + 1 : song.track || index + 1)}
               </span>
               <div className="sona-album-song-main">
                 <button type="button" className="sona-album-song-title"

@@ -225,6 +225,7 @@ describe('Mobile player sheet motion', () => {
       const panel=$panel[0],doc=panel.ownerDocument
       const baseline=panel.cloneNode(true) as HTMLElement
       Object.assign(baseline.style,{position:'fixed',bottom:'0',left:'0',width:'100%',visibility:'hidden',translate:'0 0',transform:'none'})
+      baseline.querySelector<HTMLElement>('.sona-now-bottom-actions')!.style.translate='0 0'
       const stack=baseline.querySelector('.sona-now-control-stack')!
       stack.replaceWith(...Array.from(stack.childNodes))
       const oldProgress=baseline.querySelector<HTMLElement>('.sona-now-progress')!
@@ -242,10 +243,29 @@ describe('Mobile player sheet motion', () => {
         const transport=panel.querySelector('.sona-now-transport')!.getBoundingClientRect()
         const volume=panel.querySelector('.sona-now-volume')!.getBoundingClientRect()
         expect(transport.top-progress.bottom).to.be.closeTo(19,1)
-        expect(volume.top-transport.bottom).to.be.closeTo(19,1)
+        expect(volume.top-transport.bottom).to.be.closeTo(31,1)
+        const songTrack=panel.querySelector('.sona-scrubber-track')!.getBoundingClientRect()
+        const volumeTrack=panel.querySelector('.sona-volume-track')!.getBoundingClientRect()
+        const center=transport.top+transport.height/2
+        expect(center-(songTrack.top+songTrack.height/2)).to.be.closeTo(volumeTrack.top+volumeTrack.height/2-center,1)
       }finally{baseline.remove()}
       expect(doc.querySelectorAll('.sona-now-panel')).to.have.length(1)
     })
+  })
+
+  it('allows an upward start to reverse smoothly into a downward held drag',()=>{
+    mountPlayer()
+    cy.get('.sona-player-track').click()
+    cy.get('.sona-now-overlay').should('have.attr','data-phase','open').then($sheet=>cy.stub($sheet[0],'setPointerCapture'))
+    cy.get('.sona-now-overlay').trigger('pointerdown',{eventConstructor:'PointerEvent',pointerId:1,isPrimary:true,button:0,clientX:180,clientY:120})
+      .trigger('pointermove',{eventConstructor:'PointerEvent',pointerId:1,clientX:182,clientY:95})
+    cy.get('.sona-now-overlay').should($sheet=>expect($sheet[0].getBoundingClientRect().top).to.be.closeTo(0,1))
+    cy.get('.sona-now-overlay').trigger('pointermove',{eventConstructor:'PointerEvent',pointerId:1,clientX:183,clientY:320})
+      .should($sheet=>expect($sheet[0].getBoundingClientRect().top).to.be.closeTo(200,2))
+      .trigger('pointermove',{eventConstructor:'PointerEvent',pointerId:1,clientX:181,clientY:145})
+      .should($sheet=>expect($sheet[0].getBoundingClientRect().top).to.be.closeTo(25,2))
+      .trigger('pointerup',{eventConstructor:'PointerEvent',pointerId:1,clientX:181,clientY:145})
+    cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
   })
 
 })

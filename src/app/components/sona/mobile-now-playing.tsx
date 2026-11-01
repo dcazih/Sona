@@ -23,7 +23,7 @@ import {
 } from '@/store/player.store'
 
 type View = 'playing' | 'lyrics' | 'queue'
-type Gesture = { id: number; x: number; y: number; previousY: number; time: number; velocity: number; axis: 'x' | 'y' | null; base: number }
+type Gesture = { id: number; x: number; y: number; previousY: number; time: number; velocity: number; axis: 'x' | 'y' | null; base: number; notchRestored:boolean }
 
 export function SonaMobileNowPlaying() {
   const { isFullscreen, setIsFullscreen } = usePlayerFullscreen()
@@ -119,7 +119,7 @@ export function SonaMobileNowPlaying() {
     if ((event.target as Element).closest('.sona-queue-scroller, .sona-now-lyrics, .sona-mobile-scrubber, .sona-volume-slider, [role="slider"], input, button:not(.sona-now-drag-handle), a')) return
     suppressClick.current = false
     gesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY,
-      previousY: event.clientY, time: performance.now(), velocity: 0, axis: null, base: 0 }
+      previousY: event.clientY, time: performance.now(), velocity: 0, axis: null, base: 0, notchRestored:false }
   }
 
   function moveSwipe(event: globalThis.PointerEvent) {
@@ -129,9 +129,10 @@ export function SonaMobileNowPlaying() {
     const point = samples?.[samples.length - 1] || event
     const dx = point.clientX - start.x
     const dy = point.clientY - start.y
-    if (dy > 0 && start.axis !== 'y') restoreNotchImmediately()
+    if (dy > 0 && !start.notchRestored) {restoreNotchImmediately();start.notchRestored=true}
     if (!start.axis && Math.max(Math.abs(dx), Math.abs(dy)) > 4) {
-      start.axis = dy > 0 && dy > Math.abs(dx) * 1.15 ? 'y' : 'x'
+      if (Math.abs(dy) >= Math.abs(dx) * .8) start.axis = 'y'
+      else if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.5) start.axis = 'x'
       if (start.axis === 'y') {
         artTouchX.current = null
         motion.begin()
