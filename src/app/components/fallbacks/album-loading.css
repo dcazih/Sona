@@ -1,0 +1,12 @@
+@media (max-width: 767px) {
+  .sona-album-loading .sona-mobile-album-cover { height: auto !important; border-radius: 13px; }
+  .sona-album-loading .sona-album-song-main { display: flex; align-items: center; min-height: 34px; }
+  .sona-album-loading .sona-album-song-more { display: grid; place-items: center; }
+}
+html[data-sona-album-morph="active"] .sona-mobile-album-cover { visibility: hidden; }
+@media (max-width: 767px) {
+  .sona-album-loading .sona-mobile-album-kicker > div { height: 1.5em; }
+  .sona-album-loading .sona-mobile-album-details h1 > div { height: 1.14em; }
+  .sona-album-loading .sona-mobile-album-artist > div,
+  .sona-album-loading .sona-mobile-album-facts > div { height: 1.5em; }
+}

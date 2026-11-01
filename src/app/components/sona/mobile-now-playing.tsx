@@ -1,6 +1,6 @@
 import { Airplay, ListMusic } from 'lucide-react'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
-import { type CSSProperties, type TouchEvent, useEffect, useRef, useState } from 'react'
+import { type PointerEvent, type TouchEvent, useEffect, useRef, useState } from 'react'
 import { ImageLoader } from '@/app/components/image-loader'
 import { SonaMobileTransport } from '@/app/components/sona/mobile-transport'
 import { LikeButton } from '@/app/components/fullscreen/like-button'
@@ -8,6 +8,8 @@ import { LyricsTab } from '@/app/components/fullscreen/lyrics'
 import { SonaMobileProgress } from '@/app/components/sona/mobile-progress'
 import { SonaMobileVolume } from '@/app/components/sona/mobile-volume'
 import { SonaMobileQueue } from '@/app/components/sona/mobile-queue'
+import { usePlayerSheetMotion } from '@/app/hooks/use-player-sheet-motion'
+import './player-sheet.css'
 import { useSonaAmbient } from '@/app/hooks/use-sona-ambient'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/routes/routesList'
@@ -19,7 +21,7 @@ import {
 } from '@/store/player.store'
 
 type View = 'playing' | 'lyrics' | 'queue'
-type Gesture = { x: number; y: number }
+type Gesture = { id: number; x: number; y: number; previousY: number; time: number; velocity: number; axis: 'x' | 'y' | null; base: number }
 
 export function SonaMobileNowPlaying() {
   const { isFullscreen, setIsFullscreen } = usePlayerFullscreen()
@@ -29,9 +31,9 @@ export function SonaMobileNowPlaying() {
   const { playPrevSong, playNextSong } = usePlayerActions()
   const [view, setView] = useState<View>('playing')
   const [supportsAirplay, setSupportsAirplay] = useState(false)
-  const [dragY, setDragY] = useState(0)
-  const lastDrag = useRef(0)
+  const motion = usePlayerSheetMotion(isFullscreen, () => setView('playing'))
   const gesture = useRef<Gesture | null>(null)
+  const suppressClick = useRef(false)
   const artTouchX = useRef<number | null>(null)
 
   useEffect(() => {
@@ -64,7 +66,7 @@ export function SonaMobileNowPlaying() {
     const root = document.documentElement
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
     if (isFullscreen) {
-      applyPlayerNotch()
+      if (motion.ref.current?.dataset.phase !== 'dragging') applyPlayerNotch()
       return
     }
     if (root.dataset.sonaNotchOwner !== 'player') return
@@ -93,14 +95,6 @@ export function SonaMobileNowPlaying() {
 
 
   useEffect(() => {
-    if (!isFullscreen) {
-      setView('playing')
-      setDragY(0)
-      lastDrag.current = 0
-    }
-  }, [isFullscreen])
-
-  useEffect(() => {
     if (!isFullscreen) return
     const previousOverflow = document.body.style.overflow
     const previousOverscroll = document.body.style.overscrollBehaviorY
@@ -117,64 +111,68 @@ export function SonaMobileNowPlaying() {
     }
   }, [isFullscreen, setIsFullscreen])
 
-  function beginSwipe(event: TouchEvent<HTMLElement>) {
-    if (!isFullscreen) return
-    if ((event.target as Element).closest('.sona-queue-scroller, .sona-now-lyrics, [role="slider"], input')) return
-    gesture.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }
+  function beginSwipe(event: PointerEvent<HTMLDivElement>) {
+    if (!isFullscreen || !event.isPrimary || event.button !== 0) return
+    if ((event.target as Element).closest('.sona-queue-scroller, .sona-now-lyrics, [role="slider"], input, button:not(.sona-now-drag-handle), a')) return
+    suppressClick.current = false
+    gesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY,
+      previousY: event.clientY, time: performance.now(), velocity: 0, axis: null, base: 0 }
   }
 
-  function moveSwipe(event: TouchEvent<HTMLElement>) {
+  function moveSwipe(event: PointerEvent<HTMLDivElement>) {
     const start = gesture.current
-    if (!start) return
-    const dx = event.touches[0].clientX - start.x
-    const dy = event.touches[0].clientY - start.y
-
-    // iOS paints the notch from the theme color independently of the sheet.
-    // Restore the page color on the first downward pixel so it changes with
-    // the finger instead of waiting for the drag direction or close threshold.
-    if (dy > 0 && lastDrag.current === 0) restoreNotchImmediately()
-
-    if (dy > 0 && dy > Math.abs(dx) * 1.15) {
-      // Progressive resistance keeps the drawer attached to the fingertip
-      // while avoiding a sudden snap near the bottom of the screen.
-      const travel = Math.min(dy, window.innerHeight)
-      const resistance = 1 - 0.24 * Math.min(1, travel / window.innerHeight)
-      const offset = travel * resistance
-      lastDrag.current = offset
-      setDragY(offset)
-      if (event.cancelable) event.preventDefault()
-    } else if (lastDrag.current !== 0 && dy <= 0) {
-      lastDrag.current = 0
-      setDragY(0)
+    if (!start || event.pointerId !== start.id) return
+    const dx = event.clientX - start.x
+    const dy = event.clientY - start.y
+    if (dy > 0 && start.axis !== 'y') restoreNotchImmediately()
+    if (!start.axis && Math.max(Math.abs(dx), Math.abs(dy)) > 4) {
+      start.axis = dy > 0 && dy > Math.abs(dx) * 1.15 ? 'y' : 'x'
+      if (start.axis === 'y') {
+        artTouchX.current = null
+        motion.begin()
+        start.base = motion.distance.current
+        event.currentTarget.setPointerCapture(event.pointerId)
+      }
     }
+    if (start.axis !== 'y') return
+    suppressClick.current = true
+    const now = performance.now()
+    start.velocity = (event.clientY - start.previousY) / Math.max(1, now - start.time)
+    start.previousY = event.clientY
+    start.time = now
+    // Follow every pixel, including the entire trip to the bottom. No resistance.
+    motion.move(start.base + dy)
   }
 
-  function endSwipe(event: TouchEvent<HTMLElement>) {
+  function endSwipe(event: PointerEvent<HTMLDivElement>) {
     const start = gesture.current
     gesture.current = null
-    if (!start) return
-    const dx = event.changedTouches[0].clientX - start.x
-    const dy = event.changedTouches[0].clientY - start.y
-    lastDrag.current = 0
-    setDragY(0)
-    if (dy > 112 && dy > Math.abs(dx) * 1.15) {
+    if (!start || start.id !== event.pointerId || start.axis !== 'y') return
+    motion.flush()
+    const fast = performance.now() - start.time < 100 && start.velocity > .65
+    if (motion.distance.current > 112 || (fast && motion.distance.current > 30)) {
+      restoreNotchImmediately()
       setIsFullscreen(false)
-    } else if (isFullscreen) {
+    } else {
+      motion.settle()
       applyPlayerNotch()
     }
   }
 
   function cancelSwipe() {
+    const vertical = gesture.current?.axis === 'y'
     gesture.current = null
-    lastDrag.current = 0
-    setDragY(0)
-    if (isFullscreen) applyPlayerNotch()
+    if (vertical && isFullscreen) {
+      motion.flush()
+      motion.settle()
+      applyPlayerNotch()
+    }
   }
 
   function endArtworkSwipe(event: TouchEvent<HTMLDivElement>) {
     if (artTouchX.current === null) return
     const distance = event.changedTouches[0].clientX - artTouchX.current
-    if (Math.abs(distance) > 85 && dragY === 0) {
+    if (Math.abs(distance) > 85 && gesture.current?.axis !== 'y') {
       if (distance < 0) playNextSong()
       else playPrevSong()
     }
@@ -184,20 +182,28 @@ export function SonaMobileNowPlaying() {
   return (
     <>
     <div
-      className={'sona-now-overlay ' + (isFullscreen ? 'is-open' : '') + (dragY > 0 ? ' is-dragging' : '')}
+      ref={motion.ref}
+      className={'sona-now-overlay ' + (isFullscreen ? 'is-open' : '')}
       role="dialog"
       aria-modal={isFullscreen ? 'true' : undefined}
       aria-hidden={!isFullscreen}
       aria-label="Now Playing"
-      onTouchStart={beginSwipe}
-      onTouchMove={moveSwipe}
-      onTouchEnd={endSwipe}
-      onTouchCancel={cancelSwipe}
-      style={{
-        ...ambientStyle,
-        '--sona-drag-y': String(dragY) + 'px',
-        '--sona-drag-progress': String(Math.min(1, dragY / 155)),
-      } as CSSProperties}
+      onPointerDown={beginSwipe}
+      onPointerMove={moveSwipe}
+      onPointerUp={endSwipe}
+      onPointerCancel={cancelSwipe}
+      onLostPointerCapture={(event) => {
+        if (event.target === event.currentTarget &&
+          !event.currentTarget.hasPointerCapture(event.pointerId) &&
+          gesture.current?.id === event.pointerId) cancelSwipe()
+      }}
+      onClickCapture={(event) => {
+        if (!suppressClick.current) return
+        suppressClick.current = false
+        event.preventDefault()
+        event.stopPropagation()
+      }}
+      style={ambientStyle}
     >
       <div className="sona-now-background" />
       <div className="sona-now-top">

@@ -52,6 +52,7 @@ const MemoMiniPlayerButton = memo(MiniPlayerButton)
 
 export function Player() {
   const ambientStyle = useSonaAmbient()
+  const pressAnimation = useRef<Animation | null>(null)
   const swipeStart = useRef<{ x: number; y: number } | null>(null)
   const hideFavoritesSection = useAppStore().pages.hideFavoritesSection
   const { setIsFullscreen } = usePlayerFullscreen()
@@ -215,8 +216,26 @@ export function Player() {
     return { gain: trackGain, peak: trackPeak, preAmp }
   }, [song, replayGainDefaultGain, replayGainPreAmp, replayGainType])
 
+  function pressFeedback(element: HTMLElement, pressed: boolean) {
+    const from = getComputedStyle(element).scale
+    pressAnimation.current?.cancel()
+    const scale = pressed ? '1.025' : '1'
+    element.style.scale = scale
+    pressAnimation.current = element.animate([
+      { scale: from === 'none' ? '1' : from }, { scale },
+    ], { duration: 130, easing: 'cubic-bezier(.2,.8,.2,1)' })
+  }
+
   return (
     <footer data-mobile-active={Boolean(song || radio || podcast)} style={ambientStyle}
+      onPointerDown={(event) => {
+        if (window.innerWidth >= 768 || !(song || radio || podcast)) return
+        if ((event.target as Element).closest('button, [role="slider"]')) return
+        pressFeedback(event.currentTarget, true)
+      }}
+      onPointerUp={(event) => { pressFeedback(event.currentTarget, false) }}
+      onPointerCancel={(event) => { pressFeedback(event.currentTarget, false) }}
+      onPointerLeave={(event) => { pressFeedback(event.currentTarget, false) }}
       onTouchStart={(event) => { if (window.innerWidth < 768) swipeStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY } }}
       onTouchEnd={(event) => {
         const start = swipeStart.current

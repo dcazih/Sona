@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/app/hooks/use-mobile'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { AlbumComment } from '@/app/components/album/comment'
@@ -28,6 +29,7 @@ import { sortRecentAlbums } from '@/utils/album'
 import { convertSecondsToHumanRead } from '@/utils/convertSecondsToTime'
 
 export default function Album() {
+  const isMobile = useIsMobile()
   const { albumId } = useParams() as { albumId: string }
   const { setSongList } = usePlayerActions()
   const { t } = useTranslation()
@@ -51,7 +53,7 @@ export default function Album() {
   }
   if (!album) return <AlbumFallback />
 
-  const columns = songsColumns()
+  const columns = isMobile ? [] : songsColumns()
 
   const albumDuration = album.duration
     ? convertSecondsToHumanRead(album.duration)
@@ -118,9 +120,9 @@ export default function Album() {
 
   return (
     <div className="sona-album-page w-full relative">
-      <AlbumStickyHeader album={album} />
+      {!isMobile && <AlbumStickyHeader album={album} />}
 
-      <div className="hidden md:block"><ImageHeader
+      {!isMobile && <div className="hidden md:block"><ImageHeader
         type={t('album.headline')}
         title={album.name}
         subtitle={album.artist}
@@ -133,14 +135,14 @@ export default function Album() {
         animatedArtworkArtist={album.artist}
         animatedArtworkAlbum={album.name}
         badges={badges}
-      /></div>
-      <div className="md:hidden"><SonaMobileAlbumHero album={album} /></div>
+      /></div>}
+      {isMobile && <div className="md:hidden"><SonaMobileAlbumHero album={album} /></div>}
 
       <ListWrapper>
-        <div className="hidden md:block"><AlbumInfo album={album} /></div>
+        {!isMobile && <div className="hidden md:block"><AlbumInfo album={album} /></div>}
 
-        <div className="md:hidden"><SonaMobileAlbumTracks album={album} /></div>
-        <div className="hidden md:block"><DataTable
+        {isMobile && <div className="md:hidden"><SonaMobileAlbumTracks album={album} /></div>}
+        {!isMobile && <div className="hidden md:block"><DataTable
           columns={columns}
           data={album.song}
           handlePlaySong={(row) =>
@@ -154,7 +156,7 @@ export default function Album() {
           showDiscNumber={true}
           variant="modern"
           enableVirtualization={true}
-        /></div>
+        /></div>}
 
         {albumComment && <AlbumComment comment={albumComment} />}
 

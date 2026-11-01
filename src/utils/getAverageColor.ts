@@ -1,10 +1,14 @@
-import { FastAverageColor } from 'fast-average-color'
+import { FastAverageColor, type FastAverageColorResult } from 'fast-average-color'
 
-export async function getAverageColor(img: HTMLImageElement | null) {
-  const fac = new FastAverageColor()
+const fac = new FastAverageColor()
+const coverColors = new Map<string, Promise<FastAverageColorResult>>()
 
-  return await fac.getColorAsync(img, {
-    mode: 'precision',
+export function getAverageColor(img: HTMLImageElement | null) {
+  const key = img?.currentSrc || img?.src || ''
+  const cached = key ? coverColors.get(key) : undefined
+  if (cached) return cached
+  const result = fac.getColorAsync(img, {
+    mode: 'speed',
     algorithm: 'dominant',
     ignoredColor: [
       [255, 255, 255, 255, 90], // White
@@ -17,6 +21,14 @@ export async function getAverageColor(img: HTMLImageElement | null) {
     // if the image only contains ignored colors, returns the primary color instead.
     defaultColor: [16, 183, 127, 1],
   })
+  if (key) {
+    coverColors.set(key, result)
+    if (coverColors.size > 96) coverColors.delete(coverColors.keys().next().value!)
+    result.then(color => {
+      if (color.error) coverColors.delete(key)
+    }, () => coverColors.delete(key))
+  }
+  return result
 }
 
 export function hexToRgb(hex: string) {

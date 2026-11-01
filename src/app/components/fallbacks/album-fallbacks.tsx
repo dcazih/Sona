@@ -1,3 +1,5 @@
+import { useIsMobile } from '@/app/hooks/use-mobile'
+import './album-loading.css'
 import { ImageHeaderEffect } from '@/app/components/album/header-effect'
 import { TableFallback } from '@/app/components/fallbacks/table-fallbacks'
 import { ShadowHeaderFallback } from '@/app/components/fallbacks/ui-fallbacks'
@@ -39,6 +41,8 @@ export function PlayButtonsFallback() {
 }
 
 export function AlbumFallback() {
+  const isMobile = useIsMobile()
+  if (isMobile) return <MobileAlbumLoading />
   return (
     <div className="w-full">
       <div className="relative">
@@ -76,5 +80,43 @@ function GridFallback() {
         </div>
       ))}
     </MainGrid>
+  )
+}
+
+/** Uses the loaded mobile hero and track-row geometry, without desktop columns. */
+export function MobileAlbumLoading() {
+  return (
+    <div className="sona-album-page sona-album-loading w-full relative" role="status" aria-label="Loading album" aria-busy="true">
+      <section className="sona-mobile-album-hero" aria-hidden="true">
+        <Skeleton className="sona-mobile-album-cover" />
+        <div className="sona-mobile-album-details">
+          <p className="sona-mobile-album-kicker"><Skeleton className="h-3 w-12" /></p>
+          <h1><Skeleton className="h-8 w-64 max-w-full" /></h1>
+          <div className="sona-mobile-album-artist"><Skeleton className="h-5 w-40" /></div>
+          <p className="sona-mobile-album-facts"><Skeleton className="h-[18px] w-52" /></p>
+        </div>
+        <div className="sona-mobile-album-actions">
+          <Skeleton className="sona-mobile-album-round" />
+          <Skeleton className="sona-mobile-album-play" />
+          <Skeleton className="sona-mobile-album-round" />
+        </div>
+      </section>
+      <ListWrapper aria-hidden="true">
+        <section className="sona-album-songs">
+          <div className="sona-album-songs-heading"><Skeleton className="h-5 w-16" /><Skeleton className="h-3 w-12" /></div>
+          <div className="sona-album-songs-list">
+            {Array.from({ length: 8 }, (_, index) => (
+              <div className="sona-album-song-row" key={index}>
+                <span className="sona-album-song-index"><Skeleton className="h-3 w-3" /></span>
+                <div className="sona-album-song-main"><Skeleton className="h-[14px] w-3/4" /></div>
+                <span className="sona-album-song-duration"><Skeleton className="h-3 w-7" /></span>
+                <div className="sona-album-song-more"><Skeleton className="h-2 w-4" /></div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </ListWrapper>
+      <span className="sr-only">Loading album</span>
+    </div>
   )
 }

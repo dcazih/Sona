@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { AlbumGridCard } from '@/app/components/albums/album-grid-card'
 import { useMusicRail } from '@/app/hooks/use-music-rail'
 import '@/app/components/sona/music-rail.css'
@@ -21,7 +21,8 @@ export default function PreviewList({
   moreTitle,
   moreRoute,
 }: PreviewListProps) {
-  const rail = useMusicRail(Math.min(16, list.length))
+  const { pathname } = useLocation()
+  const rail = useMusicRail(Math.min(16, list.length), pathname + ':' + title)
   const { t } = useTranslation()
 
   moreTitle = moreTitle || t('generic.seeMore')

@@ -84,11 +84,8 @@
   .sona-library-quick{padding-top:28px;display:grid;gap:6px}
   .sona-library-quick-title{display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;margin:2px 0 7px}
   .sona-library-quick a{padding:12px 8px;display:flex;align-items:center;justify-content:space-between;color:#c4c4ca;border-bottom:1px solid #ffffff12;font-size:13px}
-
-  .sona-now-overlay{position:fixed;z-index:100;inset:0;display:flex;flex-direction:column;color:#f8f8fa;
-    background:#222228;isolation:isolate;overflow:hidden;height:100dvh;animation:sona-now-in .32s cubic-bezier(.2,.85,.2,1)}
   @keyframes sona-now-in{from{transform:translateY(100%)}to{transform:translateY(0)}}
-  .sona-now-background{position:absolute;inset:-90px;z-index:-1;pointer-events:none;
+  .sona-now-background{position:absolute;z-index:-1;pointer-events:none;
     background:radial-gradient(ellipse at 45% 2%,#8045569c,transparent 62%),linear-gradient(145deg,#292830,#18181b)}
   .sona-now-top{display:flex;align-items:center;justify-content:space-between;min-height:68px;
     padding:calc(env(safe-area-inset-top,0px) + 10px) 21px 8px;gap:16px}
@@ -205,9 +202,6 @@
   .sona-search-morph.is-expanded .sona-search-morph-field{grid-column:3;grid-row:1;min-width:0;opacity:.72;transition:opacity .28s ease .12s}
   .sona-search-morph.is-expanded.is-focused .sona-search-morph-field{opacity:1}
   /* Keep the mini-player stationary when search takes focus. */
-
-  .sona-now-overlay,.sona-now-overlay.is-open{border-radius:0!important;transition:transform .46s cubic-bezier(.2,.86,.2,1),opacity .28s ease,border-radius .24s cubic-bezier(.55,.055,.675,.19)!important}
-  .sona-now-overlay.is-dragging{border-radius:clamp(0px,calc(var(--sona-drag-progress,0) * 34px),34px)!important;transition:border-radius .14s cubic-bezier(.55,.055,.675,.19)!important;overflow:hidden!important}
 }
 @media (max-width:375px) {
   .sona-now-panel{padding-inline:20px}
@@ -220,7 +214,6 @@
   .sona-bottom-nav{display:none}
 }
 @media (prefers-reduced-motion: reduce) {
-  .sona-now-overlay{animation:none!important}
 }
 
 /* Mobile refinements: retain the Sona palette and remove desktop remnants. */
@@ -228,8 +221,7 @@
   :root { --sona-tab-height:calc(67px + env(safe-area-inset-bottom,0px)); }
   .sona-app-shell[data-sona-has-media="false"] { --player-height:var(--sona-tab-height); }
   .sona-app-shell[data-sona-has-media="true"] { --player-height:calc(145px + env(safe-area-inset-bottom,0px)); }
-  .sona-app-shell [data-sidebar="rail"],.sona-app-shell [data-slot="sidebar-rail"],
-  .sona-app-shell [data-slot="sidebar-gap"],.sona-app-shell [data-slot="sidebar-container"] {display:none!important}
+  .sona-app-shell [data-sidebar="rail"],.sona-app-shell [data-slot="sidebar-rail"],.sona-app-shell [data-slot="sidebar-gap"],.sona-app-shell [data-slot="sidebar-container"] {display:none!important}
   .sona-app-shell [data-slot="sidebar-wrapper"]{background:#171719!important}
   .sona-app-shell #main-scroll-area .sona-page-header {
     background:#202024!important;border-bottom:1px solid #ffffff16!important;
@@ -254,18 +246,6 @@
     border-color:#ffffff35!important;touch-action:pan-x;-webkit-user-select:none
   }
   .sona-player .sona-player-track{min-height:46px;touch-action:pan-x}
-  .sona-now-overlay {
-    visibility:hidden;pointer-events:none;opacity:0;transform:translate3d(0,100%,0);
-    touch-action:none;overscroll-behavior:none;
-    transition:transform .43s cubic-bezier(.33,.02,.24,1),opacity .32s ease-in,visibility 0s linear .43s;
-    animation:none!important;will-change:transform,opacity
-  }
-  .sona-now-overlay.is-open {
-    visibility:visible;pointer-events:auto;opacity:1;
-    transform:translate3d(0,var(--sona-drag-y,0px),0);
-    transition:transform .47s cubic-bezier(.19,1,.22,1),opacity .32s ease-out,visibility 0s
-  }
-  .sona-now-overlay.is-dragging {transition:none!important}
   .sona-now-background{pointer-events:none}
   .sona-now-top,.sona-now-art-area{touch-action:none}
   .sona-now-lyrics,.sona-queue-scroller{touch-action:pan-y;overscroll-behavior:contain}
@@ -273,7 +253,6 @@
   .sona-app-shell #main-scroll-area {overscroll-behavior-y:contain}
 }
 @media (prefers-reduced-motion:reduce) {
-  .sona-now-overlay,.sona-now-overlay.is-open{transition-duration:.01ms!important}
 }
 
 @media(max-width:767px){
@@ -485,8 +464,7 @@
   }
 }
 @media (prefers-reduced-motion:reduce){
-  .sona-am-search-page,.sona-am-in,.sona-search-dock,.sona-search-dock-field,
-  .sona-search-library-toggle{animation:none!important;transition-duration:.01ms!important}
+  .sona-am-search-page,.sona-am-in,.sona-search-dock,.sona-search-dock-field,.sona-search-library-toggle{animation:none!important;transition-duration:.01ms!important}
 }
 
 /* Sona mobile polish: content passes underneath a pinned translucent top bar;
@@ -880,21 +858,6 @@
   }
   .sona-now-art:after {display:none!important}
   .sona-now-panel {padding-top:10px!important}
-  .sona-now-overlay{
-    --sona-drag-progress:0;
-    border-radius:0!important;
-    overflow:hidden!important;
-    transform-origin:center top;
-  }
-  .sona-now-overlay.is-open {
-    border-radius:calc(48px * var(--sona-drag-progress))!important;
-    box-shadow:0 calc(16px * var(--sona-drag-progress)) 45px
-      rgba(0,0,0,calc(.35 * var(--sona-drag-progress)))!important;
-  }
-  .sona-now-overlay.is-dragging {
-    opacity:1!important;
-    transition:none!important;
-  }
   .sona-now-top .sona-now-dismiss,
   .sona-now-top .sona-now-label {
     opacity:clamp(0,calc(1 - (var(--sona-drag-progress) * 1.8)),1)!important;
@@ -927,12 +890,6 @@
 }
 
 @media(max-width:767px){
-  .sona-now-overlay.is-open{
-    transition:transform .47s cubic-bezier(.19,1,.22,1),
-      opacity .32s ease-out,visibility 0s,
-      border-radius .35s cubic-bezier(.25,1,.23,1)!important;
-  }
-  .sona-now-overlay.is-dragging{transition:none!important}
   .sona-now-drag-capsule{transform-origin:center!important}
 }
 
@@ -944,29 +901,7 @@
   initial-value: #755265;
 }
 @media (max-width:767px) {
-  .sona-now-overlay {
-    background: #19171c!important;
-    --sona-ambient-color: #755265;
-    transition:
-      transform .47s cubic-bezier(.19,1,.22,1),
-      opacity .32s ease-out,
-      visibility 0s,
-      border-radius .35s cubic-bezier(.25,1,.23,1),
-      --sona-ambient-color 1.15s cubic-bezier(.25,.1,.25,1)!important;
-  }
-  .sona-now-overlay.is-open {
-    transition:
-      transform .47s cubic-bezier(.19,1,.22,1),
-      opacity .32s ease-out,
-      visibility 0s,
-      border-radius .35s cubic-bezier(.25,1,.23,1),
-      --sona-ambient-color 1.15s cubic-bezier(.25,.1,.25,1)!important;
-  }
-  .sona-now-overlay.is-dragging {
-    transition:none!important;
-  }
   .sona-now-background {
-    inset:-45px!important;
     background:
       radial-gradient(ellipse 82% 52% at 42% 13%,
         color-mix(in srgb,var(--sona-ambient-color) 78%,#c47796) 0%,
@@ -982,11 +917,8 @@
         color-mix(in srgb,var(--sona-ambient-color) 48%,#1b1820) 0%,
         color-mix(in srgb,var(--sona-ambient-color) 16%,#17161b) 65%,
         #141419 100%)!important;
-    filter:blur(35px) saturate(1.25)!important;
-    transform:translateZ(0) scale(1.015);
     opacity:1!important;
     pointer-events:none!important;
-    will-change:background;
   }
   .sona-now-background:after {
     content:"";position:absolute;inset:0;
@@ -1026,7 +958,7 @@
   }
 }
 @media (prefers-reduced-motion:reduce){
-  .sona-now-overlay,.sona-now-overlay.is-open,.sona-player {
+  .sona-player {
     transition-duration:.01ms!important;
   }
 }
@@ -1044,7 +976,8 @@
     padding-bottom:0!important;
   }
   .sona-app-shell [data-slot="sidebar-inset"],
-  .sona-app-shell main,#main-scroll-area{
+  .sona-app-shell main,
+  #main-scroll-area{
     min-height:0!important;
   }
   .sona-app-shell #main-scroll-area #scroll-viewport>div{
@@ -1439,10 +1372,6 @@
     transition:opacity .16s ease!important;
     box-shadow:0 1px 9px #0004;
   }
-  .sona-now-overlay.is-dragging{
-    border-radius:clamp(10px,calc(10px + var(--sona-drag-progress) * 27px),38px)!important;
-    transition:border-radius .16s cubic-bezier(.2,1.08,.3,1)!important;
-  }
   .sona-now-stage{
     padding-top:45px!important;
   }
@@ -1462,8 +1391,7 @@
   .sona-transport button:active{transform:scale(.88)!important}
 }
 @media (prefers-reduced-motion:reduce){
-  .sona-search-morph,.sona-bottom-nav-split,
-  .sona-transport-icon,.sona-scrubber-track{
+  .sona-search-morph,.sona-bottom-nav-split,.sona-transport-icon,.sona-scrubber-track{
     transition-duration:.01ms!important;
   }
 }
@@ -1571,9 +1499,6 @@
     box-shadow:none!important;background:rgba(24,23,28,.24)!important;
     -webkit-backdrop-filter:blur(30px) saturate(1.4)!important;
     backdrop-filter:blur(30px) saturate(1.4)!important}
-  .sona-now-overlay{z-index:250!important;top:0!important;bottom:0!important;
-    height:100dvh!important;min-height:100dvh!important}
-  .sona-now-overlay.is-open{z-index:250!important}
   .sona-account-modal.is-open .sona-account-sheet{
     border-radius:33px 33px 0 0!important;
   }
@@ -1624,9 +1549,7 @@
   .sona-app-shell #main-scroll-area #scroll-viewport>div{
     padding-top:calc(var(--header-height) + env(safe-area-inset-top,0px))!important;
   }
-  .sona-now-overlay{inset:0!important;height:100dvh!important;
-    background:color-mix(in srgb,var(--sona-ambient-color) 15%,#16171b)!important}
-  .sona-now-background{inset:-70px!important}
+  .sona-now-background{}
   .sona-now-top{
     padding-top:calc(env(safe-area-inset-top,0px) + 9px)!important;
   }
@@ -1875,13 +1798,7 @@
     backdrop-filter:blur(30px);
   }
   .sona-now-overscroll-fill.is-active{visibility:visible}
-  .sona-now-overlay{
-    position:fixed!important;inset:0!important;
-    height:100dvh!important;min-height:100dvh!important;
-    z-index:250!important;
-    isolation:isolate!important;
-  }
-  .sona-now-background{min-height:calc(100dvh + 120px)!important}
+  .sona-now-background{}
 }
 
 /* Dedicated mobile album header. No oversized desktop hero/empty strip. */
@@ -1996,11 +1913,6 @@
 /* Scrolling and live page reveal: remove the moving-player underlay completely. */
 @media(max-width:767px){
   .sona-now-overscroll-fill{display:none!important}
-  .sona-now-overlay{
-    background:color-mix(in srgb,var(--sona-ambient-color,#755265) 20%,#18171d)!important;
-    will-change:transform!important;
-  }
-  .sona-now-overlay.is-dragging{box-shadow:0 -2px 42px #0006!important}
   .sona-now-stage{padding-bottom:42px!important}
   .sona-now-art{margin-bottom:0!important}
   .sona-now-panel{padding-top:20px!important}
@@ -2192,28 +2104,7 @@
   }
   .sona-mobile-album-back:active{transform:scale(.92)}
 }
-.sona-album-morph{
-  position:fixed;inset:0;overflow:hidden;z-index:2147482000;
-  pointer-events:none;isolation:isolate;
-}
-.sona-album-morph-surface{
-  position:fixed;overflow:hidden;background:#221d28;
-  box-shadow:0 16px 60px #0008;
-  will-change:top,left,width,height,border-radius,opacity;
-}
-.sona-album-morph-ambient{
-  position:absolute;inset:-45%;background-size:cover;background-position:center;
-  filter:blur(95px) saturate(.85) brightness(.63);
-  opacity:.82;
-}
-.sona-album-morph-artwork{
-  position:fixed;display:block;object-fit:cover;
-  background:#242329;border-radius:13px;
-  box-shadow:0 16px 40px #0008;overflow:hidden;
-  will-change:top,left,width,height;
-}
 @media(prefers-reduced-motion:reduce){
-  .sona-album-morph{display:none}
 }
 
 /* Loading layout is an exact footprint match to the real featured cards. */
@@ -2411,7 +2302,9 @@
 }
 @media(prefers-reduced-motion:reduce){
   .sona-search-morph.is-expanded,
-  .sona-am-in,.sona-am-live-results,.sona-search-page-veil{
+  .sona-am-in,
+  .sona-am-live-results,
+  .sona-search-page-veil{
     animation:none!important;transition-duration:.01ms!important
   }
 }
@@ -2495,7 +2388,6 @@
   .sona-mobile-artist-copy{text-align:center;width:100%}.sona-mobile-artist-copy p{font-size:10px;letter-spacing:.14em;color:#aaa5af;font-weight:800;margin:0 0 7px}.sona-mobile-artist-copy h1{font-size:clamp(29px,9vw,40px);font-weight:850;letter-spacing:-.06em;line-height:1.05;margin:0}.sona-mobile-artist-copy span{display:block;color:#aaa5af;font-size:13px;margin-top:10px}
   .sona-request-page{height:calc(100dvh - 64px);padding:12px 0 160px!important;display:flex;flex-direction:column;background:#171719;overflow:hidden}.sona-request-my{padding:8px 20px 14px;border-bottom:1px solid #ffffff1b;flex:none}.sona-request-my h1{margin:0;font-size:27px!important;font-weight:830;letter-spacing:-.05em}.sona-request-my p{margin:4px 0 0;color:#98949e;font-size:12px}.sona-request-portal{flex:1;min-height:480px;overflow:hidden;border:0;border-radius:0}.sona-request-portal iframe{display:block;width:100%;height:calc(100% + 148px);border:0;transform:translateY(-74px);background:#171719}
   .sona-search-morph.is-expanded{display:grid!important;grid-template-columns:42px 42px minmax(0,1fr)!important;gap:5px;isolation:isolate;background:transparent!important;border:0!important;backdrop-filter:none!important;box-shadow:none!important;opacity:.48;transform:scaleX(.97);transform-origin:right bottom;transition:transform .3s cubic-bezier(.2,.9,.2,1),opacity .22s ease!important}.sona-search-morph.is-expanded::before{content:"";position:absolute;z-index:-1;left:49px;right:0;top:0;bottom:0;border-radius:27px;background:rgba(28,27,33,.82);border:1px solid rgba(255,255,255,.17);backdrop-filter:blur(20px) saturate(1.45)}.sona-search-morph.is-expanded.is-focused{height:54px!important;opacity:1;transform:scaleX(1)}.sona-search-morph.is-expanded .sona-search-exit{grid-column:1;grid-row:1;background:rgba(38,34,40,.92)!important;border:1px solid #ffffff1c!important}.sona-search-morph.is-expanded .sona-search-orb{grid-column:2;grid-row:1}.sona-search-morph.is-expanded .sona-search-morph-field{grid-column:3;grid-row:1;min-width:0;opacity:.72}.sona-search-morph.is-expanded.is-focused .sona-search-morph-field{opacity:1}/* No player nudge on search focus. */
-  .sona-now-overlay,.sona-now-overlay.is-open{border-radius:0!important;transition:transform .46s cubic-bezier(.2,.86,.2,1),opacity .28s ease,border-radius .18s cubic-bezier(.22,1,.36,1)!important}.sona-now-overlay.is-dragging{border-radius:clamp(0px,calc(var(--sona-drag-progress,0) * 34px),34px)!important;transition:border-radius .16s cubic-bezier(.22,1,.36,1)!important;overflow:hidden!important}
 
   /* Mobile surfaces never expose browser scrollbars. */
   html,body,#root,.sona-app-shell,.sona-app-shell *{scrollbar-width:none!important}
@@ -2562,11 +2454,11 @@
   .sona-app-shell:has(.sona-header-album-view) #main-scroll-area,
   .sona-app-shell:has(.sona-header-album-view) #scroll-viewport,
   .sona-app-shell:has(.sona-header-album-view) #scroll-viewport>div,
-  .sona-mobile-album-hero,.sona-mobile-album-cover,.sona-mobile-album-details{
+  .sona-mobile-album-hero,
+  .sona-mobile-album-cover,
+  .sona-mobile-album-details{
     scroll-behavior:auto!important;transform:none!important;will-change:auto!important;
   }
-
-  .sona-now-overlay.is-dragging{transition:border-radius .16s cubic-bezier(.22,1,.36,1)!important}
   html:has(.sona-now-overlay.is-dragging),html:has(.sona-now-overlay.is-dragging) body,html:has(.sona-now-overlay.is-dragging) #root{transition:none!important}
   .sona-app-shell:has(.sona-now-overlay.is-dragging)::before{transition:none!important}
 }
@@ -2576,8 +2468,7 @@
   html,body,#root{min-height:100vh!important;background:#171719!important}
   .sona-app-shell{min-height:100vh!important;height:100vh!important;background:#171719!important}
   .sona-bottom-nav{bottom:0!important;padding-bottom:max(8px,env(safe-area-inset-bottom,0px))!important;background:#222228!important}
-  .sona-now-overlay{bottom:0!important;min-height:100vh!important;height:100vh!important}
-  .sona-now-background{bottom:calc(-90px - env(safe-area-inset-bottom,0px))!important}
+  .sona-now-background{}
 }
 
 /* Keep the floating navigation and expanded search at one iOS bottom baseline.
@@ -2907,19 +2798,11 @@
     background:var(--sona-notch-color,#000000)!important
   }
   /* Only the FULL-SCREEN Now Playing sheet is square. Never flatten the mini-player. */
-  .sona-app-shell .sona-now-overlay,
-  .sona-app-shell .sona-now-overlay.is-open,
-  .sona-app-shell .sona-now-overlay.is-dragging{
-    border-radius:0!important;overflow:hidden!important
-  }
   .sona-app-shell .sona-player[data-mobile-active="true"]{
     border-radius:33px!important;overflow:hidden!important
   }
   .sona-app-shell .sona-player[data-mobile-active="true"]::before{
     border-radius:inherit!important
-  }
-  .sona-app-shell .sona-now-overlay.is-dragging{
-    transition:border-radius 0s,transform .2s cubic-bezier(.22,1,.36,1)!important
   }
 }
 
@@ -2999,3 +2882,4 @@
   letter-spacing:-.015em;
   font-family:"Sona Jakarta",system-ui,-apple-system,sans-serif;
 }
+.sona-album-morph-artwork { position:fixed; z-index:2147482000; display:block; object-fit:cover; border-radius:13px; pointer-events:none; transform-origin:0 0; will-change:transform; }

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
-// Preserve the featured position when its route unmounts.
+// Preserve each list position when its route unmounts.
 const positions = new Map<string, number>()
 
 /** Native scrolling owns gestures; JS restores position and operates arrows. */
@@ -12,7 +12,10 @@ export function useMusicRail(itemCount: number, positionKey?: string) {
     const rail = ref.current
     if (!rail || !positionKey) return
     rail.scrollLeft = positions.get(positionKey) ?? 0
-    return () => { positions.set(positionKey, rail.scrollLeft) }
+    return () => {
+      positions.set(positionKey, rail.scrollLeft)
+      if (positions.size > 64) positions.delete(positions.keys().next().value!)
+    }
   }, [positionKey])
 
   useEffect(() => {

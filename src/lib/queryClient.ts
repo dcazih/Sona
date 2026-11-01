@@ -24,16 +24,31 @@ if (typeof window !== 'undefined') {
   } catch { /* storage can be unavailable in private browsing */ }
 
   let saveTimer = 0
+  let idleSave = 0
+  const save = () => {
+    // Serializing the persistent cache is main-thread work. Never let it
+    // interrupt a cover morph, player animation, or an active sheet drag.
+    if (document.documentElement.dataset.sonaAlbumMorph || document.querySelector(
+      '.sona-now-overlay[data-phase="opening"], .sona-now-overlay[data-phase="closing"], .sona-now-overlay[data-phase="dragging"]'
+    )) {
+      saveTimer = window.setTimeout(queueIdleSave, 500)
+      return
+    }
+    try {
+      const state = dehydrate(queryClient, {
+        shouldDehydrateQuery: (query) =>
+          query.state.status === 'success' && query.state.data !== undefined,
+      })
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ savedAt: Date.now(), state }))
+    } catch { /* quota and privacy failures should not block playback */ }
+  }
+  const queueIdleSave = () => {
+    if ('requestIdleCallback' in window) idleSave = window.requestIdleCallback(save, { timeout: 5000 })
+    else save()
+  }
   queryClient.getQueryCache().subscribe(() => {
     window.clearTimeout(saveTimer)
-    saveTimer = window.setTimeout(() => {
-      try {
-        const state = dehydrate(queryClient, {
-          shouldDehydrateQuery: (query) =>
-            query.state.status === 'success' && query.state.data !== undefined,
-        })
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ savedAt: Date.now(), state }))
-      } catch { /* quota and privacy failures should not block playback */ }
-    }, 1200)
+    if (idleSave && 'cancelIdleCallback' in window) window.cancelIdleCallback(idleSave)
+    saveTimer = window.setTimeout(queueIdleSave, 1200)
   })
 }
