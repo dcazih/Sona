@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowDownToLine, Check, ChevronRight, Disc3, Ellipsis, ListMusic, Mic2, Music2, Play, Search, Shuffle, Star, X } from 'lucide-react'
+import { ArrowDownToLine, Check, ChevronRight, Disc3, ListMusic, Mic2, Music2, Play, Search, Shuffle, Star, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -136,7 +136,7 @@ export function SonaGenreDetail(){
  async function play(shuffle:boolean){
   try {
    const tracks=await subsonic.genres.getSongsByGenre({genre})
-   if(tracks?.length)setSongList(tracks,0,shuffle,{id:genre,name:genre,type:'genre'})
+   if(tracks?.length)setSongList(tracks,0,shuffle,{id:genre,name:genre,type:'songs'})
    else toast.info('No songs in this genre')
   }catch{toast.error('Unable to play genre')}
  }

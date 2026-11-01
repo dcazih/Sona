@@ -1,0 +1,243 @@
+/* Library section pages: screenshot-matched iPhone layouts. Desktop untouched. */
+@media(max-width:767px){
+ .sona-app-shell:has(.sona-section-page) #main-scroll-area,
+ .sona-app-shell:has(.sona-section-page) #scroll-viewport,
+ .sona-app-shell:has(.sona-section-page) #scroll-viewport>div{
+   background:#000!important;background-image:none!important;
+ }
+ .sona-app-shell .sona-header.sona-header-section-view{
+   background:#000!important;
+   background-image:none!important;
+   height:calc(var(--header-height,44px) + env(safe-area-inset-top,0px))!important;
+   z-index:91!important;
+   transition:background .24s ease!important;
+ }
+ .sona-header-section-view>.flex,
+ .sona-header-section-view>.sona-header-title-slot,
+ .sona-header-section-view>.sona-album-header-back,
+ .sona-header-section-view>.sona-album-header-more{display:none!important}
+ .sona-section-toolbar{
+   position:absolute;inset:0 16px 0 16px;
+   display:flex;align-items:center;justify-content:space-between;
+   padding-top:env(safe-area-inset-top,0px);
+   box-sizing:border-box;z-index:3;
+   animation:sona-section-header-enter .25s cubic-bezier(.2,.8,.2,1) both
+ }
+ @keyframes sona-section-header-enter{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+ }
+ .sona-section-back,
+ .sona-section-tool{
+   width:48px;height:48px;border-radius:50%;
+   display:grid;place-items:center;
+   background:#191919;color:#fff;
+   border:1px solid #ffffff1b;
+   flex:none;
+   -webkit-tap-highlight-color:transparent;
+   transition:background .18s ease,color .18s ease,transform .18s cubic-bezier(.2,.8,.2,1)
+ }
+ .sona-section-back:active,.sona-section-tool:active{transform:scale(.94)}
+ .sona-section-tool.is-selected{background:#e94161;color:#171717}
+ .sona-section-tools{
+   display:flex;position:relative;align-items:center;justify-content:flex-end;
+   gap:0;border-radius:999px;
+ }
+ .sona-section-tools:has(> .sona-section-tool:nth-of-type(2)){
+   background:#1b1b1b;border:1px solid #ffffff1b;gap:0;padding:0 3px
+ }
+ .sona-section-tools:has(> .sona-section-tool:nth-of-type(2))>.sona-section-tool{
+   border:0;background:transparent;border-radius:50%;
+   width:42px;height:46px
+ }
+ .sona-section-tools:has(> .sona-section-tool:nth-of-type(2))>.sona-section-tool.is-selected{color:#f1496b}
+ .sona-section-menu{
+   position:absolute;right:0;top:calc(100% + 10px);
+   z-index:120;display:flex;flex-direction:column;
+   width:max-content;min-width:225px;max-width:calc(100vw - 44px);
+   padding:9px 8px;background:rgba(25,24,26,.97);
+   -webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);
+   border:1px solid rgba(255,255,255,.14);
+   border-radius:24px;
+   box-shadow:0 14px 42px #0009;
+   transform-origin:top right;
+   animation:sona-section-pop-in .22s cubic-bezier(.16,1,.3,1) both;
+ }
+ @keyframes sona-section-pop-in{
+   from{opacity:0;transform:translateY(-7px) scale(.955)}
+   to{opacity:1;transform:translateY(0) scale(1)}
+ }
+ .sona-section-menu-line{
+   display:flex;align-items:center;gap:11px;
+   padding:10px 13px;min-height:42px;
+   font-size:15px;font-weight:570;white-space:nowrap;
+   border-radius:12px;color:#fff;text-align:left;
+   transition:background .13s ease;
+ }
+ .sona-section-menu-line:active{background:#ffffff24}
+ .sona-section-menu-line svg{flex:none}
+ .sona-menu-tick{width:15px;height:18px;display:grid;place-items:center;flex:none}
+ .sona-section-menu-divider{height:1px;background:#ffffff19;margin:7px 8px}
+ .sona-section-page{
+   min-height:calc(100dvh - 140px);
+   padding:29px 18px calc(190px + env(safe-area-inset-bottom,0px))!important;
+   box-sizing:border-box;
+   color:#fdfdfd;background:#000!important;position:relative;
+ }
+ .sona-section-heading{
+   margin:0 0 22px!important;
+   font-weight:820!important;font-size:35px!important;
+   letter-spacing:-.055em!important;line-height:1.12!important;
+   color:#fff!important;
+ }
+ .sona-section-empty{color:#999;font-size:14px;margin:24px 0}
+ .sona-section-chevron{color:#57585a;flex:none;margin-left:auto}
+ .sona-section-artist-row,
+ .sona-section-playlist-target,
+ .sona-section-song-target{min-width:0;-webkit-tap-highlight-color:transparent}
+ .sona-section-indexed,.sona-section-song-indexed{position:relative;padding-right:17px}
+ .sona-section-group{scroll-margin-top:100px}
+ .sona-section-group>h2,.sona-section-song-group>h2{
+   color:#fafafa!important;font-size:16px!important;font-weight:750!important;
+   margin:32px 0 7px!important;letter-spacing:-.02em
+ }
+ .sona-section-artist-row{
+   width:100%;height:64px;display:flex;gap:13px;align-items:center;
+   text-align:left;position:relative;color:#fff;
+ }
+ .sona-section-artist-row:not(:last-child):after{
+   content:"";height:1px;background:#ffffff26;
+   position:absolute;bottom:0;left:65px;right:0
+ }
+ .sona-section-art{
+   position:relative;display:block;flex:none;
+   width:51px;height:51px;
+   border-radius:10px;overflow:hidden;
+   background:#29292b
+ }
+ .sona-section-art.is-circle{border-radius:50%}
+ .sona-section-art .sona-artwork-shell,
+ .sona-section-art .sona-artwork-managed,
+ .sona-section-art .sona-artwork-note-fallback{
+   position:absolute!important;inset:0!important;
+   display:grid;place-items:center;width:100%!important;height:100%!important;
+   border-radius:inherit!important;overflow:hidden!important;
+ }
+ .sona-section-art .sona-artwork-managed{object-fit:cover!important}
+ .sona-section-row-main{flex:1;min-width:0;color:#fff;font-size:15px;font-weight:600;line-height:1.3}
+ .sona-section-favorite-mark{
+   position:absolute;left:-14px;top:50%;transform:translateY(-50%);
+   color:#f04469
+ }
+ .sona-section-alphabet{
+   position:sticky;float:right;top:calc(20px + env(safe-area-inset-top,0px));
+   margin-right:-17px;margin-top:-180px;
+   width:16px;display:flex;flex-direction:column;align-items:center;
+   z-index:6;line-height:1;
+ }
+ .sona-section-alphabet button{
+   display:grid;place-items:center;width:19px;min-height:17px;
+   color:#f24669;font-weight:800;font-size:11px;
+ }
+ .sona-section-filter-search{
+   display:flex;align-items:center;gap:12px;padding:0 13px;
+   height:43px;border-radius:25px;background:#1e1e20;margin-bottom:16px;
+   color:white;
+ }
+ .sona-section-filter-search input{flex:1;min-width:0;background:transparent;color:#fff;border:0;outline:0;font-size:16px}
+ .sona-section-filter-search input::placeholder{color:#9b9a9e}
+ .sona-section-filter-search button{display:grid;place-items:center}
+ .sona-artists-list .sona-section-heading{margin-bottom:22px!important}
+ .sona-genres-list .sona-section-heading{margin-bottom:20px!important}
+ .sona-section-simple-list>a{
+   min-height:59px;display:flex;align-items:center;
+   border-bottom:1px solid #ffffff23;
+   color:#fff;text-decoration:none!important;
+   font-weight:600;font-size:16px;
+ }
+ .sona-section-play-actions{
+   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;
+   margin:18px 0 28px;
+ }
+ .sona-section-play-actions button{
+   display:flex;align-items:center;justify-content:center;gap:9px;
+   height:40px;border-radius:999px;
+   color:#f43d65;background:#1d1d1f;font-weight:760;font-size:16px;
+ }
+ .sona-section-album-grid,.sona-section-playlist-grid,.sona-section-song-grid{
+   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+   gap:20px 12px
+ }
+ .sona-section-album-tile,.sona-section-playlist-tile,.sona-section-song-grid>button{
+   display:flex;min-width:0;flex-direction:column;text-align:left;color:#fff;
+ }
+ .sona-section-album-tile .sona-section-art,
+ .sona-section-playlist-tile .sona-section-art,
+ .sona-section-song-grid .sona-section-art{
+   width:100%;height:auto;aspect-ratio:1;border-radius:9px;margin-bottom:7px
+ }
+ .sona-section-album-tile strong,.sona-section-song-grid strong,
+ .sona-section-playlist-tile span{
+   font-size:12px;font-weight:690;line-height:1.25;white-space:nowrap;
+   text-overflow:ellipsis;overflow:hidden;max-width:100%
+ }
+ .sona-section-album-tile>span:last-child,.sona-section-song-grid button>span:last-child{
+   font-size:12px;color:#8f8f95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+ }
+ .sona-section-playlist-list{display:flex;flex-direction:column}
+ .sona-section-playlist-row{position:relative;display:flex;align-items:center;min-height:76px}
+ .sona-section-star-toggle{
+   display:grid;place-items:center;flex:none;width:13px;align-self:stretch;
+   color:#ff466c;opacity:0;transition:opacity .17s
+ }
+ .sona-section-playlist-row:focus-within .sona-section-star-toggle,
+ .sona-section-playlist-row:hover .sona-section-star-toggle,
+ .sona-section-star-toggle.is-starred{opacity:1}
+ .sona-section-playlist-target{display:flex;align-items:center;gap:12px;flex:1;text-align:left;min-width:0;min-height:76px;position:relative}
+ .sona-section-playlist-target:after{content:"";position:absolute;bottom:0;left:67px;right:0;height:1px;background:#ffffff22}
+ .sona-section-playlist-target>.sona-section-art{width:60px;height:60px;border-radius:9px}
+ .sona-section-playlist-target>span:not(.sona-section-art){font-size:15px;font-weight:580;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .sona-section-playlist-detail{
+   margin:-29px 0 0!important;padding-top:50px!important;
+   background:linear-gradient(#c3b9ad 0%,#b6a99e 50%,#8a7f78 100%)!important;
+   color:#171311!important
+ }
+ .sona-app-shell:has(.sona-section-playlist-detail) #main-scroll-area,
+ .sona-app-shell:has(.sona-section-playlist-detail) #scroll-viewport,
+ .sona-app-shell:has(.sona-section-playlist-detail) #scroll-viewport>div{
+   background:#bdb1a6!important;background-image:none!important
+ }
+ .sona-section-playlist-hero{display:flex;align-items:center;flex-direction:column;margin-bottom:24px}
+ .sona-section-playlist-hero-art{width:min(67vw,290px);margin:0 auto 17px}
+ .sona-section-playlist-hero-art .sona-section-art{height:auto;aspect-ratio:1;width:100%;border-radius:14px}
+ .sona-section-playlist-hero h1{font-size:20px;font-weight:800;text-align:center;line-height:1.25}
+ .sona-section-playlist-hero p{font-size:16px;font-weight:650;margin:2px 0 14px}
+ .sona-section-playlist-actions{display:flex;align-items:center;justify-content:center;gap:12px;width:100%}
+ .sona-section-playlist-actions button{width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#a69b90;color:#111}
+ .sona-section-playlist-actions .sona-section-playlist-play{width:min(46vw,180px);border-radius:999px;background:#080808;color:#fff;gap:9px;font-size:16px;font-weight:750}
+ .sona-section-playlist-detail .sona-section-song-row{border-bottom:1px solid #0002}
+ .sona-section-playlist-detail .sona-section-song-label strong{color:#141414}
+ .sona-section-playlist-detail .sona-section-song-label small,
+ .sona-section-playlist-detail .sona-section-song-more{color:#4f4945}
+ .sona-section-song-group{scroll-margin-top:100px}
+ .sona-section-song-group>h2{margin-top:26px!important;margin-bottom:8px!important}
+ .sona-section-song-row{height:56px;display:flex;position:relative;align-items:center;border-bottom:1px solid #ffffff20;gap:8px}
+ .sona-section-song-target{flex:1;min-width:0;display:flex;align-items:center;gap:11px;height:100%;text-align:left}
+ .sona-section-song-target>.sona-section-art{width:45px;height:45px;border-radius:7px}
+ .sona-section-song-label{display:flex;flex:1;min-width:0;flex-direction:column;gap:1px;overflow:hidden}
+ .sona-section-song-label strong{font-size:13px;font-weight:650;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+ .sona-section-song-label small{font-size:12px;color:#949094;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+ .sona-section-song-more{color:#ededf0;flex:none;display:grid;place-items:center;width:31px;height:40px}
+ .sona-section-song-menu{position:absolute;right:5px;top:calc(100% - 2px);z-index:15;width:190px;padding:7px;background:#252428;border:1px solid #ffffff1e;border-radius:17px;box-shadow:0 12px 35px #000a;animation:sona-section-pop-in .19s ease both}
+ .sona-section-song-menu button{display:block;padding:10px 14px;width:100%;text-align:left;color:#fff;font-size:13px;border-radius:9px}
+ .sona-section-song-menu button:active{background:#ffffff18}
+ .sona-section-song-grid>button{color:#fff}
+ .sona-section-load-more{height:24px;display:grid;place-items:center;font-size:12px;color:#a6a6ac;margin-top:12px}
+ .sona-section-download-links{margin-top:3px}
+ .sona-section-download-links a{display:flex;align-items:center;gap:23px;min-height:79px;color:#fff;position:relative;font-size:21px;font-weight:560}
+ .sona-section-download-links a::after{content:"";height:1px;background:#ffffff1c;position:absolute;bottom:0;right:0;left:55px}
+ .sona-section-download-links a>span{flex:1}
+}
+@media(max-width:767px) and (prefers-reduced-motion:reduce){
+ .sona-section-toolbar,.sona-section-menu,.sona-section-song-menu{animation:none!important}
+}
