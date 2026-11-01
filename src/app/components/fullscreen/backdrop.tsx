@@ -78,7 +78,7 @@ function MacBackdrop() {
             key={coverArt}
             src={src}
             alt={title}
-            effect="opacity"
+
             width="100%"
             className="w-full bg-contain"
           />

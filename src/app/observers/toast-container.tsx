@@ -118,7 +118,7 @@ export function ToastContainer() {
       overflow: 'hidden',
       pointerEvents: 'auto',
     }}
-    containerClassName="sona-toast-container"
+    className="sona-toast-container"
     toastClassName="sona-toast"
     bodyClassName="sona-toast-body"
     icon={({ type, isLoading }) => <ToastStatusIcon type={type} isLoading={isLoading} />}

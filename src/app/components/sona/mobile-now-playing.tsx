@@ -1,6 +1,7 @@
 import { Airplay, ListMusic } from 'lucide-react'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { type PointerEvent, type TouchEvent, useEffect, useRef, useState } from 'react'
+import { ArtworkImage } from '@/app/components/artwork-image'
 import { ImageLoader } from '@/app/components/image-loader'
 import { SonaMobileTransport } from '@/app/components/sona/mobile-transport'
 import { LikeButton } from '@/app/components/fullscreen/like-button'
@@ -113,7 +114,7 @@ export function SonaMobileNowPlaying() {
 
   function beginSwipe(event: PointerEvent<HTMLDivElement>) {
     if (!isFullscreen || !event.isPrimary || event.button !== 0) return
-    if ((event.target as Element).closest('.sona-queue-scroller, .sona-now-lyrics, [role="slider"], input, button:not(.sona-now-drag-handle), a')) return
+    if ((event.target as Element).closest('.sona-queue-scroller, .sona-now-lyrics, .sona-mobile-scrubber, .sona-volume-slider, [role="slider"], input, button:not(.sona-now-drag-handle), a')) return
     suppressClick.current = false
     gesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY,
       previousY: event.clientY, time: performance.now(), velocity: 0, axis: null, base: 0 }
@@ -221,7 +222,7 @@ export function SonaMobileNowPlaying() {
             <div className="sona-now-art">
               {song?.coverArt ? (
                 <ImageLoader id={song.coverArt} type="song" size={800}>
-                  {(src) => <img src={src} alt={song.title || 'Album artwork'} />}
+                  {(src) => <ArtworkImage src={src} alt={song.title || 'Album artwork'} />}
                 </ImageLoader>
               ) : <SonaNoteGlyph size={78} /> }
             </div>

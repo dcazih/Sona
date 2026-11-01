@@ -64,7 +64,7 @@ function ArtistImage({ id, name }: AlbumArtistProps) {
       <ImageLoader id={id} type="artist" size={100}>
         {(src) => (
           <LazyLoadImage
-            effect="opacity"
+
             src={src}
             alt={name}
             className="w-full h-full rounded-full aspect-square object-cover shadow-md"

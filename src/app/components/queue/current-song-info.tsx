@@ -26,7 +26,7 @@ export function CurrentSongInfo() {
               <LazyLoadImage
                 id="song-info-image"
                 src={src}
-                effect="opacity"
+
                 alt={`${currentSong.artist} - ${currentSong.title}`}
                 className="rounded-md aspect-square object-cover text-transparent"
                 width="100%"

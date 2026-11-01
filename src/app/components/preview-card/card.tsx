@@ -49,7 +49,7 @@ function Image({ src, alt }: ImageProps) {
     <LazyLoadImage
       src={src}
       alt={alt}
-      effect="opacity"
+
       width="100%"
       height="100%"
       className="aspect-square object-cover w-full h-full absolute inset-0 z-0"

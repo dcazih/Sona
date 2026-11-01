@@ -169,7 +169,7 @@ export function StickyHeaderImage({
             <LazyLoadImage
               {...props}
               src={src}
-              effect="opacity"
+
               crossOrigin="anonymous"
               id={STICKY_HEADER_IMAGE_ID}
               className="w-full h-full object-cover"

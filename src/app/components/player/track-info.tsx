@@ -3,7 +3,7 @@ import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { useCallback } from 'react'
 import { Fragment } from 'react/jsx-runtime'
 import { useTranslation } from 'react-i18next'
-import { LazyLoadImage } from 'react-lazy-load-image-component'
+import { ArtworkImage } from '@/app/components/artwork-image'
 import { Link } from 'react-router-dom'
 import { useIsMobile } from '@/app/hooks/use-mobile'
 
@@ -77,14 +77,13 @@ export function TrackInfo({ song }: { song: ISong | undefined }) {
         <div className="sona-player-cover min-w-[70px] max-w-[70px] aspect-square bg-cover bg-center bg-skeleton rounded overflow-hidden shadow-md relative">
           <ImageLoader id={song.coverArt} type="song" size={400}>
             {(src) => (
-              <LazyLoadImage
+              <ArtworkImage
                 key={song.id}
                 id="track-song-image"
                 src={src}
                 width="100%"
                 height="100%"
                 crossOrigin="anonymous"
-                effect="opacity"
                 className="aspect-square object-cover w-full h-full bg-skeleton text-transparent"
                 data-testid="track-image"
                 alt={`${song.artist} - ${song.title}`}

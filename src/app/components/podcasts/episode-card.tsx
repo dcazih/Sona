@@ -151,7 +151,7 @@ function EpisodeImage({ episode }: EpisodeCardProps) {
       }}
     >
       <MemoLazyLoadImage
-        effect="opacity"
+
         src={episode.image_url}
         alt={episode.title}
         width="100%"

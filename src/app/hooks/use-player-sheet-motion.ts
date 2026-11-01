@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 
-const EASE = 'cubic-bezier(.18,.85,.2,1)'
+const OPEN_EASE = 'cubic-bezier(.22,.8,.22,1)'
+const CLOSE_EASE = 'cubic-bezier(.22,.55,.14,1)'
 export const playerDragRadius = (distance: number) => 34 * (1 - Math.exp(-Math.max(0, distance) / 28))
 
 /** One composited surface; gestures never re-render the player controls. */
@@ -8,6 +9,8 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
   const ref = useRef<HTMLDivElement>(null)
   const animation = useRef<Animation | null>(null)
   const frame = useRef(0)
+  const coverGhost = useRef<HTMLImageElement | null>(null)
+  const cleanupExtras = useRef<() => void>(() => {})
   const distance = useRef(0)
   const dragShape = useRef({ x: 0, sx: 1, sy: 1 })
   const onClosedRef = useRef(onClosed)
@@ -36,6 +39,13 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     if (!sheet) return
     cancelAnimationFrame(frame.current)
     frame.current = 0
+    const previousCover = coverGhost.current?.getBoundingClientRect()
+    const previousPanel = sheet.querySelector<HTMLElement>('.sona-now-panel')
+    const panelSnapshot = previousPanel ? {
+      transform: getComputedStyle(previousPanel).transform,
+      opacity: getComputedStyle(previousPanel).opacity,
+    } : { transform: 'translate3d(0,0,0)', opacity: '1' }
+    cleanupExtras.current()
     const mini = document.querySelector<HTMLElement>('.sona-player[data-mobile-active="true"]')
     const target = mini?.getBoundingClientRect()
     const width = sheet.offsetWidth
@@ -59,14 +69,96 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     sheet.classList.remove('is-dragging')
     // FLIP: visual width and height change via scale, without laying out the
     // lyrics, queue, artwork and controls again on every animation frame.
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const duration = reduced ? 0 : expand ? 540 : 780
+    const easing = expand ? OPEN_EASE : CLOSE_EASE
+    const extraAnimations: Animation[] = []
+    let reboundTimer = 0
+    let rebound: Animation | undefined
+    const miniArt = mini?.querySelector<HTMLImageElement>('.sona-player-cover img')
+    const fullArt = sheet.querySelector<HTMLElement>('.sona-now-art')
+    const fullImage = fullArt?.querySelector<HTMLImageElement>('img')
+    const oldFullVisibility = fullArt?.style.visibility || ''
+    const oldMiniVisibility = miniArt?.style.visibility || ''
+    const sourceImage = (expand ? miniArt : fullImage) || miniArt || fullImage
+    const imageSrc = sourceImage?.currentSrc || sourceImage?.src
+    if (miniArt && fullArt && imageSrc && !reduced) {
+      const miniBounds = miniArt.getBoundingClientRect()
+      const artBounds = fullArt.getBoundingClientRect()
+      const matrix = new DOMMatrixReadOnly(computed.transform)
+      const fullBounds = new DOMRect(
+        (artBounds.left - matrix.e) / Math.max(.01, matrix.a),
+        (artBounds.top - matrix.f) / Math.max(.01, matrix.d),
+        artBounds.width / Math.max(.01, matrix.a), artBounds.height / Math.max(.01, matrix.d))
+      const from = previousCover || (expand && wasClosed ? miniBounds : artBounds)
+      const to = expand ? fullBounds : miniBounds
+      const ghost = document.createElement('img')
+      ghost.src = imageSrc
+      ghost.alt = ''
+      ghost.className = 'sona-player-artwork-flight'
+      Object.assign(ghost.style, { width: fullBounds.width + 'px', height: fullBounds.height + 'px' })
+      document.body.appendChild(ghost)
+      coverGhost.current = ghost
+      fullArt.style.visibility = 'hidden'
+      miniArt.style.visibility = 'hidden'
+      const frameFor = (bounds: DOMRect, radius: number) => {
+        const x = bounds.width / fullBounds.width
+        const y = bounds.height / fullBounds.height
+        return { transform: `translate3d(${bounds.left}px,${bounds.top}px,0) scale(${x},${y})`,
+          borderRadius: `${radius / x}px / ${radius / y}px` }
+      }
+      extraAnimations.push(ghost.animate([
+        { ...frameFor(from, expand && wasClosed ? 9 : 13), opacity: 1 },
+        { ...frameFor(to, expand ? 13 : 9), opacity: 1 },
+      ], { duration, easing, fill: 'both' }))
+    }
+    const panel = sheet.querySelector<HTMLElement>('.sona-now-panel')
+    if (panel && !reduced) {
+      extraAnimations.push(panel.animate(expand && wasClosed ? [
+        { transform: 'translate3d(0,92px,0)', opacity: 0 },
+        { transform: 'translate3d(0,0,0)', opacity: 1 },
+      ] : expand ? [
+        panelSnapshot,
+        { transform: 'translate3d(0,0,0)', opacity: 1 },
+      ] : [
+        panelSnapshot,
+        { transform: 'translate3d(0,42px,0)', opacity: 0 },
+      ], { duration: expand ? 570 : 330, delay: expand && wasClosed ? 45 : 0,
+        easing: OPEN_EASE, fill: 'both' }))
+    }
+    if (!expand && mini && !reduced) {
+      reboundTimer = window.setTimeout(() => {
+        mini.dataset.sonaRebound = 'true'
+        rebound = mini.animate([
+          { translate: '0 0', scale: '1' },
+          { translate: '0 3px', scale: '1.012', offset: .35 },
+          { translate: '0 -1px', scale: '.997', offset: .72 },
+          { translate: '0 0', scale: '1' },
+        ], { duration: 380, easing: 'cubic-bezier(.22,.75,.25,1)' })
+        rebound.finished.then(() => { delete mini.dataset.sonaRebound }).catch(() => {})
+      }, duration * .72)
+    }
+    const cleanupFlight = () => {
+      coverGhost.current?.remove()
+      coverGhost.current = null
+      if (fullArt) fullArt.style.visibility = oldFullVisibility
+      if (miniArt) miniArt.style.visibility = oldMiniVisibility
+    }
+    cleanupExtras.current = () => {
+      cleanupFlight()
+      extraAnimations.forEach(item => item.cancel())
+      window.clearTimeout(reboundTimer)
+      rebound?.cancel()
+      if (mini) delete mini.dataset.sonaRebound
+    }
     const anim = sheet.animate([expand && wasClosed ? compact : current, expand ? full : compact], {
-      duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 360,
-      easing: EASE, fill: 'both',
+      duration, easing, fill: 'both',
     })
     animation.current = anim
     const finish = () => {
       if (animation.current !== anim) return
       Object.assign(sheet.style, expand ? full : compact)
+      cleanupFlight()
       sheet.dataset.phase = expand ? 'open' : 'closed'
       animation.current = null
       anim.cancel()
@@ -86,6 +178,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
   useLayoutEffect(() => () => {
     cancelAnimationFrame(frame.current)
     animation.current?.cancel()
+    cleanupExtras.current()
     initialized.current = false
     if (ref.current) ref.current.dataset.phase = 'closed'
   }, [])
@@ -100,6 +193,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     dragShape.current = { x: matrix.e, sx: Math.max(.01, matrix.a), sy: Math.max(.01, matrix.d) }
     animation.current?.cancel()
     animation.current = null
+    cleanupExtras.current()
     distance.current = Math.max(0, rect.top)
     sheet.classList.add('is-dragging')
     sheet.dataset.phase = 'dragging'

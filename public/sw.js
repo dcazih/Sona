@@ -1,6 +1,8 @@
 /* Sona service worker: network-first application updates, opt-in audio cache.
    Previous cache-first JS/CSS/favicon policy could freeze old branding/UI. */
-const APP_CACHE = 'sona-app-v17'
+const APP_CACHE = 'sona-app-v18'
+const ARTWORK_CACHE = 'sona-artwork-v4'
+let artworkWrites = 0
 const MEDIA_CACHE = 'sona-media-v1'
 let mediaPreferences = { enabled: true, maxTracks: 40, allowCellular: false }
 
@@ -29,6 +31,30 @@ self.addEventListener('fetch', (event) => {
   const request = event.request
   if (request.method !== 'GET') return
   const url = new URL(request.url)
+  // Covers are immutable for a given artwork id. Serve them from persistent
+  // storage first, including authenticated cross-origin Navidrome image URLs.
+  if (/\/rest\/getCoverArt(?:\.view)?$/.test(url.pathname) ||
+    (request.destination === 'image' && !/(?:favicons|pwa-startup|sona-(?:app-icon|icon|brand|white-note)|apple-touch)/.test(url.pathname))) {
+    event.respondWith((async () => {
+      let cache
+      try { cache = await caches.open(ARTWORK_CACHE) } catch { return fetch(request) }
+      const cached = await cache.match(request) || await caches.match(request, { cacheName: 'sona-images-v3' })
+      const usableCachedImage = cached && (cached.type === 'opaque' || (cached.headers.get('content-type') || '').startsWith('image/'))
+      if (usableCachedImage && !(cached.type === 'opaque' && request.mode !== 'no-cors')) return cached
+      const response = await fetch(request)
+      if ((response.ok && (response.headers.get('content-type') || '').startsWith('image/')) || response.type === 'opaque') {
+        event.waitUntil((async () => {
+          await cache.put(request, response.clone())
+          if (++artworkWrites % 32 === 0) {
+            const keys = await cache.keys()
+            await Promise.all(keys.slice(0, Math.max(0, keys.length - 1600)).map(key => cache.delete(key)))
+          }
+        })().catch(() => {}))
+      }
+      return response
+    })())
+    return
+  }
   if (url.origin !== self.location.origin) return
 
   if (/\/rest\/stream(?:\.view)?/.test(url.pathname)) {

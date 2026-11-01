@@ -37,7 +37,7 @@ export function CoverImage({
       <ImageLoader id={coverArt} type={coverArtType} size={coverArtSize}>
         {(src) => coverArtType === 'album'
           ? <ArtworkImage src={src} alt={altText} loading="lazy" />
-          : <LazyLoadImage src={src} alt={altText} effect="opacity"
+          : <LazyLoadImage src={src} alt={altText}
               width={size} height={size} className="aspect-square object-cover bg-center" />}
       </ImageLoader>
     </div>

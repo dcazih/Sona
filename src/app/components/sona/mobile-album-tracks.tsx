@@ -45,7 +45,7 @@ export function SonaMobileAlbumTracks({ album }: { album: SingleAlbum }) {
                   aria-label={'Play ' + song.title} onClick={() => play(index)}>
                   {song.title}
                 </button>
-                {showArtist && (
+                {showArtist && song.artistId && (
                   <Link className="sona-album-song-secondary-artist"
                     to={ROUTES.ARTIST.PAGE(song.artistId)}>{song.artist}</Link>
                 )}

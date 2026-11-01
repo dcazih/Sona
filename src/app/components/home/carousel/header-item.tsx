@@ -72,7 +72,7 @@ export function HeaderItem({ song }: { song: ISong }) {
                   <LazyLoadImage
                     src={src}
                     alt={song.title}
-                    effect="opacity"
+
                     width="100%"
                     height="100%"
                     className="aspect-square rounded-lg object-cover bg-center absolute inset-0 z-0"

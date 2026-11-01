@@ -39,6 +39,7 @@ describe('Mobile player sheet motion', () => {
     cy.get('[aria-label="Minimize Now Playing"]').click()
     cy.get('.sona-now-overlay').should('have.attr', 'data-phase', 'closed').then(($sheet) => {
       cy.get('.sona-player').should(($mini) => {
+        expect($mini.attr('data-sona-rebound')).to.be.undefined
         const closed = $sheet[0].getBoundingClientRect()
         const mini = $mini[0].getBoundingClientRect()
         expect(closed.left).to.be.closeTo(mini.left, 1)
@@ -90,4 +91,43 @@ describe('Mobile player sheet motion', () => {
     cy.get('.sona-now-overlay').should('have.attr', 'data-phase', 'open')
       .should('have.css', 'border-top-left-radius', '0px')
   })
+  it('flies the mini artwork independently and slides every control upward', () => {
+    mountPlayer()
+    cy.get('#track-song-image').should(($image) => {
+      expect(($image[0] as HTMLImageElement).naturalWidth).to.be.greaterThan(0)
+    }).then(($image) => {
+      const source = ($image[0] as HTMLImageElement).currentSrc
+      cy.get('.sona-player-track').click()
+      cy.get('.sona-player-artwork-flight').should('have.attr', 'src', source)
+      cy.get('.sona-now-panel').should(($panel) => {
+        const frames = $panel[0].getAnimations().flatMap(animation => (animation.effect as KeyframeEffect).getKeyframes())
+        expect(frames.some(frame => String(frame.transform).includes('92px'))).to.equal(true)
+      })
+      cy.get('.sona-now-overlay').should('have.attr', 'data-phase', 'open')
+      cy.get('[aria-label="Minimize Now Playing"]').click()
+      cy.get('.sona-player-artwork-flight').should('exist')
+      cy.get('.sona-player').should('have.attr', 'data-sona-rebound', 'true')
+      cy.get('.sona-now-overlay').should('have.attr', 'data-phase', 'closed')
+      cy.get('.sona-player-artwork-flight').should('not.exist')
+    })
+  })
+
+  it('uses thicker song and volume tracks at rest and during scrubbing', () => {
+    mountPlayer()
+    cy.then(() => usePlayerStore.getState().actions.setCurrentDuration(180))
+    cy.get('.sona-player-track').click()
+    cy.get('.sona-now-overlay').should('have.attr', 'data-phase', 'open')
+    cy.get('.sona-now-overlay .sona-scrubber-track').should('have.css', 'height', '6px')
+    cy.get('.sona-volume-track').should('have.css', 'height', '6px')
+    cy.get('.sona-volume-slider').realMouseDown()
+    cy.get('.sona-volume-track').should('have.css', 'height', '13px')
+    cy.get('.sona-volume-slider').realMouseUp()
+    cy.get('.sona-volume-track').should('have.css', 'height', '6px')
+    cy.get('.sona-now-overlay .sona-mobile-scrubber').realMouseDown()
+    cy.get('.sona-now-overlay .sona-scrubber-track').should('have.css', 'height', '13px')
+    cy.get('.sona-now-overlay .sona-mobile-scrubber').realMouseUp()
+    cy.get('.sona-now-overlay .sona-scrubber-track').should('have.css', 'height', '6px')
+    cy.get('.sona-now-overlay').should('have.attr', 'data-phase', 'open')
+  })
+
 })

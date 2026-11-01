@@ -106,3 +106,5 @@ export interface StructuredLyricsResponse
   extends SubsonicResponse<{ lyricsList: ILyricsList }> {}
 
 export interface GetSongResponse extends SubsonicResponse<{ song: ISong }> {}
+
+export interface SongsByGenreResponse extends SubsonicResponse<{ songsByGenre: SongList }> {}

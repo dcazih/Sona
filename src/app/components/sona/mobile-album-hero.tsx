@@ -17,7 +17,7 @@ export function SonaMobileAlbumHero({ album }: { album: SingleAlbum }) {
     const viewport = document.getElementById('main-scroll-area')
     if (!viewport) return
     viewport.style.setProperty('--sona-page-album-color', color)
-    return () => viewport.style.removeProperty('--sona-page-album-color')
+    return () => { viewport.style.removeProperty('--sona-page-album-color') }
   }, [color])
 
   useEffect(() => {

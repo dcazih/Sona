@@ -30,7 +30,7 @@ export function PodcastInfoImage({ src, alt }: PodcastInfoImageProps) {
       <LazyLoadImage
         src={imageSrc}
         alt={alt}
-        effect="opacity"
+
         className="aspect-square object-cover w-full h-full"
         width="100%"
         height="100%"

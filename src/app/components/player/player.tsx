@@ -223,7 +223,7 @@ export function Player() {
     element.style.scale = scale
     pressAnimation.current = element.animate([
       { scale: from === 'none' ? '1' : from }, { scale },
-    ], { duration: 130, easing: 'cubic-bezier(.2,.8,.2,1)' })
+    ], { duration: pressed ? 210 : 310, easing: 'cubic-bezier(.22,1,.36,1)' })
   }
 
   return (

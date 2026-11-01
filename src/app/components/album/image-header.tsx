@@ -90,7 +90,7 @@ export default function ImageHeader({
                   className="cursor-pointer" onLoad={handleLoadImage}
                   onError={handleError} onClick={() => setOpen(true)} />
               ) : (
-                <LazyLoadImage key={coverArtId} effect="opacity" crossOrigin="anonymous"
+                <LazyLoadImage key={coverArtId}  crossOrigin="anonymous"
                   id="cover-art-image" src={src} alt={coverArtAlt}
                   className="aspect-square object-cover w-full h-full cursor-pointer"
                   width="100%" height="100%" onLoad={handleLoadImage}

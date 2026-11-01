@@ -59,7 +59,7 @@ function PlaylistItem({ playlist }: { playlist: Playlist }) {
       <ImageLoader id={playlist.coverArt} type="playlist">
         {(src) => (
           <LazyLoadImage
-            effect="opacity"
+
             src={src}
             alt={playlist.name}
             className="bg-accent w-12 min-w-12 h-12 aspect-square rounded shadow-custom-5 text-transparent"

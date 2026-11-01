@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowDownToLine, Check, ChevronRight, Disc3, ListMusic, Mic2, Music2, Play, Search, Shuffle, Star, X } from 'lucide-react'
+import { ArrowDownToLine, Check, ChevronRight, Disc3, Ellipsis, ListMusic, Mic2, Music2, Play, Search, Shuffle, Star, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -143,9 +143,8 @@ export function SonaAlbumsList(){
  },[albums,settings])
  return <section className="sona-section-page sona-albums-list" aria-label="Albums">
    <SectionTitle>Albums</SectionTitle>
-   {isLoading?<Empty message="Loading albums…"/>:settings.filter==='downloads'?
-    <Empty message="Downloaded albums aren't available in offline mode yet"/>:
-    filtered.length===0?<Empty message="No albums in this category"/>:
+   {isLoading?<Empty message="Loading albums…"/>:
+    filtered.length===0?<Empty message="Nothing here."/>:
     settings.view==='list'?
       <div className="sona-section-album-list">{filtered.map(a=><AlbumTile key={a.id} album={a}/>)}</div>:
       <div className="sona-section-album-grid">{filtered.map(a=><AlbumTile key={a.id} album={a}/>)}</div>}
@@ -296,10 +295,11 @@ export function SonaPlaylistDetail(){
   <SonaSongRows songs={songs} onPlay={index=>playSongAt(index)} compact/>
  </section>
  function playSongAt(index:number){
+  if(!playlist)return
   setSongList(songs,index,false,{id:playlist.id,name:playlist.name,type:'playlist'})
  }
 }
-function SonaSongRows({songs,onPlay,compact=false,alphabet=false}:{songs:ISong[];onPlay:(index:number)=>void;compact?:boolean;alphabet?:boolean}){
+function SonaSongRows({songs,onPlay,alphabet=false}:{songs:ISong[];onPlay:(index:number)=>void;compact?:boolean;alphabet?:boolean}){
  const [moreId,setMoreId]=useState<string|null>(null)
  const {setNextOnQueue,setLastOnQueue}=usePlayerActions()
  const options=useOptions()
