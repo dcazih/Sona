@@ -147,7 +147,7 @@ export function SonaGenreDetail(){
     <Empty message="No downloaded albums tracked here"/>:
     albums.length===0?<Empty message="No albums"/>:
     settings.view==='grid'?<div className="sona-section-album-grid">{albums.map(a=><AlbumTile key={a.id} album={a}/>)}</div>:
-    <div className="sona-section-album-grid">{albums.map(a=><AlbumTile key={a.id} album={a}/>)}</div>}
+    <div className="sona-section-album-list">{albums.map(a=><AlbumTile key={a.id} album={a}/>)}</div>}
  </section>
 }
 

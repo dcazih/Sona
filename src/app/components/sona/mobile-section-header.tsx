@@ -10,10 +10,11 @@ type Filter = 'all' | 'favorites' | 'downloads'
 export type SectionSettings = { view: View; sort: Sort; filter: Filter }
 export const defaultSettings: SectionSettings = { view:'list', sort:'title', filter:'all' }
 export function getSectionSettings(path: string): SectionSettings {
+ const initial = { ...defaultSettings, view: /^\\/library\\/genres\\/[^/]+$/.test(path) ? 'grid' as const : 'list' as const }
  try {
   const parsed = JSON.parse(localStorage.getItem('sona-section-settings:'+path) || 'null')
-  return { ...defaultSettings, ...parsed }
- } catch { return { ...defaultSettings } }
+  return { ...initial, ...parsed }
+ } catch { return initial }
 }
 export function sectionAction(type: string, value?: string) {
  window.dispatchEvent(new CustomEvent('sona:section-action',{ detail:{type,value} }))
@@ -44,15 +45,32 @@ export default function SonaSectionHeader() {
  const showSort=isPlaylists||isSongs||isGenreDetail
  const showMore=isPlaylists||isPlaylistDetail||isSongs||isGenreDetail
  const [open,setOpen]=useState<Menu>(null)
+ const [closing,setClosing]=useState(false)
+ const closeTimer=useRef<number|null>(null)
  const [artistFiltered,setArtistFiltered]=useState(false)
  const [settings,setSettings]=useState<SectionSettings>(()=>getSectionSettings(pathname))
  const ref=useRef<HTMLDivElement>(null)
  const {setPlaylistDialogState}=usePlaylists()
- useEffect(()=>{setOpen(null);setSettings(getSectionSettings(pathname));setArtistFiltered(false)},[pathname])
+ useEffect(()=>{
+  if(closeTimer.current!==null)window.clearTimeout(closeTimer.current)
+  setClosing(false);setOpen(null);setSettings(getSectionSettings(pathname));setArtistFiltered(false)
+ },[pathname])
+ useEffect(()=>()=>{if(closeTimer.current!==null)window.clearTimeout(closeTimer.current)},[])
+ function closeMenu(){
+  if(!open)return
+  if(closeTimer.current!==null)window.clearTimeout(closeTimer.current)
+  setClosing(true)
+  closeTimer.current=window.setTimeout(()=>{setOpen(null);setClosing(false);closeTimer.current=null},170)
+ }
+ function toggleMenu(menu: Exclude<Menu,null>){
+  if(open===menu){closeMenu();return}
+  if(closeTimer.current!==null)window.clearTimeout(closeTimer.current)
+  setClosing(false);setOpen(menu)
+ }
  useEffect(()=>{
   if(!open)return
-  const outside=(event:PointerEvent)=>{if(!ref.current?.contains(event.target as Node))setOpen(null)}
-  const escape=(event:KeyboardEvent)=>{if(event.key==='Escape')setOpen(null)}
+  const outside=(event:PointerEvent)=>{if(!ref.current?.contains(event.target as Node))closeMenu()}
+  const escape=(event:KeyboardEvent)=>{if(event.key==='Escape')closeMenu()}
   document.addEventListener('pointerdown',outside)
   document.addEventListener('keydown',escape)
   return()=>{document.removeEventListener('pointerdown',outside);document.removeEventListener('keydown',escape)}
@@ -62,22 +80,22 @@ export default function SonaSectionHeader() {
   setSettings(next)
   try { localStorage.setItem('sona-section-settings:'+pathname,JSON.stringify(next)) }catch{}
   sectionAction('setting',key)
-  setOpen(null)
+  closeMenu()
  }
  const options= open==='sort' ? (
   <>
    <button className="sona-section-menu-line" onClick={()=>change('view','grid')}><span className="sona-menu-tick">{settings.view==='grid'&&<Check size={17}/>}</span><Grid2X2 size={19}/>Grid</button>
    <button className="sona-section-menu-line" onClick={()=>change('view','list')}><span className="sona-menu-tick">{settings.view==='list'&&<Check size={17}/>}</span><List size={19}/>List</button>
    <span className="sona-section-menu-divider"/>
-   {([['title','Title'],['date-added','Date Added'],['last-played','Last Played Date'],['updated','Updated Date'],['playlist-type','Playlist Type']] as const).map(([value,label])=>
+   {([['title','Title'],['date-added','Date Added'],['last-played','Last Played Date'],['updated','Updated Date'],...(isPlaylists?[['playlist-type','Playlist Type'] as const]:[])] as const).map(([value,label])=>
     <button key={value} className="sona-section-menu-line" onClick={()=>change('sort',value)}>
       <span className="sona-menu-tick">{settings.sort===value&&<Check size={17}/>}</span>{label}
     </button>)}
   </>
  ) : (
   isPlaylistDetail ? <>
-   <button className="sona-section-menu-line" onClick={()=>{sectionAction('playlist-play-next');setOpen(null)}}>Play Next</button>
-   <button className="sona-section-menu-line" onClick={()=>{sectionAction('playlist-download');setOpen(null)}}><ArrowDownToLine size={18}/>Download</button>
+   <button className="sona-section-menu-line" onClick={()=>{sectionAction('playlist-play-next');closeMenu()}}>Play Next</button>
+   <button className="sona-section-menu-line" onClick={()=>{sectionAction('playlist-download');closeMenu()}}><ArrowDownToLine size={18}/>Download</button>
   </> : <>
    {([['all','All '+(isPlaylists?'Playlists':isGenreDetail?'Albums':'Songs')],['favorites','Favorites'],['downloads','Downloads']] as const).map(([value,label])=>
     <button key={value} className="sona-section-menu-line" onClick={()=>change('filter',value)}>
@@ -93,9 +111,9 @@ export default function SonaSectionHeader() {
   <div className="sona-section-tools">
    {isPlaylists&&<button className="sona-section-tool" aria-label="New playlist" onClick={()=>setPlaylistDialogState(true)}><Plus size={26}/></button>}
    {isArtists&&<button className={'sona-section-tool'+(artistFiltered?' is-selected':'')} aria-label="Filter artists" aria-pressed={artistFiltered} onClick={()=>{setArtistFiltered(v=>!v);sectionAction('artist-filter')}}><ListFilter size={24}/></button>}
-   {showSort&&<button className={'sona-section-tool'+(open==='sort'?' is-selected':'')} aria-label="Sort and view options" aria-expanded={open==='sort'} onClick={()=>setOpen(v=>v==='sort'?null:'sort')}><ListFilter size={24}/></button>}
-   {showMore&&<button className={'sona-section-tool'+(open==='more'?' is-selected':'')} aria-label="More options" aria-expanded={open==='more'} onClick={()=>setOpen(v=>v==='more'?null:'more')}><Ellipsis size={25}/></button>}
-   {open&&<div className="sona-section-menu" role="menu">{options}</div>}
+   {showSort&&<button className={'sona-section-tool'+(open==='sort'?' is-selected':'')} aria-label="Sort and view options" aria-expanded={open==='sort'} onClick={()=>toggleMenu('sort')}><ListFilter size={24}/></button>}
+   {showMore&&<button className={'sona-section-tool'+(open==='more'?' is-selected':'')} aria-label="More options" aria-expanded={open==='more'} onClick={()=>toggleMenu('more')}><Ellipsis size={25}/></button>}
+   {open&&<div className={'sona-section-menu'+(closing?' is-leaving':'')} role="menu">{options}</div>}
   </div>
  </div>
 }
