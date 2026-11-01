@@ -28,6 +28,7 @@ import { ROUTES } from '@/routes/routesList'
 import Home from '@/app/pages/home'
 import SonaMobileLibrary from '@/app/components/sona/mobile-library'
 import SonaMobileSearch from '@/app/components/sona/mobile-search'
+import SonaMobileNew from '@/app/components/sona/mobile-new'
 
 const BaseLayout = lazy(() => import('@/app/layout/base'))
 const Album = lazy(() => import('@/app/pages/albums/album'))
@@ -76,6 +77,11 @@ export const router = createHashRouter([
             <SonaMobileLibrary />
           </Suspense>
         ),
+      },
+      {
+        id: 'sona-mobile-new',
+        path: '/mobile-new',
+        element: <SonaMobileNew />,
       },
       {
         id: 'sona-mobile-request',

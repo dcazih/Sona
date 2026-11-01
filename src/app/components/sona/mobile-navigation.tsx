@@ -7,7 +7,7 @@ import { useSonaSearch } from './search-state'
 
 const tabs = [
   { key: 'home', label: 'Sona', icon: House, url: ROUTES.LIBRARY.HOME },
-  { key: 'new', label: 'New', icon: Compass, url: ROUTES.ALBUMS.RECENTLY_ADDED },
+  { key: 'new', label: 'New', icon: Compass, url: '/mobile-new' },
   { key: 'request', label: 'Request', icon: ListPlus, url: '/mobile-request' },
   { key: 'library', label: 'Library', icon: Library, url: '/mobile-library' },
 ] as const
@@ -49,7 +49,7 @@ export function SonaMobileNavigation() {
 
   function indexForPath(): number {
     if (pathname === '/') return 0
-    if (pathname + search === ROUTES.ALBUMS.RECENTLY_ADDED) return 1
+    if (pathname === '/mobile-new') return 1
     if (pathname === '/mobile-request') return 2
     if (pathname === '/mobile-library' || pathname.startsWith('/library')) return 3
     return -1
