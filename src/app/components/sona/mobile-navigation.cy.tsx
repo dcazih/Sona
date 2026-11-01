@@ -74,7 +74,7 @@ describe('Coordinated mobile dock',()=>{
    cy.get('.sona-search-morph').should($expanded=>expect($expanded[0]).to.equal(element))
   })
   cy.get('[aria-label="Return to Library"]').should('be.visible')
-  cy.get('.sona-search-morph').should($el=>expect($el[0].getBoundingClientRect().width).to.be.closeTo(311,1))
+  cy.get('.sona-search-morph').should($el=>expect($el[0].getBoundingClientRect().width).to.be.closeTo(315,1))
   cy.get('.sona-player').should('have.css','opacity','1')
   cy.get('input').focus()
   cy.get('.sona-player').should('have.css','opacity','0')
@@ -84,7 +84,7 @@ describe('Coordinated mobile dock',()=>{
    expect($mini[0].getBoundingClientRect().bottom).to.be.lessThan(bar.top)
   })
  })
- it('slides the highlight continuously and commits a tab only on release',()=>{
+ it('snaps the highlight between tabs and commits a tab only on release',()=>{
   setup()
   cy.get('.sona-bottom-nav').trigger('pointerdown',{pointerId:1,isPrimary:true,pointerType:'touch',clientX:47,clientY:800})
    .trigger('pointermove',{pointerId:1,isPrimary:true,pointerType:'touch',clientX:180,clientY:800})
@@ -195,6 +195,9 @@ describe('Coordinated mobile dock',()=>{
   cy.get('.sona-bottom-nav').should('have.css','opacity','0')
   cy.get('[aria-label="Clear search"]').should('not.exist')
   cy.get('.sona-search-morph').should('have.css','transition-duration','0.2s')
+  cy.get('input').blur()
+  cy.get('.sona-bottom-nav').should('have.css','opacity','1')
+  cy.get('.sona-search-morph').should($el=>{const r=$el[0].getBoundingClientRect();expect(r.width).to.be.closeTo(260,1);expect(r.height).to.equal(50)})
   cy.get('[aria-label="Cancel search"]').click()
   cy.get('[aria-label="Return to Library"]').should('be.visible')
   cy.get('input').should('have.value','')
@@ -222,14 +225,14 @@ describe('Coordinated mobile dock',()=>{
    const animations=[mini,nav,search].map(el=>el.getAnimations().find(a=>(a.effect as KeyframeEffect).getKeyframes().some(f=>f.width))!)
    expect(animations.every(Boolean)).to.equal(true)
    animations.forEach(a=>a.pause())
-   for(const time of [0,120,240,360,480,599]){
+   for(const time of [0,44,88,132,176,220,330,439]){
     animations.forEach(a=>a.currentTime=time)
     const m=mini.getBoundingClientRect()
     for(const el of [nav,search]){
      const r=el.getBoundingClientRect()
      const overlapX=Math.min(m.right,r.right)-Math.max(m.left,r.left)
      const overlapY=Math.min(m.bottom,r.bottom)-Math.max(m.top,r.top)
-     expect(overlapX<=1||overlapY<=1,`no overlap at ${time}ms`).to.equal(true)
+     expect(overlapX<=1||overlapY<=1,`no overlap ${doc.documentElement.dataset.sonaDock} at ${time}ms: mini ${m.left},${m.top},${m.right},${m.bottom}; other ${r.left},${r.top},${r.right},${r.bottom}`).to.equal(true)
     }
    }
    animations.forEach(a=>a.finish())
@@ -238,6 +241,27 @@ describe('Coordinated mobile dock',()=>{
   inspect()
   cy.get('[aria-label="Search"]').click()
   inspect()
+ })
+
+ it('keeps icon cells fixed while revealing them through an expanding shell',()=>{
+  setup()
+  cy.then(()=>useSonaDock.setState({compact:true}))
+  geometry()
+  cy.get('[aria-label="Expand Sona navigation"]').click()
+  cy.get('.sona-bottom-nav').then($nav=>{
+   const nav=$nav[0],animation=nav.getAnimations().find(a=>(a.effect as KeyframeEffect).getKeyframes().some(f=>f.width))!
+   animation.pause();animation.currentTime=88
+   const cells=[...nav.querySelectorAll<HTMLElement>('.sona-tab')].map(el=>el.getBoundingClientRect())
+   expect(cells[0].width).to.be.closeTo(73.25,1)
+   expect(cells[1].left-cells[0].left).to.be.closeTo(73.25,1)
+   expect(nav.getBoundingClientRect().width).to.be.greaterThan(50).and.lessThan(301)
+   animation.finish()
+  })
+ })
+ it('reveals mini player 100ms faster and keeps the progress line outside the text scrim',()=>{
+  setup('/mobile-search')
+  cy.get('.sona-player').should('have.css','transition-duration','0.1s')
+  cy.get('.sona-search-morph').should('have.css','transition-duration','0.2s')
  })
 
 })

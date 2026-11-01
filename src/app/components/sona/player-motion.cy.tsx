@@ -169,14 +169,14 @@ describe('Mobile player sheet motion', () => {
     cy.get('.sona-now-art').should('not.have.class','is-playing')
     cy.then(()=>usePlayerStore.getState().actions.setPlayingState(true))
     cy.get('.sona-now-art').should('have.class','is-playing').should(($cover)=>{
-      expect(new DOMMatrixReadOnly(getComputedStyle($cover[0]).transform).a).to.be.closeTo(1,.002)
+      expect(new DOMMatrixReadOnly(getComputedStyle($cover[0]).transform).a).to.be.closeTo(1.025,.002)
     })
     cy.get('.sona-now-art-content').should(($content)=>{
       expect(new DOMMatrixReadOnly(getComputedStyle($content[0]).transform).a).to.be.closeTo(1.035,.002)
     })
     cy.then(()=>usePlayerStore.getState().actions.setPlayingState(false))
     cy.get('.sona-now-art').should('not.have.class','is-playing').should(($cover)=>{
-      expect(new DOMMatrixReadOnly(getComputedStyle($cover[0]).transform).a).to.be.closeTo(.91,.002)
+      expect(new DOMMatrixReadOnly(getComputedStyle($cover[0]).transform).a).to.be.closeTo(.86,.002)
     })
   })
 
@@ -196,6 +196,9 @@ describe('Mobile player sheet motion', () => {
       const scale=String(inverse.scale).split(' ').map(Number)
       expect(matrix.a*scale[0]).to.be.closeTo(1,.001)
       expect(matrix.d*scale[1]).to.be.closeTo(1,.001)
+      expect(Number(frame.opacity)).to.equal(1)
+      expect(Number(inverse.opacity)).to.be.lessThan(.1)
+      expect(getComputedStyle($sheet[0].querySelector('.sona-now-glass')!).backdropFilter).to.equal('blur(22px) saturate(1.4)')
       const capsule=$sheet[0].querySelector('.sona-now-top')!
       expect(capsule.getAnimations()[0].effect?.getTiming().duration).to.equal(80)
     })

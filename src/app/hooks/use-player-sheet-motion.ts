@@ -314,11 +314,12 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
         offset: t,
         transform: `translate3d(${x}px,${y}px,0) scale(${w / width},${h / height})`,
         borderRadius: `${corner / (w / width)}px / ${corner / (h / height)}px`,
-        opacity: expand ? Math.min(1, t / 0.14) : Math.pow(1 - t, 0.55),
+        opacity: 1,
       }
     })
     const background = sheet.querySelector<HTMLElement>('.sona-now-background')
-    for (const surface of [background, content]) {
+    const glass = sheet.querySelector<HTMLElement>('.sona-now-glass')
+    for (const surface of [background, content, glass]) {
       if (!surface) continue
       extraAnimations.push(
         surface.animate(
@@ -327,6 +328,13 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
             return {
               offset: frame.offset,
               scale: `${1 / matrix.a} ${1 / matrix.d}`,
+              ...(surface === background
+                ? {
+                    opacity: expand
+                      ? Math.min(1, frame.offset / 0.55)
+                      : 1 - Math.min(1, frame.offset / 0.55),
+                  }
+                : {}),
             }
           }),
           { duration, easing: 'linear', fill: 'both' },
@@ -350,7 +358,11 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     const finish = () => {
       if (animation.current !== anim) return
       Object.assign(sheet.style, expand ? full : compact)
-      if (background && expand) background.style.scale = '1'
+      if (background && expand) {
+        background.style.scale = '1'
+        background.style.opacity = '1'
+      }
+      if (glass && expand) glass.style.scale = '1'
       if (content && expand) content.style.scale = '1'
       cleanupFlight()
       sheet.dataset.phase = expand ? 'open' : 'closed'

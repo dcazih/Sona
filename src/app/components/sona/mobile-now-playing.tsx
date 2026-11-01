@@ -306,6 +306,7 @@ export function SonaMobileNowPlaying() {
         }}
         style={ambientStyle}
       >
+        <div className="sona-now-glass" />
         <div className="sona-now-background" />
         <div className="sona-now-content">
           <div className="sona-now-top">

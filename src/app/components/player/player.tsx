@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { getSongStreamUrl } from '@/api/httpClient'
 import { getProxyURL } from '@/api/podcastClient'
-import { useSonaAmbient } from '@/app/hooks/use-sona-ambient'
+import '@/app/components/sona/mobile-dock.css'
 import { MiniPlayerButton } from '@/app/components/mini-player/button'
 import { RadioInfo } from '@/app/components/player/radio-info'
 import { TrackInfo } from '@/app/components/player/track-info'
@@ -51,7 +51,6 @@ const MemoLyricsButton = memo(PlayerLyricsButton)
 const MemoMiniPlayerButton = memo(MiniPlayerButton)
 
 export function Player() {
-  const ambientStyle = useSonaAmbient()
   const pressAnimation = useRef<Animation | null>(null)
   const swipeStart = useRef<{ x: number; y: number } | null>(null)
   const hideFavoritesSection = useAppStore().pages.hideFavoritesSection
@@ -227,7 +226,7 @@ export function Player() {
   }
 
   return (
-    <footer data-mobile-active={Boolean(song || radio || podcast)} style={ambientStyle}
+    <footer data-mobile-active={Boolean(song || radio || podcast)}
       onPointerDown={(event) => {
         if (window.innerWidth >= 768 || !(song || radio || podcast)) return
         if ((event.target as Element).closest('button, [role="slider"]')) return

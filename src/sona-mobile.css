@@ -2321,10 +2321,10 @@
    box-shadow:0 2px 9px #0007;
    pointer-events:none;
    transform:translate3d(calc(var(--sona-scope-progress,0) * 100%),0,0);
-   transition:transform .3s cubic-bezier(.18,.86,.22,1)!important
+   transition:transform .18s cubic-bezier(.22,.8,.22,1)!important
  }
  .sona-search-scope.is-dragging .sona-search-scope-thumb{
-   transition:none!important
+   transition:transform .14s cubic-bezier(.22,.8,.22,1)!important
  }
  .sona-search-scope button,
  .sona-search-scope button.is-selected{
@@ -2512,7 +2512,7 @@
 
 @media(max-width:767px){
  .sona-app-shell:not(:has(.sona-am-search-page)) #main-scroll-area{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;max-height:none!important;}
- html:has(.sona-apple-library),html:has(.sona-apple-library) body,html:has(.sona-apple-library) #root,.sona-app-shell:has(.sona-apple-library),.sona-app-shell:has(.sona-apple-library) #main-scroll-area,.sona-app-shell:has(.sona-apple-library) #scroll-viewport{background:#000!important;background-image:none!important;}
+ html:has(.sona-apple-library),html:has(.sona-apple-library) body,html:has(.sona-apple-library) #root,.sona-app-shell:has(.sona-apple-library),.sona-app-shell:has(.sona-apple-library) #main-scroll-area,.sona-app-shell:has(.sona-apple-library) #scroll-viewport,.sona-app-shell:has(.sona-apple-library) #scroll-viewport>div{background:#171719!important;background-image:none!important;}
  .sona-account-portal-sheet .sona-account-sheet-heading{position:absolute!important;top:0;left:0;right:0;z-index:3!important;}
  .sona-account-portal-sheet .sona-account-scroll{padding-top:calc(var(--sona-account-heading-height,100px) + 18px)!important;}
  .sona-app-shell:has(.sona-artist-page) .sona-header-detail-view>.sona-album-header-back,.sona-app-shell:has(.sona-artist-page) .sona-header-detail-view>.sona-album-header-more{width:32px!important;height:32px!important;}

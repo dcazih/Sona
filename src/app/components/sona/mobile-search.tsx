@@ -94,7 +94,7 @@ export default function SonaMobileSearch() {
       gesture.moved = true
       event.currentTarget.setPointerCapture(event.pointerId)
     }
-    setScopeDrag(progressFromPointer(event.clientX))
+    setScopeDrag(Math.round(progressFromPointer(event.clientX)))
     if (event.cancelable) event.preventDefault()
   }
   const onScopeUp = (event: ReactPointerEvent<HTMLDivElement>) => {

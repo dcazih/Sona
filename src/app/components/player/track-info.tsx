@@ -101,34 +101,55 @@ export function TrackInfo({ song }: { song: ISong | undefined }) {
           />
         </div>
       </div>
-      <div className="flex flex-col justify-center w-full overflow-hidden">
-        {isMobile ? (
-          <div className="sona-mini-title">
-            <span className="text-sm font-medium" data-testid="track-title">
-              {song.title}
-            </span>
-          </div>
-        ) : (
+      {isMobile ? (
+        <div className="sona-mini-copy flex flex-col justify-center w-full overflow-hidden">
+          <MiniFadingText title text={song.title} />
+          <MiniFadingText
+            text={
+              song.artists?.map((artist) => artist.name).join(', ') ||
+              song.artist
+            }
+          />
+        </div>
+      ) : (
+        <div className="flex flex-col justify-center w-full overflow-hidden">
           <MarqueeTitle gap="mr-2">
-            {isMobile ? (
-              <span className="text-sm font-medium" data-testid="track-title">
+            <Link to={ROUTES.ALBUM.PAGE(song.albumId)} tabIndex={-1}>
+              <span
+                className="text-sm font-medium hover:underline cursor-pointer"
+                data-testid="track-title"
+              >
                 {song.title}
               </span>
-            ) : (
-              <Link to={ROUTES.ALBUM.PAGE(song.albumId)} tabIndex={-1}>
-                <span
-                  className="text-sm font-medium hover:underline cursor-pointer"
-                  data-testid="track-title"
-                >
-                  {song.title}
-                </span>
-              </Link>
-            )}
+            </Link>
           </MarqueeTitle>
-        )}
-        <TrackInfoArtistsLinks song={song} />
-      </div>
+          <TrackInfoArtistsLinks song={song} />
+        </div>
+      )}
     </Fragment>
+  )
+}
+
+function MiniFadingText({
+  text,
+  title = false,
+}: {
+  text: string
+  title?: boolean
+}) {
+  return (
+    <span
+      className={
+        (title ? 'sona-mini-title' : 'sona-mini-artist-text') +
+        ' sona-mini-fading-text'
+      }
+      data-testid={title ? 'track-title' : undefined}
+    >
+      <span className="sona-mini-text-sharp">{text}</span>
+      <span className="sona-mini-text-blurred" aria-hidden="true">
+        {text}
+      </span>
+    </span>
   )
 }
 

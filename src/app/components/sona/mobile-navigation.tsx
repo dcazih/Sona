@@ -87,16 +87,16 @@ export function SonaMobileNavigation() {
   }, [pathname, search, isSearch, selectTab])
 
   const fullSearch = isSearch && (engaged || term.length > 0)
+  const resultsDock = fullSearch && !focused && term.trim().length > 0
   useDockMorph({
     mode: isSearch ? 'search' : compact ? 'compact' : 'normal',
     editing: fullSearch,
+    results: resultsDock,
     focused: isSearch && focused,
     moving: isSearch && (keyboardClosing || (focused && !keyboardVisible)),
   })
 
   useEffect(() => {
-    const viewport = getMainScrollElement()
-    if (!viewport) return
     let touch: { x: number; y: number } | null = null
     const intent = (delta: number) => {
       if (
@@ -106,47 +106,59 @@ export function SonaMobileNavigation() {
         Math.abs(delta) < 1
       )
         return
+      const viewport = getMainScrollElement()
+      if (!viewport) return
       const top = viewport.scrollTop,
         max = Math.max(0, viewport.scrollHeight - viewport.clientHeight)
       // Rubber-band recovery and programmatic scrolling are not user intent.
-      if (
-        top < 0 ||
-        top > max ||
-        (delta > 0 && top >= max - 0.5) ||
-        (delta < 0 && top <= 0.5)
-      )
-        return
+      if ((delta > 0 && top >= max - 0.5) || (delta < 0 && top <= 0.5)) return
       setCompact(delta > 0)
     }
+    const inContent = (target: EventTarget | null) =>
+      target instanceof Element && Boolean(target.closest('#scroll-viewport'))
     const wheel = (event: WheelEvent) => {
+      if (!inContent(event.target)) return
       if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) intent(event.deltaY)
     }
     const start = (event: TouchEvent) => {
       const point = event.touches[0]
-      touch = point ? { x: point.clientX, y: point.clientY } : null
+      touch =
+        point && inContent(event.target)
+          ? { x: point.clientX, y: point.clientY }
+          : null
     }
     const move = (event: TouchEvent) => {
       const point = event.touches[0]
       if (!touch || !point) return
       const dx = touch.x - point.clientX,
         dy = touch.y - point.clientY
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 2) return
       touch = { x: point.clientX, y: point.clientY }
       if (Math.abs(dy) > Math.abs(dx)) intent(dy)
     }
     const end = () => {
       touch = null
     }
-    viewport.addEventListener('wheel', wheel, { passive: true })
-    viewport.addEventListener('touchstart', start, { passive: true })
-    viewport.addEventListener('touchmove', move, { passive: true })
-    viewport.addEventListener('touchend', end, { passive: true })
-    viewport.addEventListener('touchcancel', end, { passive: true })
+    document.addEventListener('wheel', wheel, { passive: true, capture: true })
+    document.addEventListener('touchstart', start, {
+      passive: true,
+      capture: true,
+    })
+    document.addEventListener('touchmove', move, {
+      passive: true,
+      capture: true,
+    })
+    document.addEventListener('touchend', end, { passive: true, capture: true })
+    document.addEventListener('touchcancel', end, {
+      passive: true,
+      capture: true,
+    })
     return () => {
-      viewport.removeEventListener('wheel', wheel)
-      viewport.removeEventListener('touchstart', start)
-      viewport.removeEventListener('touchmove', move)
-      viewport.removeEventListener('touchend', end)
-      viewport.removeEventListener('touchcancel', end)
+      document.removeEventListener('wheel', wheel, true)
+      document.removeEventListener('touchstart', start, true)
+      document.removeEventListener('touchmove', move, true)
+      document.removeEventListener('touchend', end, true)
+      document.removeEventListener('touchcancel', end, true)
     }
   }, [pathname, search, isSearch, focused, setCompact])
 
@@ -246,7 +258,9 @@ export function SonaMobileNavigation() {
           if (swipeRef.current === swipe)
             navRef.current?.style.setProperty(
               '--sona-nav-progress',
-              String(positionFromX(swipeRef.current.latestX, swipe)),
+              String(
+                Math.round(positionFromX(swipeRef.current.latestX, swipe)),
+              ),
             )
         })
       swipe.latestX = event.clientX
@@ -495,12 +509,31 @@ export function SonaMobileNavigation() {
             navCancel()
         }}
       >
-        <span
-          className={
-            'sona-nav-highlight' + (selectedIndex < 0 ? ' is-hidden' : '')
-          }
-          aria-hidden="true"
-        />
+        <div className="sona-nav-items">
+          <span
+            className={
+              'sona-nav-highlight' + (selectedIndex < 0 ? ' is-hidden' : '')
+            }
+            aria-hidden="true"
+          />
+          {tabs.map(({ key, label, icon: Icon, url }, i) => (
+            <button
+              key={key}
+              type="button"
+              className={
+                'sona-tab ' + (selectedIndex === i ? 'sona-tab-active' : '')
+              }
+              aria-label={label}
+              aria-current={selectedIndex === i ? 'page' : undefined}
+              aria-hidden={circleMode}
+              tabIndex={circleMode ? -1 : 0}
+              onClick={() => tabClick(url)}
+            >
+              <Icon size={22} strokeWidth={selectedIndex === i ? 2.5 : 1.8} />
+              <span>{label}</span>
+            </button>
+          ))}
+        </div>
         <button
           type="button"
           className="sona-nav-return"
@@ -509,8 +542,8 @@ export function SonaMobileNavigation() {
               ? 'Return to ' + tabs[selectedIndex].label
               : 'Expand ' + tabs[selectedIndex].label + ' navigation'
           }
-          aria-hidden={!circleMode || fullSearch}
-          tabIndex={circleMode && !fullSearch ? 0 : -1}
+          aria-hidden={!circleMode || (fullSearch && !resultsDock)}
+          tabIndex={circleMode && (!fullSearch || resultsDock) ? 0 : -1}
           onClick={() => {
             if (isSearch) {
               leaveSearch()
@@ -522,23 +555,6 @@ export function SonaMobileNavigation() {
         >
           <ReturnIcon size={24} strokeWidth={2.2} />
         </button>
-        {tabs.map(({ key, label, icon: Icon, url }, i) => (
-          <button
-            key={key}
-            type="button"
-            className={
-              'sona-tab ' + (selectedIndex === i ? 'sona-tab-active' : '')
-            }
-            aria-label={label}
-            aria-current={selectedIndex === i ? 'page' : undefined}
-            aria-hidden={circleMode}
-            tabIndex={circleMode ? -1 : 0}
-            onClick={() => tabClick(url)}
-          >
-            <Icon size={22} strokeWidth={selectedIndex === i ? 2.5 : 1.8} />
-            <span>{label}</span>
-          </button>
-        ))}
       </nav>
       <div
         className={
