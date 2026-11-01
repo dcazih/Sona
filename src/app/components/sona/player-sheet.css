@@ -29,7 +29,8 @@
     min-height: 0 !important;
     filter: none !important;
     transform: none !important;
-    will-change: auto !important;
+    will-change: transform !important;
+    transform-origin:0 0!important;
   }
 }
 .sona-player-artwork-flight {
@@ -66,4 +67,13 @@
 }
 @media(prefers-reduced-motion:reduce) {
   .sona-now-art,.sona-now-art-content {transition:none!important;}
+}
+
+@media(max-width:767px){
+ .sona-now-overlay .sona-now-panel{translate:0 27px;}
+ .sona-now-control-stack{display:grid;gap:19px;margin-top:8px;margin-bottom:9px;}
+ .sona-now-overlay .sona-now-control-stack>.sona-now-progress,
+ .sona-now-overlay .sona-now-control-stack>.sona-now-transport,
+ .sona-now-overlay .sona-now-control-stack>.sona-now-volume{margin:0!important;}
+ .sona-player-track{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none;}
 }

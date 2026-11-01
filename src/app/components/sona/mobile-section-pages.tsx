@@ -147,8 +147,10 @@ function AlbumTile({album}:{album:Albums}){
 }
 
 export function SonaAlbumsList(){
- const {pathname}=useLocation()
- const settings=useSectionSettings(pathname)
+ const {pathname,search}=useLocation()
+ const sectionTitle=new URLSearchParams(search).get('section')
+ const settingsPath=pathname+(sectionTitle?search:'')
+ const settings=useSectionSettings(settingsPath)
  const {isLoading,albums}=useAlbumsListModel()
  const filtered=useMemo(()=>{
    let next=[...albums]
@@ -159,8 +161,8 @@ export function SonaAlbumsList(){
    if(settings.sort==='last-played')next.sort((a,b)=>(b.played||'').localeCompare(a.played||''))
    return next
  },[albums,settings])
- return <section className="sona-section-page sona-albums-list" aria-label="Albums">
-   <SectionTitle>Albums</SectionTitle>
+ return <section className="sona-section-page sona-albums-list" aria-label={sectionTitle||"Albums"}>
+   <SectionTitle>{sectionTitle||"Albums"}</SectionTitle>
    {isLoading?<Empty message="Loading albums…"/>:
     filtered.length===0?<Empty message="Nothing here."/>:
     settings.view==='list'?

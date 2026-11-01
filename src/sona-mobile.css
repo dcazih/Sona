@@ -2883,3 +2883,19 @@
   font-family:"Sona Jakarta",system-ui,-apple-system,sans-serif;
 }
 .sona-album-morph-artwork { position:fixed; z-index:2147482000; display:block; object-fit:cover; border-radius:13px; pointer-events:none; transform-origin:0 0; will-change:transform; }
+
+@media(max-width:767px){
+ .sona-app-shell .sona-header,
+ .sona-app-shell .sona-header.sona-header-album-view{
+   background:rgba(8,8,9,.76)!important;background-image:none!important;
+   -webkit-backdrop-filter:blur(20px) saturate(1.2)!important;
+   backdrop-filter:blur(20px) saturate(1.2)!important;
+ }
+ .sona-album-page .sona-mobile-album-cover{box-shadow:0 13px 33px #0007!important;}
+ .sona-app-shell #main-scroll-area [data-testid="card-play-button"]{
+   border:0!important;outline:0!important;box-shadow:none!important;
+ }
+ .sona-favorites-page .sona-mobile-album-actions{margin:20px 0 28px;}
+ .sona-favorites-page .sona-album-songs{padding:0!important;}
+ .sona-favorites-page .sona-album-song-secondary-artist{display:none;}
+}

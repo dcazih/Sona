@@ -91,7 +91,7 @@ function morphAfterNavigation(image: string, from: DOMRect, destination: () => H
     const toRadius = parseFloat(targetStyle.borderTopLeftRadius) || 0
     animation = artwork.animate([
       { borderRadius: `${fromRadius}px`, boxShadow: fromShadow, transform: `translate3d(${from.left}px,${from.top}px,0) scale(1,1)`, opacity: 1 },
-      { borderRadius: `${toRadius / (to.width / from.width)}px / ${toRadius / (to.height / from.height)}px`, boxShadow: targetStyle.boxShadow, transform: `translate3d(${to.left}px,${to.top}px,0) scale(${to.width / from.width},${to.height / from.height})`, opacity: 1 },
+      { borderRadius: `${toRadius / (to.width / from.width)}px / ${toRadius / (to.height / from.height)}px`, boxShadow: targetStyle.boxShadow.replace(/(-?[\d.]+)px/g, (_, value) => `${Number(value) / (to.width / from.width)}px`), transform: `translate3d(${to.left}px,${to.top}px,0) scale(${to.width / from.width},${to.height / from.height})`, opacity: 1 },
     ], { duration: 480, easing: 'cubic-bezier(.22,.75,.25,1)', fill: 'both' })
     animation.finished.then(cleanup).catch(cleanup)
   }

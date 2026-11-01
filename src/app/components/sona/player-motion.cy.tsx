@@ -150,7 +150,8 @@ describe('Mobile player sheet motion', () => {
     cy.get('[aria-label="Minimize Now Playing"]').click()
     cy.get('.sona-now-overlay').then(($sheet) => {
       const frames = ($sheet[0].getAnimations()[0].effect as KeyframeEffect).getKeyframes()
-      expect(Number(frames.find(frame => frame.offset === .75)?.opacity)).to.equal(1)
+      expect(Number(frames.find(frame => frame.offset === .25)?.opacity)).to.be.lessThan(.1)
+      expect(Number(frames.find(frame => frame.offset === .5)?.opacity)).to.equal(0)
     })
     cy.get('.sona-player-cover img').should('have.css','visibility','visible')
     cy.get('.sona-player').should('have.attr','data-sona-rebound','true')
@@ -176,6 +177,74 @@ describe('Mobile player sheet motion', () => {
     cy.then(()=>usePlayerStore.getState().actions.setPlayingState(false))
     cy.get('.sona-now-art').should('not.have.class','is-playing').should(($cover)=>{
       expect(new DOMMatrixReadOnly(getComputedStyle($cover[0]).transform).a).to.be.closeTo(.91,.002)
+    })
+  })
+
+  it('crops an unscaled gradient and fades the capsule immediately on close',()=>{
+    mountPlayer()
+    cy.get('.sona-player-track a').should('not.exist')
+    cy.get('.sona-player-track').click()
+    cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
+    cy.get('[aria-label="Minimize Now Playing"]').click()
+    cy.get('.sona-now-overlay').then($sheet=>{
+      const shape=$sheet[0].getAnimations()[0].effect as KeyframeEffect
+      expect(shape.getTiming().duration).to.equal(660)
+      const frame=shape.getKeyframes().find(frame=>frame.offset===.5)!
+      const matrix=new DOMMatrixReadOnly(String(frame.transform))
+      const background=$sheet[0].querySelector('.sona-now-background')!
+      const inverse=(background.getAnimations()[0].effect as KeyframeEffect).getKeyframes().find(frame=>frame.offset===.5)!
+      const scale=String(inverse.scale).split(' ').map(Number)
+      expect(matrix.a*scale[0]).to.be.closeTo(1,.001)
+      expect(matrix.d*scale[1]).to.be.closeTo(1,.001)
+      const capsule=$sheet[0].querySelector('.sona-now-top')!
+      expect(capsule.getAnimations()[0].effect?.getTiming().duration).to.equal(80)
+    })
+  })
+
+  it('centers the missing-artwork note inside the full cover',()=>{
+    cy.fixture('songs/random').then((songs:ISong[])=>{
+      usePlayerStore.getState().actions.setSongList([{...songs[0],coverArt:undefined} as ISong],0)
+      usePlayerStore.getState().fullscreen.setIsFullscreen(true)
+      cy.mount(<div className="sona-app-shell"><Player/><SonaMobileNowPlaying/></div>)
+    })
+    cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
+    cy.get('.sona-now-art .sona-artwork-note-fallback svg').should($icon=>{
+      const icon=$icon[0].getBoundingClientRect()
+      const cover=$icon[0].closest('.sona-now-art')!.getBoundingClientRect()
+      expect(icon.x+icon.width/2).to.be.closeTo(cover.x+cover.width/2,1)
+      expect(icon.y+icon.height/2).to.be.closeTo(cover.y+cover.height/2,1)
+    })
+    cy.get('.sona-now-art img').should('not.exist')
+  })
+
+  it('moves the title down 15 pixels and uses equal fixed gaps around transport',()=>{
+    mountPlayer()
+    cy.get('.sona-player-track').click()
+    cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
+    cy.get('.sona-now-panel').then($panel=>{
+      const panel=$panel[0],doc=panel.ownerDocument
+      const baseline=panel.cloneNode(true) as HTMLElement
+      Object.assign(baseline.style,{position:'fixed',bottom:'0',left:'0',width:'100%',visibility:'hidden',translate:'0 0',transform:'none'})
+      const stack=baseline.querySelector('.sona-now-control-stack')!
+      stack.replaceWith(...Array.from(stack.childNodes))
+      const oldProgress=baseline.querySelector<HTMLElement>('.sona-now-progress')!
+      const oldTransport=baseline.querySelector<HTMLElement>('.sona-now-transport')!
+      const oldVolume=baseline.querySelector<HTMLElement>('.sona-now-volume')!
+      oldProgress.style.setProperty('margin-top','8px','important')
+      oldTransport.style.setProperty('margin','14px 0 6px','important')
+      oldVolume.style.setProperty('margin','12px 0 9px','important')
+      panel.parentElement!.appendChild(baseline)
+      try{
+        const oldTop=baseline.querySelector('h2')!.getBoundingClientRect().top
+        const top=panel.querySelector('h2')!.getBoundingClientRect().top
+        expect(top-oldTop).to.be.closeTo(15,1)
+        const progress=panel.querySelector('.sona-now-progress')!.getBoundingClientRect()
+        const transport=panel.querySelector('.sona-now-transport')!.getBoundingClientRect()
+        const volume=panel.querySelector('.sona-now-volume')!.getBoundingClientRect()
+        expect(transport.top-progress.bottom).to.be.closeTo(19,1)
+        expect(volume.top-transport.bottom).to.be.closeTo(19,1)
+      }finally{baseline.remove()}
+      expect(doc.querySelectorAll('.sona-now-panel')).to.have.length(1)
     })
   })
 

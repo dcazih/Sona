@@ -8,22 +8,22 @@ import { usePlayerActions, usePlayerCurrentSong } from '@/store/player.store'
 import type { SingleAlbum } from '@/types/responses/album'
 import { SongExplicitMark } from './song-explicit-mark'
 
-export function SonaMobileAlbumTracks({ album }: { album: SingleAlbum }) {
+export function SonaMobileAlbumTracks({ album, showHeading = true, sourceType = 'album' }: { album: Pick<SingleAlbum,'id'|'name'|'artist'|'song'>; showHeading?:boolean; sourceType?:'album'|'favourite' }) {
   const { setSongList } = usePlayerActions()
   const currentSong = usePlayerCurrentSong()
 
   function play(index: number) {
     setSongList(album.song, index, false, {
-      id: album.id, name: album.name, type: 'album',
+      id: album.id, name: album.name, type: sourceType,
     })
   }
 
   return (
     <section className="sona-album-songs" aria-label={'Tracks on ' + album.name}>
-      <div className="sona-album-songs-heading">
+      {showHeading && <div className="sona-album-songs-heading">
         <strong>Songs</strong>
         <span>{album.song.length} {album.song.length === 1 ? 'track' : 'tracks'}</span>
-      </div>
+      </div>}
       <div className="sona-album-songs-list">
         {album.song.map((song, index) => {
           const active = Boolean(song.id && song.id === currentSong?.id)

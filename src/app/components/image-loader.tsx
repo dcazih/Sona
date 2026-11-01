@@ -9,5 +9,5 @@ interface ImageLoaderProps {
   children: (src: string | undefined, isLoading: boolean) => ReactNode
 }
 export function ImageLoader({ id, type, size = 300, children }: ImageLoaderProps) {
-  return <>{children(getImmediateCoverArtUrl(id, type, String(size)), false)}</>
+  return <>{children(!id && type !== 'artist' ? undefined : getImmediateCoverArtUrl(id, type, String(size)), false)}</>
 }

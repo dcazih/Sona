@@ -25,7 +25,8 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     const { x, sx, sy } = dragShape.current
     sheet.style.transform = `translate3d(${x}px,${distance.current}px,0) scale(${sx},${sy})`
     const radius = playerDragRadius(distance.current)
-    sheet.style.borderRadius = `${radius / sx}px ${radius / sx}px 0 0 / ${radius / sy}px ${radius / sy}px 0 0`
+    const corners = `${(radius / sx).toFixed(1)}px ${(radius / sx).toFixed(1)}px 0 0 / ${(radius / sy).toFixed(1)}px ${(radius / sy).toFixed(1)}px 0 0`
+    if (sheet.style.borderRadius !== corners) sheet.style.borderRadius = corners
     sheet.style.opacity = '1'
   }
 
@@ -71,7 +72,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     // FLIP: visual width and height change via scale, without laying out the
     // lyrics, queue, artwork and controls again on every animation frame.
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const duration = reduced ? 0 : expand ? 540 : 780
+    const duration = reduced ? 0 : expand ? 540 : 660
     const easing = expand ? OPEN_EASE : CLOSE_EASE
     const extraAnimations: Animation[] = []
     let reboundTimer = 0
@@ -140,7 +141,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       ] : [
         panelSnapshot,
         { transform: 'translate3d(0,42px,0)', opacity: 0 },
-      ], { duration: expand ? 570 : 330, delay: expand && wasClosed ? 45 : 0,
+      ], { duration: expand ? 570 : 120, delay: expand && wasClosed ? 45 : 0,
         easing: OPEN_EASE, fill: 'both' }))
     }
     if (!expand && mini && !reduced) {
@@ -189,13 +190,23 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       const corner = lerp(startRadius, expand ? 0 : radius, edge)
       return { offset: t, transform: `translate3d(${x}px,${y}px,0) scale(${w / width},${h / height})`,
         borderRadius: `${corner / (w / width)}px / ${corner / (h / height)}px`,
-        opacity: expand ? Math.min(1, t / .14) : 1 - Math.max(0, (t - .85) / .15) }
+        opacity: expand ? Math.min(1, t / .14) : Math.pow(Math.max(0, 1 - t / .3), 2) }
     })
+    const background = sheet.querySelector<HTMLElement>('.sona-now-background')
+    if (background) {
+      extraAnimations.push(background.animate(frames.map(frame => {
+        const matrix = new DOMMatrixReadOnly(frame.transform)
+        return { offset: frame.offset, scale: `${1 / matrix.a} ${1 / matrix.d}` }
+      }), { duration, easing: 'linear', fill: 'both' }))
+    }
+    const capsule = sheet.querySelector<HTMLElement>('.sona-now-top')
+    if (capsule && !expand) extraAnimations.push(capsule.animate([{opacity:1},{opacity:0}],{duration:80,fill:'both'}))
     const anim = sheet.animate(frames, { duration, easing: 'linear', fill: 'both' })
     animation.current = anim
     const finish = () => {
       if (animation.current !== anim) return
       Object.assign(sheet.style, expand ? full : compact)
+      if (background && expand) background.style.scale = '1'
       cleanupFlight()
       sheet.dataset.phase = expand ? 'open' : 'closed'
       animation.current = null
@@ -233,6 +244,8 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     animation.current = null
     cleanupExtras.current()
     distance.current = Math.max(0, rect.top)
+    const background = sheet.querySelector<HTMLElement>('.sona-now-background')
+    if (background) background.style.scale = `${1 / dragShape.current.sx} ${1 / dragShape.current.sy}`
     sheet.classList.add('is-dragging')
     sheet.dataset.phase = 'dragging'
   }

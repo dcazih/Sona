@@ -42,7 +42,7 @@ export default function PreviewList({
         </h3>
         <div className="flex items-center gap-4">
           {showMore && moreRoute && (
-            <Link to={moreRoute} data-testid="preview-list-show-more">
+            <Link to={moreRoute+(moreRoute.includes('?')?'&':'?')+'section='+encodeURIComponent(title)} data-testid="preview-list-show-more">
               <p className="leading-7 text-sm truncate hover:underline text-muted-foreground hover:text-primary">
                 {moreTitle}
               </p>

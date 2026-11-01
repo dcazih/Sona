@@ -50,7 +50,7 @@ export function Header() {
   const artistId = /^\/library\/artists\/([^/]+)$/.exec(pathname)?.[1]
   const isMobileDetail = Boolean(albumId || artistId)
   const isSectionView = pathname === '/library/albums' ||
-    /^\/library\/(artists|genres|playlists|songs|downloads)(\/|$)/.test(pathname)
+    /^\/library\/(artists|genres|playlists|songs|downloads|favorites)(\/|$)/.test(pathname)
   const isNewTab = pathname === '/mobile-new'
   const mobileTitle = pathname === '/' ? 'Home'
     : pathname === '/mobile-library' ? 'Library'
@@ -120,7 +120,7 @@ export function Header() {
               }}>Edit Sections</button>
             </div>}
         </div>
-        {pathname === '/library/radios' && <button type="button" className="sona-section-tool md:hidden" aria-label="Add radio" onClick={() => {setRadioData({} as Radio);setRadioDialog(true)}}><Plus size={26}/></button>}
+        {pathname === '/library/radios' && <button type="button" className="sona-library-header-button md:hidden" aria-label="Add radio" onClick={() => {setRadioData({} as Radio);setRadioDialog(true)}}><Plus size={26}/></button>}
         <SonaMobileAccount />
         {isWindows && !isFullscreen && <div className="w-[122px]" />}
         {isLinux && !isFullscreen && <div className="w-[94px]" />}

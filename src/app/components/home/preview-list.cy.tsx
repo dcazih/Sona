@@ -32,7 +32,7 @@ describe('PreviewList Component', () => {
 
       cy.getByTestId('preview-list-show-more')
         .should('have.text', componentProps.moreTitle)
-        .and('have.attr', 'href', componentProps.moreRoute)
+        .and('have.attr', 'href', componentProps.moreRoute+'?section='+encodeURIComponent(componentProps.title))
 
       cy.getByTestId('preview-list-prev-button').as('prevButton')
       cy.getByTestId('preview-list-next-button').as('nextButton')

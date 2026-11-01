@@ -2,10 +2,12 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { mount } from 'cypress/react'
 import type { ReactNode } from 'react'
+import SonaMobileFavorites from './mobile-favorites'
 import { MainRoutes } from '@/app/layout/main'
 import type { ISong } from '@/types/responses/song'
 import { SonaAlbumsList, SonaPlaylistDetail, SonaSongsList } from './mobile-section-pages'
 import '@/sona-mobile.css'
+import '@/sona-sections.css'
 
 function mountPage(element: ReactNode, path: string, entry = path) {
   const router = createMemoryRouter([{ id: 'playlist', path, element }], { initialEntries: [entry] })
@@ -57,6 +59,29 @@ describe('Mobile Songs, playlists and empty album filters', () => {
     cy.contains('Home').should('exist')
     cy.then(() => router.navigate('/library/albums/scroll-test'))
     cy.get('#scroll-viewport').should('have.prop', 'scrollTop', 0)
+  })
+
+  it('keeps See More section title, source ordering and normal filtering',()=>{
+    cy.intercept('**/rest/getAlbumList2*',{body:{'subsonic-response':{status:'ok',albumList2:{album:[
+      {id:'recent-first',name:'Recently heard',artist:'Artist',created:'2020-01-01'},
+      {id:'recent-second',name:'Newer but heard earlier',artist:'Artist',created:'2026-01-01'},
+    ]}}}}).as('section')
+    mountPage(<SonaAlbumsList/>,'/library/albums','/library/albums?filter=recent&section=Recently%20Played')
+    cy.contains('h1','Recently Played').should('be.visible')
+    cy.wait('@section').its('request.url').should('include','type=recent')
+    cy.get('.sona-section-album-tile strong').first().should('have.text','Recently heard')
+  })
+
+  it('renders Favorites with only a title, album-style controls and tracks',()=>{
+    cy.intercept('**/rest/getStarred2*',{body:{'subsonic-response':{status:'ok',starred2:{song:songs}}}})
+    mountPage(<SonaMobileFavorites/>,'/library/favorites')
+    cy.contains('h1','Favorites').should('be.visible')
+    cy.get('[aria-label="Shuffle favorites"]').should('exist')
+    cy.get('[aria-label="Play favorites"]').click()
+    cy.get('[aria-label="Download favorites"]').should('be.visible')
+    cy.get('.sona-album-song-row').should('have.length',1)
+    cy.get('.sona-mobile-album-cover,.sona-mobile-album-details,.sona-album-songs-heading,.sona-album-song-duration').should('not.exist')
+    cy.get('.sona-mobile-album-actions button').should('have.length',3)
   })
 
 })

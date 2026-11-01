@@ -1,6 +1,6 @@
 import { Airplay, ListMusic } from 'lucide-react'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
-import { type PointerEvent, type TouchEvent, useEffect, useRef, useState } from 'react'
+import { type TouchEvent, useEffect, useRef, useState } from 'react'
 import { ArtworkImage } from '@/app/components/artwork-image'
 import { ImageLoader } from '@/app/components/image-loader'
 import { SonaMobileTransport } from '@/app/components/sona/mobile-transport'
@@ -114,7 +114,7 @@ export function SonaMobileNowPlaying() {
     }
   }, [isFullscreen, setIsFullscreen])
 
-  function beginSwipe(event: PointerEvent<HTMLDivElement>) {
+  function beginSwipe(event: globalThis.PointerEvent) {
     if (!isFullscreen || !event.isPrimary || event.button !== 0) return
     if ((event.target as Element).closest('.sona-queue-scroller, .sona-now-lyrics, .sona-mobile-scrubber, .sona-volume-slider, [role="slider"], input, button:not(.sona-now-drag-handle), a')) return
     suppressClick.current = false
@@ -122,10 +122,10 @@ export function SonaMobileNowPlaying() {
       previousY: event.clientY, time: performance.now(), velocity: 0, axis: null, base: 0 }
   }
 
-  function moveSwipe(event: PointerEvent<HTMLDivElement>) {
+  function moveSwipe(event: globalThis.PointerEvent) {
     const start = gesture.current
     if (!start || event.pointerId !== start.id) return
-    const samples = event.nativeEvent.getCoalescedEvents?.()
+    const samples = event.getCoalescedEvents?.()
     const point = samples?.[samples.length - 1] || event
     const dx = point.clientX - start.x
     const dy = point.clientY - start.y
@@ -136,7 +136,7 @@ export function SonaMobileNowPlaying() {
         artTouchX.current = null
         motion.begin()
         start.base = motion.distance.current
-        event.currentTarget.setPointerCapture(event.pointerId)
+        motion.ref.current?.setPointerCapture(event.pointerId)
       }
     }
     if (start.axis !== 'y') return
@@ -149,7 +149,7 @@ export function SonaMobileNowPlaying() {
     motion.move(start.base + dy)
   }
 
-  function endSwipe(event: PointerEvent<HTMLDivElement>) {
+  function endSwipe(event: globalThis.PointerEvent) {
     const start = gesture.current
     gesture.current = null
     if (!start || start.id !== event.pointerId || start.axis !== 'y') return
@@ -184,6 +184,30 @@ export function SonaMobileNowPlaying() {
     artTouchX.current = null
   }
 
+  const pointerHandlers = useRef({beginSwipe,moveSwipe,endSwipe,cancelSwipe})
+  pointerHandlers.current={beginSwipe,moveSwipe,endSwipe,cancelSwipe}
+  useEffect(()=>{
+    const sheet=motion.ref.current
+    if(!sheet)return
+    const down=(event:globalThis.PointerEvent)=>pointerHandlers.current.beginSwipe(event)
+    const move=(event:globalThis.PointerEvent)=>pointerHandlers.current.moveSwipe(event)
+    const up=(event:globalThis.PointerEvent)=>pointerHandlers.current.endSwipe(event)
+    const cancel=()=>pointerHandlers.current.cancelSwipe()
+    const lost=(event:globalThis.PointerEvent)=>{
+      if(event.target===sheet && gesture.current?.id===event.pointerId)cancel()
+    }
+    sheet.addEventListener('pointerdown',down,{passive:true})
+    sheet.addEventListener('pointermove',move,{passive:true})
+    sheet.addEventListener('pointerup',up,{passive:true})
+    sheet.addEventListener('pointercancel',cancel)
+    sheet.addEventListener('lostpointercapture',lost)
+    return()=>{
+      sheet.removeEventListener('pointerdown',down);sheet.removeEventListener('pointermove',move)
+      sheet.removeEventListener('pointerup',up);sheet.removeEventListener('pointercancel',cancel)
+      sheet.removeEventListener('lostpointercapture',lost)
+    }
+  },[])
+
   return (
     <>
     <div
@@ -193,15 +217,6 @@ export function SonaMobileNowPlaying() {
       aria-modal={isFullscreen ? 'true' : undefined}
       aria-hidden={!isFullscreen}
       aria-label="Now Playing"
-      onPointerDown={beginSwipe}
-      onPointerMove={moveSwipe}
-      onPointerUp={endSwipe}
-      onPointerCancel={cancelSwipe}
-      onLostPointerCapture={(event) => {
-        if (event.target === event.currentTarget &&
-          !event.currentTarget.hasPointerCapture(event.pointerId) &&
-          gesture.current?.id === event.pointerId) cancelSwipe()
-      }}
       onClickCapture={(event) => {
         if (!suppressClick.current) return
         suppressClick.current = false
@@ -224,11 +239,11 @@ export function SonaMobileNowPlaying() {
             onTouchStart={(event) => { artTouchX.current = event.touches[0].clientX }}
             onTouchEnd={endArtworkSwipe}>
             <div className={"sona-now-art" + (playing ? " is-playing" : "")}><div className="sona-now-art-content">
-              {song?.coverArt ? (
-                <ImageLoader id={song.coverArt} type="song" size={800}>
-                  {(src) => <ArtworkImage src={src} alt={song.title || 'Album artwork'} />}
+              {(
+                <ImageLoader id={song?.coverArt} type="song" size={800}>
+                  {(src) => <ArtworkImage src={src} alt={song?.title || 'Album artwork'} />}
                 </ImageLoader>
-              ) : <SonaNoteGlyph size={78} /> }
+              )}
             </div></div>
           </div>
         )}
@@ -247,9 +262,11 @@ export function SonaMobileNowPlaying() {
           </div>
           <LikeButton />
         </div>
+        <div className="sona-now-control-stack">
         <div className="sona-now-progress"><SonaMobileProgress /></div>
         <div className="sona-now-transport"><SonaMobileTransport /></div>
         <div className="sona-now-volume"><SonaMobileVolume /></div>
+        </div>
         <div className="sona-now-bottom-actions">
           <button type="button" aria-label="Show lyrics" aria-pressed={view === 'lyrics'}
             className={view === 'lyrics' ? 'is-selected' : ''}

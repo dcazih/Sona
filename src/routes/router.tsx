@@ -25,6 +25,8 @@ import { albumsLoader } from '@/routes/loaders/albumsLoader'
 import { loginLoader } from '@/routes/loginLoader'
 import { podcastsLoader, protectedLoader } from '@/routes/protectedLoader'
 import { ROUTES } from '@/routes/routesList'
+import SonaMobileFavorites from '@/app/components/sona/mobile-favorites'
+import { RadioFormDialog } from '@/app/components/radios/form-dialog'
 import Home from '@/app/pages/home'
 import ErrorPage from '@/app/pages/error-page'
 import SonaMobileLibrary from '@/app/components/sona/mobile-library'
@@ -142,7 +144,7 @@ export const router = createHashRouter([
         errorElement: <ErrorPage />,
         element: (
           <Suspense fallback={<InfinitySongListFallback />}>
-            <Favorites />
+            <SonaResponsive mobile={<SonaMobileFavorites/>} desktop={<Favorites/>}/>
           </Suspense>
         ),
       },
@@ -162,7 +164,7 @@ export const router = createHashRouter([
         errorElement: <ErrorPage />,
         element: (
           <Suspense fallback={<SongListFallback />}>
-            <Radios />
+            <SonaResponsive mobile={<SonaMobileNew label="Radio"><RadioFormDialog/></SonaMobileNew>} desktop={<Radios/>}/>
           </Suspense>
         ),
       },
@@ -223,7 +225,7 @@ export const router = createHashRouter([
         loader: () => window.innerWidth < 768 ? null : podcastsLoader(),
         element: (
           <Suspense fallback={<AlbumsFallback />}>
-            <SonaResponsive mobile={<section className="sona-section-page"><p className="sona-section-empty">Still working on this one.</p></section>} desktop={<PodcastsList />}/>
+            <SonaResponsive mobile={<SonaMobileNew label="Podcasts"/>} desktop={<PodcastsList />}/>
           </Suspense>
         ),
       },

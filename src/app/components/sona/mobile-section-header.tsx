@@ -6,14 +6,16 @@ import { usePlaylists } from '@/store/playlists.store'
 
 type Menu = 'sort' | 'more' | null
 type View = 'grid' | 'list'
-type Sort = 'title' | 'date-added' | 'last-played' | 'updated' | 'playlist-type'
+type Sort = 'section' | 'title' | 'date-added' | 'last-played' | 'updated' | 'playlist-type'
 type Filter = 'all' | 'favorites' | 'downloads'
 export type SectionSettings = { view: View; sort: Sort; filter: Filter }
 export const defaultSettings: SectionSettings = { view:'list', sort:'title', filter:'all' }
 export function getSectionSettings(path: string): SectionSettings {
+ const base = path.split('?')[0]
+ const section = new URLSearchParams(path.split('?')[1] || '').get('section')
  const initial: SectionSettings = { ...defaultSettings,
-    view: path.startsWith('/library/genres/') || path === '/library/albums' ? 'grid' : 'list',
-    sort: path === '/library/albums' ? 'date-added' : 'title'
+    view: base.startsWith('/library/genres/') || base === '/library/albums' ? 'grid' : 'list',
+    sort: section ? 'section' : base === '/library/albums' ? 'date-added' : 'title'
  }
  try {
   const parsed = JSON.parse(localStorage.getItem('sona-section-settings:'+path) || 'null')
@@ -36,7 +38,8 @@ export function useSectionSettings(path: string) {
  return settings
 }
 export default function SonaSectionHeader() {
- const { pathname }=useLocation()
+ const { pathname, search }=useLocation()
+ const settingsPath=pathname+(new URLSearchParams(search).has('section')?search:'')
  const navigate=useNavigate()
  const isArtists=pathname==='/library/artists'
  const isPlaylists=pathname==='/library/playlists'
@@ -45,6 +48,7 @@ export default function SonaSectionHeader() {
  const isAlbums=pathname==='/library/albums'
  const isGenreDetail=/^\/library\/genres\/[^/]+$/.test(pathname)
  const isGenreList=pathname==='/library/genres'
+ const isFavorites=pathname==='/library/favorites'
  const isDownloads=pathname==='/library/downloads'
  const isArtistsDetail=/^\/library\/artists\/[^/]+$/.test(pathname)
  const showSort=isPlaylists||isAlbums||isSongs||isGenreDetail
@@ -53,13 +57,13 @@ export default function SonaSectionHeader() {
  const [closing,setClosing]=useState(false)
  const closeTimer=useRef<number|null>(null)
  const [artistFiltered,setArtistFiltered]=useState(false)
- const [settings,setSettings]=useState<SectionSettings>(()=>getSectionSettings(pathname))
+ const [settings,setSettings]=useState<SectionSettings>(()=>getSectionSettings(settingsPath))
  const ref=useRef<HTMLDivElement>(null)
  const {setPlaylistDialogState}=usePlaylists()
  useEffect(()=>{
   if(closeTimer.current!==null)window.clearTimeout(closeTimer.current)
-  setClosing(false);setOpen(null);setSettings(getSectionSettings(pathname));setArtistFiltered(false)
- },[pathname])
+  setClosing(false);setOpen(null);setSettings(getSectionSettings(settingsPath));setArtistFiltered(false)
+ },[pathname,search])
  useEffect(()=>()=>{if(closeTimer.current!==null)window.clearTimeout(closeTimer.current)},[])
  function closeMenu(){
   if(!open)return
@@ -83,7 +87,7 @@ export default function SonaSectionHeader() {
  function change<K extends keyof SectionSettings>(key:K,value:SectionSettings[K]) {
   const next={...settings,[key]:value}
   setSettings(next)
-  try { localStorage.setItem('sona-section-settings:'+pathname,JSON.stringify(next)) }catch{}
+  try { localStorage.setItem('sona-section-settings:'+settingsPath,JSON.stringify(next)) }catch{}
   sectionAction('setting',key)
   closeMenu()
  }
@@ -109,7 +113,7 @@ export default function SonaSectionHeader() {
     </button>)}
   </>
  )
- const showControls=isArtists||isPlaylists||isPlaylistDetail||isAlbums||isSongs||isGenreDetail||isGenreList||isDownloads||isArtistsDetail
+ const showControls=isArtists||isPlaylists||isPlaylistDetail||isAlbums||isSongs||isGenreDetail||isGenreList||isDownloads||isFavorites||isArtistsDetail
  if(!showControls)return null
  return createPortal(<div className="sona-section-toolbar md:hidden" ref={ref}>
   <button type="button" className="sona-section-back" aria-label="Back to Library" onClick={()=>navigate(-1)}><ChevronLeft size={28} strokeWidth={2.7}/></button>

@@ -20,6 +20,7 @@ import { ALBUM_ARTISTS_MAX_NUMBER } from '@/utils/multipleArtists'
 
 export function TrackInfo({ song }: { song: ISong | undefined }) {
   const { t } = useTranslation()
+  const isMobile = useIsMobile()
   const { setCurrentSongColor, currentSongColor } = useSongColor()
 
   const getImageElement = useCallback(() => {
@@ -102,14 +103,14 @@ export function TrackInfo({ song }: { song: ISong | undefined }) {
       </div>
       <div className="flex flex-col justify-center w-full overflow-hidden">
         <MarqueeTitle gap="mr-2">
-          <Link to={ROUTES.ALBUM.PAGE(song.albumId)} tabIndex={-1}>
+          {isMobile ? <span className="text-sm font-medium" data-testid="track-title">{song.title}</span> : <Link to={ROUTES.ALBUM.PAGE(song.albumId)} tabIndex={-1}>
             <span
               className="text-sm font-medium hover:underline cursor-pointer"
               data-testid="track-title"
             >
               {song.title}
             </span>
-          </Link>
+          </Link>}
         </MarqueeTitle>
         <TrackInfoArtistsLinks song={song} />
       </div>

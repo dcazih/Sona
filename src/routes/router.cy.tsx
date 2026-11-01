@@ -36,7 +36,7 @@ describe('Cold application routes', () => {
     const routes=router.routes.map(route=>({...route,loader:()=>null}))
     const testRouter=createMemoryRouter(routes,{initialEntries:['/library/podcasts']})
     mount(<QueryClientProvider client={new QueryClient()}><RouterProvider router={testRouter} future={{v7_startTransition:true}}/></QueryClientProvider>)
-    cy.contains('Still working on this one.').should('be.visible')
+    cy.contains('Still working on this one…').should('be.visible')
   })
 
   it('puts Add Radio in the top bar and opens the existing radio form',()=>{
