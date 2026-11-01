@@ -1,8 +1,18 @@
 import { Compass, House, Library, ListPlus, Mic, Search, X } from 'lucide-react'
-import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent } from 'react'
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ROUTES } from '@/routes/routesList'
 import { getMainScrollElement } from '@/utils/scrollPageToTop'
+import { usePlayerStore } from '@/store/player.store'
+import { useSonaDock, tabRoots } from './dock-state'
+import './mobile-dock.css'
 import { useSonaSearch } from './search-state'
 
 const tabs = [
@@ -15,7 +25,11 @@ const tabs = [
 type Recognition = {
   lang: string
   interimResults: boolean
-  onresult: ((event: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null
+  onresult:
+    | ((event: {
+        results: ArrayLike<ArrayLike<{ transcript: string }>>
+      }) => void)
+    | null
   onerror: (() => void) | null
   start: () => void
   stop: () => void
@@ -24,20 +38,36 @@ type SpeechWindow = Window & {
   SpeechRecognition?: new () => Recognition
   webkitSpeechRecognition?: new () => Recognition
 }
-type Swipe = { pointerId: number; startX: number; startY: number; moved: boolean; index: number }
+type Swipe = {
+  pointerId: number
+  startX: number
+  startY: number
+  moved: boolean
+  index: number
+  left: number
+  width: number
+  latestX: number
+}
 
 export function SonaMobileNavigation() {
   const navigate = useNavigate()
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
   const isSearch = pathname === '/mobile-search'
   const inputRef = useRef<HTMLInputElement>(null)
   const navRef = useRef<HTMLElement>(null)
   const swipeRef = useRef<Swipe | null>(null)
   const blockClickUntil = useRef(0)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
-  const [dragPosition, setDragPosition] = useState<number | null>(null)
-  const [, setKeyboardVisible] = useState(false)
-  const [, setKeyboardClosing] = useState(false)
+  const dragFrame = useRef(0)
+  const selectedIndex = useSonaDock((state) => state.selected)
+  const compact = useSonaDock((state) => state.compact)
+  const selectTab = useSonaDock((state) => state.select)
+  const setCompact = useSonaDock((state) => state.setCompact)
+  const returnRoute = useSonaDock((state) => state.returnRoute)
+  const ReturnIcon = tabs[selectedIndex].icon
+  const circleMode = compact || isSearch
+  const [keyboardVisible, setKeyboardVisible] = useState(false)
+  const [keyboardClosing, setKeyboardClosing] = useState(false)
   const [voiceError, setVoiceError] = useState('')
   const recognition = useRef<Recognition | null>(null)
   const term = useSonaSearch((state) => state.term)
@@ -47,24 +77,72 @@ export function SonaMobileNavigation() {
   const setEngaged = useSonaSearch((state) => state.setEngaged)
   const reset = useSonaSearch((state) => state.reset)
 
-  function indexForPath(): number {
-    if (pathname === '/') return 0
-    if (pathname === '/mobile-new') return 1
-    if (pathname === '/mobile-request') return 2
-    if (pathname === '/mobile-library' || pathname.startsWith('/library')) return 3
-    return -1
-  }
-  const selectedIndex = dragIndex ?? indexForPath()
+  useLayoutEffect(() => {
+    const index = tabRoots.findIndex((root) => root === pathname)
+    if (index >= 0) selectTab(index)
+    if (!isSearch) useSonaDock.getState().setReturnRoute(pathname + search)
+  }, [pathname, search, isSearch, selectTab])
+
+  useLayoutEffect(() => {
+    const root = document.documentElement
+    root.dataset.sonaDockReady = 'true'
+    root.dataset.sonaDock = isSearch ? 'search' : compact ? 'compact' : 'normal'
+    root.dataset.sonaSearchFocused = String(isSearch && focused)
+    root.dataset.sonaKeyboardMoving = String(
+      isSearch && (keyboardClosing || (focused && !keyboardVisible)),
+    )
+    return () => {
+      delete root.dataset.sonaDockReady
+      delete root.dataset.sonaDock
+      delete root.dataset.sonaSearchFocused
+      delete root.dataset.sonaKeyboardMoving
+    }
+  }, [isSearch, compact, focused, keyboardClosing, keyboardVisible])
+
+  useEffect(() => {
+    const viewport = getMainScrollElement()
+    if (!viewport) return
+    let previous = viewport.scrollTop
+    const scroll = () => {
+      const current = viewport.scrollTop,
+        delta = current - previous
+      previous = current
+      if (
+        isSearch ||
+        focused ||
+        usePlayerStore.getState().fullscreen.isFullscreen ||
+        Math.abs(delta) < 0.5
+      )
+        return
+      setCompact(delta > 0)
+    }
+    viewport.addEventListener('scroll', scroll, { passive: true })
+    return () => viewport.removeEventListener('scroll', scroll)
+  }, [pathname, search, isSearch, focused, setCompact])
+
+  useEffect(() => {
+    cancelAnimationFrame(dragFrame.current)
+    dragFrame.current = 0
+    navRef.current?.style.setProperty(
+      '--sona-nav-progress',
+      String(selectedIndex),
+    )
+  }, [selectedIndex])
+  useEffect(() => () => cancelAnimationFrame(dragFrame.current), [])
 
   useEffect(() => {
     if (window.innerWidth >= 768) return
     const root = document.documentElement
     const tabColor = '#000000'
     root.style.setProperty('--sona-tab-notch-color', tabColor)
-    if (root.dataset.sonaNotchOwner !== 'player' &&
-        !root.style.getPropertyValue('--sona-album-notch-color')) {
+    if (
+      root.dataset.sonaNotchOwner !== 'player' &&
+      !root.style.getPropertyValue('--sona-album-notch-color')
+    ) {
       root.style.setProperty('--sona-notch-color', tabColor)
-      document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute('content', tabColor)
+      document
+        .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+        ?.setAttribute('content', tabColor)
     }
   }, [pathname, isSearch])
 
@@ -76,27 +154,39 @@ export function SonaMobileNavigation() {
     reset()
   }
   function goTo(url: string) {
+    const index = tabRoots.findIndex((root) => root === url)
+    if (index >= 0) selectTab(index)
+    setCompact(false)
     leaveSearch()
     navigate(url)
   }
 
-  function getIndexFromX(x: number): number {
-    const box = navRef.current?.getBoundingClientRect()
-    if (!box) return 0
-    return Math.max(0, Math.min(tabs.length - 1, Math.floor((x - box.left) / box.width * tabs.length)))
-  }
-  function positionFromX(x: number): number {
-    const box = navRef.current?.getBoundingClientRect()
-    if (!box) return 0
-    const fraction = (x - box.left - 4) / Math.max(1, box.width - 8)
-    return Math.max(0, Math.min(tabs.length - 1, fraction * tabs.length - 0.5))
+  function positionFromX(x: number, swipe: Swipe) {
+    return Math.max(
+      0,
+      Math.min(
+        3,
+        ((x - swipe.left - 4) / Math.max(1, swipe.width - 8)) * 4 - 0.5,
+      ),
+    )
   }
   function navStart(event: ReactPointerEvent<HTMLElement>) {
-    if (!event.isPrimary || isSearch || (event.pointerType === 'mouse' && event.button !== 0)) return
+    if (
+      !event.isPrimary ||
+      circleMode ||
+      (event.pointerType === 'mouse' && event.button !== 0)
+    )
+      return
+    const bounds = event.currentTarget.getBoundingClientRect()
     swipeRef.current = {
+      left: bounds.left,
+      width: bounds.width,
+      latestX: event.clientX,
       pointerId: event.pointerId,
-      startX: event.clientX, startY: event.clientY,
-      moved: false, index: getIndexFromX(event.clientX),
+      startX: event.clientX,
+      startY: event.clientY,
+      moved: false,
+      index: selectedIndex,
     }
   }
   function navMove(event: ReactPointerEvent<HTMLElement>) {
@@ -107,18 +197,30 @@ export function SonaMobileNavigation() {
     if (!swipe.moved && Math.abs(dy) > Math.abs(dx) * 1.3) {
       swipeRef.current = null
       setDragIndex(null)
-      setDragPosition(null)
+      navRef.current?.style.setProperty(
+        '--sona-nav-progress',
+        String(selectedIndex),
+      )
       return
     }
-    if (Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
+    if (swipe.moved || (Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy))) {
       if (!swipe.moved) {
         swipe.moved = true
         event.currentTarget.setPointerCapture(event.pointerId)
       }
-      const position = positionFromX(event.clientX)
+      const position = positionFromX(event.clientX, swipe)
       swipe.index = Math.round(position)
-      setDragPosition(position)
-      setDragIndex(swipe.index)
+      if (!dragFrame.current)
+        dragFrame.current = requestAnimationFrame(() => {
+          dragFrame.current = 0
+          if (swipeRef.current === swipe)
+            navRef.current?.style.setProperty(
+              '--sona-nav-progress',
+              String(positionFromX(swipeRef.current.latestX, swipe)),
+            )
+        })
+      swipe.latestX = event.clientX
+      if (dragIndex === null) setDragIndex(selectedIndex)
       if (event.cancelable) event.preventDefault()
     }
   }
@@ -126,7 +228,12 @@ export function SonaMobileNavigation() {
     const swipe = swipeRef.current
     if (!swipe || swipe.pointerId !== event.pointerId) return
     swipeRef.current = null
-    setDragPosition(null)
+    cancelAnimationFrame(dragFrame.current)
+    dragFrame.current = 0
+    navRef.current?.style.setProperty(
+      '--sona-nav-progress',
+      String(swipe.moved ? swipe.index : selectedIndex),
+    )
     setDragIndex(null)
     if (swipe.moved) {
       blockClickUntil.current = Date.now() + 400
@@ -136,7 +243,12 @@ export function SonaMobileNavigation() {
   function navCancel() {
     swipeRef.current = null
     setDragIndex(null)
-    setDragPosition(null)
+    cancelAnimationFrame(dragFrame.current)
+    dragFrame.current = 0
+    navRef.current?.style.setProperty(
+      '--sona-nav-progress',
+      String(selectedIndex),
+    )
   }
   function tabClick(url: string) {
     if (Date.now() < blockClickUntil.current) return
@@ -150,6 +262,13 @@ export function SonaMobileNavigation() {
       setFocused(false)
     }
   }, [isSearch, setFocused])
+
+  // Hardware keyboards do not resize VisualViewport; keep the field usable there too.
+  useEffect(() => {
+    if (!focused) return
+    const timer = window.setTimeout(() => setKeyboardVisible(true), 500)
+    return () => window.clearTimeout(timer)
+  }, [focused])
 
   useEffect(() => {
     if (!isSearch || !focused) return
@@ -171,7 +290,7 @@ export function SonaMobileNavigation() {
       const dy = touch.clientY - startY
       if (Math.abs(dy) < 8 || Math.abs(dy) < Math.abs(dx) * 1.2) return
       dismissed = true
-      setKeyboardClosing(true)
+      if (parseFloat(document.documentElement.style.getPropertyValue('--sona-keyboard-offset')) > 100) setKeyboardClosing(true)
       inputRef.current?.blur()
       setFocused(false)
     }
@@ -212,30 +331,46 @@ export function SonaMobileNavigation() {
         const height = visual?.height || window.innerHeight
         if (height > baseline) baseline = height
         const keyboardHeight = Math.max(0, baseline - height)
-        root.style.setProperty('--sona-visual-bottom', Math.round(top + height) + 'px')
-        root.style.setProperty('--sona-visual-height', Math.round(height) + 'px')
+        root.style.setProperty(
+          '--sona-visual-bottom',
+          Math.round(top + height) + 'px',
+        )
+        root.style.setProperty(
+          '--sona-visual-height',
+          Math.round(height) + 'px',
+        )
         root.style.setProperty('--sona-visual-top', Math.round(top) + 'px')
-        root.style.setProperty('--sona-keyboard-offset', Math.round(keyboardHeight) + 'px')
+        root.style.setProperty(
+          '--sona-keyboard-offset',
+          Math.round(keyboardHeight) + 'px',
+        )
         // The dock is fixed to the layout viewport. Account for both keyboard
         // height and Safari's visual-viewport pan so it sits at the keyboard's
         // actual top edge instead of being offset twice.
         const keyboardBottomOffset = Math.max(0, baseline - (top + height))
-        root.style.setProperty('--sona-keyboard-bottom-offset', Math.round(keyboardBottomOffset) + 'px')
+        root.style.setProperty(
+          '--sona-keyboard-bottom-offset',
+          Math.round(keyboardBottomOffset) + 'px',
+        )
         window.clearTimeout(keyboardSettleTimer)
         if (keyboardHeight > 100) {
-          if (previousKeyboardHeight > 100 && keyboardHeight < previousKeyboardHeight - 8) {
+          if (
+            previousKeyboardHeight > 100 &&
+            keyboardHeight < previousKeyboardHeight - 8
+          ) {
             setKeyboardClosing(true)
-                }
+          }
           // Wait for VisualViewport to stop changing before the short reveal
           // begins after the keyboard has finished mounting.
-          keyboardSettleTimer = window.setTimeout(
-            () => {
-              setKeyboardVisible(true)
-              setKeyboardClosing(false)
-            },
-            160,
-          )
+          keyboardSettleTimer = window.setTimeout(() => {
+            setKeyboardVisible(true)
+            setKeyboardClosing(false)
+          }, 160)
         } else {
+          if (previousKeyboardHeight > 100) {
+            inputRef.current?.blur()
+            setFocused(false)
+          }
           keyboardSettleTimer = window.setTimeout(() => {
             setKeyboardVisible(false)
             setKeyboardClosing(false)
@@ -264,7 +399,7 @@ export function SonaMobileNavigation() {
       root.style.removeProperty('--sona-keyboard-bottom-offset')
       root.style.removeProperty('--sona-layout-height')
     }
-  }, [isSearch])
+  }, [isSearch, setFocused])
 
   function startVoiceSearch() {
     const w = window as SpeechWindow
@@ -284,7 +419,8 @@ export function SonaMobileNavigation() {
         inputRef.current?.focus()
         setVoiceError('')
       }
-      r.onerror = () => setVoiceError('Microphone permission is needed for voice search.')
+      r.onerror = () =>
+        setVoiceError('Microphone permission is needed for voice search.')
       r.start()
     } catch {
       setVoiceError('Voice search could not start.')
@@ -296,7 +432,9 @@ export function SonaMobileNavigation() {
     const value = term.trim()
     if (!value) return
     setEngaged(true)
-    window.dispatchEvent(new CustomEvent('sona-search-submit', { detail: value }))
+    window.dispatchEvent(
+      new CustomEvent('sona-search-submit', { detail: value }),
+    )
     inputRef.current?.blur()
     setFocused(false)
   }
@@ -305,47 +443,95 @@ export function SonaMobileNavigation() {
     <>
       <nav
         ref={navRef}
-        className={'sona-bottom-nav sona-bottom-nav-split' + (isSearch ? ' is-searching' : '') + (dragIndex !== null ? ' is-dragging' : '')}
+        className={
+          'sona-bottom-nav sona-bottom-nav-split' +
+          (circleMode ? ' is-collapsed' : '') +
+          (dragIndex !== null ? ' is-dragging' : '')
+        }
         aria-label="Music navigation"
-        style={{ '--sona-nav-index': selectedIndex < 0 ? 0 : selectedIndex, '--sona-nav-progress': dragPosition ?? (selectedIndex < 0 ? 0 : selectedIndex) } as CSSProperties}
         onPointerDown={navStart}
         onPointerMove={navMove}
         onPointerUp={navEnd}
-        onPointerCancel={navCancel}>
-        <span className={'sona-nav-highlight' + (selectedIndex < 0 ? ' is-hidden' : '')} aria-hidden="true" />
+        onPointerCancel={navCancel}
+        onLostPointerCapture={(event) => {
+          if (event.target === event.currentTarget && swipeRef.current) navCancel()
+        }}
+      >
+        <span
+          className={
+            'sona-nav-highlight' + (selectedIndex < 0 ? ' is-hidden' : '')
+          }
+          aria-hidden="true"
+        />
+        <button
+          type="button"
+          className="sona-nav-return"
+          aria-label={
+            isSearch
+              ? 'Return to ' + tabs[selectedIndex].label
+              : 'Expand ' + tabs[selectedIndex].label + ' navigation'
+          }
+          aria-hidden={!circleMode}
+          tabIndex={circleMode ? 0 : -1}
+          onClick={() => {
+            if (isSearch) {
+              leaveSearch()
+              setCompact(false)
+              navigate(returnRoute)
+            } else setCompact(false)
+          }}
+        >
+          <ReturnIcon size={24} strokeWidth={2.2} />
+        </button>
         {tabs.map(({ key, label, icon: Icon, url }, i) => (
-          <button key={key} type="button"
-            className={'sona-tab ' + (selectedIndex === i ? 'sona-tab-active' : '')}
+          <button
+            key={key}
+            type="button"
+            className={
+              'sona-tab ' + (selectedIndex === i ? 'sona-tab-active' : '')
+            }
             aria-label={label}
-            aria-current={selectedIndex === i && !isSearch ? 'page' : undefined}
-            onClick={() => tabClick(url)}>
+            aria-current={selectedIndex === i ? 'page' : undefined}
+            aria-hidden={circleMode}
+            tabIndex={circleMode ? -1 : 0}
+            onClick={() => tabClick(url)}
+          >
             <Icon size={22} strokeWidth={selectedIndex === i ? 2.5 : 1.8} />
             <span>{label}</span>
           </button>
         ))}
       </nav>
       <div
-        className={'sona-search-morph' + (isSearch ? ' is-expanded' : '') + (focused ? ' is-focused' : '') + (isSearch ? ' is-search-visible' : '')}
+        className={
+          'sona-search-morph' +
+          (isSearch ? ' is-expanded' : '') +
+          (focused ? ' is-focused' : '') +
+          (isSearch ? ' is-search-visible' : '')
+        }
         role={isSearch ? 'search' : undefined}
-        aria-label={isSearch ? 'Search your music library' : undefined}>
-        <button type="button" className="sona-search-exit" tabIndex={isSearch ? 0 : -1}
-          aria-label="Return Home"
-          onClick={() => { leaveSearch(); navigate(ROUTES.LIBRARY.HOME) }}>
-          <House size={23} strokeWidth={2.1} />
-        </button>
-        <button type="button" className="sona-search-orb"
+        aria-label={isSearch ? 'Search your music library' : undefined}
+      >
+        <button
+          type="button"
+          className="sona-search-orb"
           aria-label={isSearch ? 'Focus search' : 'Search'}
           onClick={() => {
             if (!isSearch) {
+              setCompact(false)
               navigate('/mobile-search')
               return
             }
             setEngaged(true)
             inputRef.current?.focus({ preventScroll: true })
-          }}>
+          }}
+        >
           <Search size={24} strokeWidth={isSearch ? 2.3 : 1.9} />
         </button>
-        <form className="sona-search-morph-field" aria-hidden={!isSearch} onSubmit={submitSearch}>
+        <form
+          className="sona-search-morph-field"
+          aria-hidden={!isSearch}
+          onSubmit={submitSearch}
+        >
           <input
             ref={inputRef}
             type="search"
@@ -354,7 +540,9 @@ export function SonaMobileNavigation() {
             enterKeyHint="search"
             spellCheck={false}
             autoComplete="off"
-            placeholder={focused ? 'Artists, albums, songs…' : 'Search Your Library'}
+            placeholder={
+              focused ? 'Artists, albums, songs…' : 'Search Your Library'
+            }
             value={term}
             onPointerDown={() => {
               // On iOS, focusing a fixed bottom input can scroll the document
@@ -366,23 +554,53 @@ export function SonaMobileNavigation() {
             }}
             onFocus={() => {
               setEngaged(true)
+              setKeyboardVisible(false)
               setFocused(true)
             }}
-            onBlur={() => setFocused(false)}
+            onBlur={() => {
+              if (
+                parseFloat(
+                  document.documentElement.style.getPropertyValue(
+                    '--sona-keyboard-offset',
+                  ),
+                ) > 100
+              )
+                setKeyboardClosing(true)
+              setFocused(false)
+            }}
             onChange={(event) => setTerm(event.target.value)}
-            onKeyDown={(event) => { if (event.key === 'Escape') leaveSearch() }}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') leaveSearch()
+            }}
           />
-          {term.length > 0
-            ? <button type="button" className="sona-search-inline-action" tabIndex={isSearch ? 0 : -1}
-                aria-label="Clear search"
-                onPointerDown={(event) => event.preventDefault()}
-                onClick={() => setTerm('')}>
-                <X size={17} />
-              </button>
-            : <button type="button" className="sona-search-inline-action" tabIndex={isSearch ? 0 : -1}
-                aria-label="Voice search" onClick={startVoiceSearch}><Mic size={19} /></button>}
+          {term.length > 0 ? (
+            <button
+              type="button"
+              className="sona-search-inline-action"
+              tabIndex={isSearch ? 0 : -1}
+              aria-label="Clear search"
+              onPointerDown={(event) => event.preventDefault()}
+              onClick={() => setTerm('')}
+            >
+              <X size={17} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="sona-search-inline-action"
+              tabIndex={isSearch ? 0 : -1}
+              aria-label="Voice search"
+              onClick={startVoiceSearch}
+            >
+              <Mic size={19} />
+            </button>
+          )}
         </form>
-        {voiceError && <span role="status" className="sona-search-voice-error">{voiceError}</span>}
+        {voiceError && (
+          <span role="status" className="sona-search-voice-error">
+            {voiceError}
+          </span>
+        )}
       </div>
     </>
   )

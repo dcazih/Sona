@@ -33,10 +33,6 @@
   .sona-brand-label {font-size:20px;letter-spacing:-.05em;font-weight:800;color:#fff}
   .sona-header .user-dropdown-trigger{min-height:42px;min-width:42px;display:grid;place-items:center}
   .sona-header [data-slot="avatar-fallback"]{background:#43434b!important}
-
-  .sona-bottom-nav {position:fixed;inset:auto 0 0;z-index:45;height:calc(67px + env(safe-area-inset-bottom,0px));
-    padding:6px 7px env(safe-area-inset-bottom,0px);display:flex;align-items:center;justify-content:space-around;
-    background:#222228ed;border-top:1px solid #ffffff21;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
   .sona-tab {flex:1;min-width:0;height:55px;display:flex;flex-direction:column;align-items:center;justify-content:center;
     gap:3px;color:#aaaab3;font-size:10px;font-weight:500;border-radius:9px;transition:color .18s}
   .sona-tab svg{width:21px;height:21px}
@@ -194,13 +190,6 @@
   .sona-request-my p{margin:4px 0 0;color:#98949e;font-size:12px}
   .sona-request-portal{flex:1;min-height:480px;overflow:hidden;background:#171719;border:0;border-radius:0}
   .sona-request-portal iframe{display:block;width:100%;height:calc(100% + 148px);border:0;transform:translateY(-74px);background:#171719}
-
-  .sona-search-morph.is-expanded{display:grid!important;grid-template-columns:42px 42px minmax(0,1fr);gap:5px;opacity:.48;transform:scaleX(.97);transform-origin:center;transition:top .28s cubic-bezier(.2,.9,.2,1),height .38s cubic-bezier(.2,1,.2,1),opacity .28s ease,transform .42s cubic-bezier(.2,1,.2,1)!important}
-  .sona-search-morph.is-expanded.is-focused{grid-template-columns:42px 42px minmax(0,1fr);height:54px!important;opacity:1;transform:scaleX(1)}
-  .sona-search-morph.is-expanded .sona-search-exit{grid-column:1;grid-row:1}
-  .sona-search-morph.is-expanded .sona-search-orb{grid-column:2;grid-row:1}
-  .sona-search-morph.is-expanded .sona-search-morph-field{grid-column:3;grid-row:1;min-width:0;opacity:.72;transition:opacity .28s ease .12s}
-  .sona-search-morph.is-expanded.is-focused .sona-search-morph-field{opacity:1}
   /* Keep the mini-player stationary when search takes focus. */
 }
 @media (max-width:375px) {
@@ -209,11 +198,6 @@
   .sona-now-transport{margin-block:10px}
   .sona-now-song-info{margin-bottom:3px}
   .sona-queue-current{display:none}
-}
-@media (min-width:768px) {
-  .sona-bottom-nav{display:none}
-}
-@media (prefers-reduced-motion: reduce) {
 }
 
 /* Mobile refinements: retain the Sona palette and remove desktop remnants. */
@@ -252,8 +236,6 @@
   .sona-now-overlay:not(.is-open) * {pointer-events:none}
   .sona-app-shell #main-scroll-area {overscroll-behavior-y:contain}
 }
-@media (prefers-reduced-motion:reduce) {
-}
 
 @media(max-width:767px){
   .sona-header .sona-desktop-account{display:none!important}
@@ -284,15 +266,6 @@
   }
   .sona-app-shell:has(.sona-am-search-page) .sona-header {display:none!important}
   .sona-app-shell:has(.sona-am-search-page) [data-slot="sidebar-wrapper"] {padding-top:env(safe-area-inset-top,0px)!important}
-  .sona-app-shell:has(.sona-am-search-page) .sona-player {
-    z-index:46;
-    bottom:calc(93px + env(safe-area-inset-bottom,0px))!important;
-    transition:opacity .22s,transform .28s ease,bottom .34s ease!important
-  }
-  .sona-app-shell:has(.sona-am-search-page.is-search-active) .sona-player {
-    opacity:0!important;pointer-events:none!important;transform:translateY(20px)
-  }
-  .sona-app-shell:has(.sona-am-search-page) .sona-bottom-nav {display:none!important}
   .sona-am-search-page {
     background:#050505;
     color:#fff;min-height:calc(100dvh - 130px);
@@ -419,8 +392,6 @@
     display:grid;place-items:center}
   .sona-search-cancel {width:43px;height:43px;background:#232326}
   .sona-search-dock:not(.is-active) .sona-search-cancel {display:none}
-  .sona-search-voice-error{position:absolute;bottom:100%;left:13px;right:13px;
-    padding:8px 11px;color:white;background:#752f40e8;border-radius:9px;font-size:12px}
   .sona-am-search-page:has(+ .sona-search-dock) {padding-bottom:160px}
   .sona-app-shell #main-scroll-area:has(.sona-am-search-page) {
     padding-bottom:calc(72px + env(safe-area-inset-bottom,0px));
@@ -678,46 +649,6 @@
   .sona-app-shell #main-scroll-area #scroll-viewport > div{
     overscroll-behavior-y:auto!important;
   }
-
-  .sona-bottom-nav {
-    box-sizing:border-box!important;
-    position:fixed!important;
-    inset:auto 10px env(safe-area-inset-bottom,0px) 10px!important;
-    width:calc(100% - 20px)!important;
-    height:64px!important;
-    padding:5px!important;
-    display:grid!important;
-    grid-template-columns:repeat(5,minmax(0,1fr))!important;
-    align-items:stretch!important;
-    justify-content:stretch!important;
-    border:1px solid rgba(255,255,255,.19)!important;
-    border-radius:33px!important;
-    background:rgba(33,33,38,.52)!important;
-    box-shadow:0 8px 26px #0005!important;
-    -webkit-backdrop-filter:blur(32px) saturate(1.85)!important;
-    backdrop-filter:blur(32px) saturate(1.85)!important;
-    overflow:hidden;
-  }
-  .sona-bottom-nav .sona-tab {
-    width:100%!important;min-width:0!important;height:100%!important;
-    border-radius:29px!important;padding:3px 0!important;
-    display:flex!important;align-items:center!important;justify-content:center!important;
-    flex-direction:column!important;gap:3px!important;
-    color:#c5c5cd!important;font-size:10px!important;
-    -webkit-tap-highlight-color:transparent;
-    transition:background .22s ease,color .22s ease,transform .16s ease;
-  }
-  .sona-bottom-nav .sona-tab:active{transform:scale(.94)}
-  .sona-bottom-nav .sona-tab svg{width:21px!important;height:21px!important}
-  .sona-bottom-nav .sona-tab-active{
-    color:#ff6a87!important;background:rgba(255,255,255,.105)!important;
-  }
-  .sona-bottom-nav .sona-tab-search{
-    background:transparent!important;border:0!important;
-    outline:none!important;box-shadow:none!important;
-    margin:0!important;position:relative!important;inset:auto!important;
-  }
-  .sona-bottom-nav .sona-tab-search span{display:block!important}
   .sona-player[data-mobile-active="true"] {
     bottom:calc(75px + env(safe-area-inset-bottom,0px))!important;
     background:rgba(42,42,48,.52)!important;
@@ -764,7 +695,6 @@
   .sona-app-shell:has(.sona-am-search-page) #main-scroll-area #scroll-viewport{
     overscroll-behavior-y:contain!important;
   }
-  .sona-app-shell:has(.sona-am-search-page) .sona-bottom-nav{display:none!important}
   .sona-search-dock {
     z-index:92!important;position:fixed!important;
     left:10px!important;right:10px!important;width:auto!important;
@@ -884,7 +814,7 @@
   .sona-home-hero-fallback-content{height:114px!important}
 }
 @media (prefers-reduced-motion:reduce){
-  .sona-search-dock,.sona-search-dock-field,.sona-bottom-nav .sona-tab{
+  .sona-search-dock,.sona-search-dock-field{
     transition-duration:.01ms!important;
   }
 }
@@ -986,184 +916,10 @@
   .sona-app-shell:has(.sona-am-search-page) #main-scroll-area #scroll-viewport>div{
     padding-bottom:calc(85px + env(safe-area-inset-bottom,0px))!important;
   }
-  .sona-app-shell .sona-bottom-nav-split,
-  .sona-app-shell:has(.sona-am-search-page) .sona-bottom-nav-split{
-    display:grid!important;
-    position:fixed!important;
-    z-index:81!important;
-    width:calc(100% - 98px)!important;
-    height:64px!important;
-    left:10px!important;
-    right:auto!important;
-    top:auto!important;
-    bottom:calc(9px + env(safe-area-inset-bottom,0px))!important;
-    grid-template-columns:repeat(4,minmax(0,1fr))!important;
-    padding:4px!important;
-    gap:0!important;
-    box-sizing:border-box!important;
-    border:1px solid rgba(255,255,255,.16)!important;
-    border-radius:33px!important;
-    overflow:hidden!important;
-    background:rgba(31,31,35,.62)!important;
-    -webkit-backdrop-filter:blur(35px) saturate(1.65)!important;
-    backdrop-filter:blur(35px) saturate(1.65)!important;
-    box-shadow:0 7px 22px #0005!important;
-    opacity:1;
-    transform:translate3d(0,0,0);
-    transition:transform .43s cubic-bezier(.2,.9,.19,1),
-      opacity .3s ease,filter .3s ease,visibility 0s!important;
-    touch-action:pan-y;
-  }
-  .sona-app-shell .sona-bottom-nav-split.is-searching{
-    opacity:0!important;
-    transform:translate3d(-13px,13px,0) scale(.94)!important;
-    filter:blur(5px)!important;
-    visibility:hidden!important;
-    pointer-events:none!important;
-    transition:transform .36s cubic-bezier(.2,.8,.19,1),
-      opacity .26s ease,filter .3s ease,
-      visibility 0s linear .36s!important;
-  }
-  .sona-bottom-nav-split .sona-nav-highlight{
-    position:absolute;z-index:0;
-    left:4px;top:4px;bottom:4px;
-    width:calc((100% - 8px) / 4);
-    border-radius:28px;
-    background:rgba(255,255,255,.12);
-    pointer-events:none;
-    transform:translate3d(calc(var(--sona-nav-index,0) * 100%),0,0);
-    transition:transform .47s cubic-bezier(.2,1.08,.28,1),
-      opacity .2s ease!important;
-  }
-  .sona-bottom-nav-split.is-dragging .sona-nav-highlight{
-    transition:transform .18s cubic-bezier(.22,.82,.23,1)!important;
-  }
-  .sona-bottom-nav-split .sona-nav-highlight.is-hidden{opacity:0}
-  .sona-bottom-nav-split .sona-tab{
-    z-index:1;position:relative;
-    width:100%!important;min-width:0;height:100%!important;
-    background:transparent!important;
-    color:#babac3!important;
-    transition:color .27s ease,transform .16s ease!important;
-    border-radius:25px!important;
-  }
-  .sona-bottom-nav-split .sona-tab-active{
-    color:#ff728e!important;background:transparent!important;
-  }
-  .sona-bottom-nav-split .sona-tab svg{
-    transition:color .26s ease,stroke-width .22s ease!important;
-  }
 
   /* The circle and the expanded input are the SAME persistent surface. */
-  .sona-search-morph{
-    position:fixed!important;
-    z-index:94!important;
-    right:10px!important;left:auto!important;
-    bottom:calc(9px + env(safe-area-inset-bottom,0px))!important;
-    height:64px!important;
-    width:64px!important;max-width:calc(100vw - 20px);
-    border:1px solid rgba(255,255,255,.20);
-    border-radius:33px;
-    display:flex;align-items:center;gap:0;
-    box-sizing:border-box;
-    padding:4px;
-    overflow:hidden;
-    background:rgba(33,33,38,.65);
-    -webkit-backdrop-filter:blur(34px) saturate(1.7);
-    backdrop-filter:blur(34px) saturate(1.7);
-    box-shadow:0 8px 25px #0006;
-    transform:translate3d(0,0,0);
-    transition:width .48s cubic-bezier(.22,1.08,.28,1),
-      border-radius .42s cubic-bezier(.22,1,.27,1),
-      bottom .14s linear,background .25s ease,
-      box-shadow .32s ease!important;
-    will-change:width,bottom;
-  }
-  .sona-search-morph.is-expanded{
-    width:calc(100vw - 20px)!important;
-    border-radius:33px!important;
-    background:rgba(31,31,35,.80);
-  }
-  .sona-search-morph.is-focused{
-    bottom:calc(7px + var(--sona-keyboard-bottom-offset,0px))!important;
-    background:rgba(35,35,40,.9);
-    border-color:rgba(255,255,255,.27);
-  }
-  .sona-search-orb{
-    height:53px;width:53px;min-width:53px;flex:none;
-    display:grid;place-items:center;
-    border-radius:50%;color:#f8f8fa;
-    background:transparent;
-    padding:0!important;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .sona-search-orb:active{background:rgba(255,255,255,.10)}
-  .sona-search-orb svg{transition:transform .34s cubic-bezier(.22,1,.2,1)}
-  .sona-search-morph.is-expanded .sona-search-orb svg{transform:scale(.86)}
-  .sona-search-morph-field{
-    display:flex;align-items:center;
-    flex:1;min-width:0;height:51px;
-    gap:8px;opacity:0;
-    transform:translateX(12px);
-    pointer-events:none;
-    transition:opacity .14s ease,transform .32s cubic-bezier(.2,.9,.2,1);
-  }
-  .sona-search-morph.is-expanded .sona-search-morph-field{
-    opacity:1;transform:translateX(0);
-    pointer-events:auto;
-    transition:opacity .24s ease .13s,
-      transform .34s cubic-bezier(.2,.9,.2,1) .07s!important;
-  }
-  .sona-search-morph-field input{
-    min-width:0;flex:1;width:100%;height:47px;
-    padding:0!important;
-    border:0!important;background:transparent!important;
-    outline:none!important;box-shadow:none!important;
-    border-radius:0!important;
-    color:#fff;font-size:16px!important;
-    -webkit-appearance:none!important;appearance:none!important;
-    text-overflow:ellipsis;
-  }
-  .sona-search-morph-field input::placeholder{color:#bbbcc4}
-  .sona-search-morph-field input::-webkit-search-cancel-button{display:none}
-  .sona-search-inline-action{
-    display:grid;place-items:center;
-    height:40px;width:35px;min-width:35px;
-    color:#f1f1f4;padding:0;
-  }
-  .sona-search-exit{
-    width:0;min-width:0;height:45px;
-    opacity:0;visibility:hidden;
-    pointer-events:none;
-    color:#f7f7f9;border-radius:50%;
-    background:transparent;
-    display:grid;place-items:center;
-    overflow:hidden;
-    transition:opacity .18s ease,width .3s ease,visibility 0s linear .3s;
-  }
-  .sona-search-morph.is-expanded .sona-search-exit{
-    width:42px;min-width:42px;
-    opacity:1;visibility:visible;pointer-events:auto;
-    transition:opacity .24s ease .14s,width .28s ease,visibility 0s;
-  }
-  .sona-search-exit:active{background:#ffffff1b}
-  .sona-search-voice-error{
-    position:fixed;z-index:100;
-    bottom:calc(76px + var(--sona-keyboard-offset,0px));
-    left:15px;right:15px;
-    background:#713045e8;color:white;
-    border-radius:12px;padding:9px;font-size:12px;
-  }
   /* Hide obsolete search dock if a cached component mounts during transition. */
   .sona-search-dock{display:none!important}
-
-  .sona-app-shell:has(.sona-am-search-page) .sona-player{
-    bottom:calc(83px + env(safe-area-inset-bottom,0px))!important;
-  }
-  .sona-app-shell:has(.sona-am-search-page.is-search-active) .sona-player{
-    opacity:0!important;pointer-events:none!important;
-    transform:translate3d(0,16px,0);
-  }
   .sona-am-search-page{
     padding-top:22px!important;
     padding-bottom:calc(105px + var(--sona-keyboard-offset,0px))!important;
@@ -1260,8 +1016,6 @@
   /* Remove lingering desktop hover transforms. All mobile touches must release. */
   .sona-now-overlay button,
   .sona-player button,
-  .sona-bottom-nav-split button,
-  .sona-search-morph button,
   .sona-album-page button{
     -webkit-tap-highlight-color:transparent;
     touch-action:manipulation;
@@ -1380,7 +1134,6 @@
   .sona-now-overlay button:hover,
   .sona-player button:hover,
   .sona-album-page button:hover,
-  .sona-bottom-nav-split button:hover,
   .sona-now-volume button:hover{
     transform:none!important;scale:1!important;
   }
@@ -1391,7 +1144,7 @@
   .sona-transport button:active{transform:scale(.88)!important}
 }
 @media (prefers-reduced-motion:reduce){
-  .sona-search-morph,.sona-bottom-nav-split,.sona-transport-icon,.sona-scrubber-track{
+  .sona-transport-icon,.sona-scrubber-track{
     transition-duration:.01ms!important;
   }
 }
@@ -2104,8 +1857,6 @@
   }
   .sona-mobile-album-back:active{transform:scale(.92)}
 }
-@media(prefers-reduced-motion:reduce){
-}
 
 /* Loading layout is an exact footprint match to the real featured cards. */
 @media(max-width:767px){
@@ -2208,45 +1959,6 @@
 /* VisualViewport-based floating Search. The dock tracks the keyboard's top
    even when iOS Safari resizes the layout viewport simultaneously. */
 @media(max-width:767px){
-  .sona-search-morph{
-    contain:none;will-change:auto;
-    transition:transform .3s cubic-bezier(.2,.9,.2,1),opacity .22s ease!important;
-  }
-  .sona-search-morph.is-expanded{
-    position:fixed!important;
-    top:auto!important;
-    bottom:calc(var(--sona-keyboard-bottom-offset,0px) + 7px)!important;
-    left:10px!important;right:10px!important;
-    width:calc(100vw - 20px)!important;
-    max-width:none!important;
-    height:50px!important;
-    border-radius:27px!important;
-    background:transparent!important;
-    border:0!important;
-    -webkit-backdrop-filter:none!important;
-    backdrop-filter:none!important;
-    box-shadow:none!important;
-    overflow:visible!important;
-  }
-  .sona-search-morph.is-expanded.is-focused{
-    background:transparent!important;
-    border-color:transparent!important;
-    top:auto!important;
-    bottom:calc(var(--sona-keyboard-bottom-offset,0px) + 7px)!important;
-  }
-  .sona-search-morph.is-expanded .sona-search-orb{
-    height:42px!important;width:42px!important;min-width:42px!important;
-  }
-  .sona-search-morph.is-expanded .sona-search-morph-field{height:44px!important}
-  .sona-search-morph.is-expanded .sona-search-morph-field input{height:44px!important}
-  .sona-search-morph.is-expanded .sona-search-exit{
-    border-radius:50%;width:42px!important;min-width:42px!important;
-    height:42px!important;color:#f8f8fa;background:#ffffff13!important;
-  }
-  .sona-app-shell .sona-bottom-nav-split.is-searching{
-    height:50px!important;border-radius:27px!important;
-    transform:translate3d(-9px,6px,0) scale(.94)!important;
-  }
   .sona-app-shell:has(.sona-am-search-page) #main-scroll-area{
     position:fixed!important;
     top:env(safe-area-inset-top,0px)!important;
@@ -2261,9 +1973,6 @@
   }
   /* Safari may pan its visual viewport upward when the bottom search input
      receives focus. Keep the page's top edge attached to the visible screen. */
-  .sona-app-shell:has(.sona-am-search-page):has(.sona-search-morph.is-focused) #main-scroll-area{
-    top:env(safe-area-inset-top,0px)!important;
-  }
   .sona-app-shell:has(.sona-am-search-page){position:fixed!important;inset:0!important;width:100vw!important;overflow:hidden!important}
   .sona-app-shell:has(.sona-am-search-page) #main-scroll-area #scroll-viewport{
     height:100%!important;max-height:100%!important;
@@ -2301,7 +2010,6 @@
   }
 }
 @media(prefers-reduced-motion:reduce){
-  .sona-search-morph.is-expanded,
   .sona-am-in,
   .sona-am-live-results,
   .sona-search-page-veil{
@@ -2386,8 +2094,7 @@
   .sona-mobile-artist-art{width:min(68vw,292px);aspect-ratio:1;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#29282d;box-shadow:0 18px 42px #0008}
   .sona-mobile-artist-art img{width:100%;height:100%;object-fit:cover}
   .sona-mobile-artist-copy{text-align:center;width:100%}.sona-mobile-artist-copy p{font-size:10px;letter-spacing:.14em;color:#aaa5af;font-weight:800;margin:0 0 7px}.sona-mobile-artist-copy h1{font-size:clamp(29px,9vw,40px);font-weight:850;letter-spacing:-.06em;line-height:1.05;margin:0}.sona-mobile-artist-copy span{display:block;color:#aaa5af;font-size:13px;margin-top:10px}
-  .sona-request-page{height:calc(100dvh - 64px);padding:12px 0 160px!important;display:flex;flex-direction:column;background:#171719;overflow:hidden}.sona-request-my{padding:8px 20px 14px;border-bottom:1px solid #ffffff1b;flex:none}.sona-request-my h1{margin:0;font-size:27px!important;font-weight:830;letter-spacing:-.05em}.sona-request-my p{margin:4px 0 0;color:#98949e;font-size:12px}.sona-request-portal{flex:1;min-height:480px;overflow:hidden;border:0;border-radius:0}.sona-request-portal iframe{display:block;width:100%;height:calc(100% + 148px);border:0;transform:translateY(-74px);background:#171719}
-  .sona-search-morph.is-expanded{display:grid!important;grid-template-columns:42px 42px minmax(0,1fr)!important;gap:5px;isolation:isolate;background:transparent!important;border:0!important;backdrop-filter:none!important;box-shadow:none!important;opacity:.48;transform:scaleX(.97);transform-origin:right bottom;transition:transform .3s cubic-bezier(.2,.9,.2,1),opacity .22s ease!important}.sona-search-morph.is-expanded::before{content:"";position:absolute;z-index:-1;left:49px;right:0;top:0;bottom:0;border-radius:27px;background:rgba(28,27,33,.82);border:1px solid rgba(255,255,255,.17);backdrop-filter:blur(20px) saturate(1.45)}.sona-search-morph.is-expanded.is-focused{height:54px!important;opacity:1;transform:scaleX(1)}.sona-search-morph.is-expanded .sona-search-exit{grid-column:1;grid-row:1;background:rgba(38,34,40,.92)!important;border:1px solid #ffffff1c!important}.sona-search-morph.is-expanded .sona-search-orb{grid-column:2;grid-row:1}.sona-search-morph.is-expanded .sona-search-morph-field{grid-column:3;grid-row:1;min-width:0;opacity:.72}.sona-search-morph.is-expanded.is-focused .sona-search-morph-field{opacity:1}/* No player nudge on search focus. */
+  .sona-request-page{height:calc(100dvh - 64px);padding:12px 0 160px!important;display:flex;flex-direction:column;background:#171719;overflow:hidden}.sona-request-my{padding:8px 20px 14px;border-bottom:1px solid #ffffff1b;flex:none}.sona-request-my h1{margin:0;font-size:27px!important;font-weight:830;letter-spacing:-.05em}.sona-request-my p{margin:4px 0 0;color:#98949e;font-size:12px}.sona-request-portal{flex:1;min-height:480px;overflow:hidden;border:0;border-radius:0}.sona-request-portal iframe{display:block;width:100%;height:calc(100% + 148px);border:0;transform:translateY(-74px);background:#171719}/* No player nudge on search focus. */
 
   /* Mobile surfaces never expose browser scrollbars. */
   html,body,#root,.sona-app-shell,.sona-app-shell *{scrollbar-width:none!important}
@@ -2416,37 +2123,14 @@
   @keyframes sona-request-spin{to{transform:rotate(360deg)}}
 
   /* Expanded search geometry and keyboard timing. */
-  .sona-app-shell:has(.sona-am-search-page) .sona-player[data-mobile-active="true"]{bottom:calc(67px + env(safe-area-inset-bottom,0px))!important;transform:none!important;transition:none!important}
-  .sona-app-shell:has(.sona-am-search-page) .sona-player-layout{grid-template-columns:minmax(0,1fr) 72px!important}
-  .sona-app-shell:has(.sona-am-search-page) .sona-player-controls{width:72px!important;min-width:72px!important;max-width:72px!important}
-  .sona-app-shell:has(.sona-am-search-page) .sona-player-controls>div:first-child{width:72px!important;min-width:72px!important;justify-content:flex-end!important;gap:0!important}
-  .sona-app-shell:has(.sona-am-search-page) .sona-player-controls [data-testid^="player-button-"]{flex:0 0 32px!important;transform:none!important;transition:none!important;animation:none!important}
-  .sona-app-shell:has(.sona-am-search-page) .sona-player-controls [data-testid^="player-button-"] svg{transform:none!important;transition:none!important;animation:none!important}
-  .sona-app-shell:has(.sona-am-search-page) .sona-player-controls>div:nth-child(2){position:absolute!important;left:0!important;right:0!important;bottom:-2px!important;width:auto!important;transform:none!important}
   .sona-app-shell:has(.sona-am-search-page){height:100dvh!important;min-height:100dvh!important}
   .sona-app-shell:has(.sona-am-search-page) .sona-am-search-page{min-height:calc(100dvh - env(safe-area-inset-top,0px))!important}
   .sona-app-shell:has(.sona-am-search-page) #scroll-viewport>div{padding-bottom:0!important}
   .sona-app-shell:has(.sona-am-search-page) .sona-am-search-page{box-sizing:border-box!important;padding-bottom:72px!important}
   .sona-app-shell:has(.sona-am-search-page) .sona-am-live-results{padding-bottom:0!important;min-height:0!important}
-  .sona-search-morph.is-expanded,.sona-search-morph.is-expanded.is-focused{height:54px!important;grid-template-columns:54px 56px minmax(0,1fr)!important;gap:0!important;padding:0!important;opacity:1!important;transform:none!important}
-  .sona-search-morph.is-expanded::before{left:68px!important;border-radius:27px!important;clip-path:inset(0 round 27px);background:rgba(15,15,17,.92)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;transition:opacity .34s ease!important}
-  .sona-search-morph.is-expanded .sona-search-orb{justify-self:end!important;padding-left:7px!important}
-  .sona-search-morph.is-expanded .sona-search-exit{width:54px!important;min-width:54px!important;height:54px!important;border-radius:50%!important}
-  .sona-search-morph.is-focused::before,.sona-search-morph.is-focused .sona-search-exit,.sona-search-morph.is-focused .sona-search-orb,.sona-search-morph.is-focused .sona-search-morph-field{opacity:0!important}
-  .sona-search-morph.is-focused.is-search-visible::before,.sona-search-morph.is-focused.is-search-visible .sona-search-exit,.sona-search-morph.is-focused.is-search-visible .sona-search-orb,.sona-search-morph.is-focused.is-search-visible .sona-search-morph-field{opacity:1!important;transition:opacity .36s ease!important}
-  .sona-search-morph.is-focused .sona-search-morph-field{pointer-events:auto!important}
-  .sona-search-morph.is-expanded .sona-search-inline-action{width:43px!important;min-width:43px!important;padding-right:10px!important}
   .sona-am-search-page.is-search-active{padding-top:2px!important}
   .sona-search-scope{height:40px!important;margin-top:0!important;margin-bottom:20px!important;padding:2px!important}
   .sona-search-scope button{height:34px!important}
-  .sona-search-morph.is-expanded:not(.is-search-visible)::before,
-  .sona-search-morph.is-expanded:not(.is-search-visible) .sona-search-exit,
-  .sona-search-morph.is-expanded:not(.is-search-visible) .sona-search-orb,
-  .sona-search-morph.is-expanded:not(.is-search-visible) .sona-search-morph-field{opacity:0!important;transition:opacity .16s ease!important}
-  .sona-search-morph.is-expanded.is-search-visible::before,
-  .sona-search-morph.is-expanded.is-search-visible .sona-search-exit,
-  .sona-search-morph.is-expanded.is-search-visible .sona-search-orb,
-  .sona-search-morph.is-expanded.is-search-visible .sona-search-morph-field{opacity:1!important;transition:opacity .16s ease!important}
 
   .sona-app-shell:has(.sona-persistent-requests.is-active) .sona-header,
   .sona-app-shell:has(.sona-persistent-requests.is-active)::before{background:#171719!important}
@@ -2467,7 +2151,6 @@
 @media (max-width:767px) and (display-mode:standalone) {
   html,body,#root{min-height:100vh!important;background:#171719!important}
   .sona-app-shell{min-height:100vh!important;height:100vh!important;background:#171719!important}
-  .sona-bottom-nav{bottom:0!important;padding-bottom:max(8px,env(safe-area-inset-bottom,0px))!important;background:#222228!important}
   .sona-now-background{}
 }
 
@@ -2475,27 +2158,6 @@
    The previous nav (9px+safe-area) and search (7px) positions diverged. */
 @media (max-width:767px) {
   :root { --sona-dock-bottom: calc(env(safe-area-inset-bottom,0px) + 4px); }
-  .sona-app-shell .sona-bottom-nav-split {
-    bottom:var(--sona-dock-bottom)!important;
-    touch-action:pan-y!important;
-    user-select:none!important;
-    -webkit-user-select:none!important;
-  }
-  .sona-bottom-nav-split .sona-tab { touch-action:pan-y!important; }
-  .sona-bottom-nav-split .sona-nav-highlight {
-    transform:translate3d(calc(var(--sona-nav-progress,var(--sona-nav-index,0)) * 100%),0,0)!important;
-  }
-  .sona-bottom-nav-split.is-dragging .sona-nav-highlight {
-    transition:none!important;
-  }
-  .sona-search-morph:not(.is-focused),
-  .sona-search-morph.is-expanded:not(.is-focused) {
-    bottom:var(--sona-dock-bottom)!important;
-  }
-  .sona-search-morph.is-expanded,
-  .sona-search-morph.is-expanded.is-focused {
-    bottom:max(var(--sona-dock-bottom),calc(var(--sona-keyboard-bottom-offset,0px) + 4px))!important;
-  }
 }
 
 /* Apple Music-style library with persistent, per-user editable sections. */
@@ -2651,43 +2313,10 @@
    display:block!important;height:100%!important;min-height:0!important;transform:none!important
  }
  /* Smaller gap between nav and search, and symmetric edges on expanded search. */
- .sona-app-shell .sona-bottom-nav-split{
-   left:10px!important;width:calc(100% - 89px)!important
- }
- .sona-search-morph:not(.is-expanded){right:10px!important}
- .sona-search-morph.is-expanded{
-   left:10px!important;right:10px!important;width:calc(100vw - 20px)!important;
-   max-width:none!important
- }
- .sona-search-morph.is-expanded::before{right:0!important}
 }
 
 /* Search v15: no fade-in/out of the search control. It stays visible in Search. */
 @media(max-width:767px){
- .sona-search-morph,
- .sona-search-morph.is-expanded,
- .sona-search-morph.is-expanded.is-focused,
- .sona-search-morph.is-expanded::before,
- .sona-search-morph.is-expanded .sona-search-exit,
- .sona-search-morph.is-expanded .sona-search-orb,
- .sona-search-morph.is-expanded .sona-search-morph-field{
-   opacity:1!important;filter:none!important;visibility:visible!important;
-   transition:none!important;animation:none!important
- }
- .sona-search-morph.is-expanded,
- .sona-search-morph.is-expanded.is-focused{
-   transform:none!important
- }
- .sona-search-morph.is-expanded:not(.is-search-visible)::before,
- .sona-search-morph.is-expanded:not(.is-search-visible) .sona-search-exit,
- .sona-search-morph.is-expanded:not(.is-search-visible) .sona-search-orb,
- .sona-search-morph.is-expanded:not(.is-search-visible) .sona-search-morph-field,
- .sona-search-morph.is-focused:not(.is-search-visible)::before,
- .sona-search-morph.is-focused:not(.is-search-visible) .sona-search-exit,
- .sona-search-morph.is-focused:not(.is-search-visible) .sona-search-orb,
- .sona-search-morph.is-focused:not(.is-search-visible) .sona-search-morph-field{
-   opacity:1!important;transition:none!important
- }
  /* Sliding two-way scope track with finger-follow and cubic snap on release. */
  .sona-search-scope{
    position:relative!important;isolation:isolate;
@@ -2724,26 +2353,6 @@
 
 /* Precise mobile docking: 10px outer margins and matching 5px internal gaps. */
 @media(max-width:767px){
-  .sona-app-shell .sona-bottom-nav-split{
-    left:10px!important;width:calc(100dvw - 89px)!important
-  }
-  .sona-search-morph.is-expanded,
-  .sona-search-morph.is-expanded.is-focused{
-    box-sizing:border-box!important;position:fixed!important;
-    left:10px!important;right:10px!important;
-    width:calc(100dvw - 20px)!important;
-    max-width:calc(100dvw - 20px)!important;
-    grid-template-columns:54px 54px minmax(0,1fr)!important;
-    gap:0!important;margin:0!important;transform:none!important
-  }
-  .sona-search-morph.is-expanded::before{
-    left:59px!important;right:0!important;
-    border-radius:27px!important
-  }
-  .sona-search-morph.is-expanded .sona-search-morph-field{
-    min-width:0!important;max-width:100%!important;
-    box-sizing:border-box!important
-  }
   .sona-featured-play,
   .sona-featured-play:focus,
   .sona-featured-play:focus-visible,
@@ -2811,11 +2420,6 @@
 @media(max-width:767px){
   .sona-app-shell .sona-player[data-mobile-active="true"]{
     bottom:calc(var(--sona-dock-bottom,calc(4px + env(safe-area-inset-bottom,0px))) + 64px + 4px)!important
-  }
-  .sona-app-shell:has(.sona-am-search-page) .sona-player[data-mobile-active="true"]{
-    bottom:calc(max(var(--sona-dock-bottom,calc(4px + env(safe-area-inset-bottom,0px))),
-      calc(var(--sona-keyboard-bottom-offset,0px) + 4px)) + 54px + 4px)!important;
-    transform:none!important;
   }
   /* Keep request loading cover centered but lift its content 100px. */
   .sona-request-loading-content{transform:translateY(-100px)!important}
