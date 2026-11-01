@@ -1,5 +1,7 @@
+import { useRadios } from '@/store/radios.store'
+import type { Radio } from '@/types/responses/radios'
 import { NavigationButtons } from '@/app/components/header/navigation-buttons'
-import { Check, ChevronDown, ChevronLeft, Ellipsis } from 'lucide-react'
+import { Check, ChevronDown, ChevronLeft, Ellipsis, Plus } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { closeSonaAlbumToCover } from '@/app/components/sona/album-morph'
@@ -14,6 +16,7 @@ import { isLinux, isMacOS, isWindows } from '@/utils/desktop'
 
 export function Header() {
   const { isFullscreen } = useAppWindow()
+  const { setDialogState: setRadioDialog, setData: setRadioData } = useRadios()
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const isLibraryTab = pathname === '/mobile-library'
@@ -117,6 +120,7 @@ export function Header() {
               }}>Edit Sections</button>
             </div>}
         </div>
+        {pathname === '/library/radios' && <button type="button" className="sona-section-tool md:hidden" aria-label="Add radio" onClick={() => {setRadioData({} as Radio);setRadioDialog(true)}}><Plus size={26}/></button>}
         <SonaMobileAccount />
         {isWindows && !isFullscreen && <div className="w-[122px]" />}
         {isLinux && !isFullscreen && <div className="w-[94px]" />}

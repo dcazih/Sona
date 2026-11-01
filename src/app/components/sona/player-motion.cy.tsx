@@ -23,11 +23,12 @@ describe('Mobile player sheet motion', () => {
 
   it('grows on press and morphs to/from the actual mini-player bounds', () => {
     mountPlayer()
-    cy.get('.sona-player-track').realMouseDown()
+    cy.get('.sona-player-track').trigger('pointerdown', { eventConstructor:'PointerEvent',pointerId:1,isPrimary:true,button:0 })
     cy.get('.sona-player').should(($mini) => {
       expect(parseFloat(getComputedStyle($mini[0]).scale)).to.be.greaterThan(1.01)
     })
-    cy.get('.sona-player-track').realMouseUp()
+    cy.get('.sona-player-track').trigger('pointerup', { eventConstructor:'PointerEvent',pointerId:1,isPrimary:true,button:0 })
+    cy.get('.sona-player-track').click()
     cy.get('.sona-now-overlay').should('have.attr', 'data-phase', 'open')
       .should(($sheet) => {
         const bounds = $sheet[0].getBoundingClientRect()
@@ -98,7 +99,7 @@ describe('Mobile player sheet motion', () => {
     }).then(($image) => {
       const source = ($image[0] as HTMLImageElement).currentSrc
       cy.get('.sona-player-track').click()
-      cy.get('.sona-player-artwork-flight').should('have.attr', 'src', source)
+      cy.get('.sona-player-artwork-flight img').should('have.attr', 'src', source)
       cy.get('.sona-now-panel').should(($panel) => {
         const frames = $panel[0].getAnimations().flatMap(animation => (animation.effect as KeyframeEffect).getKeyframes())
         expect(frames.some(frame => String(frame.transform).includes('92px'))).to.equal(true)
@@ -128,6 +129,54 @@ describe('Mobile player sheet motion', () => {
     cy.get('.sona-now-overlay .sona-mobile-scrubber').realMouseUp()
     cy.get('.sona-now-overlay .sona-scrubber-track').should('have.css', 'height', '6px')
     cy.get('.sona-now-overlay').should('have.attr', 'data-phase', 'open')
+  })
+
+  it('settles edges independently, keeps mini artwork visible, and ends rebound before close', () => {
+    mountPlayer()
+    cy.get('#track-song-image').should('be.visible')
+    cy.get('.sona-player-track').click()
+    cy.get('.sona-now-overlay').then(($sheet) => {
+      const animation = $sheet[0].getAnimations()[0]
+      const frames = (animation.effect as KeyframeEffect).getKeyframes()
+      expect(frames).to.have.length(41)
+      const halfway = frames.find(frame => frame.offset === .5)!
+      const matrix = new DOMMatrixReadOnly(String(halfway.transform))
+      // The growing bottom is nearly formed while the top still travels.
+      expect(matrix.f + matrix.d * 844).to.be.greaterThan(830)
+      expect(matrix.f).to.be.greaterThan(30)
+    })
+    cy.get('.sona-player-cover img').should('have.css', 'visibility', 'visible')
+    cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
+    cy.get('[aria-label="Minimize Now Playing"]').click()
+    cy.get('.sona-now-overlay').then(($sheet) => {
+      const frames = ($sheet[0].getAnimations()[0].effect as KeyframeEffect).getKeyframes()
+      expect(Number(frames.find(frame => frame.offset === .75)?.opacity)).to.equal(1)
+    })
+    cy.get('.sona-player-cover img').should('have.css','visibility','visible')
+    cy.get('.sona-player').should('have.attr','data-sona-rebound','true')
+    cy.get('.sona-now-overlay').should('have.attr','data-phase','closed')
+    cy.get('.sona-player').should('not.have.attr','data-sona-rebound')
+    cy.get('.sona-player').should(($mini) => {
+      expect(getComputedStyle($mini[0]).translate).to.equal('none')
+    })
+  })
+
+  it('grows the cover and eases its contents on play, then reverses on pause', () => {
+    mountPlayer()
+    cy.get('.sona-player-track').click()
+    cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
+    cy.get('.sona-now-art').should('not.have.class','is-playing')
+    cy.then(()=>usePlayerStore.getState().actions.setPlayingState(true))
+    cy.get('.sona-now-art').should('have.class','is-playing').should(($cover)=>{
+      expect(new DOMMatrixReadOnly(getComputedStyle($cover[0]).transform).a).to.be.closeTo(1,.002)
+    })
+    cy.get('.sona-now-art-content').should(($content)=>{
+      expect(new DOMMatrixReadOnly(getComputedStyle($content[0]).transform).a).to.be.closeTo(1.035,.002)
+    })
+    cy.then(()=>usePlayerStore.getState().actions.setPlayingState(false))
+    cy.get('.sona-now-art').should('not.have.class','is-playing').should(($cover)=>{
+      expect(new DOMMatrixReadOnly(getComputedStyle($cover[0]).transform).a).to.be.closeTo(.91,.002)
+    })
   })
 
 })

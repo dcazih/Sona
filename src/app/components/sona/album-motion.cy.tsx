@@ -1,14 +1,15 @@
+import { useEffect, useState } from 'react'
 import { Route, Routes, useNavigate } from 'react-router-dom'
 import type { ISong } from '@/types/responses/song'
 import Album from '@/app/pages/albums/album'
 import type { SingleAlbum } from '@/types/responses/album'
 import { AlbumGridCard } from '@/app/components/albums/album-grid-card'
-import { closeSonaAlbumToCover } from './album-morph'
+import { closeSonaAlbumToCover, openSonaAlbumFromCover } from './album-morph'
 import '@/sona-mobile.css'
 
 function withAlbum(run: (album: SingleAlbum) => void) {
   cy.fixture('albums/album').then((album: SingleAlbum) => {
-    cy.fixture('songs/random').then((songs: ISong[]) => run({ ...album, song: songs }))
+    cy.fixture('songs/random').then((songs: ISong[]) => run({ ...album, song: songs.map((song,index)=>({...song,explicitStatus:index===0?'explicit':'clean'})) }))
   })
 }
 
@@ -27,6 +28,18 @@ function App({ album }: { album: SingleAlbum }) {
       </Routes>
     </div></div></div>
   </div>
+}
+
+function DelayedCover() {
+  const [ready,setReady]=useState(false)
+  useEffect(()=>{const timer=setTimeout(()=>setReady(true),180);return()=>clearTimeout(timer)},[])
+  return ready?<div className="sona-mobile-album-cover" style={{position:'fixed',top:120,left:60,width:260,height:260,borderRadius:13}}/>:null
+}
+function DelayedRoute() {
+  const [opened,setOpened]=useState(false)
+  return opened?<DelayedCover/>:<button onClick={event=>openSonaAlbumFromCover(event,()=>setOpened(true),'delayed-cover')}>
+    <img src="/rest/getCoverArt?id=delayed-cover" alt="Delayed album" style={{width:100,height:100,borderRadius:3}}/>
+  </button>
 }
 
 describe('Mobile album loading and navigation', () => {
@@ -61,6 +74,8 @@ describe('Mobile album loading and navigation', () => {
         expect($actions[0].getBoundingClientRect().top).to.be.closeTo(actionsTop, 1)
       })
       cy.get('.sona-album-song-row').should('have.length', album.song.length)
+      cy.get('.sona-album-song-duration').should('not.exist')
+      cy.get('.sona-album-song-title').first().find('[aria-label="Explicit"]').should('exist')
       cy.get('#image-header-container').should('not.exist')
       cy.get('[role="table"]').should('not.exist')
     })
@@ -89,6 +104,23 @@ describe('Mobile album loading and navigation', () => {
       cy.get('[role="table"]').should('exist')
       cy.get('.sona-mobile-album-hero').should('not.exist')
     })
+  })
+
+  it('waits for a delayed destination and interpolates corners and shadow during travel',()=>{
+    cy.intercept('**/rest/getAlbum?*',{body:{'subsonic-response':{status:'ok',album:{id:'delayed-cover',name:'Delayed',song:[]}}}})
+    cy.mount(<DelayedRoute/> )
+    cy.get('[alt="Delayed album"]').should($image=>expect(($image[0] as HTMLImageElement).naturalWidth).to.be.greaterThan(0)).click()
+    cy.get('.sona-album-morph-artwork').should('exist')
+    cy.get('.sona-mobile-album-cover').should('exist')
+    cy.get('.sona-album-morph-artwork').then($ghost=>{
+      const animation=$ghost[0].getAnimations()[0]
+      expect(animation.effect?.getTiming().duration).to.equal(480)
+      const frames=(animation.effect as KeyframeEffect).getKeyframes()
+      expect(frames[0].borderRadius).not.to.equal(frames[1].borderRadius)
+      expect(frames[0].boxShadow).not.to.equal(frames[1].boxShadow)
+    })
+    cy.get('.sona-album-morph-artwork').should('not.exist')
+    cy.get('.sona-mobile-album-cover').should('have.css','visibility','visible')
   })
 
 })

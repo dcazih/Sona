@@ -19,6 +19,7 @@ import {
   usePlayerCurrentSong,
   usePlayerFullscreen,
   usePlayerRef,
+  usePlayerIsPlaying,
 } from '@/store/player.store'
 
 type View = 'playing' | 'lyrics' | 'queue'
@@ -27,6 +28,7 @@ type Gesture = { id: number; x: number; y: number; previousY: number; time: numb
 export function SonaMobileNowPlaying() {
   const { isFullscreen, setIsFullscreen } = usePlayerFullscreen()
   const song = usePlayerCurrentSong()
+  const playing = usePlayerIsPlaying()
   const ambientStyle = useSonaAmbient()
   const audioRef = usePlayerRef()
   const { playPrevSong, playNextSong } = usePlayerActions()
@@ -123,8 +125,10 @@ export function SonaMobileNowPlaying() {
   function moveSwipe(event: PointerEvent<HTMLDivElement>) {
     const start = gesture.current
     if (!start || event.pointerId !== start.id) return
-    const dx = event.clientX - start.x
-    const dy = event.clientY - start.y
+    const samples = event.nativeEvent.getCoalescedEvents?.()
+    const point = samples?.[samples.length - 1] || event
+    const dx = point.clientX - start.x
+    const dy = point.clientY - start.y
     if (dy > 0 && start.axis !== 'y') restoreNotchImmediately()
     if (!start.axis && Math.max(Math.abs(dx), Math.abs(dy)) > 4) {
       start.axis = dy > 0 && dy > Math.abs(dx) * 1.15 ? 'y' : 'x'
@@ -138,8 +142,8 @@ export function SonaMobileNowPlaying() {
     if (start.axis !== 'y') return
     suppressClick.current = true
     const now = performance.now()
-    start.velocity = (event.clientY - start.previousY) / Math.max(1, now - start.time)
-    start.previousY = event.clientY
+    start.velocity = (point.clientY - start.previousY) / Math.max(1, now - start.time)
+    start.previousY = point.clientY
     start.time = now
     // Follow every pixel, including the entire trip to the bottom. No resistance.
     motion.move(start.base + dy)
@@ -219,13 +223,13 @@ export function SonaMobileNowPlaying() {
           <div className="sona-now-art-area"
             onTouchStart={(event) => { artTouchX.current = event.touches[0].clientX }}
             onTouchEnd={endArtworkSwipe}>
-            <div className="sona-now-art">
+            <div className={"sona-now-art" + (playing ? " is-playing" : "")}><div className="sona-now-art-content">
               {song?.coverArt ? (
                 <ImageLoader id={song.coverArt} type="song" size={800}>
                   {(src) => <ArtworkImage src={src} alt={song.title || 'Album artwork'} />}
                 </ImageLoader>
               ) : <SonaNoteGlyph size={78} /> }
-            </div>
+            </div></div>
           </div>
         )}
         {view === 'lyrics' && <div className="sona-now-lyrics"><LyricsTab /></div>}

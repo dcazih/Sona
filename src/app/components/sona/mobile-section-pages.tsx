@@ -1,3 +1,5 @@
+import { createPortal } from 'react-dom'
+import { SongExplicitMark } from './song-explicit-mark'
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowDownToLine, Check, ChevronRight, Disc3, Ellipsis, ListMusic, Mic2, Music2, Play, Search, Shuffle, Star, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -49,20 +51,36 @@ function alphabetGroup(text:string){
  return /^[A-Z]$/.test(letter)?letter:'#'
 }
 const ALPHABET='ABCDEFGHIJKLMNOPQRSTUVWXYZ#'.split('')
-function AlphabetRail({letters,prefix}:{letters:string[];prefix:string}){
- return <aside className="sona-section-alphabet" aria-label="Jump to letter">
+export function AlphabetRail({letters,prefix}:{letters:string[];prefix:string}){
+ const [focused,setFocused]=useState('')
+ const held=useRef(false)
+ const choose=(index:number,drag=false)=>{
+   const letter=ALPHABET[Math.max(0,Math.min(ALPHABET.length-1,index))]
+   const target=letters.includes(letter)?letter:
+     ALPHABET.slice(index+1).find(item=>letters.includes(item)) ??
+     [...ALPHABET.slice(0,index)].reverse().find(item=>letters.includes(item))
+   if(!target)return
+   setFocused(target)
+   const element=document.getElementById(prefix+target)
+   const viewport=document.getElementById('scroll-viewport')
+   if(!element||!viewport)return
+   const headerBottom=document.querySelector('.sona-header')?.getBoundingClientRect().bottom || 64
+   const top=viewport.scrollTop+element.getBoundingClientRect().top-Math.max(viewport.getBoundingClientRect().top,headerBottom)-24
+   viewport.scrollTo({top:Math.max(0,top),behavior:drag?'instant':'smooth'})
+ }
+ const selectAt=(y:number,rail:HTMLElement)=>{
+   const bounds=rail.getBoundingClientRect()
+   choose(Math.floor((y-bounds.top)/bounds.height*ALPHABET.length),true)
+ }
+ return createPortal(<aside className="sona-section-alphabet" aria-label="Jump to letter"
+   onPointerDown={event=>{held.current=true;event.currentTarget.setPointerCapture(event.pointerId);selectAt(event.clientY,event.currentTarget);event.preventDefault()}}
+   onPointerMove={event=>{if(held.current){selectAt(event.clientY,event.currentTarget);event.preventDefault()}}}
+   onPointerUp={()=>{held.current=false}} onPointerCancel={()=>{held.current=false}}>
   {ALPHABET.map((letter,index)=>
-   <button key={letter} type="button"
-     aria-label={'Jump to '+(letter==='#'?'other':letter)}
-     data-has-matches={letters.includes(letter)}
-     onClick={()=>{
-       const target=letters.includes(letter)?letter:
-         ALPHABET.slice(index+1).find(item=>letters.includes(item)) ??
-         [...ALPHABET.slice(0,index)].reverse().find(item=>letters.includes(item))
-       if(target)document.getElementById(prefix+target)?.scrollIntoView({behavior:'smooth',block:'start'})
-     }}>{letter}</button>
-  )}
- </aside>
+   <button key={letter} type="button" aria-label={'Jump to '+(letter==='#'?'other':letter)}
+     aria-pressed={focused===letter} data-has-matches={letters.includes(letter)}
+     onClick={event=>{if(event.detail===0)choose(index)}}>{letter}</button>)}
+ </aside>,document.body)
 }
 function SectionActionButtons({onPlay,onShuffle}:{onPlay:()=>void;onShuffle:()=>void}){
  return <div className="sona-section-play-actions">
@@ -329,7 +347,7 @@ function SonaSongRows({songs,onPlay,alphabet=false}:{songs:ISong[];onPlay:(index
    {list.map(index=>{const song=songs[index];return <div className="sona-section-song-row" key={song.id+':'+index}>
     <button type="button" className="sona-section-song-target" onClick={()=>onPlay(index)}>
       <SectionArt id={song.coverArt} name={song.title}/>
-      <span className="sona-section-song-label"><strong>{song.title}</strong><small>{song.artist||'Unknown Artist'}</small></span>
+      <span className="sona-section-song-label"><strong>{song.title}<SongExplicitMark song={song}/></strong><small>{song.artist||'Unknown Artist'}</small></span>
     </button>
     <button type="button" className="sona-section-song-more" aria-label={'Options for '+song.title} onClick={()=>setMoreId(current=>current===song.id?null:song.id)}><Ellipsis size={24}/></button>
     {moreId===song.id&&<div className="sona-section-song-menu">
@@ -381,7 +399,7 @@ export function SonaSongsList(){
    <Empty message="No songs in this category"/>:
    settings.view==='grid'?<div className="sona-section-song-grid">{songs.map((song,index)=>
     <button type="button" key={song.id+':'+index} onClick={()=>play(index)}>
-     <SectionArt id={song.coverArt} name={song.title}/><strong>{song.title}</strong><span>{song.artist}</span>
+     <SectionArt id={song.coverArt} name={song.title}/><strong>{song.title}<SongExplicitMark song={song}/></strong><span>{song.artist}</span>
     </button>)}</div>:
    <SonaSongRows songs={songs} onPlay={play} alphabet/>}
   <div ref={sentinel} className="sona-section-load-more">{isFetchingNextPage?'Loading more…':''}</div>
@@ -396,7 +414,7 @@ export function SonaDownloadsList(){
  ]
  return <section className="sona-section-page sona-downloads-list" aria-label="Downloads">
   <div className="sona-section-download-links">{links.map(({name,icon:Icon,to})=>
-   <Link to={to} key={name}><Icon size={29} color="#fa4268" strokeWidth={1.8}/><span>{name}</span><ChevronRight size={23} className="sona-section-chevron"/></Link>)}
+   <Link to={to} key={name}><Icon size={24} color="#fa4268" strokeWidth={1.8}/><span>{name}</span><ChevronRight size={23} className="sona-section-chevron"/></Link>)}
   </div>
  </section>
 }

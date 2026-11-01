@@ -42,7 +42,7 @@ export default function Radios() {
 
   return (
     <div className={clsx('w-full', showTable ? 'h-full' : 'h-empty-content')}>
-      <ShadowHeader>
+      <div className="hidden md:block"><ShadowHeader>
         <div className="w-full flex items-center justify-between">
           <HeaderTitle
             title={t('sidebar.radios')}
@@ -59,7 +59,7 @@ export default function Radios() {
             <span className="ml-2">{t('radios.addRadio')}</span>
           </Button>
         </div>
-      </ShadowHeader>
+      </ShadowHeader></div>
 
       {showTable && (
         <ListWrapper>

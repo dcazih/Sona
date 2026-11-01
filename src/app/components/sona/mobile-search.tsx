@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { ArrowRight, ChevronRight, Play, Search } from 'lucide-react'
+import { SongExplicitMark } from './song-explicit-mark'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { ArtworkImage } from '@/app/components/artwork-image'
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
@@ -10,7 +11,7 @@ import { subsonic } from '@/service/subsonic'
 import { usePlayerActions } from '@/store/player.store'
 import { useSonaSearch, type SearchFilter } from './search-state'
 
-type RecentItem = { id: string; title: string; subtitle: string; type: 'song' | 'album' | 'artist' | 'query'; coverArt?: string; albumId?: string }
+type RecentItem = { id: string; title: string; subtitle: string; type: 'song' | 'album' | 'artist' | 'query'; coverArt?: string; albumId?: string; explicitStatus?: string }
 const RECENTS_KEY = 'sona-mobile-recent-searches'
 const SCOPE_KEY = 'sona-mobile-search-scope'
 type SearchScope = 'sona' | 'library'
@@ -246,7 +247,7 @@ export default function SonaMobileSearch() {
             ) : item.type === 'query' ? <Search size={22}/> : <SonaNoteGlyph size={23}/>}
           </span>
           <span className="sona-am-result-copy">
-            <strong>{item.title}</strong>
+            <strong>{item.title}{item.type === 'song' && <SongExplicitMark song={item}/>}</strong>
             <small>{item.type === 'song' ? 'Song' : item.type === 'album' ? 'Album' : item.type === 'artist' ? 'Artist' : 'Search'}{item.type !== 'query' && item.subtitle ? ' · ' + item.subtitle : ''}</small>
           </span>
           {!onPlay && <ChevronRight size={20} className="sona-am-row-chevron"/>}
@@ -359,9 +360,9 @@ export default function SonaMobileSearch() {
                   <h2>Songs</h2>
                   {songs.map((song) => renderRow({
                     id:song.id,type:'song',title:song.title,subtitle:song.artist,
-                    coverArt:song.coverArt,albumId:song.albumId,
+                    coverArt:song.coverArt,albumId:song.albumId,explicitStatus:song.explicitStatus,
                   },() => {
-                    remember({ id:song.id,type:'song',title:song.title,subtitle:song.artist,coverArt:song.coverArt,albumId:song.albumId })
+                    remember({ id:song.id,type:'song',title:song.title,subtitle:song.artist,coverArt:song.coverArt,albumId:song.albumId,explicitStatus:song.explicitStatus })
                     playSong(song)
                   }))}
                 </section>}

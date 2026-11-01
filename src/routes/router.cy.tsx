@@ -10,7 +10,7 @@ describe('Cold application routes', () => {
     cy.mockCoverArt()
     cy.intercept('**/rest/**', { body: { 'subsonic-response': {
       status: 'ok', searchResult3: { song: [{ id: 'song-1', title: 'Cold Route Song', artist: 'Artist', duration: 120 }] },
-      playlists: { playlist: [] }, genres: { genre: [] }, starred2: {},
+      internetRadioStations: { internetRadioStation: [] }, playlists: { playlist: [] }, genres: { genre: [] }, starred2: {},
       playlist: { id: 'playlist-1', name: 'Cold Route Playlist', entry: [{ id: 'song-1', title: 'Cold Route Song', artist: 'Artist', duration: 120 }], songCount: 1 },
     } } })
   })
@@ -32,4 +32,20 @@ describe('Cold application routes', () => {
       cy.contains('Unhandled Error').should('not.exist')
     })
   }
+  it('opens mobile Podcasts without a configured podcast service',()=>{
+    const routes=router.routes.map(route=>({...route,loader:()=>null}))
+    const testRouter=createMemoryRouter(routes,{initialEntries:['/library/podcasts']})
+    mount(<QueryClientProvider client={new QueryClient()}><RouterProvider router={testRouter} future={{v7_startTransition:true}}/></QueryClientProvider>)
+    cy.contains('Still working on this one.').should('be.visible')
+  })
+
+  it('puts Add Radio in the top bar and opens the existing radio form',()=>{
+    const routes=router.routes.map(route=>({...route,loader:()=>null}))
+    const testRouter=createMemoryRouter(routes,{initialEntries:['/library/radios']})
+    mount(<QueryClientProvider client={new QueryClient()}><RouterProvider router={testRouter} future={{v7_startTransition:true}}/></QueryClientProvider>)
+    cy.get('.sona-header [aria-label="Add radio"]').should('be.visible').click()
+    cy.get('[role="dialog"]').should('be.visible')
+    cy.get('.sona-header-page-title').should('have.text','Radio')
+  })
+
 })

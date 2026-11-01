@@ -6,7 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/app/co
 import { ROUTES } from '@/routes/routesList'
 import { usePlayerActions, usePlayerCurrentSong } from '@/store/player.store'
 import type { SingleAlbum } from '@/types/responses/album'
-import { convertSecondsToTime } from '@/utils/convertSecondsToTime'
+import { SongExplicitMark } from './song-explicit-mark'
 
 export function SonaMobileAlbumTracks({ album }: { album: SingleAlbum }) {
   const { setSongList } = usePlayerActions()
@@ -43,14 +43,13 @@ export function SonaMobileAlbumTracks({ album }: { album: SingleAlbum }) {
               <div className="sona-album-song-main">
                 <button type="button" className="sona-album-song-title"
                   aria-label={'Play ' + song.title} onClick={() => play(index)}>
-                  {song.title}
+                  {song.title}<SongExplicitMark song={song}/>
                 </button>
                 {showArtist && song.artistId && (
                   <Link className="sona-album-song-secondary-artist"
                     to={ROUTES.ARTIST.PAGE(song.artistId)}>{song.artist}</Link>
                 )}
               </div>
-              <span className="sona-album-song-duration">{convertSecondsToTime(song.duration || 0)}</span>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button type="button" className="sona-album-song-more"

@@ -220,10 +220,10 @@ export const router = createHashRouter([
         id: 'podcasts',
         path: ROUTES.LIBRARY.PODCASTS,
         errorElement: <ErrorPage />,
-        loader: podcastsLoader,
+        loader: () => window.innerWidth < 768 ? null : podcastsLoader(),
         element: (
           <Suspense fallback={<AlbumsFallback />}>
-            <PodcastsList />
+            <SonaResponsive mobile={<section className="sona-section-page"><p className="sona-section-empty">Still working on this one.</p></section>} desktop={<PodcastsList />}/>
           </Suspense>
         ),
       },

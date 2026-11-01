@@ -45,7 +45,7 @@
         background:linear-gradient(180deg,#ff90a8 0%,#ff4773 34%,#ff2750 66%,#ff022e 100%);
       }
       #root{min-height:100%;background:#171719}
-      #sona-startup{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;pointer-events:auto;overflow:hidden;isolation:isolate;opacity:1;transition:opacity .55s ease;background:linear-gradient(180deg,#ff90a8 0%,#ff4773 34%,#ff2750 66%,#ff022e 100%)}
+      #sona-startup{position:fixed;top:0;left:0;width:100vw;height:100vh;height:100lvh;z-index:2147483647;display:flex;align-items:center;justify-content:center;pointer-events:auto;overflow:hidden;isolation:isolate;opacity:1;transition:opacity .55s ease;background:linear-gradient(180deg,#ff90a8 0%,#ff4773 34%,#ff2750 66%,#ff022e 100%)}
       #sona-startup::before{display:none}
       #sona-startup.is-fading{opacity:0;pointer-events:none}
       #sona-startup .sona-startup-note{display:block;width:128px;height:128px;max-width:34vw;max-height:34vw;opacity:1;animation:none;flex:none;transform:none;filter:none}
@@ -69,17 +69,27 @@
           var delay=Math.max(0,650-(Date.now()-started));
           setTimeout(function(){
             requestAnimationFrame(function(){requestAnimationFrame(function(){
+              if(!cover)return;
               cover.classList.add('is-fading');
               cover.style.pointerEvents='none';
               setTimeout(function(){
-                cover.remove();
+                if(cover)cover.remove();
                 document.documentElement.classList.remove('sona-booting');
               },600);
             })});
           },delay);
         }
-        document.addEventListener('sona:ready',dismiss,{once:true});
-        window.addEventListener('pageshow',function(event){if(event.persisted)dismiss()});
+        document.addEventListener('sona:ready',function(){document.documentElement.dataset.sonaReady='true';dismiss()},{once:true});
+        function resume(){
+          if(!cover)return;
+          clearTimeout(watchdog);
+          cover.remove();cover=null;closing=true;
+          document.documentElement.classList.remove('sona-booting');
+        }
+        window.addEventListener('pageshow',function(event){if(event.persisted)resume()});
+        document.addEventListener('visibilitychange',function(){
+          if(document.visibilityState==='visible' && document.documentElement.dataset.sonaReady==='true')resume();
+        });
         // This is a visual boot cover, not a network-error screen.
         // Reveal the underlying React/router state if initialization stalls.
         var watchdog=setTimeout(dismiss,9000);

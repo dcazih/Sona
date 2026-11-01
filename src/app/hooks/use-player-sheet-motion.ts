@@ -9,7 +9,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
   const ref = useRef<HTMLDivElement>(null)
   const animation = useRef<Animation | null>(null)
   const frame = useRef(0)
-  const coverGhost = useRef<HTMLImageElement | null>(null)
+  const coverGhost = useRef<HTMLDivElement | null>(null)
   const cleanupExtras = useRef<() => void>(() => {})
   const distance = useRef(0)
   const dragShape = useRef({ x: 0, sx: 1, sy: 1 })
@@ -62,7 +62,8 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     }
     const full = { transform: 'translate3d(0,0,0) scale(1,1)', borderRadius: '0px', opacity: '1' }
     const computed = getComputedStyle(sheet)
-    const current = { transform: computed.transform, borderRadius: computed.borderRadius, opacity: computed.opacity }
+    const visualBounds = sheet.getBoundingClientRect()
+    const visualCorner = parseFloat(computed.borderTopLeftRadius) * (visualBounds.width / width) || 0
     const wasClosed = !sheet.dataset.phase || sheet.dataset.phase === 'closed'
     animation.current?.cancel()
     sheet.dataset.phase = expand ? 'opening' : 'closing'
@@ -92,24 +93,40 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
         artBounds.width / Math.max(.01, matrix.a), artBounds.height / Math.max(.01, matrix.d))
       const from = previousCover || (expand && wasClosed ? miniBounds : artBounds)
       const to = expand ? fullBounds : miniBounds
-      const ghost = document.createElement('img')
-      ghost.src = imageSrc
-      ghost.alt = ''
+      const ghost = document.createElement('div')
       ghost.className = 'sona-player-artwork-flight'
+      const ghostImage = sourceImage?.cloneNode(false) as HTMLImageElement || document.createElement('img')
+      ghostImage.src = imageSrc
+      ghostImage.removeAttribute('id')
+      ghostImage.removeAttribute('class')
+      ghostImage.loading = 'eager'
+      ghostImage.alt = ''
+      Object.assign(ghostImage.style, { width: '100%', height: '100%', objectFit: 'cover', display: 'block' })
+      ghost.appendChild(ghostImage)
       Object.assign(ghost.style, { width: fullBounds.width + 'px', height: fullBounds.height + 'px' })
       document.body.appendChild(ghost)
       coverGhost.current = ghost
       fullArt.style.visibility = 'hidden'
-      miniArt.style.visibility = 'hidden'
+      // Keep the landing artwork visible beneath the flight; never expose a blank tile.
+      const miniRadius = parseFloat(getComputedStyle(miniArt.closest('.sona-player-cover') || miniArt).borderTopLeftRadius) || 9
+      const artScale = new DOMMatrixReadOnly(getComputedStyle(fullArt).transform).a
+      const fullRadius = (parseFloat(getComputedStyle(fullArt).borderTopLeftRadius) || 13) * artScale
+      const fullShadow = getComputedStyle(fullArt).boxShadow
       const frameFor = (bounds: DOMRect, radius: number) => {
         const x = bounds.width / fullBounds.width
         const y = bounds.height / fullBounds.height
         return { transform: `translate3d(${bounds.left}px,${bounds.top}px,0) scale(${x},${y})`,
           borderRadius: `${radius / x}px / ${radius / y}px` }
       }
+      const content = fullArt.querySelector<HTMLElement>('.sona-now-art-content')
+      const contentTransform = content ? getComputedStyle(content).transform : 'scale(1)'
+      extraAnimations.push(ghostImage.animate([
+        { transform: expand ? 'scale(1)' : contentTransform },
+        { transform: expand ? contentTransform : 'scale(1)' },
+      ], { duration, easing, fill: 'both' }))
       extraAnimations.push(ghost.animate([
-        { ...frameFor(from, expand && wasClosed ? 9 : 13), opacity: 1 },
-        { ...frameFor(to, expand ? 13 : 9), opacity: 1 },
+        { ...frameFor(from, expand && wasClosed ? miniRadius : fullRadius), boxShadow: expand ? '0 2px 5px #0002' : fullShadow, opacity: 1 },
+        { ...frameFor(to, expand ? fullRadius : miniRadius), boxShadow: expand ? fullShadow : '0 2px 5px #0002', opacity: 1 },
       ], { duration, easing, fill: 'both' }))
     }
     const panel = sheet.querySelector<HTMLElement>('.sona-now-panel')
@@ -130,13 +147,12 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       reboundTimer = window.setTimeout(() => {
         mini.dataset.sonaRebound = 'true'
         rebound = mini.animate([
-          { translate: '0 0', scale: '1' },
-          { translate: '0 3px', scale: '1.012', offset: .35 },
-          { translate: '0 -1px', scale: '.997', offset: .72 },
-          { translate: '0 0', scale: '1' },
-        ], { duration: 380, easing: 'cubic-bezier(.22,.75,.25,1)' })
+          { scale: '1' },
+          { scale: '1.006 .987', offset: .45 },
+          { scale: '1' },
+        ], { duration: duration * .48, easing: 'cubic-bezier(.37,0,.25,1)' })
         rebound.finished.then(() => { delete mini.dataset.sonaRebound }).catch(() => {})
-      }, duration * .72)
+      }, duration * .4)
     }
     const cleanupFlight = () => {
       coverGhost.current?.remove()
@@ -151,9 +167,31 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       rebound?.cancel()
       if (mini) delete mini.dataset.sonaRebound
     }
-    const anim = sheet.animate([expand && wasClosed ? compact : current, expand ? full : compact], {
-      duration, easing, fill: 'both',
+    // Top and sides settle first; the bottom stays present until the last part
+    // of closing. Sample independent edge curves into compositor keyframes.
+    const startBounds = expand && wasClosed
+      ? { left, top, width: sx * width, height: sy * height }
+      : visualBounds
+    const endBounds = expand ? { left: 0, top: 0, width, height }
+      : { left, top, width: sx * width, height: sy * height }
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t
+    const startRadius = expand && wasClosed ? radius : visualCorner
+    const frames = Array.from({ length: 41 }, (_, index) => {
+      const t = index / 40
+      const edge = 1 - Math.pow(1 - t, expand ? 3 : 4)
+      const bottomProgress = expand ? 1 - Math.pow(1 - t, 6)
+        : 1 - Math.pow(1 - Math.max(0, (t - .18) / .82), 2)
+      const x = lerp(startBounds.left, endBounds.left, edge)
+      const y = lerp(startBounds.top, endBounds.top, edge)
+      const w = lerp(startBounds.width, endBounds.width, edge)
+      const bottom = lerp(startBounds.top + startBounds.height, endBounds.top + endBounds.height, bottomProgress)
+      const h = Math.max(1, bottom - y)
+      const corner = lerp(startRadius, expand ? 0 : radius, edge)
+      return { offset: t, transform: `translate3d(${x}px,${y}px,0) scale(${w / width},${h / height})`,
+        borderRadius: `${corner / (w / width)}px / ${corner / (h / height)}px`,
+        opacity: expand ? Math.min(1, t / .14) : 1 - Math.max(0, (t - .85) / .15) }
     })
+    const anim = sheet.animate(frames, { duration, easing: 'linear', fill: 'both' })
     animation.current = anim
     const finish = () => {
       if (animation.current !== anim) return

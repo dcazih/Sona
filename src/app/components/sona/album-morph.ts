@@ -1,6 +1,7 @@
 import type { MouseEvent } from 'react'
 import type { NavigateFunction } from 'react-router-dom'
 import { ROUTES } from '@/routes/routesList'
+import { readyArtwork } from '@/cache/artwork'
 import { queryClient } from '@/lib/queryClient'
 import { subsonic } from '@/service/subsonic'
 import { queryKeys } from '@/utils/queryKeys'
@@ -20,16 +21,35 @@ function coverFor(target: HTMLElement): HTMLImageElement | null {
     || null
 }
 
+function artworkStyle(element: HTMLElement) {
+  const bounds=element.getBoundingClientRect()
+  let radius=0,shadow='none'
+  let node:HTMLElement|null=element
+  while(node){
+    const rect=node.getBoundingClientRect()
+    if(Math.abs(rect.width-bounds.width)>4||Math.abs(rect.height-bounds.height)>4)break
+    const style=getComputedStyle(node)
+    radius=Math.max(radius,parseFloat(style.borderTopLeftRadius)||0)
+    if(style.boxShadow!=='none')shadow=style.boxShadow
+    node=node.parentElement
+  }
+  return {borderTopLeftRadius:radius+'px',boxShadow:shadow}
+}
+
 /** Move a decoded cover with transform/opacity only. The actual page renders
  * immediately; no expanding layout boxes, giant blur or delayed ghost fade. */
-function morphAfterNavigation(image: string, from: DOMRect, destination: () => HTMLElement | null) {
+function morphAfterNavigation(image: string, from: DOMRect, destination: () => HTMLElement | null, sourceStyle: {borderTopLeftRadius:string;boxShadow:string}) {
+  const fromRadius = parseFloat(sourceStyle.borderTopLeftRadius) || 0
+  const fromShadow = sourceStyle.boxShadow
   cancelMorph?.()
-  const artwork = document.createElement('img')
+  const artwork = readyArtwork(image)?.image.cloneNode(false) as HTMLImageElement || document.createElement('img')
+  artwork.removeAttribute('id')
+  artwork.loading = 'eager'
   artwork.className = 'sona-album-morph-artwork'
   artwork.src = image
   artwork.alt = ''
   artwork.setAttribute('aria-hidden', 'true')
-  Object.assign(artwork.style, { left: '0px', top: '0px', width: `${from.width}px`, height: `${from.height}px`,
+  Object.assign(artwork.style, { borderRadius: `${fromRadius}px`, boxShadow: fromShadow, left: '0px', top: '0px', width: `${from.width}px`, height: `${from.height}px`,
     transform: `translate3d(${from.left}px,${from.top}px,0)` })
   document.body.appendChild(artwork)
   document.documentElement.dataset.sonaAlbumMorph = 'active'
@@ -51,19 +71,31 @@ function morphAfterNavigation(image: string, from: DOMRect, destination: () => H
   cancelMorph = cleanup
   // React Router commits the route before this frame. Measure its real cover,
   // including restored list scroll on back, rather than guessing before mount.
-  frame = requestAnimationFrame(() => {
+  const started = performance.now()
+  const locate = () => {
     target = destination()
-    if (!target) { cleanup(); return }
+    if (!target) {
+      if (performance.now() - started < 1500) frame = requestAnimationFrame(locate)
+      else cleanup()
+      return
+    }
     const to = target.getBoundingClientRect()
-    if (to.width < 1 || to.height < 1) { cleanup(); return }
+    if (to.width < 1 || to.height < 1) {
+      if (performance.now() - started < 1500) frame = requestAnimationFrame(locate)
+      else cleanup()
+      return
+    }
     oldVisibility = target.style.visibility
     target.style.visibility = 'hidden'
+    const targetStyle = artworkStyle(target)
+    const toRadius = parseFloat(targetStyle.borderTopLeftRadius) || 0
     animation = artwork.animate([
-      { transform: `translate3d(${from.left}px,${from.top}px,0) scale(1,1)`, opacity: 1 },
-      { transform: `translate3d(${to.left}px,${to.top}px,0) scale(${to.width / from.width},${to.height / from.height})`, opacity: 1 },
-    ], { duration: 280, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'both' })
+      { borderRadius: `${fromRadius}px`, boxShadow: fromShadow, transform: `translate3d(${from.left}px,${from.top}px,0) scale(1,1)`, opacity: 1 },
+      { borderRadius: `${toRadius / (to.width / from.width)}px / ${toRadius / (to.height / from.height)}px`, boxShadow: targetStyle.boxShadow, transform: `translate3d(${to.left}px,${to.top}px,0) scale(${to.width / from.width},${to.height / from.height})`, opacity: 1 },
+    ], { duration: 480, easing: 'cubic-bezier(.22,.75,.25,1)', fill: 'both' })
     animation.finished.then(cleanup).catch(cleanup)
-  })
+  }
+  frame = requestAnimationFrame(locate)
 }
 
 export function openSonaAlbumFromCover(event: MouseEvent<HTMLElement>, navigate: NavigateFunction, albumId: string) {
@@ -83,7 +115,7 @@ export function openSonaAlbumFromCover(event: MouseEvent<HTMLElement>, navigate:
       ? '[data-sona-featured-song-id="' + CSS.escape(featured.getAttribute('data-sona-featured-song-id') || '') + '"] img'
       : '[data-sona-album-id="' + CSS.escape(albumId) + '"] img'
     lastSource = { albumId, image, selector: scope + selector }
-    morphAfterNavigation(image, rect, () => document.querySelector('.sona-mobile-album-cover'))
+    morphAfterNavigation(image, rect, () => document.querySelector('.sona-mobile-album-cover'), artworkStyle(element))
   }
   navigate(path)
 }
@@ -93,7 +125,7 @@ export function closeSonaAlbumToCover(navigate: NavigateFunction, albumId: strin
   const cover = document.querySelector<HTMLElement>('.sona-mobile-album-cover')
   if (mobileMotion() && source?.albumId === albumId && cover) {
     morphAfterNavigation(source.image, cover.getBoundingClientRect(), () =>
-      document.querySelector(source.selector))
+      document.querySelector(source.selector), artworkStyle(cover))
   }
   lastSource = null
   navigate(-1)

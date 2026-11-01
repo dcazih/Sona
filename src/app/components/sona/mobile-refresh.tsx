@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef } from 'react'
 
 /**
- * Keep active data fresh when returning to Sona without any pull/overscroll
+ * Refresh only expired active queries when returning to Sona without any pull/overscroll
  * gesture. Individual queries still revalidate using React Query policies.
  * No touch listeners or gesture-triggered fetches are installed.
  */
@@ -11,11 +11,11 @@ export function SonaImplicitRefresh() {
   const lastRefresh = useRef(0)
   const inFlight = useRef(false)
   const revalidate = useCallback(async () => {
-    if (inFlight.current || Date.now() - lastRefresh.current < 12000) return
+    if (inFlight.current || Date.now() - lastRefresh.current < 60000) return
     inFlight.current = true
     lastRefresh.current = Date.now()
     try {
-      await queryClient.invalidateQueries({ refetchType: 'active' })
+      await queryClient.refetchQueries({ type: 'active', stale: true })
     } finally {
       inFlight.current = false
     }

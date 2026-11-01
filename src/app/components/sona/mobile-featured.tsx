@@ -1,3 +1,4 @@
+import { SongExplicitMark } from './song-explicit-mark'
 import { ChevronLeft, ChevronRight, Play } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
@@ -55,7 +56,7 @@ export function SonaMobileFeatured({ songs }: { songs: ISong[] }) {
                   <span className="sona-featured-eyebrow">FEATURED SONG</span>
                   <div className="sona-featured-info">
                     <div className="sona-featured-text">
-                      <h3>{song.title}</h3>
+                      <h3>{song.title}<SongExplicitMark song={song}/></h3>
                       <p>{song.artist}</p>
                     </div>
                     <button type="button" className="sona-featured-play"

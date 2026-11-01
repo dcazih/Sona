@@ -1,3 +1,4 @@
+import { SongExplicitMark } from './song-explicit-mark'
 import { GripVertical, Music2, X } from 'lucide-react'
 import { type PointerEvent, useRef, useState } from 'react'
 import { ImageLoader } from '@/app/components/image-loader'
@@ -74,7 +75,7 @@ export function SonaMobileQueue() {
                 ) : <Music2 size={20} />}
               </span>
               <span className="sona-queue-text">
-                <strong>{song.title}</strong>
+                <strong>{song.title}<SongExplicitMark song={song}/></strong>
                 <small>{song.artist}</small>
               </span>
             </button>

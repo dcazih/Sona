@@ -374,3 +374,21 @@
    margin-top:3px!important;font-size:12px!important;
  }
 }
+
+@media(max-width:767px) {
+  body > .sona-section-alphabet {
+    position:fixed!important;right:1px!important;top:50%!important;bottom:auto!important;
+    transform:translateY(-50%);height:min(58dvh,405px)!important;max-height:none!important;
+    width:22px!important;margin:0!important;padding:0!important;
+    display:flex;flex-direction:column;justify-content:space-between;align-items:center;
+    touch-action:none;user-select:none;-webkit-user-select:none;z-index:45;
+  }
+  body > .sona-section-alphabet button {flex:1;min-height:0!important;width:22px!important;line-height:1!important;}
+  .sona-section-alphabet button[aria-pressed="true"] {color:white;background:#f04469;border-radius:50%;}
+  .sona-section-indexed,.sona-section-song-indexed {display:block!important;padding-right:7px!important;}
+  .sona-section-download-links a {min-height:59px;gap:14px;font-size:16px;font-weight:600;}
+  .sona-section-download-links a::after {left:38px;}
+}
+.sona-song-explicit {display:inline-flex;vertical-align:middle;align-items:center;justify-content:center;
+  width:12px;height:12px;line-height:1;margin-left:6px;font-size:9px;font-weight:800;
+  border-radius:2px;background:#aaa9b0;color:#171719;flex:none;}

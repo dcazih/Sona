@@ -37,8 +37,33 @@
   top: 0;
   left: 0;
   z-index: 251;
-  object-fit: cover;
+  overflow: hidden;
   transform-origin: 0 0;
   pointer-events: none;
   will-change: transform;
+}
+
+@media (max-width: 767px) {
+  .sona-now-overlay { contain: layout style; backface-visibility: hidden; }
+  .sona-now-overlay .sona-now-top {
+    min-height:calc(env(safe-area-inset-top,0px) + 24px)!important;
+    padding:env(safe-area-inset-top,0px) 15px 0!important;
+    align-items:flex-start!important;
+  }
+  .sona-now-overlay .sona-now-drag-handle {height:24px!important;align-items:start!important;padding-top:7px!important;}
+  .sona-now-overlay .sona-now-art {
+    overflow:hidden!important;border-radius:13px!important;
+    transform:scale(.91);transform-origin:center;
+    transition:transform .65s cubic-bezier(.22,1,.36,1)!important;
+    will-change:transform;
+  }
+  .sona-now-overlay .sona-now-art.is-playing {transform:scale(1);}
+  .sona-now-art-content {width:100%;height:100%;aspect-ratio:1;transform:scale(1);
+    transition:transform .65s cubic-bezier(.22,1,.36,1);}
+  .sona-now-art.is-playing .sona-now-art-content {transform:scale(1.035);}
+  .sona-now-overlay .sona-now-art-content img {border-radius:0!important;}
+  .sona-now-overlay.is-dragging .sona-now-background {transition:none!important;}
+}
+@media(prefers-reduced-motion:reduce) {
+  .sona-now-art,.sona-now-art-content {transition:none!important;}
 }
