@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Check, ChevronLeft, Ellipsis, Grid2X2, List, ListFilter, Plus, Star, ArrowDownToLine } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { usePlaylists } from '@/store/playlists.store'
@@ -10,7 +11,10 @@ type Filter = 'all' | 'favorites' | 'downloads'
 export type SectionSettings = { view: View; sort: Sort; filter: Filter }
 export const defaultSettings: SectionSettings = { view:'list', sort:'title', filter:'all' }
 export function getSectionSettings(path: string): SectionSettings {
- const initial: SectionSettings = { ...defaultSettings, view: path.startsWith('/library/genres/') ? 'grid' : 'list' }
+ const initial: SectionSettings = { ...defaultSettings,
+    view: path.startsWith('/library/genres/') || path === '/library/albums' ? 'grid' : 'list',
+    sort: path === '/library/albums' ? 'date-added' : 'title'
+ }
  try {
   const parsed = JSON.parse(localStorage.getItem('sona-section-settings:'+path) || 'null')
   return { ...initial, ...parsed }
@@ -38,12 +42,13 @@ export default function SonaSectionHeader() {
  const isPlaylists=pathname==='/library/playlists'
  const isPlaylistDetail=/^\/library\/playlists\/[^/]+$/.test(pathname)
  const isSongs=pathname==='/library/songs'
+ const isAlbums=pathname==='/library/albums'
  const isGenreDetail=/^\/library\/genres\/[^/]+$/.test(pathname)
  const isGenreList=pathname==='/library/genres'
  const isDownloads=pathname==='/library/downloads'
  const isArtistsDetail=/^\/library\/artists\/[^/]+$/.test(pathname)
- const showSort=isPlaylists||isSongs||isGenreDetail
- const showMore=isPlaylists||isPlaylistDetail||isSongs||isGenreDetail
+ const showSort=isPlaylists||isAlbums||isSongs||isGenreDetail
+ const showMore=isPlaylists||isAlbums||isPlaylistDetail||isSongs||isGenreDetail
  const [open,setOpen]=useState<Menu>(null)
  const [closing,setClosing]=useState(false)
  const closeTimer=useRef<number|null>(null)
@@ -97,16 +102,16 @@ export default function SonaSectionHeader() {
    <button className="sona-section-menu-line" onClick={()=>{sectionAction('playlist-play-next');closeMenu()}}>Play Next</button>
    <button className="sona-section-menu-line" onClick={()=>{sectionAction('playlist-download');closeMenu()}}><ArrowDownToLine size={18}/>Download</button>
   </> : <>
-   {([['all','All '+(isPlaylists?'Playlists':isGenreDetail?'Albums':'Songs')],['favorites','Favorites'],['downloads','Downloads']] as const).map(([value,label])=>
+   {([['all','All '+(isPlaylists?'Playlists':isAlbums||isGenreDetail?'Albums':'Songs')],['favorites','Favorites'],['downloads','Downloads']] as const).map(([value,label])=>
     <button key={value} className="sona-section-menu-line" onClick={()=>change('filter',value)}>
      <span className="sona-menu-tick">{settings.filter===value&&<Check size={18}/>}</span>
      {value==='favorites'?<Star size={18}/>:value==='downloads'?<ArrowDownToLine size={18}/>:null}{label}
     </button>)}
   </>
  )
- const showControls=isArtists||isPlaylists||isPlaylistDetail||isSongs||isGenreDetail||isGenreList||isDownloads||isArtistsDetail
+ const showControls=isArtists||isPlaylists||isPlaylistDetail||isAlbums||isSongs||isGenreDetail||isGenreList||isDownloads||isArtistsDetail
  if(!showControls)return null
- return <div className="sona-section-toolbar md:hidden" ref={ref}>
+ return createPortal(<div className="sona-section-toolbar md:hidden" ref={ref}>
   <button type="button" className="sona-section-back" aria-label="Back to Library" onClick={()=>navigate(-1)}><ChevronLeft size={28} strokeWidth={2.7}/></button>
   <div className="sona-section-tools">
    {isPlaylists&&<button className="sona-section-tool" aria-label="New playlist" onClick={()=>setPlaylistDialogState(true)}><Plus size={26}/></button>}
@@ -115,5 +120,5 @@ export default function SonaSectionHeader() {
    {showMore&&<button className={'sona-section-tool'+(open==='more'?' is-selected':'')} aria-label="More options" aria-expanded={open==='more'} onClick={()=>toggleMenu('more')}><Ellipsis size={25}/></button>}
    {open&&<div className={'sona-section-menu'+(closing?' is-leaving':'')} role="menu">{options}</div>}
   </div>
- </div>
+ </div>, document.body)
 }

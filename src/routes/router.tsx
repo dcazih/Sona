@@ -30,7 +30,7 @@ import SonaMobileLibrary from '@/app/components/sona/mobile-library'
 import SonaMobileSearch from '@/app/components/sona/mobile-search'
 import SonaMobileNew from '@/app/components/sona/mobile-new'
 import SonaResponsive from '@/app/components/sona/mobile-responsive'
-import { SonaArtistsList, SonaGenresList, SonaGenreDetail, SonaPlaylistsList, SonaPlaylistDetail, SonaSongsList, SonaDownloadsList } from '@/app/components/sona/mobile-section-pages'
+import { SonaArtistsList, SonaAlbumsList, SonaGenresList, SonaGenreDetail, SonaPlaylistsList, SonaPlaylistDetail, SonaSongsList, SonaDownloadsList } from '@/app/components/sona/mobile-section-pages'
 
 const BaseLayout = lazy(() => import('@/app/layout/base'))
 const Album = lazy(() => import('@/app/pages/albums/album'))
@@ -131,7 +131,7 @@ export const router = createHashRouter([
         errorElement: <ErrorPage />,
         element: (
           <Suspense fallback={<AlbumsFallback />}>
-            <AlbumsList />
+            <SonaResponsive mobile={<SonaAlbumsList/>} desktop={<AlbumsList/>}/>
           </Suspense>
         ),
       },

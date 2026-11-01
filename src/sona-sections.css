@@ -295,3 +295,82 @@
      visibility 0s linear .23s!important
  }
 }
+
+/* v22: single safe-area calculation. The previous double safe-area enlarged
+   the header until it covered titles and section controls. */
+@media(max-width:767px){
+ .sona-app-shell .sona-header.sona-header-section-view{
+   height:var(--header-height)!important;
+   max-height:var(--header-height)!important;
+   box-sizing:border-box!important;
+   padding-top:env(safe-area-inset-top,0px)!important;
+   overflow:visible!important;
+ }
+ .sona-section-toolbar{
+   position:fixed!important;
+   top:calc(env(safe-area-inset-top,0px) + 5px)!important;
+   left:17px!important;right:17px!important;
+   bottom:auto!important;
+   height:53px!important;
+   box-sizing:border-box!important;
+   padding:0!important;
+   z-index:190!important;
+   display:flex!important;
+   pointer-events:none!important;
+ }
+ .sona-section-toolbar>.sona-section-back,
+ .sona-section-toolbar>.sona-section-tools{pointer-events:auto!important}
+ .sona-section-toolbar>.sona-section-tools>.sona-section-menu{pointer-events:auto!important}
+ .sona-app-shell:has(.sona-section-page) #main-scroll-area #scroll-viewport>div{
+   padding-top:var(--header-height)!important;
+ }
+ .sona-app-shell:has(.sona-section-page) .sona-section-page{
+   margin-top:0!important;
+   padding-top:13px!important;
+   padding-left:20px!important;
+   padding-right:20px!important;
+ }
+ .sona-app-shell:has(.sona-section-page) .sona-section-heading{
+   margin-top:0!important;
+   padding-top:0!important;
+   line-height:1.18!important;
+   white-space:normal!important;
+   overflow:visible!important;
+   font-size:35px!important;
+ }
+ .sona-section-alphabet{
+   top:calc(env(safe-area-inset-top,0px) + 65px)!important;
+   margin-top:0!important;
+   gap:0!important;
+   padding-top:0!important;
+   width:19px!important;
+   max-height:calc(100dvh - env(safe-area-inset-top,0px) - 195px)!important;
+   justify-content:space-between!important;
+ }
+ .sona-section-alphabet button{
+   min-height:13px!important;
+   width:19px!important;
+   line-height:13px!important;
+   font-size:10px!important;
+   font-weight:750!important;
+ }
+ .sona-section-indexed,.sona-section-song-indexed{
+   grid-template-columns:minmax(0,1fr) 19px!important;
+ }
+ .sona-albums-list>.sona-section-heading{
+   margin-bottom:24px!important;
+ }
+ .sona-albums-list .sona-section-album-grid{
+   grid-template-columns:repeat(2,minmax(0,1fr));
+   gap:22px 13px!important
+ }
+ .sona-albums-list .sona-section-album-tile .sona-section-art{
+   aspect-ratio:1!important;border-radius:10px!important
+ }
+ .sona-albums-list .sona-section-album-tile strong{
+   font-size:13px!important;line-height:1.2!important;
+ }
+ .sona-albums-list .sona-section-album-tile>span:last-child{
+   margin-top:3px!important;font-size:12px!important;
+ }
+}

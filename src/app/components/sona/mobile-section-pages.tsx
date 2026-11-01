@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import { ArtworkImage } from '@/app/components/artwork-image'
 import { ImageLoader } from '@/app/components/image-loader'
 import { useOptions } from '@/app/hooks/use-options'
+import { useAlbumsListModel } from '@/app/pages/albums/list.model'
 import { ROUTES } from '@/routes/routesList'
 import { songsSearch } from '@/queries/songs'
 import { subsonic } from '@/service/subsonic'
@@ -49,10 +50,16 @@ function alphabetGroup(text:string){
 const ALPHABET='ABCDEFGHIJKLMNOPQRSTUVWXYZ#'.split('')
 function AlphabetRail({letters,prefix}:{letters:string[];prefix:string}){
  return <aside className="sona-section-alphabet" aria-label="Jump to letter">
-  {ALPHABET.filter(l=>letters.includes(l)).map(letter=>
-   <button key={letter} type="button" onClick={()=>{
-    document.getElementById(prefix+letter)?.scrollIntoView({behavior:'smooth',block:'start'})
-   }}>{letter}</button>
+  {ALPHABET.map((letter,index)=>
+   <button key={letter} type="button"
+     aria-label={'Jump to '+(letter==='#'?'other':letter)}
+     data-has-matches={letters.includes(letter)}
+     onClick={()=>{
+       const target=letters.includes(letter)?letter:
+         ALPHABET.slice(index+1).find(item=>letters.includes(item)) ??
+         [...ALPHABET.slice(0,index)].reverse().find(item=>letters.includes(item))
+       if(target)document.getElementById(prefix+target)?.scrollIntoView({behavior:'smooth',block:'start'})
+     }}>{letter}</button>
   )}
  </aside>
 }
@@ -113,9 +120,34 @@ function AlbumTile({album}:{album:Albums}){
    <strong>{album.name}</strong><span>{album.artist}</span>
   </Link>
 }
+
+export function SonaAlbumsList(){
+ const {pathname}=useLocation()
+ const settings=useSectionSettings(pathname)
+ const {isLoading,albums}=useAlbumsListModel()
+ const filtered=useMemo(()=>{
+   let next=[...albums]
+   if(settings.filter==='favorites')next=next.filter(album=>Boolean(album.starred))
+   if(settings.filter==='downloads')next=[]
+   if(settings.sort==='title')next.sort((a,b)=>a.name.localeCompare(b.name))
+   if(settings.sort==='date-added'||settings.sort==='updated')next.sort((a,b)=>(b.created||'').localeCompare(a.created||''))
+   if(settings.sort==='last-played')next.sort((a,b)=>(b.played||'').localeCompare(a.played||''))
+   return next
+ },[albums,settings])
+ return <section className="sona-section-page sona-albums-list" aria-label="Albums">
+   <SectionTitle>Albums</SectionTitle>
+   {isLoading?<Empty message="Loading albums…"/>:settings.filter==='downloads'?
+    <Empty message="Downloaded albums aren't available in offline mode yet"/>:
+    filtered.length===0?<Empty message="No albums in this category"/>:
+    settings.view==='list'?
+      <div className="sona-section-album-list">{filtered.map(a=><AlbumTile key={a.id} album={a}/>)}</div>:
+      <div className="sona-section-album-grid">{filtered.map(a=><AlbumTile key={a.id} album={a}/>)}</div>}
+ </section>
+}
+
 export function SonaGenreDetail(){
  const {genreName=''}=useParams<{genreName:string}>()
- const genre=decodeURIComponent(genreName)
+ const genre=genreName
  const {pathname}=useLocation()
  const {data,isLoading}=useQuery({
   queryKey:[queryKeys.genre.albums,genre],
