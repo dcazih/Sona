@@ -29,12 +29,17 @@ export default function SonaMobileRequests() {
     if (!frame.current?.contentWindow) return
     const requestId = ++scrollRequestId.current
     scrollAcknowledged.current = 0
-    frame.current.contentWindow.postMessage({
-      type: 'sona-profile-scroll-to-request', requestId,
-    }, PROFILE_ORIGIN)
+    frame.current.contentWindow.postMessage(
+      {
+        type: 'sona-profile-scroll-to-request',
+        requestId,
+      },
+      PROFILE_ORIGIN,
+    )
     // A cross-origin iframe must explicitly support this event. Never reload
     // the iframe or modify its URL when the NAS is running an older version.
-    if (scrollAckTimer.current !== null) window.clearTimeout(scrollAckTimer.current)
+    if (scrollAckTimer.current !== null)
+      window.clearTimeout(scrollAckTimer.current)
     scrollAckTimer.current = window.setTimeout(() => {
       if (scrollAcknowledged.current !== requestId) {
         toast.warning('Update Music Requests on NAS to enable this shortcut', {
@@ -54,29 +59,57 @@ export default function SonaMobileRequests() {
       sendScrollToRequest()
     }
     window.addEventListener('sona:request-scroll-to-form', scrollToForm)
-    return () => window.removeEventListener('sona:request-scroll-to-form', scrollToForm)
+    return () =>
+      window.removeEventListener('sona:request-scroll-to-form', scrollToForm)
   }, [status])
 
-  useEffect(() => () => {
-    if (scrollAckTimer.current !== null) window.clearTimeout(scrollAckTimer.current)
-  }, [])
+  useEffect(
+    () => () => {
+      if (scrollAckTimer.current !== null)
+        window.clearTimeout(scrollAckTimer.current)
+    },
+    [],
+  )
 
   function handoffProfileSession() {
-    frame.current?.contentWindow?.postMessage({
-      type: 'sona-profile-auth', username, token, salt: saltWord, authType,
-    }, PROFILE_ORIGIN)
+    frame.current?.contentWindow?.postMessage(
+      {
+        type: 'sona-profile-layout',
+        topInset: Math.ceil(
+          document.querySelector('.sona-header')?.getBoundingClientRect()
+            .bottom || 0,
+        ),
+      },
+      PROFILE_ORIGIN,
+    )
+    frame.current?.contentWindow?.postMessage(
+      {
+        type: 'sona-profile-auth',
+        username,
+        token,
+        salt: saltWord,
+        authType,
+      },
+      PROFILE_ORIGIN,
+    )
   }
 
   useEffect(() => {
     const receiveProfileStatus = (event: MessageEvent) => {
-      if (event.origin !== PROFILE_ORIGIN || event.source !== frame.current?.contentWindow) return
+      if (
+        event.origin !== PROFILE_ORIGIN ||
+        event.source !== frame.current?.contentWindow
+      )
+        return
       if (event.data?.type === 'sona-profile-scroll-complete') {
         if (event.data.requestId === scrollRequestId.current) {
           scrollAcknowledged.current = scrollRequestId.current
-          if (scrollAckTimer.current !== null) window.clearTimeout(scrollAckTimer.current)
+          if (scrollAckTimer.current !== null)
+            window.clearTimeout(scrollAckTimer.current)
         }
       }
-      if (event.data?.type === 'sona-profile-handoff-ready') handoffProfileSession()
+      if (event.data?.type === 'sona-profile-handoff-ready')
+        handoffProfileSession()
       if (event.data?.type === 'sona-profile-ready') {
         setError('')
         setStatus('ready')
@@ -118,26 +151,58 @@ export default function SonaMobileRequests() {
   }
 
   return (
-    <main className={'sona-request-page' + (status !== 'ready' ? ' is-loading' : '')}>
-      <section className="sona-request-portal" aria-label="Music request portal">
-        {showLoader && <div className={'sona-request-loading' + (status === 'ready' ? ' is-leaving' : '')}
-          role="status" aria-live="polite" onTransitionEnd={(event) => {
-            if (status === 'ready' && event.target === event.currentTarget && event.propertyName === 'opacity') setShowLoader(false)
-          }}>
-          <div className="sona-request-loading-content">
-          {status !== 'error' ? <>
-            <span className="sona-request-spinner" aria-hidden="true" />
-            <strong>Loading Music Requests</strong>
-            <span>Connecting your Sona profile…</span>
-          </> : <>
-            <strong>Music Requests couldn’t load</strong>
-            <span>{error}</span>
-            <button type="button" onClick={retry}>Try Again</button>
-          </>}
+    <main
+      className={
+        'sona-request-page' + (status !== 'ready' ? ' is-loading' : '')
+      }
+    >
+      <section
+        className="sona-request-portal"
+        aria-label="Music request portal"
+      >
+        {showLoader && (
+          <div
+            className={
+              'sona-request-loading' + (status === 'ready' ? ' is-leaving' : '')
+            }
+            role="status"
+            aria-live="polite"
+            onTransitionEnd={(event) => {
+              if (
+                status === 'ready' &&
+                event.target === event.currentTarget &&
+                event.propertyName === 'opacity'
+              )
+                setShowLoader(false)
+            }}
+          >
+            <div className="sona-request-loading-content">
+              {status !== 'error' ? (
+                <>
+                  <span className="sona-request-spinner" aria-hidden="true" />
+                  <strong>Loading Music Requests</strong>
+                  <span>Connecting your Sona profile…</span>
+                </>
+              ) : (
+                <>
+                  <strong>Music Requests couldn’t load</strong>
+                  <span>{error}</span>
+                  <button type="button" onClick={retry}>
+                    Try Again
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-        </div>}
-        <iframe key={frameKey} ref={frame} title="Music Requests" src={PROFILE_URL}
-          allow="clipboard-write" onLoad={handoffProfileSession} />
+        )}
+        <iframe
+          key={frameKey}
+          ref={frame}
+          title="Music Requests"
+          src={PROFILE_URL}
+          allow="clipboard-write"
+          onLoad={handoffProfileSession}
+        />
       </section>
     </main>
   )

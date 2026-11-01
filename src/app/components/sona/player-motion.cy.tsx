@@ -150,8 +150,8 @@ describe('Mobile player sheet motion', () => {
     cy.get('[aria-label="Minimize Now Playing"]').click()
     cy.get('.sona-now-overlay').then(($sheet) => {
       const frames = ($sheet[0].getAnimations()[0].effect as KeyframeEffect).getKeyframes()
-      expect(Number(frames.find(frame => frame.offset === .25)?.opacity)).to.be.lessThan(.1)
-      expect(Number(frames.find(frame => frame.offset === .5)?.opacity)).to.equal(0)
+      expect(Number(frames.find(frame => frame.offset === .25)?.opacity)).to.be.greaterThan(.8)
+      expect(Number(frames.find(frame => frame.offset === .5)?.opacity)).to.be.greaterThan(.6)
     })
     cy.get('.sona-player-cover img').should('have.css','visibility','visible')
     cy.get('.sona-player').should('have.attr','data-sona-rebound','true')
@@ -188,7 +188,7 @@ describe('Mobile player sheet motion', () => {
     cy.get('[aria-label="Minimize Now Playing"]').click()
     cy.get('.sona-now-overlay').then($sheet=>{
       const shape=$sheet[0].getAnimations()[0].effect as KeyframeEffect
-      expect(shape.getTiming().duration).to.equal(660)
+      expect(shape.getTiming().duration).to.equal(740)
       const frame=shape.getKeyframes().find(frame=>frame.offset===.5)!
       const matrix=new DOMMatrixReadOnly(String(frame.transform))
       const background=$sheet[0].querySelector('.sona-now-background')!
@@ -267,5 +267,82 @@ describe('Mobile player sheet motion', () => {
       .trigger('pointerup',{eventConstructor:'PointerEvent',pointerId:1,clientX:181,clientY:145})
     cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
   })
+
+ it('keeps controls unscaled at every sampled opening frame and flies artwork both ways',()=>{
+  mountPlayer()
+  cy.get('.sona-player-track').click()
+  cy.get('.sona-now-overlay').then($sheet=>{
+   const sheet=$sheet[0],shape=sheet.getAnimations()[0]
+   shape.pause()
+   const content=sheet.querySelector('.sona-now-content')!,inverse=content.getAnimations()[0]
+   inverse.pause()
+   for(const fraction of [.15,.35,.65]){
+    shape.currentTime=600*fraction;inverse.currentTime=600*fraction
+    const matrix=new DOMMatrixReadOnly(getComputedStyle(sheet).transform)
+    const scale=getComputedStyle(content).scale.split(' ').map(Number)
+    expect(matrix.a*scale[0]).to.be.closeTo(1,.02)
+    expect(matrix.d*(scale[1]||scale[0])).to.be.closeTo(1,.02)
+   }
+   shape.finish();inverse.finish()
+  })
+  cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
+  cy.get('[aria-label="Minimize Now Playing"]').click()
+  cy.get('.sona-player-artwork-flight').should('exist').then($ghost=>{
+   const animation=$ghost[0].getAnimations()[0]
+   animation.pause();animation.currentTime=740
+   const frame=$ghost[0].getBoundingClientRect(),mini=$ghost[0].ownerDocument.querySelector('.sona-player-cover')!.getBoundingClientRect()
+   expect(frame.left).to.be.closeTo(mini.left,1)
+   expect(frame.top).to.be.closeTo(mini.top,1)
+   expect(frame.width).to.be.closeTo(mini.width,1)
+   animation.finish()
+  })
+ })
+
+ it('does not change the notch color in installed PWA mode',()=>{
+  cy.window().then(win=>{
+   const original=win.matchMedia.bind(win)
+   cy.stub(win,'matchMedia').callsFake((query:string)=>query==='(display-mode: standalone)'?{matches:true}:original(query))
+   win.document.documentElement.style.setProperty('--sona-notch-color','#123456')
+  })
+  mountPlayer()
+  cy.get('.sona-player-track').click()
+  cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
+  cy.get('html').should($html=>expect($html[0].style.getPropertyValue('--sona-notch-color')).to.equal('#123456'))
+  cy.get('[aria-label="Minimize Now Playing"]').click()
+  cy.get('.sona-now-overlay').should('have.attr','data-phase','closed')
+  cy.get('html').should($html=>expect($html[0].style.getPropertyValue('--sona-notch-color')).to.equal('#123456'))
+ })
+
+ it('profiles a sustained drag without repeated layout work',()=>{
+  mountPlayer()
+  cy.get('.sona-player-track').click()
+  cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
+  let before:Record<string,number>={}
+  const metrics=()=>Cypress.automation('remote:debugger:protocol',{command:'Performance.getMetrics',params:{}}).then((result:{metrics:{name:string;value:number}[]})=>Object.fromEntries(result.metrics.map(metric=>[metric.name,metric.value])))
+  cy.then(()=>Cypress.automation('remote:debugger:protocol',{command:'Performance.enable',params:{}}))
+  cy.then(()=>metrics()).then(values=>{before=values})
+  const gaps:number[]=[]
+  cy.get('.sona-now-overlay').then($sheet=>{
+   const sheet=$sheet[0],win=sheet.ownerDocument.defaultView!
+   cy.stub(sheet,'setPointerCapture')
+   return new Cypress.Promise<void>(resolve=>{
+    const send=(type:string,y:number)=>sheet.dispatchEvent(new win.PointerEvent(type,{bubbles:true,pointerId:71,isPrimary:true,button:0,clientX:180,clientY:y}))
+    send('pointerdown',90)
+    let index=0,last=performance.now()
+    const step=(time:number)=>{
+     if(index)gaps.push(time-last);last=time
+     send('pointermove',90+70*(1-Math.cos(index*Math.PI/15)))
+     if(++index<=60)win.requestAnimationFrame(step)
+     else{send('pointerup',90);resolve()}
+    }
+    win.requestAnimationFrame(step)
+   })
+  })
+  cy.then(()=>metrics()).then(after=>{
+   const report={frames:gaps.length,averageFrameMs:gaps.reduce((a,b)=>a+b,0)/gaps.length,maxFrameMs:Math.max(...gaps),layouts:after.LayoutCount-before.LayoutCount,layoutMs:(after.LayoutDuration-before.LayoutDuration)*1000,scriptMs:(after.ScriptDuration-before.ScriptDuration)*1000}
+   expect(report.layouts).to.be.lessThan(4)
+   cy.writeFile('/tmp/sona-player-drag-profile.json',report)
+  })
+ })
 
 })

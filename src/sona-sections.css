@@ -392,3 +392,13 @@
 .sona-song-explicit {display:inline-flex;vertical-align:middle;align-items:center;justify-content:center;
   width:12px;height:12px;line-height:1;margin-left:6px;font-size:9px;font-weight:800;
   border-radius:2px;background:#aaa9b0;color:#171719;flex:none;}
+
+@media(max-width:767px){
+ .sona-section-toolbar .sona-section-back,.sona-section-toolbar .sona-section-tools>.sona-section-tool{width:32px!important;height:32px!important;min-height:32px!important;}
+ .sona-section-toolbar .sona-section-tools:has(>.sona-section-tool:nth-of-type(2)){height:32px;box-sizing:border-box;padding:0 2px;}
+ .sona-section-toolbar .sona-section-tool svg,.sona-section-toolbar .sona-section-back svg{width:20px;height:20px;}
+}
+
+@media(max-width:767px){
+ .sona-header .sona-album-header-back,.sona-header .sona-album-header-more,.sona-header .sona-library-header-button{width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;}
+}

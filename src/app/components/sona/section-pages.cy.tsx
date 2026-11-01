@@ -72,16 +72,17 @@ describe('Mobile Songs, playlists and empty album filters', () => {
     cy.get('.sona-section-album-tile strong').first().should('have.text','Recently heard')
   })
 
-  it('renders Favorites with only a title, album-style controls and tracks',()=>{
+  it('renders Favorites with Songs controls, cover art and artists',()=>{
     cy.intercept('**/rest/getStarred2*',{body:{'subsonic-response':{status:'ok',starred2:{song:songs}}}})
     mountPage(<SonaMobileFavorites/>,'/library/favorites')
     cy.contains('h1','Favorites').should('be.visible')
-    cy.get('[aria-label="Shuffle favorites"]').should('exist')
-    cy.get('[aria-label="Play favorites"]').click()
-    cy.get('[aria-label="Download favorites"]').should('be.visible')
-    cy.get('.sona-album-song-row').should('have.length',1)
+    cy.get('.sona-section-play-actions').contains('button','Shuffle').should('exist')
+    cy.get('.sona-section-play-actions').contains('button','Play').click()
+    cy.get('.sona-section-song-row .sona-section-art').should('exist')
+    cy.get('.sona-section-song-label small').should('contain','Artist')
+    cy.get('.sona-section-song-row').should('have.length',1)
     cy.get('.sona-mobile-album-cover,.sona-mobile-album-details,.sona-album-songs-heading,.sona-album-song-duration').should('not.exist')
-    cy.get('.sona-mobile-album-actions button').should('have.length',3)
+    cy.get('.sona-section-play-actions button').should('have.length',2)
   })
 
 })

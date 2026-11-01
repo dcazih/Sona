@@ -194,4 +194,14 @@ describe('PreviewList Component', () => {
       })
     })
   })
+  it('puts a right chevron ten pixels after the mobile section title',()=>{
+    cy.viewport(390,844)
+    cy.mount(<div className="sona-app-shell"><div id="main-scroll-area"><PreviewList list={[]} title="Explore" moreRoute="/library/albums"/></div></div>)
+    cy.get('.sona-preview-chevron').should('be.visible').should($chevron=>{
+      const heading=$chevron[0].ownerDocument.querySelector('[data-testid="preview-list-title"]')!
+      expect($chevron[0].getBoundingClientRect().left-heading.getBoundingClientRect().right).to.be.closeTo(10,.1)
+    })
+    cy.get('.sona-preview-more-label').should('not.be.visible')
+  })
+
 })

@@ -45,7 +45,7 @@
 }
 
 @media (max-width: 767px) {
-  .sona-now-overlay { contain: layout style; backface-visibility: hidden; }
+  .sona-now-overlay { contain: layout paint style; backface-visibility: hidden; }
   .sona-now-overlay .sona-now-top {
     min-height:calc(env(safe-area-inset-top,0px) + 24px)!important;
     padding:env(safe-area-inset-top,0px) 15px 0!important;
@@ -83,4 +83,9 @@
     have the same distance to the transport center, without lowering the footer. */
  .sona-now-overlay .sona-now-control-stack>.sona-now-volume{margin-top:12px!important;}
  .sona-now-overlay .sona-now-bottom-actions{translate:0 -12px;}
+}
+
+@media(max-width:767px){
+ .sona-now-content{position:absolute;inset:0;display:flex;flex-direction:column;width:100%;height:100%;transform-origin:0 0;will-change:transform;backface-visibility:hidden;contain:layout style;}
+ .sona-now-overlay.is-dragging .sona-now-content{transition:none!important;}
 }

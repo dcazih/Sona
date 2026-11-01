@@ -1,3 +1,5 @@
+import './preview-list.css'
+import { ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 import { AlbumGridCard } from '@/app/components/albums/album-grid-card'
@@ -33,7 +35,7 @@ export default function PreviewList({
 
   return (
     <div className="w-full flex flex-col mt-4">
-      <div className="my-4 flex justify-between items-center">
+      <div className="sona-preview-heading my-4 flex justify-between items-center">
         <h3
           className="scroll-m-20 text-2xl font-semibold tracking-tight"
           data-testid="preview-list-title"
@@ -42,8 +44,22 @@ export default function PreviewList({
         </h3>
         <div className="flex items-center gap-4">
           {showMore && moreRoute && (
-            <Link to={moreRoute+(moreRoute.includes('?')?'&':'?')+'section='+encodeURIComponent(title)} data-testid="preview-list-show-more">
-              <p className="leading-7 text-sm truncate hover:underline text-muted-foreground hover:text-primary">
+            <Link
+              to={
+                moreRoute +
+                (moreRoute.includes('?') ? '&' : '?') +
+                'section=' +
+                encodeURIComponent(title)
+              }
+              aria-label={moreTitle + ' ' + title}
+              data-testid="preview-list-show-more"
+            >
+              <ChevronRight
+                className="sona-preview-chevron"
+                size={20}
+                aria-hidden="true"
+              />
+              <p className="sona-preview-more-label leading-7 text-sm truncate hover:underline text-muted-foreground hover:text-primary">
                 {moreTitle}
               </p>
             </Link>
@@ -65,10 +81,17 @@ export default function PreviewList({
         </div>
       </div>
 
-      <ul ref={rail.ref} className="sona-music-rail sona-music-rail--albums"
-        aria-label={title} data-testid="preview-list-carousel">
+      <ul
+        ref={rail.ref}
+        className="sona-music-rail sona-music-rail--albums"
+        aria-label={title}
+        data-testid="preview-list-carousel"
+      >
         {list.map((album, index) => (
-          <li key={album.id} data-testid={`preview-list-carousel-item-${index}`}>
+          <li
+            key={album.id}
+            data-testid={`preview-list-carousel-item-${index}`}
+          >
             <AlbumGridCard album={album} />
           </li>
         ))}

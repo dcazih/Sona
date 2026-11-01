@@ -1,3 +1,5 @@
+import '@/sona-mobile.css'
+import '@/sona-sections.css'
 import { mount } from 'cypress/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
@@ -27,6 +29,7 @@ describe('Cold application routes', () => {
       </QueryClientProvider>)
       cy.get('.sona-app-shell').should('exist')
       cy.contains('h1', title).should('exist')
+      cy.get('.sona-section-back').should($button=>{expect($button[0].getBoundingClientRect().width).to.equal(32);expect($button[0].getBoundingClientRect().height).to.equal(32)})
       cy.contains('strong', 'Cold Route Song').should('exist')
       cy.contains('Unexpected Application Error').should('not.exist')
       cy.contains('Unhandled Error').should('not.exist')
@@ -47,5 +50,18 @@ describe('Cold application routes', () => {
     cy.get('[role="dialog"]').should('be.visible')
     cy.get('.sona-header-page-title').should('have.text','Radio')
   })
+
+ it('places the request iframe beneath a translucent overlapping toolbar',()=>{
+  cy.intercept('https://profiles.hippocampus-polaris.ts.net/**',{body:'<html><body>Requests</body></html>',headers:{'content-type':'text/html'}})
+  const routes=router.routes.map(route=>({...route,loader:()=>null}))
+  const testRouter=createMemoryRouter(routes,{initialEntries:['/mobile-request']})
+  mount(<QueryClientProvider client={new QueryClient()}><RouterProvider router={testRouter}/></QueryClientProvider>)
+  cy.get('.sona-persistent-requests.is-active iframe').should($frame=>{
+   const top=$frame[0].getBoundingClientRect().top,header=$frame[0].ownerDocument.querySelector('.sona-header')!
+   expect(top).to.equal(0)
+   expect(header.getBoundingClientRect().bottom).to.be.greaterThan(top)
+   expect(getComputedStyle(header).backdropFilter).to.contain('blur(22px)')
+  })
+ })
 
 })

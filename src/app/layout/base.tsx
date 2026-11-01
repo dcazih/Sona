@@ -34,15 +34,28 @@ export default function BaseLayout() {
   }, [requestsActive])
   useEffect(() => {
     if (!requestsMounted) return
-    const overlay = document.querySelector<HTMLElement>('.sona-persistent-requests')
+    const overlay = document.querySelector<HTMLElement>(
+      '.sona-persistent-requests',
+    )
     const header = document.querySelector<HTMLElement>('.sona-header')
     const parent = overlay?.parentElement
     if (!overlay || !header || !parent) return
     // Anchor the embedded page to the *actual* header bottom. Subtract the
     // containing block's origin so this works even when the sidebar inset is offset.
     const position = () => {
-      const top = Math.max(0, header.getBoundingClientRect().bottom - parent.getBoundingClientRect().top)
-      overlay.style.setProperty('--sona-requests-top', Math.ceil(top) + 'px')
+      overlay.style.setProperty(
+        '--sona-requests-top',
+        Math.ceil(header.getBoundingClientRect().bottom) + 'px',
+      )
+      overlay
+        .querySelector('iframe')
+        ?.contentWindow?.postMessage(
+          {
+            type: 'sona-profile-layout',
+            topInset: Math.ceil(header.getBoundingClientRect().bottom),
+          },
+          'https://profiles.hippocampus-polaris.ts.net',
+        )
     }
     const observer = new ResizeObserver(position)
     observer.observe(header)
@@ -56,20 +69,34 @@ export default function BaseLayout() {
       window.visualViewport?.removeEventListener('resize', position)
     }
   }, [requestsMounted, requestsActive])
-  const hasMedia = usePlayerStore((state) => Boolean(
-    state.songlist.currentList.length || state.songlist.radioList.length || state.songlist.podcastList.length,
-  ))
+  const hasMedia = usePlayerStore((state) =>
+    Boolean(
+      state.songlist.currentList.length ||
+        state.songlist.radioList.length ||
+        state.songlist.podcastList.length,
+    ),
+  )
   return (
-    <div className="sona-app-shell h-screen w-screen overflow-hidden" data-sona-has-media={hasMedia}>
+    <div
+      className="sona-app-shell h-screen w-screen overflow-hidden"
+      data-sona-has-media={hasMedia}
+    >
       <MainSidebarProvider>
         <MemoHeader />
         <AppSidebar />
         <MainSidebarInset>
           <MainRoutes />
-          {requestsMounted && <div className={'sona-persistent-requests' + (requestsActive ? ' is-active' : '')}
-            aria-hidden={!requestsActive}>
-            <SonaMobileRequests />
-          </div>}
+          {requestsMounted && (
+            <div
+              className={
+                'sona-persistent-requests' +
+                (requestsActive ? ' is-active' : '')
+              }
+              aria-hidden={!requestsActive}
+            >
+              <SonaMobileRequests />
+            </div>
+          )}
         </MainSidebarInset>
         <MemoPlayer />
         <SonaMobileNavigation />

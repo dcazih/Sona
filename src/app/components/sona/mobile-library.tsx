@@ -1,5 +1,6 @@
+import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { ArrowDownToLine, Check, ChevronRight, GripVertical, Heart, ListMusic, Mic2, Music2, Podcast, Radio, Tags, Disc3 } from 'lucide-react'
+import { ArrowDownToLine, Check, ChevronRight, GripVertical, Heart, ListMusic, Mic2, Podcast, Radio, Tags, Disc3 } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArtworkImage } from '@/app/components/artwork-image'
@@ -14,7 +15,7 @@ const sections = [
   { id: 'playlists', name: 'Playlists', icon: ListMusic, href: ROUTES.LIBRARY.PLAYLISTS },
   { id: 'artists', name: 'Artists', icon: Mic2, href: ROUTES.LIBRARY.ARTISTS },
   { id: 'albums', name: 'Albums', icon: Disc3, href: ROUTES.LIBRARY.ALBUMS },
-  { id: 'songs', name: 'Songs', icon: Music2, href: ROUTES.LIBRARY.SONGS },
+  { id: 'songs', name: 'Songs', icon: SonaNoteGlyph, href: ROUTES.LIBRARY.SONGS },
   { id: 'favorites', name: 'Favorites', icon: Heart, href: ROUTES.LIBRARY.FAVORITES },
   { id: 'downloads', name: 'Downloaded', icon: ArrowDownToLine, href: '/library/downloads' },
   { id: 'genres', name: 'Genres', icon: Tags, href: ROUTES.LIBRARY.GENRES },

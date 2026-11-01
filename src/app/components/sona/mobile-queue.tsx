@@ -1,5 +1,6 @@
+import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { SongExplicitMark } from './song-explicit-mark'
-import { GripVertical, Music2, X } from 'lucide-react'
+import { GripVertical, X } from 'lucide-react'
 import { type PointerEvent, useRef, useState } from 'react'
 import { ImageLoader } from '@/app/components/image-loader'
 import { usePlayerActions, usePlayerSonglist } from '@/store/player.store'
@@ -72,7 +73,7 @@ export function SonaMobileQueue() {
                   <ImageLoader id={song.coverArt} type="song" size={100}>
                     {(src) => <img src={src} alt="" loading="lazy" />}
                   </ImageLoader>
-                ) : <Music2 size={20} />}
+                ) : <SonaNoteGlyph size={20} />}
               </span>
               <span className="sona-queue-text">
                 <strong>{song.title}<SongExplicitMark song={song}/></strong>

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8')
 const code = html.match(/<script>\s*(\(function\(\)\{[\s\S]*?)<\/script>/)[1]
-assert.match(html, /#sona-startup\{[^}]*height:100lvh/)
+assert.match(html, /#sona-startup\{[^}]*height:var\(--sona-boot-height,100lvh\)/)
 
 for (const restoredPage of [true, false]) {
   const documentEvents = {}, windowEvents = {}, timers = []
@@ -12,12 +12,12 @@ for (const restoredPage of [true, false]) {
   let removed = false, faded = false
   const cover = { remove: () => { removed = true }, style: {}, classList: { add: () => { faded = true } } }
   const document = {
-    documentElement: { dataset: {}, classList: { remove: name => classes.delete(name) } },
+    documentElement: { dataset: {}, style:{setProperty(){}}, classList: { remove: name => classes.delete(name) } },
     getElementById: () => cover,
     addEventListener: (name, fn) => { documentEvents[name] = fn },
     visibilityState: 'visible',
   }
-  runInNewContext(code, { document, window: { addEventListener: (name, fn) => { windowEvents[name] = fn } },
+  runInNewContext(code, { document, window: { navigator:{standalone:true},screen:{width:390,height:844},innerWidth:390,innerHeight:800, addEventListener: (name, fn) => { windowEvents[name] = fn } },
     Date, setTimeout: fn => timers.push(fn), clearTimeout: () => {}, requestAnimationFrame: fn => timers.push(fn) })
   if (restoredPage) windowEvents.pageshow({ persisted: true })
   else { documentEvents['sona:ready'](); documentEvents.visibilitychange() }

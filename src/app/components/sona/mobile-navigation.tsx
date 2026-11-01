@@ -1,3 +1,4 @@
+import { isStandalonePwa } from '@/utils/is-standalone-pwa'
 import { Compass, House, Library, ListPlus, Mic, Search, X } from 'lucide-react'
 import {
   useEffect,
@@ -102,22 +103,57 @@ export function SonaMobileNavigation() {
   useEffect(() => {
     const viewport = getMainScrollElement()
     if (!viewport) return
-    let previous = viewport.scrollTop
-    const scroll = () => {
-      const current = viewport.scrollTop,
-        delta = current - previous
-      previous = current
+    let touch: { x: number; y: number } | null = null
+    const intent = (delta: number) => {
       if (
         isSearch ||
         focused ||
         usePlayerStore.getState().fullscreen.isFullscreen ||
-        Math.abs(delta) < 0.5
+        Math.abs(delta) < 1
+      )
+        return
+      const top = viewport.scrollTop,
+        max = Math.max(0, viewport.scrollHeight - viewport.clientHeight)
+      // Rubber-band recovery and programmatic scrolling are not user intent.
+      if (
+        top < 0 ||
+        top > max ||
+        (delta > 0 && top >= max - 0.5) ||
+        (delta < 0 && top <= 0.5)
       )
         return
       setCompact(delta > 0)
     }
-    viewport.addEventListener('scroll', scroll, { passive: true })
-    return () => viewport.removeEventListener('scroll', scroll)
+    const wheel = (event: WheelEvent) => {
+      if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) intent(event.deltaY)
+    }
+    const start = (event: TouchEvent) => {
+      const point = event.touches[0]
+      touch = point ? { x: point.clientX, y: point.clientY } : null
+    }
+    const move = (event: TouchEvent) => {
+      const point = event.touches[0]
+      if (!touch || !point) return
+      const dx = touch.x - point.clientX,
+        dy = touch.y - point.clientY
+      touch = { x: point.clientX, y: point.clientY }
+      if (Math.abs(dy) > Math.abs(dx)) intent(dy)
+    }
+    const end = () => {
+      touch = null
+    }
+    viewport.addEventListener('wheel', wheel, { passive: true })
+    viewport.addEventListener('touchstart', start, { passive: true })
+    viewport.addEventListener('touchmove', move, { passive: true })
+    viewport.addEventListener('touchend', end, { passive: true })
+    viewport.addEventListener('touchcancel', end, { passive: true })
+    return () => {
+      viewport.removeEventListener('wheel', wheel)
+      viewport.removeEventListener('touchstart', start)
+      viewport.removeEventListener('touchmove', move)
+      viewport.removeEventListener('touchend', end)
+      viewport.removeEventListener('touchcancel', end)
+    }
   }, [pathname, search, isSearch, focused, setCompact])
 
   useEffect(() => {
@@ -131,7 +167,7 @@ export function SonaMobileNavigation() {
   useEffect(() => () => cancelAnimationFrame(dragFrame.current), [])
 
   useEffect(() => {
-    if (window.innerWidth >= 768) return
+    if (window.innerWidth >= 768 || isStandalonePwa()) return
     const root = document.documentElement
     const tabColor = '#000000'
     root.style.setProperty('--sona-tab-notch-color', tabColor)
@@ -290,7 +326,14 @@ export function SonaMobileNavigation() {
       const dy = touch.clientY - startY
       if (Math.abs(dy) < 8 || Math.abs(dy) < Math.abs(dx) * 1.2) return
       dismissed = true
-      if (parseFloat(document.documentElement.style.getPropertyValue('--sona-keyboard-offset')) > 100) setKeyboardClosing(true)
+      if (
+        parseFloat(
+          document.documentElement.style.getPropertyValue(
+            '--sona-keyboard-offset',
+          ),
+        ) > 100
+      )
+        setKeyboardClosing(true)
       inputRef.current?.blur()
       setFocused(false)
     }
@@ -454,7 +497,8 @@ export function SonaMobileNavigation() {
         onPointerUp={navEnd}
         onPointerCancel={navCancel}
         onLostPointerCapture={(event) => {
-          if (event.target === event.currentTarget && swipeRef.current) navCancel()
+          if (event.target === event.currentTarget && swipeRef.current)
+            navCancel()
         }}
       >
         <span

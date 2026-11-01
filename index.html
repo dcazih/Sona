@@ -19,9 +19,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script src="./env-config.js"></script>
-  <link rel="icon" type="image/png" sizes="32x32" href="/sona-icon-v13-32.png?v=15">
-    <link rel="apple-touch-icon" href="/sona-icon-v13-180.png?v=15">
-    <link rel="manifest" href="/favicons/site.webmanifest?v=13">
+  <link rel="icon" type="image/png" sizes="32x32" href="/sona-icon-v14-32.png?v=15">
+    <link rel="apple-touch-icon" href="/sona-icon-v14-180.png?v=15">
+    <link rel="manifest" href="/favicons/site.webmanifest?v=14">
     <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/pwa-startup-v17/750x1334.png">
     <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/pwa-startup-v17/1242x2208.png">
     <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/pwa-startup-v17/1125x2436.png">
@@ -39,16 +39,30 @@
     <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/pwa-startup-v17/786x1704.png">
     <link rel="apple-touch-startup-image" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/pwa-startup-v17/1260x2736.png">
 
+    <script id="sona-startup-geometry">
+      (function(){
+        // Use the same logical device canvas as the native launch PNG. Do not
+        // recenter the logo when iOS changes its initial WebView viewport.
+        var root=document.documentElement;
+        if(window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches){
+          var portrait=window.innerWidth<=window.innerHeight;
+          var short=Math.min(window.screen.width,window.screen.height),long=Math.max(window.screen.width,window.screen.height);
+          root.style.setProperty('--sona-boot-width',(portrait?short:long)+'px');
+          root.style.setProperty('--sona-boot-height',(portrait?long:short)+'px');
+        }
+      })();
+    </script>
     <style id="sona-startup-critical">
       html,body{margin:0;width:100%;min-height:100%;background:#ff90a8}
       html.sona-booting,html.sona-booting body{
-        background:linear-gradient(180deg,#ff90a8 0%,#ff4773 34%,#ff2750 66%,#ff022e 100%);
+        background:linear-gradient(180deg,#ff90a8 0%,#ff4773 34%,#ff2750 66%,#ff022e 100%)!important;
       }
       #root{min-height:100%;background:#171719}
-      #sona-startup{position:fixed;top:0;left:0;width:100vw;height:100vh;height:100lvh;z-index:2147483647;display:flex;align-items:center;justify-content:center;pointer-events:auto;overflow:hidden;isolation:isolate;opacity:1;transition:opacity .55s ease;background:linear-gradient(180deg,#ff90a8 0%,#ff4773 34%,#ff2750 66%,#ff022e 100%)}
+      #sona-startup{position:fixed;top:0;left:0;width:100vw;height:100vh;height:var(--sona-boot-height,100lvh);width:var(--sona-boot-width,100vw);z-index:2147483647;display:flex;align-items:center;justify-content:center;pointer-events:auto;overflow:hidden;isolation:isolate;opacity:1;transition:opacity .55s ease;background:linear-gradient(180deg,#ff90a8 0%,#ff4773 34%,#ff2750 66%,#ff022e 100%)}
+      html.sona-booting,html.sona-booting body{overflow:hidden!important;padding:0!important;height:var(--sona-boot-height,100lvh)!important;}
       #sona-startup::before{display:none}
       #sona-startup.is-fading{opacity:0;pointer-events:none}
-      #sona-startup .sona-startup-note{display:block;width:128px;height:128px;max-width:34vw;max-height:34vw;opacity:1;animation:none;flex:none;transform:none;filter:none}
+      #sona-startup .sona-startup-note{display:block;width:128px;height:128px;opacity:1;animation:none;flex:none;transform:none;filter:none}
       
       @media(prefers-reduced-motion:reduce){#sona-startup{transition-duration:.12s}#sona-startup .sona-startup-note{animation:none;opacity:1}}
     </style>
@@ -68,7 +82,13 @@
           clearTimeout(watchdog);
           var delay=Math.max(0,650-(Date.now()-started));
           setTimeout(function(){
-            requestAnimationFrame(function(){requestAnimationFrame(function(){
+            var stable=0,previous='',waiting=Date.now();
+            function settled(){
+              var viewport=window.visualViewport;
+              var geometry=window.innerHeight+':'+(viewport?viewport.height+':'+viewport.offsetTop:'');
+              stable=geometry===previous?stable+1:0;previous=geometry;
+              if(stable<3&&Date.now()-waiting<1200){requestAnimationFrame(settled);return;}
+              requestAnimationFrame(function(){
               if(!cover)return;
               cover.classList.add('is-fading');
               cover.style.pointerEvents='none';
@@ -76,7 +96,9 @@
                 if(cover)cover.remove();
                 document.documentElement.classList.remove('sona-booting');
               },600);
-            })});
+              });
+            }
+            requestAnimationFrame(settled);
           },delay);
         }
         document.addEventListener('sona:ready',function(){document.documentElement.dataset.sonaReady='true';dismiss()},{once:true});

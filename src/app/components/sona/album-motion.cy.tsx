@@ -33,7 +33,7 @@ function App({ album }: { album: SingleAlbum }) {
 function DelayedCover() {
   const [ready,setReady]=useState(false)
   useEffect(()=>{const timer=setTimeout(()=>setReady(true),180);return()=>clearTimeout(timer)},[])
-  return ready?<div className="sona-mobile-album-cover" style={{position:'fixed',top:120,left:60,width:260,height:260,borderRadius:13}}/>:null
+  return ready?<div className="sona-album-page"><div className="sona-mobile-album-cover" style={{position:'fixed',top:120,left:60,width:260,height:260,borderRadius:13}}/></div>:null
 }
 function DelayedRoute() {
   const [opened,setOpened]=useState(false)
@@ -118,6 +118,11 @@ describe('Mobile album loading and navigation', () => {
       const frames=(animation.effect as KeyframeEffect).getKeyframes()
       expect(frames[0].borderRadius).not.to.equal(frames[1].borderRadius)
       expect(frames[0].boxShadow).not.to.equal(frames[1].boxShadow)
+      const target=$ghost[0].ownerDocument.querySelector('.sona-mobile-album-cover')!
+      const scale=new DOMMatrixReadOnly(String(frames[1].transform)).a
+      const end=String(frames[1].boxShadow).match(/[-\d.]+px/g)!.map(Number.parseFloat)
+      const settled=getComputedStyle(target).boxShadow.match(/[-\d.]+px/g)!.map(Number.parseFloat)
+      end.forEach((value,index)=>expect(value*scale).to.be.closeTo(settled[index],.1))
     })
     cy.get('.sona-album-morph-artwork').should('not.exist')
     cy.get('.sona-mobile-album-cover').should('have.css','visibility','visible')

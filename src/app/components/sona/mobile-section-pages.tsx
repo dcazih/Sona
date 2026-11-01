@@ -1,7 +1,8 @@
+import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { createPortal } from 'react-dom'
 import { SongExplicitMark } from './song-explicit-mark'
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowDownToLine, Check, ChevronRight, Disc3, Ellipsis, ListMusic, Mic2, Music2, Play, Search, Shuffle, Star, X } from 'lucide-react'
+import { ArrowDownToLine, Check, ChevronRight, Disc3, Ellipsis, ListMusic, Mic2, Play, Search, Shuffle, Star, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -82,7 +83,7 @@ export function AlphabetRail({letters,prefix}:{letters:string[];prefix:string}){
      onClick={event=>{if(event.detail===0)choose(index)}}>{letter}</button>)}
  </aside>,document.body)
 }
-function SectionActionButtons({onPlay,onShuffle}:{onPlay:()=>void;onShuffle:()=>void}){
+export function SectionActionButtons({onPlay,onShuffle}:{onPlay:()=>void;onShuffle:()=>void}){
  return <div className="sona-section-play-actions">
   <button type="button" onClick={onPlay}><Play fill="currentColor" size={17}/>Play</button>
   <button type="button" onClick={onShuffle}><Shuffle size={18}/>Shuffle</button>
@@ -319,7 +320,7 @@ export function SonaPlaylistDetail(){
   setSongList(songs,index,false,{id:playlist.id,name:playlist.name,type:'playlist'})
  }
 }
-function SonaSongRows({songs,onPlay,alphabet=false}:{songs:ISong[];onPlay:(index:number)=>void;compact?:boolean;alphabet?:boolean}){
+export function SonaSongRows({songs,onPlay,alphabet=false}:{songs:ISong[];onPlay:(index:number)=>void;compact?:boolean;alphabet?:boolean}){
  const [moreId,setMoreId]=useState<string|null>(null)
  const {setNextOnQueue,setLastOnQueue}=usePlayerActions()
  const options=useOptions()
@@ -412,7 +413,7 @@ export function SonaDownloadsList(){
   {name:'Playlists',icon:ListMusic,to:'/library/playlists'},
   {name:'Artists',icon:Mic2,to:'/library/artists'},
   {name:'Albums',icon:Disc3,to:'/library/albums'},
-  {name:'Songs',icon:Music2,to:'/library/songs'},
+  {name:'Songs',icon:SonaNoteGlyph,to:'/library/songs'},
  ]
  return <section className="sona-section-page sona-downloads-list" aria-label="Downloads">
   <div className="sona-section-download-links">{links.map(({name,icon:Icon,to})=>

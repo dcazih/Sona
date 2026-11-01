@@ -2503,3 +2503,11 @@
  .sona-favorites-page .sona-album-songs{padding:0!important;}
  .sona-favorites-page .sona-album-song-secondary-artist{display:none;}
 }
+
+/* Request content scrolls under the same translucent toolbar as native lists. */
+@media(max-width:767px){
+ .sona-app-shell .sona-persistent-requests,.sona-app-shell .sona-persistent-requests.is-active{position:fixed!important;inset:0!important;top:0!important;height:100dvh!important;}
+ .sona-app-shell:has(.sona-persistent-requests.is-active) .sona-header.sona-header{background:rgba(23,23,25,.72)!important;backdrop-filter:blur(22px)!important;-webkit-backdrop-filter:blur(22px)!important;}
+ .sona-mobile-album-cover{box-shadow:0 13px 33px #0007!important;}
+}
+@media(display-mode:standalone){.sona-app-shell::before{display:none!important;}}

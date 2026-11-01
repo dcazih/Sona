@@ -1,0 +1,8 @@
+.sona-preview-chevron{display:none;}
+@media(max-width:767px){
+ .sona-preview-chevron{display:block;}
+ .sona-preview-heading{justify-content:flex-start!important;gap:10px!important;}
+ .sona-preview-heading>div{gap:0!important;}
+ .sona-preview-heading [data-testid="preview-list-show-more"]{display:flex;align-items:center;}
+ .sona-preview-heading .sona-preview-more-label{display:none;}
+}
