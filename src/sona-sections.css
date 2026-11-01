@@ -402,3 +402,28 @@
 @media(max-width:767px){
  .sona-header .sona-album-header-back,.sona-header .sona-album-header-more,.sona-header .sona-library-header-button{width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;}
 }
+
+@media(max-width:767px){
+ .sona-section-star-toggle{width:18px!important;margin-right:12px!important;}
+ .sona-section-playlist-detail,.sona-app-shell:has(.sona-section-playlist-detail) #main-scroll-area,.sona-app-shell:has(.sona-section-playlist-detail) #scroll-viewport,.sona-app-shell:has(.sona-section-playlist-detail) #scroll-viewport>div{background:#000!important;background-image:none!important;color:#fff!important;}
+ .sona-section-playlist-detail .sona-section-song-label strong{color:#fff!important;}
+ .sona-section-playlist-detail .sona-section-song-label small,.sona-section-playlist-detail .sona-section-song-more{color:#aaa!important;}
+ .sona-artist-actions{justify-content:center!important;gap:4px!important;}
+ .sona-artist-actions .sona-artist-play{order:3!important}.sona-artist-actions .sona-artist-shuffle{order:2!important}.sona-artist-actions .sona-artist-heart{order:1!important}.sona-artist-actions .sona-artist-info{order:4!important}
+ .sona-artist-actions>[data-state]{order:5}
+ .sona-artist-actions button{margin-right:0!important;}
+ .sona-artist-page .sona-section-toolbar{display:none!important;}
+}
+@media(max-width:767px){
+ .sona-app-shell .sona-header.sona-header.sona-header-section-view{background:rgba(8,8,10,.72)!important;backdrop-filter:blur(22px)!important;-webkit-backdrop-filter:blur(22px)!important;}
+ .sona-app-shell .sona-header.sona-header-detail-view>.sona-album-header-back,.sona-app-shell .sona-header.sona-header-detail-view>.sona-album-header-more{width:32px!important;height:32px!important;min-height:32px!important;}
+ .sona-header-detail-view>.sona-album-header-back svg,.sona-header-detail-view>.sona-album-header-more svg{width:20px!important;height:20px!important;}
+}
+@media(max-width:767px){
+ .sona-section-playlist-detail .sona-section-playlist-hero p{color:#aaa!important;}
+ .sona-section-playlist-detail .sona-section-song-row{border-bottom-color:#ffffff1b!important;}
+}
+
+@media(max-width:767px){
+ .sona-playlists-list,.sona-app-shell:has(.sona-playlists-list) #main-scroll-area,.sona-app-shell:has(.sona-playlists-list) #scroll-viewport{background:#000!important;background-image:none!important;}
+}

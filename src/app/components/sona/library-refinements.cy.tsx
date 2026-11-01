@@ -1,7 +1,7 @@
 import { mount } from 'cypress/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
-import { AlphabetRail, SonaDownloadsList, SonaSongsList } from './mobile-section-pages'
+import { AlphabetRail, SonaDownloadsList, SonaSongsList, SonaPlaylistsList } from './mobile-section-pages'
 import '@/sona-mobile.css'
 import '@/sona-sections.css'
 
@@ -59,4 +59,16 @@ describe('Library refinements',()=>{
     cy.contains('strong','Clean song').find('[aria-label="Explicit"]').should('not.exist')
     cy.get('.sona-section-song-row').should('not.contain','2:40')
   })
+ it('leaves a visible gap between playlist stars and covers on black',()=>{
+  cy.intercept('**/rest/getPlaylists*',{body:{'subsonic-response':{status:'ok',playlists:{playlist:[{id:'one',name:'My Music',coverArt:'one'}]}}}})
+  cy.window().then(win=>win.localStorage.setItem('sona-section-settings:/library/playlists',JSON.stringify({filter:'all',sort:'name',view:'list'})))
+  const router=createMemoryRouter([{path:'/library/playlists',element:<SonaPlaylistsList/>}],{initialEntries:['/library/playlists']})
+  mount(<QueryClientProvider client={new QueryClient()}><RouterProvider router={router}/></QueryClientProvider>)
+  cy.get('.sona-playlists-list').should('have.css','background-color','rgb(0, 0, 0)')
+  cy.get('.sona-section-star-toggle').should($star=>{
+   const art=$star[0].parentElement!.querySelector('.sona-section-art')!.getBoundingClientRect()
+   expect(art.left-$star[0].getBoundingClientRect().right).to.be.at.least(12)
+  })
+ })
+
 })

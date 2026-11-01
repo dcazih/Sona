@@ -202,3 +202,9 @@ body:has(.sona-login-screen) .sona-toast-exit{
 body:has(.sona-login-screen) .Toastify__toast-container--top-center{
   top:calc(env(safe-area-inset-top,0px) + 5px)!important;z-index:10030!important
 }
+/* Toastify closes timed notices on the progress animation's animationend.
+   Keep that invisible animation alive; display:none prevents auto-dismiss. */
+.Toastify__toast-container.sona-toast-container .Toastify__progress-bar--wrp,
+.Toastify__toast-container.sona-toast-container .Toastify__progress-bar{
+ display:block!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+}

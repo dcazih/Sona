@@ -1,3 +1,8 @@
+import { useIsMobile } from '@/app/hooks/use-mobile'
+import {
+  MobileArtistLoading,
+  MobileArtistSongsLoading,
+} from '@/app/components/fallbacks/artists'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import ImageHeader from '@/app/components/album/image-header'
@@ -23,6 +28,7 @@ import { SonaMobileArtistHero } from '@/app/components/sona/mobile-artist-hero'
 
 export default function Artist() {
   const { t } = useTranslation()
+  const mobile = useIsMobile()
   const { artistId } = useParams() as { artistId: string }
 
   const {
@@ -36,11 +42,12 @@ export default function Artist() {
     artist?.name,
   )
 
-  if (artistIsLoading) return <AlbumFallback />
+  if (artistIsLoading)
+    return mobile ? <MobileArtistLoading /> : <AlbumFallback />
   if (isFetched && !artist) {
     return <ErrorPage status={404} statusText="Not Found" />
   }
-  if (!artist) return <AlbumFallback />
+  if (!artist) return mobile ? <MobileArtistLoading /> : <AlbumFallback />
 
   function getSongCount() {
     if (!artist) return null
@@ -84,23 +91,28 @@ export default function Artist() {
 
   return (
     <div className="sona-artist-page w-full relative">
-      <ArtistStickyHeader artist={artist} />
+      {!mobile && <ArtistStickyHeader artist={artist} />}
 
-      <div className="hidden md:block"><ImageHeader
-        type={t('artist.headline')}
-        title={artist.name}
-        coverArtId={artist.coverArt}
-        coverArtType="artist"
-        coverArtSize="700"
-        coverArtAlt={artist.name}
-        badges={badges}
-      /></div>
-      <div className="md:hidden"><SonaMobileArtistHero artist={artist} songCount={songCount}/></div>
+      <div className="hidden md:block">
+        <ImageHeader
+          type={t('artist.headline')}
+          title={artist.name}
+          coverArtId={artist.coverArt}
+          coverArtType="artist"
+          coverArtSize="700"
+          coverArtAlt={artist.name}
+          badges={badges}
+        />
+      </div>
+      <div className="md:hidden">
+        <SonaMobileArtistHero artist={artist} songCount={songCount} />
+      </div>
 
       <ListWrapper>
         <ArtistInfo artist={artist} />
 
-        {topSongsIsLoading && <TopSongsTableFallback />}
+        {topSongsIsLoading &&
+          (mobile ? <MobileArtistSongsLoading /> : <TopSongsTableFallback />)}
         {topSongs && !topSongsIsLoading && (
           <ArtistTopSongs topSongs={topSongs} artist={artist} />
         )}

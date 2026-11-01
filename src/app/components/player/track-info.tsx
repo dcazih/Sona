@@ -102,16 +102,30 @@ export function TrackInfo({ song }: { song: ISong | undefined }) {
         </div>
       </div>
       <div className="flex flex-col justify-center w-full overflow-hidden">
-        <MarqueeTitle gap="mr-2">
-          {isMobile ? <span className="text-sm font-medium" data-testid="track-title">{song.title}</span> : <Link to={ROUTES.ALBUM.PAGE(song.albumId)} tabIndex={-1}>
-            <span
-              className="text-sm font-medium hover:underline cursor-pointer"
-              data-testid="track-title"
-            >
+        {isMobile ? (
+          <div className="sona-mini-title">
+            <span className="text-sm font-medium" data-testid="track-title">
               {song.title}
             </span>
-          </Link>}
-        </MarqueeTitle>
+          </div>
+        ) : (
+          <MarqueeTitle gap="mr-2">
+            {isMobile ? (
+              <span className="text-sm font-medium" data-testid="track-title">
+                {song.title}
+              </span>
+            ) : (
+              <Link to={ROUTES.ALBUM.PAGE(song.albumId)} tabIndex={-1}>
+                <span
+                  className="text-sm font-medium hover:underline cursor-pointer"
+                  data-testid="track-title"
+                >
+                  {song.title}
+                </span>
+              </Link>
+            )}
+          </MarqueeTitle>
+        )}
         <TrackInfoArtistsLinks song={song} />
       </div>
     </Fragment>
@@ -152,7 +166,11 @@ function ArtistLink({ id, name }: ArtistLinkProps) {
   const isMobile = useIsMobile()
   if (isMobile) {
     // Never render a link on mobile: any tap must open the full player.
-    return <span data-testid="track-artist-mobile" className="sona-mini-artist-text">{name}</span>
+    return (
+      <span data-testid="track-artist-mobile" className="sona-mini-artist-text">
+        {name}
+      </span>
+    )
   }
   return (
     <Link

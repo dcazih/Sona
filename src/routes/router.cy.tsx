@@ -64,4 +64,27 @@ describe('Cold application routes', () => {
   })
  })
 
+ it('loads a matching artist skeleton, one top back button, centered reordered controls and closed info',()=>{
+  cy.intercept('**/rest/getArtist?*',{delay:300,body:{'subsonic-response':{status:'ok',artist:{id:'artist-ui',name:'Artist UI',coverArt:'art',albumCount:1,album:[{id:'a',name:'Album',songCount:1}]}}}})
+  cy.intercept('**/rest/getArtistInfo?*',{body:{'subsonic-response':{status:'ok',artistInfo:{biography:'A biography',similarArtist:[]}}}})
+  cy.intercept('**/rest/getTopSongs?*',{body:{'subsonic-response':{status:'ok',topSongs:{song:[]}}}})
+  const routes=router.routes.map(route=>({...route,loader:()=>null}))
+  const testRouter=createMemoryRouter(routes,{initialEntries:['/library/artists/artist-ui']})
+  mount(<QueryClientProvider client={new QueryClient()}><RouterProvider router={testRouter}/></QueryClientProvider>)
+  cy.get('.sona-artist-loading .sona-mobile-artist-art').should('exist')
+  cy.get('.sona-mobile-artist-copy h1').should('have.text','Artist UI')
+  cy.get('.sona-header [aria-label="Back to music"]').should('have.length',1).should($button=>expect($button[0].getBoundingClientRect().width).to.equal(32))
+  cy.get('.sona-section-back').should('not.exist')
+  cy.get('#artist-biography').should('not.exist')
+  cy.get('.sona-artist-heart').should($heart=>{
+   const doc=$heart[0].ownerDocument,heart=$heart[0].getBoundingClientRect(),play=doc.querySelector('.sona-artist-play')!.getBoundingClientRect(),shuffle=doc.querySelector('.sona-artist-shuffle')!.getBoundingClientRect()
+   expect(heart.left).to.be.lessThan(shuffle.left);expect(shuffle.left).to.be.lessThan(play.left)
+  })
+  cy.get('.sona-artist-info').click()
+  cy.get('#artist-biography h3').should('have.css','font-size','18px')
+  cy.get('.sona-artist-page').find('[data-testid="sticky-header"]').should('not.exist')
+  cy.get('.sona-header').should('have.css','backdrop-filter','blur(22px)')
+  cy.get('#main-scroll-area').should($area=>expect($area[0].getBoundingClientRect().top).to.equal(0))
+ })
+
 })

@@ -74,7 +74,7 @@ describe('Coordinated mobile dock',()=>{
    cy.get('.sona-search-morph').should($expanded=>expect($expanded[0]).to.equal(element))
   })
   cy.get('[aria-label="Return to Library"]').should('be.visible')
-  cy.get('.sona-search-morph').should($el=>expect($el[0].getBoundingClientRect().width).to.be.closeTo(302,1))
+  cy.get('.sona-search-morph').should($el=>expect($el[0].getBoundingClientRect().width).to.be.closeTo(311,1))
   cy.get('.sona-player').should('have.css','opacity','1')
   cy.get('input').focus()
   cy.get('.sona-player').should('have.css','opacity','0')
@@ -100,11 +100,12 @@ describe('Coordinated mobile dock',()=>{
    expect(search.getBoundingClientRect().width).to.equal(64)
    ;(search.querySelector('button') as HTMLButtonElement).click()
    cy.then(()=>new Cypress.Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))).then(()=>{
-    const transitions=search.getAnimations().filter(animation=>(animation as CSSTransition).transitionProperty==='width')
-    const navTransition=nav.getAnimations().find(animation=>(animation as CSSTransition).transitionProperty==='width')!
+    const transitions=search.getAnimations().filter(animation=>(animation.effect as KeyframeEffect).getKeyframes().some(frame=>frame.width))
+    const navTransition=nav.getAnimations().find(animation=>(animation.effect as KeyframeEffect).getKeyframes().some(frame=>frame.width))!
     expect(transitions).to.have.length(1)
     expect(navTransition).to.exist
     expect(transitions[0].effect!.getTiming().duration).to.equal(navTransition.effect!.getTiming().duration)
+    expect(transitions[0].startTime).to.equal(navTransition.startTime)
     transitions[0].pause();navTransition.pause()
     transitions[0].currentTime=120;navTransition.currentTime=120
     const width=search.getBoundingClientRect().width
@@ -144,6 +145,8 @@ describe('Coordinated mobile dock',()=>{
    mount(<QueryClientProvider client={new QueryClient()}><RouterProvider router={router}/></QueryClientProvider>)
    cy.get('#scroll-viewport').trigger('wheel',{deltaY:50,deltaX:0}).scrollTo(0,150)
    geometry()
+   cy.get('.sona-player [data-testid="player-button-next"]').should('have.css','opacity','0')
+   cy.get('.sona-player [data-testid="player-button-play"]').should('have.css','translate','36px')
    cy.get('.sona-player-track').click()
    cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
    cy.get('[aria-label="Minimize Now Playing"]').click()
@@ -175,6 +178,66 @@ describe('Coordinated mobile dock',()=>{
   cy.get('html').should('have.attr','data-sona-dock','normal')
   cy.get('#scroll-viewport').scrollTo('top').trigger('wheel',{deltaY:-100,deltaX:0})
   cy.get('html').should('have.attr','data-sona-dock','normal')
+ })
+
+ it('keeps equal 5px gaps and replaces the left tab with a right cancel circle in full search',()=>{
+  setup('/mobile-library')
+  cy.get('[aria-label="Search"]').click()
+  cy.get('.sona-search-morph').should($search=>{
+   const nav=$search[0].ownerDocument.querySelector('.sona-bottom-nav')!.getBoundingClientRect()
+   expect($search[0].getBoundingClientRect().left-nav.right).to.be.closeTo(5,1)
+  })
+  cy.get('input').focus().type('test')
+  cy.get('.sona-search-cancel-circle').should('have.css','opacity','1').should($cancel=>{
+   const search=$cancel[0].ownerDocument.querySelector('.sona-search-morph')!.getBoundingClientRect()
+   expect($cancel[0].getBoundingClientRect().left-search.right).to.be.closeTo(5,1)
+  })
+  cy.get('.sona-bottom-nav').should('have.css','opacity','0')
+  cy.get('[aria-label="Clear search"]').should('not.exist')
+  cy.get('.sona-search-morph').should('have.css','transition-duration','0.2s')
+  cy.get('[aria-label="Cancel search"]').click()
+  cy.get('[aria-label="Return to Library"]').should('be.visible')
+  cy.get('input').should('have.value','')
+ })
+ it('returns to the original nested route entry so Back skips search',()=>{
+  const router=setup()
+  cy.then(()=>router.navigate('/library/albums/a'))
+  cy.then(()=>router.navigate('/library/artists/b'))
+  cy.get('[aria-label="Search"]').click()
+  cy.get('[aria-label="Return to Sona"]').click()
+  cy.contains('Page /library/artists/b').should('exist')
+  cy.then(()=>router.navigate(-1))
+  cy.contains('Page /library/albums/a').should('exist')
+ })
+
+ it('keeps the mini player clear of the circles throughout collapse and expansion',()=>{
+  setup()
+  cy.get('.sona-player').then($mini=>{
+   const ghost=$mini[0].ownerDocument.createElement('div');ghost.className='sona-album-morph-artwork';$mini[0].ownerDocument.body.append(ghost)
+   expect(Number(getComputedStyle($mini[0]).zIndex)).to.be.greaterThan(Number(getComputedStyle(ghost).zIndex));ghost.remove()
+  })
+  const inspect = () => cy.then(()=>new Cypress.Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))).get('.sona-player').then($mini=>{
+   const mini=$mini[0],doc=mini.ownerDocument
+   const nav=doc.querySelector<HTMLElement>('.sona-bottom-nav')!,search=doc.querySelector<HTMLElement>('.sona-search-morph')!
+   const animations=[mini,nav,search].map(el=>el.getAnimations().find(a=>(a.effect as KeyframeEffect).getKeyframes().some(f=>f.width))!)
+   expect(animations.every(Boolean)).to.equal(true)
+   animations.forEach(a=>a.pause())
+   for(const time of [0,120,240,360,480,599]){
+    animations.forEach(a=>a.currentTime=time)
+    const m=mini.getBoundingClientRect()
+    for(const el of [nav,search]){
+     const r=el.getBoundingClientRect()
+     const overlapX=Math.min(m.right,r.right)-Math.max(m.left,r.left)
+     const overlapY=Math.min(m.bottom,r.bottom)-Math.max(m.top,r.top)
+     expect(overlapX<=1||overlapY<=1,`no overlap at ${time}ms`).to.equal(true)
+    }
+   }
+   animations.forEach(a=>a.finish())
+  })
+  cy.then(()=>useSonaDock.setState({compact:true}))
+  inspect()
+  cy.get('[aria-label="Search"]').click()
+  inspect()
  })
 
 })

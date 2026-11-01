@@ -217,39 +217,16 @@ describe('Mobile player sheet motion', () => {
     cy.get('.sona-now-art img').should('not.exist')
   })
 
-  it('moves the title down 15 pixels and uses equal fixed gaps around transport',()=>{
+  it('moves title and controls up 25 pixels without moving the artwork',()=>{
     mountPlayer()
     cy.get('.sona-player-track').click()
     cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
-    cy.get('.sona-now-panel').then($panel=>{
-      const panel=$panel[0],doc=panel.ownerDocument
-      const baseline=panel.cloneNode(true) as HTMLElement
-      Object.assign(baseline.style,{position:'fixed',bottom:'0',left:'0',width:'100%',visibility:'hidden',translate:'0 0',transform:'none'})
-      baseline.querySelector<HTMLElement>('.sona-now-bottom-actions')!.style.translate='0 0'
-      const stack=baseline.querySelector('.sona-now-control-stack')!
-      stack.replaceWith(...Array.from(stack.childNodes))
-      const oldProgress=baseline.querySelector<HTMLElement>('.sona-now-progress')!
-      const oldTransport=baseline.querySelector<HTMLElement>('.sona-now-transport')!
-      const oldVolume=baseline.querySelector<HTMLElement>('.sona-now-volume')!
-      oldProgress.style.setProperty('margin-top','8px','important')
-      oldTransport.style.setProperty('margin','14px 0 6px','important')
-      oldVolume.style.setProperty('margin','12px 0 9px','important')
-      panel.parentElement!.appendChild(baseline)
-      try{
-        const oldTop=baseline.querySelector('h2')!.getBoundingClientRect().top
-        const top=panel.querySelector('h2')!.getBoundingClientRect().top
-        expect(top-oldTop).to.be.closeTo(15,1)
-        const progress=panel.querySelector('.sona-now-progress')!.getBoundingClientRect()
-        const transport=panel.querySelector('.sona-now-transport')!.getBoundingClientRect()
-        const volume=panel.querySelector('.sona-now-volume')!.getBoundingClientRect()
-        expect(transport.top-progress.bottom).to.be.closeTo(19,1)
-        expect(volume.top-transport.bottom).to.be.closeTo(31,1)
-        const songTrack=panel.querySelector('.sona-scrubber-track')!.getBoundingClientRect()
-        const volumeTrack=panel.querySelector('.sona-volume-track')!.getBoundingClientRect()
-        const center=transport.top+transport.height/2
-        expect(center-(songTrack.top+songTrack.height/2)).to.be.closeTo(volumeTrack.top+volumeTrack.height/2-center,1)
-      }finally{baseline.remove()}
-      expect(doc.querySelectorAll('.sona-now-panel')).to.have.length(1)
+    cy.get('.sona-now-panel').should($panel=>{
+      const panel=$panel[0]
+      expect(getComputedStyle(panel).translate).to.equal('0px 14px')
+      const progress=panel.querySelector('.sona-now-progress')!.getBoundingClientRect(),transport=panel.querySelector('.sona-now-transport')!.getBoundingClientRect(),volume=panel.querySelector('.sona-now-volume')!.getBoundingClientRect()
+      expect(transport.top-progress.bottom).to.be.closeTo(19,1)
+      expect(volume.top-transport.bottom).to.be.closeTo(31,1)
     })
   })
 

@@ -1,12 +1,8 @@
+import { NativeHeartTap } from '@/app/components/sona/native-heart-tap'
+import { isValidElement } from 'react'
+import { SonaHeartGlyph } from '@/app/components/sona/heart-glyph'
 import clsx from 'clsx'
-import {
-  EllipsisVertical,
-  Heart,
-  Info,
-  Pause,
-  Play,
-  Shuffle,
-} from 'lucide-react'
+import { EllipsisVertical, Info, Pause, Play, Shuffle } from 'lucide-react'
 import { ButtonHTMLAttributes, ComponentPropsWithoutRef } from 'react'
 import { Button as ComponentButton } from '@/app/components/ui/button'
 import {
@@ -45,7 +41,7 @@ function Button({
   isActive = false,
   ...props
 }: ActionsMainButtonProps) {
-  const button = (
+  const visual = (
     <ComponentButton
       className={cn(
         'rounded-full w-14 h-14 ease-linear duration-100 transition relative',
@@ -63,9 +59,23 @@ function Button({
     </ComponentButton>
   )
 
-  if (!tooltip) return button
-
-  return <SimpleTooltip text={tooltip}>{button}</SimpleTooltip>
+  const heart =
+    isValidElement<LikeIconProps>(children) && children.type === LikeIcon
+  const button = tooltip ? (
+    <SimpleTooltip text={tooltip}>{visual}</SimpleTooltip>
+  ) : (
+    visual
+  )
+  return heart ? (
+    <NativeHeartTap
+      active={Boolean(children.props.isStarred)}
+      label={tooltip || 'Favorite'}
+    >
+      {button}
+    </NativeHeartTap>
+  ) : (
+    button
+  )
 }
 
 interface DropdownProps {
@@ -122,15 +132,7 @@ interface LikeIconProps {
 }
 
 function LikeIcon({ isStarred }: LikeIconProps) {
-  return (
-    <Heart
-      className={clsx(
-        'w-5 h-5 drop-shadow-md',
-        isStarred && 'text-red-500 fill-red-500',
-      )}
-      strokeWidth={2}
-    />
-  )
+  return <SonaHeartGlyph active={Boolean(isStarred)} size={20} />
 }
 
 function InfoIcon() {

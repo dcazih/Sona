@@ -39,8 +39,7 @@
   .sona-tab-active{color:#ff6982}
   .sona-tab:focus-visible{outline:2px solid #ff6982;outline-offset:-2px}
 
-  .sona-player {position:fixed;left:8px!important;right:8px!important;width:calc(100vw - 16px)!important;
-    bottom:calc(73px + env(safe-area-inset-bottom,0px))!important;height:59px!important;
+  .sona-player {position:fixed;
     border:1px solid #ffffff2a!important;background:#333338ec!important;box-shadow:0 12px 36px #0009;
     border-radius:13px;overflow:hidden;z-index:46;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
   .sona-player[data-mobile-active="false"]{display:none!important}
@@ -650,7 +649,6 @@
     overscroll-behavior-y:auto!important;
   }
   .sona-player[data-mobile-active="true"] {
-    bottom:calc(75px + env(safe-area-inset-bottom,0px))!important;
     background:rgba(42,42,48,.52)!important;
     -webkit-backdrop-filter:blur(32px) saturate(1.8)!important;
     backdrop-filter:blur(32px) saturate(1.8)!important;
@@ -935,9 +933,6 @@
   /* Mini-player and navigation float over the scrolling content, not in the flow. */
   .sona-player[data-mobile-active="true"]{
     position:fixed!important;
-    left:10px!important;right:10px!important;
-    width:calc(100vw - 20px)!important;
-    bottom:calc(82px + env(safe-area-inset-bottom,0px))!important;
     border:0!important;outline:0!important;
     border-radius:17px!important;
     background:rgba(41,40,48,.50)!important;
@@ -1382,10 +1377,6 @@
   /* Actual floating mini-player: no reserved layout row, compact glass capsule */
   .sona-player[data-mobile-active="true"]{
     position:fixed!important;
-    left:10px!important;right:10px!important;
-    width:calc(100vw - 20px)!important;
-    height:53px!important;
-    bottom:calc(80px + env(safe-area-inset-bottom,0px))!important;
     border:0!important;outline:0!important;
     border-radius:29px!important;
     background:rgba(38,38,44,.47)!important;
@@ -1645,8 +1636,7 @@
 
 @media(max-width:767px){
   /* Single compact floating pill, same radius as the bottom navigation. */
-  .sona-player[data-mobile-active="true"]{
-    height:50px!important;min-height:50px!important;
+  .sona-player[data-mobile-active="true"]{min-height:50px!important;
     border-radius:33px!important;border:0!important;
     background:rgba(37,36,42,.50)!important;
   }
@@ -2418,9 +2408,6 @@
 /* Dock geometry v19. A consistent 4px gap above the 64px tab dock
    and above the 54px expanded Home/Search dock. */
 @media(max-width:767px){
-  .sona-app-shell .sona-player[data-mobile-active="true"]{
-    bottom:calc(var(--sona-dock-bottom,calc(4px + env(safe-area-inset-bottom,0px))) + 64px + 4px)!important
-  }
   /* Keep request loading cover centered but lift its content 100px. */
   .sona-request-loading-content{transform:translateY(-100px)!important}
 }
@@ -2511,3 +2498,22 @@
  .sona-mobile-album-cover{box-shadow:0 13px 33px #0007!important;}
 }
 @media(display-mode:standalone){.sona-app-shell::before{display:none!important;}}
+
+@media(max-width:767px){
+ .sona-album-morph-artwork{z-index:75!important;}
+ .sona-app-shell .sona-header.sona-header{background:rgba(8,8,10,.72)!important;backdrop-filter:blur(22px)!important;-webkit-backdrop-filter:blur(22px)!important;}
+ .sona-app-shell:has(.sona-persistent-requests.is-active) .sona-header.sona-header{background:rgba(23,23,25,.72)!important;}
+ .sona-now-overlay .sona-now-panel{translate:0 14px!important;}
+ .sona-now-bottom-actions [aria-label="Show lyrics"] svg{width:29px!important;height:29px!important;}
+ .sona-mobile-progress-times{font-size:13px!important;}
+ .sona-account-portal-sheet .sona-account-sheet-heading{background:rgba(25,24,29,.72)!important;backdrop-filter:blur(22px)!important;-webkit-backdrop-filter:blur(22px)!important;}
+ .sona-artist-page #artist-biography h3{font-size:18px!important;}
+}
+
+@media(max-width:767px){
+ .sona-app-shell:not(:has(.sona-am-search-page)) #main-scroll-area{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;max-height:none!important;}
+ html:has(.sona-apple-library),html:has(.sona-apple-library) body,html:has(.sona-apple-library) #root,.sona-app-shell:has(.sona-apple-library),.sona-app-shell:has(.sona-apple-library) #main-scroll-area,.sona-app-shell:has(.sona-apple-library) #scroll-viewport{background:#000!important;background-image:none!important;}
+ .sona-account-portal-sheet .sona-account-sheet-heading{position:absolute!important;top:0;left:0;right:0;z-index:3!important;}
+ .sona-account-portal-sheet .sona-account-scroll{padding-top:calc(var(--sona-account-heading-height,100px) + 18px)!important;}
+ .sona-app-shell:has(.sona-artist-page) .sona-header-detail-view>.sona-album-header-back,.sona-app-shell:has(.sona-artist-page) .sona-header-detail-view>.sona-album-header-more{width:32px!important;height:32px!important;}
+}

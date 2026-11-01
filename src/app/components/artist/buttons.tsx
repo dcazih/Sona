@@ -47,6 +47,7 @@ export function ArtistButtons({
   })
 
   function handleLikeButton() {
+    navigator.vibrate?.(10)
     if (!artist) return
     starMutation.mutate({
       id: artist.id,
@@ -99,9 +100,10 @@ export function ArtistButtons({
   }
 
   return (
-    <Actions.Container>
+    <Actions.Container className="sona-artist-actions">
       <Actions.Button
         tooltip={buttonsTooltips.play}
+        className="sona-artist-play"
         buttonStyle="primary"
         onClick={handlePlayButton}
       >
@@ -109,6 +111,7 @@ export function ArtistButtons({
       </Actions.Button>
 
       <Actions.Button
+        className="sona-artist-shuffle"
         tooltip={buttonsTooltips.shuffle}
         onClick={handleShuffleButton}
         isActive={isArtistActive && isShuffleActive}
@@ -119,6 +122,7 @@ export function ArtistButtons({
       {!hideFavoritesSection && (
         <>
           <Actions.Button
+            className="sona-artist-heart"
             tooltip={buttonsTooltips.like}
             onClick={handleLikeButton}
           >
@@ -128,6 +132,7 @@ export function ArtistButtons({
       )}
       {showInfoButton && (
         <Actions.Button
+          className="sona-artist-info"
           tooltip={buttonsTooltips.info}
           onClick={toggleShowInfoPanel}
         >

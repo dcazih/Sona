@@ -43,7 +43,7 @@ export default function SonaMobileRequests() {
     scrollAckTimer.current = window.setTimeout(() => {
       if (scrollAcknowledged.current !== requestId) {
         toast.warning('Update Music Requests on NAS to enable this shortcut', {
-          autoClose: 2000,
+          autoClose: 5000,
           toastId: 'sona-requests-scroll-update',
         })
       }

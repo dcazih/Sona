@@ -5,7 +5,7 @@ import {
   AlbumFallback,
   AlbumsFallback,
 } from '@/app/components/fallbacks/album-fallbacks'
-import { ArtistsFallback } from '@/app/components/fallbacks/artists.tsx'
+import { ArtistDetailFallback, ArtistsFallback } from '@/app/components/fallbacks/artists.tsx'
 import {
   GenreFallback,
   GenresFallback,
@@ -193,7 +193,7 @@ export const router = createHashRouter([
         path: ROUTES.ARTIST.PATH,
         errorElement: <ErrorPage />,
         element: (
-          <Suspense fallback={<AlbumFallback />}>
+          <Suspense fallback={<ArtistDetailFallback />}>
             <Artist />
           </Suspense>
         ),

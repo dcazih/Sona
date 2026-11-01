@@ -1,3 +1,4 @@
+import { useDockMorph } from './use-dock-morph'
 import { isStandalonePwa } from '@/utils/is-standalone-pwa'
 import { Compass, House, Library, ListPlus, Mic, Search, X } from 'lucide-react'
 import {
@@ -52,7 +53,7 @@ type Swipe = {
 
 export function SonaMobileNavigation() {
   const navigate = useNavigate()
-  const { pathname, search } = useLocation()
+  const { pathname, search, state: routeState } = useLocation()
   const isSearch = pathname === '/mobile-search'
   const inputRef = useRef<HTMLInputElement>(null)
   const navRef = useRef<HTMLElement>(null)
@@ -75,6 +76,7 @@ export function SonaMobileNavigation() {
   const focused = useSonaSearch((state) => state.focused)
   const setTerm = useSonaSearch((state) => state.setTerm)
   const setFocused = useSonaSearch((state) => state.setFocused)
+  const engaged = useSonaSearch((state) => state.engaged)
   const setEngaged = useSonaSearch((state) => state.setEngaged)
   const reset = useSonaSearch((state) => state.reset)
 
@@ -84,21 +86,13 @@ export function SonaMobileNavigation() {
     if (!isSearch) useSonaDock.getState().setReturnRoute(pathname + search)
   }, [pathname, search, isSearch, selectTab])
 
-  useLayoutEffect(() => {
-    const root = document.documentElement
-    root.dataset.sonaDockReady = 'true'
-    root.dataset.sonaDock = isSearch ? 'search' : compact ? 'compact' : 'normal'
-    root.dataset.sonaSearchFocused = String(isSearch && focused)
-    root.dataset.sonaKeyboardMoving = String(
-      isSearch && (keyboardClosing || (focused && !keyboardVisible)),
-    )
-    return () => {
-      delete root.dataset.sonaDockReady
-      delete root.dataset.sonaDock
-      delete root.dataset.sonaSearchFocused
-      delete root.dataset.sonaKeyboardMoving
-    }
-  }, [isSearch, compact, focused, keyboardClosing, keyboardVisible])
+  const fullSearch = isSearch && (engaged || term.length > 0)
+  useDockMorph({
+    mode: isSearch ? 'search' : compact ? 'compact' : 'normal',
+    editing: fullSearch,
+    focused: isSearch && focused,
+    moving: isSearch && (keyboardClosing || (focused && !keyboardVisible)),
+  })
 
   useEffect(() => {
     const viewport = getMainScrollElement()
@@ -302,7 +296,7 @@ export function SonaMobileNavigation() {
   // Hardware keyboards do not resize VisualViewport; keep the field usable there too.
   useEffect(() => {
     if (!focused) return
-    const timer = window.setTimeout(() => setKeyboardVisible(true), 500)
+    const timer = window.setTimeout(() => setKeyboardVisible(true), 200)
     return () => window.clearTimeout(timer)
   }, [focused])
 
@@ -408,7 +402,7 @@ export function SonaMobileNavigation() {
           keyboardSettleTimer = window.setTimeout(() => {
             setKeyboardVisible(true)
             setKeyboardClosing(false)
-          }, 160)
+          }, 80)
         } else {
           if (previousKeyboardHeight > 100) {
             inputRef.current?.blur()
@@ -515,13 +509,14 @@ export function SonaMobileNavigation() {
               ? 'Return to ' + tabs[selectedIndex].label
               : 'Expand ' + tabs[selectedIndex].label + ' navigation'
           }
-          aria-hidden={!circleMode}
-          tabIndex={circleMode ? 0 : -1}
+          aria-hidden={!circleMode || fullSearch}
+          tabIndex={circleMode && !fullSearch ? 0 : -1}
           onClick={() => {
             if (isSearch) {
               leaveSearch()
               setCompact(false)
-              navigate(returnRoute)
+              if (routeState?.sonaSearchOrigin === returnRoute) navigate(-1)
+              else navigate(returnRoute, { replace: true })
             } else setCompact(false)
           }}
         >
@@ -562,7 +557,9 @@ export function SonaMobileNavigation() {
           onClick={() => {
             if (!isSearch) {
               setCompact(false)
-              navigate('/mobile-search')
+              navigate('/mobile-search', {
+                state: { sonaSearchOrigin: pathname + search },
+              })
               return
             }
             setEngaged(true)
@@ -617,28 +614,15 @@ export function SonaMobileNavigation() {
               if (event.key === 'Escape') leaveSearch()
             }}
           />
-          {term.length > 0 ? (
-            <button
-              type="button"
-              className="sona-search-inline-action"
-              tabIndex={isSearch ? 0 : -1}
-              aria-label="Clear search"
-              onPointerDown={(event) => event.preventDefault()}
-              onClick={() => setTerm('')}
-            >
-              <X size={17} />
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="sona-search-inline-action"
-              tabIndex={isSearch ? 0 : -1}
-              aria-label="Voice search"
-              onClick={startVoiceSearch}
-            >
-              <Mic size={19} />
-            </button>
-          )}
+          <button
+            type="button"
+            className="sona-search-inline-action"
+            tabIndex={isSearch ? 0 : -1}
+            aria-label="Voice search"
+            onClick={startVoiceSearch}
+          >
+            <Mic size={19} />
+          </button>
         </form>
         {voiceError && (
           <span role="status" className="sona-search-voice-error">
@@ -646,6 +630,20 @@ export function SonaMobileNavigation() {
           </span>
         )}
       </div>
+      {fullSearch && (
+        <button
+          type="button"
+          className="sona-search-cancel-circle"
+          aria-label="Cancel search"
+          onPointerDown={(event) => event.preventDefault()}
+          onClick={() => {
+            inputRef.current?.blur()
+            reset()
+          }}
+        >
+          <X size={27} />
+        </button>
+      )}
     </>
   )
 }

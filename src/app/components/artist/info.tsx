@@ -1,3 +1,6 @@
+import { useLayoutEffect } from 'react'
+import { useIsMobile } from '@/app/hooks/use-mobile'
+import { useAppStore } from '@/store/app.store'
 import { Fragment } from 'react/jsx-runtime'
 import { CollapsibleInfo } from '@/app/components/info/collapsible-info'
 import { useGetArtistInfo } from '@/app/hooks/use-artist'
@@ -9,6 +12,18 @@ interface ArtistInfoProps {
 }
 
 export function ArtistInfo({ artist }: ArtistInfoProps) {
+  const mobile = useIsMobile()
+  useLayoutEffect(() => {
+    if (!mobile) return
+    const previous = useAppStore.getState().pages.showInfoPanel
+    useAppStore.setState((state) => ({
+      pages: { ...state.pages, showInfoPanel: false },
+    }))
+    return () =>
+      useAppStore.setState((state) => ({
+        pages: { ...state.pages, showInfoPanel: previous },
+      }))
+  }, [artist.id, mobile])
   const { data: artistInfo } = useGetArtistInfo(artist.id)
 
   const hasInfoToShow =
@@ -31,7 +46,7 @@ export function ArtistInfo({ artist }: ArtistInfoProps) {
           bio={artistInfo.biography}
           lastFmUrl={artistInfo.lastFmUrl}
           musicBrainzId={artistInfo.musicBrainzId}
-          useStateInfo={!isArtistEmpty}
+          useStateInfo={mobile || !isArtistEmpty}
         />
       )}
     </Fragment>
