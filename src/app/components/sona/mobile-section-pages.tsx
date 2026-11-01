@@ -197,7 +197,7 @@ function saveSet(key:string,values:Set<string>){
 function playlistSort(list:Playlist[],sort:string){
  const next=[...list]
  if(sort==='title')return next.sort((a,b)=>a.name.localeCompare(b.name))
- if(sort==='date-added')return next.sort((a,b)=>b.created.localeCompare(a.created))
+ if(sort==='date-added')return next.sort((a,b)=>(b.created||'').localeCompare(a.created||''))
  if(sort==='updated'||sort==='last-played')return next.sort((a,b)=>(b.changed||'').localeCompare(a.changed||''))
  if(sort==='playlist-type')return next.sort((a,b)=>Number(b.public)-Number(a.public)||a.name.localeCompare(b.name))
  return next

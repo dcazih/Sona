@@ -46,7 +46,8 @@ export function Header() {
   const albumId = /^\/library\/albums\/([^/]+)$/.exec(pathname)?.[1]
   const artistId = /^\/library\/artists\/([^/]+)$/.exec(pathname)?.[1]
   const isMobileDetail = Boolean(albumId || artistId)
-  const isSectionView = /^\/library\/(artists|genres|playlists|songs|downloads)(\/|$)/.test(pathname)
+  const isSectionView = pathname === '/library/albums' ||
+    /^\/library\/(artists|genres|playlists|songs|downloads)(\/|$)/.test(pathname)
   const isNewTab = pathname === '/mobile-new'
   const mobileTitle = pathname === '/' ? 'Home'
     : pathname === '/mobile-library' ? 'Library'
