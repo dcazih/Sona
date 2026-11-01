@@ -1,3 +1,5 @@
+import {getDockBounds} from './dock-bounds'
+import {SonaMobileNavigation} from './mobile-navigation'
 import { Profiler } from 'react'
 import { Player } from '@/app/components/player/player'
 import { usePlayerStore } from '@/store/player.store'
@@ -10,7 +12,7 @@ function mountPlayer() {
     usePlayerStore.getState().actions.setSongList(songs, 0)
     usePlayerStore.getState().actions.setPlayingState(false)
     usePlayerStore.getState().fullscreen.setIsFullscreen(false)
-    cy.mount(<div className="sona-app-shell"><Player /><SonaMobileNowPlaying /></div>)
+    cy.mount(<div className="sona-app-shell"><Player /><SonaMobileNowPlaying /><SonaMobileNavigation/></div>)
   })
 }
 
@@ -42,7 +44,7 @@ describe('Mobile player sheet motion', () => {
       cy.get('.sona-player').should(($mini) => {
         expect($mini.attr('data-sona-rebound')).to.be.undefined
         const closed = $sheet[0].getBoundingClientRect()
-        const mini = $mini[0].getBoundingClientRect()
+        const mini = getDockBounds($mini[0])
         expect(closed.left).to.be.closeTo(mini.left, 1)
         expect(closed.top).to.be.closeTo(mini.top, 1)
         expect(closed.width).to.be.closeTo(mini.width, 1)
@@ -158,7 +160,7 @@ describe('Mobile player sheet motion', () => {
     cy.get('.sona-now-overlay').should('have.attr','data-phase','closed')
     cy.get('.sona-player').should('not.have.attr','data-sona-rebound')
     cy.get('.sona-player').should(($mini) => {
-      expect(getComputedStyle($mini[0]).translate).to.equal('none')
+      expect(getComputedStyle($mini[0]).translate).to.equal('0px -58px')
     })
   })
 
@@ -323,6 +325,46 @@ describe('Mobile player sheet motion', () => {
    expect(report.layouts).to.be.lessThan(4)
    cy.writeFile('/tmp/sona-player-drag-profile.json',report)
   })
+ })
+
+ it('ignores downward drags until opening has fully settled',()=>{
+  mountPlayer()
+  cy.get('.sona-player-track').click()
+  cy.get('.sona-now-overlay').then($sheet=>{
+   const sheet=$sheet[0],shape=sheet.getAnimations().find(a=>(a.effect as KeyframeEffect).getKeyframes().some(f=>f.transform))!
+   shape.pause();shape.currentTime=180
+   const win=sheet.ownerDocument.defaultView!
+   sheet.dispatchEvent(new win.PointerEvent('pointerdown',{bubbles:true,pointerId:42,isPrimary:true,button:0,clientX:170,clientY:100}))
+   sheet.dispatchEvent(new win.PointerEvent('pointermove',{bubbles:true,pointerId:42,isPrimary:true,button:0,clientX:170,clientY:400}))
+   sheet.dispatchEvent(new win.PointerEvent('pointerup',{bubbles:true,pointerId:42,isPrimary:true,button:0,clientX:170,clientY:400}))
+   expect(sheet.dataset.phase).to.equal('opening');expect(sheet.classList.contains('is-dragging')).to.equal(false)
+   expect(shape.playState).to.equal('paused');shape.finish()
+  })
+  cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
+ })
+ it('flies the title and play icon into the mini player and fades only after landing',()=>{
+  mountPlayer()
+  cy.get('.sona-player-track').click()
+  cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
+  cy.get('.sona-mini-artist-text').should('not.exist')
+  cy.get('[aria-label="Minimize Now Playing"]').click()
+  cy.get('.sona-player-detail-flight.is-title').should('exist')
+  cy.get('.sona-player-detail-flight.is-play').should('exist')
+  cy.get('.sona-now-overlay').then($sheet=>{
+   const sheet=$sheet[0],shape=sheet.getAnimations().find(a=>(a.effect as KeyframeEffect).getKeyframes().some(f=>f.transform))!
+   shape.pause();shape.currentTime=370
+   expect(Number(getComputedStyle(sheet).opacity)).to.equal(1)
+   expect(sheet.dataset.phase).to.equal('closing')
+   shape.finish()
+  })
+  cy.get('.sona-now-overlay').should('have.attr','data-phase','landing').then($sheet=>{
+   const sheet=$sheet[0],mini=sheet.ownerDocument.querySelector<HTMLElement>('.sona-player')!,target=getDockBounds(mini),landed=sheet.getBoundingClientRect()
+   expect(landed.left).to.be.closeTo(target.left,1);expect(landed.top).to.be.closeTo(target.top,1);expect(landed.width).to.be.closeTo(target.width,1)
+   const fade=sheet.getAnimations().find(a=>a.effect?.getTiming().duration===90)!
+   expect(fade).to.exist
+  })
+  cy.get('.sona-now-overlay').should('have.attr','data-phase','closed')
+  cy.get('.sona-player-detail-flight,.sona-player-artwork-flight').should('not.exist')
  })
 
 })

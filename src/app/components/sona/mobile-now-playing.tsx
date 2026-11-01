@@ -162,7 +162,13 @@ export function SonaMobileNowPlaying() {
   }, [isFullscreen, setIsFullscreen])
 
   function beginSwipe(event: globalThis.PointerEvent) {
-    if (!isFullscreen || !event.isPrimary || event.button !== 0) return
+    if (
+      !isFullscreen ||
+      motion.ref.current?.dataset.phase !== 'open' ||
+      !event.isPrimary ||
+      event.button !== 0
+    )
+      return
     if (
       (event.target as Element).closest(
         '.sona-queue-scroller, .sona-now-lyrics, .sona-mobile-scrubber, .sona-volume-slider, [role="slider"], input, button:not(.sona-now-drag-handle), a',

@@ -94,3 +94,7 @@
  .sona-now-overlay{background:transparent!important;}
  .sona-now-glass{position:absolute;z-index:-2;inset:0;pointer-events:none;background:rgba(29,29,33,.75);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);transform-origin:0 0;}
 }
+.sona-player-detail-flight{position:fixed;left:0;top:0;z-index:252;pointer-events:none;transform-origin:0 0;will-change:transform;}
+.sona-player-detail-flight.is-title{text-overflow:clip;}
+
+.sona-now-overlay[data-phase="landing"]{pointer-events:none;}

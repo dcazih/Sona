@@ -1,3 +1,5 @@
+import { DockSurface } from './dock-surface'
+import { getDockBounds } from './dock-bounds'
 import { useDockMorph } from './use-dock-morph'
 import { isStandalonePwa } from '@/utils/is-standalone-pwa'
 import { Compass, House, Library, ListPlus, Mic, Search, X } from 'lucide-react'
@@ -219,7 +221,7 @@ export function SonaMobileNavigation() {
       (event.pointerType === 'mouse' && event.button !== 0)
     )
       return
-    const bounds = event.currentTarget.getBoundingClientRect()
+    const bounds = getDockBounds(event.currentTarget)
     swipeRef.current = {
       left: bounds.left,
       width: bounds.width,
@@ -495,7 +497,7 @@ export function SonaMobileNavigation() {
       <nav
         ref={navRef}
         className={
-          'sona-bottom-nav sona-bottom-nav-split' +
+          'sona-bottom-nav sona-bottom-nav-split sona-dock-host' +
           (circleMode ? ' is-collapsed' : '') +
           (dragIndex !== null ? ' is-dragging' : '')
         }
@@ -509,56 +511,58 @@ export function SonaMobileNavigation() {
             navCancel()
         }}
       >
-        <div className="sona-nav-items">
-          <span
-            className={
-              'sona-nav-highlight' + (selectedIndex < 0 ? ' is-hidden' : '')
-            }
-            aria-hidden="true"
-          />
-          {tabs.map(({ key, label, icon: Icon, url }, i) => (
-            <button
-              key={key}
-              type="button"
+        <DockSurface>
+          <div className="sona-nav-items">
+            <span
               className={
-                'sona-tab ' + (selectedIndex === i ? 'sona-tab-active' : '')
+                'sona-nav-highlight' + (selectedIndex < 0 ? ' is-hidden' : '')
               }
-              aria-label={label}
-              aria-current={selectedIndex === i ? 'page' : undefined}
-              aria-hidden={circleMode}
-              tabIndex={circleMode ? -1 : 0}
-              onClick={() => tabClick(url)}
-            >
-              <Icon size={22} strokeWidth={selectedIndex === i ? 2.5 : 1.8} />
-              <span>{label}</span>
-            </button>
-          ))}
-        </div>
-        <button
-          type="button"
-          className="sona-nav-return"
-          aria-label={
-            isSearch
-              ? 'Return to ' + tabs[selectedIndex].label
-              : 'Expand ' + tabs[selectedIndex].label + ' navigation'
-          }
-          aria-hidden={!circleMode || (fullSearch && !resultsDock)}
-          tabIndex={circleMode && (!fullSearch || resultsDock) ? 0 : -1}
-          onClick={() => {
-            if (isSearch) {
-              leaveSearch()
-              setCompact(false)
-              if (routeState?.sonaSearchOrigin === returnRoute) navigate(-1)
-              else navigate(returnRoute, { replace: true })
-            } else setCompact(false)
-          }}
-        >
-          <ReturnIcon size={24} strokeWidth={2.2} />
-        </button>
+              aria-hidden="true"
+            />
+            {tabs.map(({ key, label, icon: Icon, url }, i) => (
+              <button
+                key={key}
+                type="button"
+                className={
+                  'sona-tab ' + (selectedIndex === i ? 'sona-tab-active' : '')
+                }
+                aria-label={label}
+                aria-current={selectedIndex === i ? 'page' : undefined}
+                aria-hidden={circleMode}
+                tabIndex={circleMode ? -1 : 0}
+                onClick={() => tabClick(url)}
+              >
+                <Icon size={22} strokeWidth={selectedIndex === i ? 2.5 : 1.8} />
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="sona-nav-return"
+            aria-label={
+              isSearch
+                ? 'Return to ' + tabs[selectedIndex].label
+                : 'Expand ' + tabs[selectedIndex].label + ' navigation'
+            }
+            aria-hidden={!circleMode || (fullSearch && !resultsDock)}
+            tabIndex={circleMode && (!fullSearch || resultsDock) ? 0 : -1}
+            onClick={() => {
+              if (isSearch) {
+                leaveSearch()
+                setCompact(false)
+                if (routeState?.sonaSearchOrigin === returnRoute) navigate(-1)
+                else navigate(returnRoute, { replace: true })
+              } else setCompact(false)
+            }}
+          >
+            <ReturnIcon size={24} strokeWidth={2.2} />
+          </button>
+        </DockSurface>
       </nav>
       <div
         className={
-          'sona-search-morph' +
+          'sona-search-morph sona-dock-host' +
           (isSearch ? ' is-expanded' : '') +
           (focused ? ' is-focused' : '') +
           (isSearch ? ' is-search-visible' : '')
@@ -566,85 +570,87 @@ export function SonaMobileNavigation() {
         role={isSearch ? 'search' : undefined}
         aria-label={isSearch ? 'Search your music library' : undefined}
       >
-        <button
-          type="button"
-          className="sona-search-orb"
-          aria-label={isSearch ? 'Focus search' : 'Search'}
-          onClick={() => {
-            if (!isSearch) {
-              setCompact(false)
-              navigate('/mobile-search', {
-                state: { sonaSearchOrigin: pathname + search },
-              })
-              return
-            }
-            setEngaged(true)
-            inputRef.current?.focus({ preventScroll: true })
-          }}
-        >
-          <Search size={24} strokeWidth={isSearch ? 2.3 : 1.9} />
-        </button>
-        <form
-          className="sona-search-morph-field"
-          aria-hidden={!isSearch}
-          onSubmit={submitSearch}
-        >
-          <input
-            ref={inputRef}
-            type="search"
-            aria-label="Search artists, albums, songs"
-            tabIndex={isSearch ? 0 : -1}
-            enterKeyHint="search"
-            spellCheck={false}
-            autoComplete="off"
-            placeholder={
-              focused ? 'Artists, albums, songs…' : 'Search Your Library'
-            }
-            value={term}
-            onPointerDown={() => {
-              // On iOS, focusing a fixed bottom input can scroll the document
-              // to keep it above the incoming keyboard. Focus during the
-              // trusted pointer event with preventScroll so the page stays put.
-              if (document.activeElement !== inputRef.current) {
-                inputRef.current?.focus({ preventScroll: true })
-              }
-            }}
-            onFocus={() => {
-              setEngaged(true)
-              setKeyboardVisible(false)
-              setFocused(true)
-            }}
-            onBlur={() => {
-              if (
-                parseFloat(
-                  document.documentElement.style.getPropertyValue(
-                    '--sona-keyboard-offset',
-                  ),
-                ) > 100
-              )
-                setKeyboardClosing(true)
-              setFocused(false)
-            }}
-            onChange={(event) => setTerm(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') leaveSearch()
-            }}
-          />
+        <DockSurface>
           <button
             type="button"
-            className="sona-search-inline-action"
-            tabIndex={isSearch ? 0 : -1}
-            aria-label="Voice search"
-            onClick={startVoiceSearch}
+            className="sona-search-orb"
+            aria-label={isSearch ? 'Focus search' : 'Search'}
+            onClick={() => {
+              if (!isSearch) {
+                setCompact(false)
+                navigate('/mobile-search', {
+                  state: { sonaSearchOrigin: pathname + search },
+                })
+                return
+              }
+              setEngaged(true)
+              inputRef.current?.focus({ preventScroll: true })
+            }}
           >
-            <Mic size={19} />
+            <Search size={24} strokeWidth={isSearch ? 2.3 : 1.9} />
           </button>
-        </form>
-        {voiceError && (
-          <span role="status" className="sona-search-voice-error">
-            {voiceError}
-          </span>
-        )}
+          <form
+            className="sona-search-morph-field"
+            aria-hidden={!isSearch}
+            onSubmit={submitSearch}
+          >
+            <input
+              ref={inputRef}
+              type="search"
+              aria-label="Search artists, albums, songs"
+              tabIndex={isSearch ? 0 : -1}
+              enterKeyHint="search"
+              spellCheck={false}
+              autoComplete="off"
+              placeholder={
+                focused ? 'Artists, albums, songs…' : 'Search Your Library'
+              }
+              value={term}
+              onPointerDown={() => {
+                // On iOS, focusing a fixed bottom input can scroll the document
+                // to keep it above the incoming keyboard. Focus during the
+                // trusted pointer event with preventScroll so the page stays put.
+                if (document.activeElement !== inputRef.current) {
+                  inputRef.current?.focus({ preventScroll: true })
+                }
+              }}
+              onFocus={() => {
+                setEngaged(true)
+                setKeyboardVisible(false)
+                setFocused(true)
+              }}
+              onBlur={() => {
+                if (
+                  parseFloat(
+                    document.documentElement.style.getPropertyValue(
+                      '--sona-keyboard-offset',
+                    ),
+                  ) > 100
+                )
+                  setKeyboardClosing(true)
+                setFocused(false)
+              }}
+              onChange={(event) => setTerm(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') leaveSearch()
+              }}
+            />
+            <button
+              type="button"
+              className="sona-search-inline-action"
+              tabIndex={isSearch ? 0 : -1}
+              aria-label="Voice search"
+              onClick={startVoiceSearch}
+            >
+              <Mic size={19} />
+            </button>
+          </form>
+          {voiceError && (
+            <span role="status" className="sona-search-voice-error">
+              {voiceError}
+            </span>
+          )}
+        </DockSurface>
       </div>
       {fullSearch && (
         <button

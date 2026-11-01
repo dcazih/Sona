@@ -1,3 +1,4 @@
+import { getDockBounds } from './dock-bounds'
 import { useLayoutEffect, useRef } from 'react'
 
 type State = {
@@ -8,36 +9,20 @@ type State = {
   moving: boolean
 }
 export const DOCK_DURATION = 440
-// Sample cubic curves once per interaction. The browser owns the animation frames.
-export function dockCubic(
-  t: number,
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-) {
-  const curve = (p: number, a: number, b: number) =>
-    3 * (1 - p) ** 2 * p * a + 3 * (1 - p) * p * p * b + p ** 3
-  let low = 0,
-    high = 1
-  for (let i = 0; i < 18; i++) {
-    const p = (low + high) / 2
-    if (curve(p, x1, x2) < t) low = p
-    else high = p
-  }
-  return t === 0 ? 0 : t === 1 ? 1 : curve((low + high) / 2, y1, y2)
-}
 const geometry = (element: HTMLElement) => {
-  const css = getComputedStyle(element)
+  const box = getDockBounds(element)
   return {
-    left: parseFloat(css.left),
-    bottom: parseFloat(css.bottom),
-    width: parseFloat(css.width),
-    height: parseFloat(css.height),
+    left: box.left,
+    bottom: box.bottom,
+    width: box.width,
+    height: box.height,
+    top: box.top,
+    baseWidth: element.offsetWidth,
+    translateY:
+      parseFloat(getComputedStyle(element).translate.split(/\s+/)[1]) || 0,
   }
 }
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
-const smooth = (t: number) => t * t * (3 - 2 * t)
 /** Persistent shells morph on one uninterrupted timeline; fixed-size contents are clipped, never compressed. */
 export function useDockMorph({
   mode,
@@ -73,6 +58,7 @@ export function useDockMorph({
     root.dataset.sonaSearchFocused = String(focused)
     root.dataset.sonaKeyboardMoving = String(moving)
     const to = surfaces.map(geometry)
+    surfaces.forEach((element, index) => setSurfaceRest(element, to[index]))
     if (
       previous.current &&
       previous.current !== key &&
@@ -86,48 +72,24 @@ export function useDockMorph({
         const a = from[index],
           b = to[index]
         if (!(a.width > 0 && b.width > 0)) return []
-        const mini = element.matches('.sona-player')
+        const mini = element.matches('.sona-player'),
+          search = element.matches('.sona-search-morph')
         const expanding =
           previousMode === 'compact' && mode !== 'compact' && !interrupted
         const collapsing =
           mode === 'compact' && previousMode !== 'compact' && !interrupted
-        const frames = Array.from({ length: 61 }, (_, i) => {
-          const t = i / 60
-          let p = dockCubic(t, 0.22, 0.8, 0.22, 1),
-            vertical = p,
-            width = lerp(a.width, b.width, p)
-          if (expanding) {
-            if (mini) {
-              vertical = dockCubic(t, 0.06, 1, 0.14, 1)
-              const q = Math.max(0, (vertical - 0.6) / 0.4) ** 4
-              // Begin widening at 60% of the rise; a 2px crest settles before the motion ends.
-              width =
-                q <= 0.85
-                  ? lerp(a.width, b.width + 2, smooth(q / 0.85))
-                  : lerp(b.width + 2, b.width, smooth((q - 0.85) / 0.15))
-              p = (width - a.width) / Math.max(1, b.width - a.width)
-            } else {
-              p = dockCubic(t, 0.55, 0, 0.2, 1)
-              vertical = p
-              width = lerp(a.width, b.width, p)
-            }
-          } else if (collapsing && mini) {
-            vertical = dockCubic(t, 0.75, 0, 0.55, 1)
-          }
-          return {
-            offset: t,
-            left: lerp(a.left, b.left, p) + 'px',
-            bottom: lerp(a.bottom, b.bottom, vertical) + 'px',
-            width: width + 'px',
-            height: lerp(a.height, b.height, p) + 'px',
-          }
-        })
-        const animation = element.animate(frames, {
-          duration: DOCK_DURATION,
-          easing: 'linear',
-        })
-        animation.startTime = start
-        return [animation]
+        return animateSurface(
+          element,
+          a,
+          b,
+          start,
+          DOCK_DURATION,
+          mini,
+          search,
+          previousMode === 'search',
+          expanding,
+          collapsing,
+        )
       })
     }
     previous.current = key
@@ -146,4 +108,210 @@ export function useDockMorph({
     },
     [],
   )
+}
+
+type Box = ReturnType<typeof geometry>
+function parts(element: HTMLElement) {
+  return {
+    shadow: element.querySelector<HTMLElement>(':scope>.sona-dock-shadow'),
+    surface: element.querySelector<HTMLElement>(':scope>.sona-dock-surface'),
+    contents: element.querySelector<HTMLElement>(
+      ':scope>.sona-dock-surface>.sona-dock-contents',
+    ),
+    left: element.querySelector<SVGElement>('.sona-dock-rim-left'),
+    right: element.querySelector<SVGElement>('.sona-dock-rim-right'),
+    top: element.querySelector<HTMLElement>('.sona-dock-rim-top'),
+    bottom: element.querySelector<HTMLElement>('.sona-dock-rim-bottom'),
+    controls: element.matches('.sona-player')
+      ? element.querySelector<HTMLElement>(
+          '.sona-player-controls>div:first-child',
+        )
+      : null,
+    progress: element.matches('.sona-player')
+      ? element.querySelector<HTMLElement>('.sona-web-player-progress')
+      : null,
+    voice: element.matches('.sona-search-morph')
+      ? element.querySelector<HTMLElement>('.sona-search-inline-action')
+      : null,
+  }
+}
+function rimTransforms(width: number, height: number, base: number) {
+  return {
+    left: `scale(${height / 64})`,
+    right: `translate3d(${width - height}px,0,0) scale(${height / 64})`,
+    top: `translate3d(${height / 2}px,0,0) scaleX(${Math.max(0, width - height) / base})`,
+    bottom: `translate3d(${height / 2}px,${height - 1}px,0) scaleX(${Math.max(0, width - height) / base})`,
+  }
+}
+function setSurfaceRest(element: HTMLElement, box: Box) {
+  const p = parts(element),
+    base = box.baseWidth,
+    rim = rimTransforms(box.width, box.height, base)
+  if (p.shadow) {
+    p.shadow.style.transform = `scale(${box.width / base},${box.height / 64})`
+    p.shadow.style.borderRadius = `${box.height / 2 / (box.width / base)}px / 32px`
+  }
+  for (const key of ['left', 'right', 'top', 'bottom'] as const)
+    if (p[key]) p[key]!.style.transform = rim[key]
+  if (p.controls)
+    p.controls.style.transform = `translate3d(${box.width - base}px,0,0)`
+  if (p.progress) {
+    p.progress.style.transformOrigin = '0 50%'
+    p.progress.style.transform = `scaleX(${(box.width - 24) / (base - 24)})`
+  }
+  if (p.voice) p.voice.style.transform = 'none'
+  for (const text of element.querySelectorAll<HTMLElement>(
+    '.sona-mini-text-sharp,.sona-mini-text-blurred',
+  )) {
+    const delta = box.width - base
+    text.style.transform = `translate3d(${delta}px,0,0)`
+    const ink = text.querySelector<HTMLElement>('.sona-mini-ink')
+    if (ink) ink.style.transform = `translate3d(${-delta}px,0,0)`
+  }
+}
+
+function animateSurface(
+  element: HTMLElement,
+  from: Box,
+  target: Box,
+  start: CSSNumberish | null,
+  duration: number,
+  mini: boolean,
+  search: boolean,
+  wasSearch: boolean,
+  expanding: boolean,
+  collapsing: boolean,
+) {
+  const p = parts(element),
+    base = target.baseWidth,
+    result: Animation[] = []
+  const standard = 'cubic-bezier(.22,.8,.22,1)',
+    widthEase = expanding && !mini ? 'cubic-bezier(.55,0,.2,1)' : standard
+  type Stop = { offset: number; fraction: number; easing?: string }
+  const widthStops: Stop[] =
+    expanding && mini
+      ? [
+          { offset: 0, fraction: 0, easing: 'linear' },
+          { offset: 0.06, fraction: 0, easing: 'cubic-bezier(.4,0,.2,1)' },
+          {
+            offset: 0.78,
+            fraction: 1 + 2 / Math.max(1, target.width - from.width),
+            easing: 'cubic-bezier(.4,0,.2,1)',
+          },
+          { offset: 1, fraction: 1 },
+        ]
+      : [
+          { offset: 0, fraction: 0, easing: widthEase },
+          { offset: 1, fraction: 1 },
+        ]
+  const frames = widthStops.map((stop) => ({
+    ...stop,
+    width: lerp(from.width, target.width, stop.fraction),
+    height: lerp(from.height, target.height, stop.fraction),
+  }))
+  const play = (part: Element | null, keyframes: Keyframe[]) => {
+    if (!part) return
+    const properties = Object.keys(keyframes[0]).filter(
+      (key) => key !== 'offset' && key !== 'easing',
+    )
+    if (
+      keyframes.every((frame) =>
+        properties.every(
+          (key) =>
+            frame[key as keyof Keyframe] ===
+            keyframes[0][key as keyof Keyframe],
+        ),
+      )
+    )
+      return
+    const animation = part.animate(keyframes, { duration, easing: 'linear' })
+    animation.startTime = start
+    result.push(animation)
+  }
+  const timeline = (
+    map: (frame: (typeof frames)[number]) => Record<string, string>,
+  ) => frames.map((f) => ({ offset: f.offset, easing: f.easing, ...map(f) }))
+  // Independent compositor translations keep the delayed width growth separate from the continuous rise.
+  play(
+    element,
+    timeline((f) => ({
+      transform: `translate3d(${lerp(from.left, target.left, f.fraction)}px,0,0)`,
+    })),
+  )
+  const targetY = target.translateY
+  const fromY = targetY + from.top - target.top
+  const verticalEase =
+    mini && expanding
+      ? 'cubic-bezier(.06,1,.14,1)'
+      : mini && collapsing
+        ? 'cubic-bezier(.75,0,.55,1)'
+        : widthEase
+  play(element, [
+    { offset: 0, translate: `0px ${fromY}px`, easing: verticalEase },
+    { offset: 1, translate: `0px ${targetY}px` },
+  ])
+  play(
+    p.surface,
+    timeline((f) => ({
+      clipPath: `inset(0px ${base - f.width}px ${64 - f.height}px 0px round ${f.height / 2}px)`,
+    })),
+  )
+  play(
+    p.shadow,
+    timeline((f) => ({
+      transform: `scale(${f.width / base},${f.height / 64})`,
+      borderRadius: `${f.height / 2 / (f.width / base)}px / 32px`,
+    })),
+  )
+  if (!mini)
+    play(
+      p.contents,
+      timeline((f) => ({
+        transform: `translate3d(0,${(f.height - 64) / 2}px,0)`,
+      })),
+    )
+  for (const key of ['left', 'right', 'top', 'bottom'] as const)
+    play(
+      p[key],
+      timeline((f) => ({
+        transform: rimTransforms(f.width, f.height, base)[key],
+      })),
+    )
+  play(
+    p.controls,
+    timeline((f) => ({ transform: `translate3d(${f.width - base}px,0,0)` })),
+  )
+  play(
+    p.progress,
+    timeline((f) => ({ transform: `scaleX(${(f.width - 24) / (base - 24)})` })),
+  )
+  play(
+    p.voice,
+    timeline((f) => ({
+      transform: `translate3d(${f.width - target.width}px,0,0)`,
+    })),
+  )
+  if (search) {
+    const oldX = wasSearch ? 0 : (from.width - 50) / 2,
+      newX = target.width > 64 ? 0 : (target.width - 50) / 2
+    play(
+      element.querySelector('.sona-search-orb'),
+      timeline((f) => ({
+        transform: `translate3d(${lerp(oldX, newX, f.fraction)}px,-50%,0)`,
+      })),
+    )
+  }
+  for (const text of element.querySelectorAll<HTMLElement>(
+    '.sona-mini-text-sharp,.sona-mini-text-blurred',
+  )) {
+    play(
+      text,
+      timeline((f) => ({ transform: `translate3d(${f.width - base}px,0,0)` })),
+    )
+    play(
+      text.querySelector('.sona-mini-ink'),
+      timeline((f) => ({ transform: `translate3d(${base - f.width}px,0,0)` })),
+    )
+  }
+  return result
 }

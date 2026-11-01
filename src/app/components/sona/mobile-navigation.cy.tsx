@@ -1,3 +1,5 @@
+import { getDockBounds } from './dock-bounds'
+import { DockSurface } from './dock-surface'
 import {createMemoryRouter,RouterProvider,useLocation} from 'react-router-dom'
 import {mount} from 'cypress/react'
 import {QueryClient,QueryClientProvider} from '@tanstack/react-query'
@@ -13,7 +15,7 @@ import '@/sona-mobile.css'
 function Screen(){
  const location=useLocation()
  return <div className="sona-app-shell"><div id="main-scroll-area"><div id="scroll-viewport" style={{height:700,overflow:'auto'}}><div style={{height:2400}}>Page {location.pathname}</div></div></div>
- <div className="sona-player" data-mobile-active="true" style={{position:'fixed'}}>Playing</div><SonaMobileNavigation/></div>
+ <div className="sona-player sona-dock-host" data-mobile-active="true" style={{position:'fixed'}}><DockSurface>Playing</DockSurface></div><SonaMobileNavigation/></div>
 }
 function setup(path='/'){
  const router=createMemoryRouter([{path:'*',element:<Screen/>}],{initialEntries:[path]})
@@ -21,9 +23,9 @@ function setup(path='/'){
 }
 function geometry(){
  cy.get('.sona-player').should($mini=>{
-  const mini=$mini[0].getBoundingClientRect(),doc=$mini[0].ownerDocument
-  const nav=doc.querySelector('.sona-bottom-nav')!.getBoundingClientRect()
-  const search=doc.querySelector('.sona-search-morph')!.getBoundingClientRect()
+  const mini=getDockBounds($mini[0] as HTMLElement),doc=$mini[0].ownerDocument
+  const nav=getDockBounds(doc.querySelector<HTMLElement>('.sona-bottom-nav')!)
+  const search=getDockBounds(doc.querySelector<HTMLElement>('.sona-search-morph')!)
   expect(mini.left).to.be.greaterThan(nav.right)
   expect(mini.right).to.be.lessThan(search.left)
   expect(mini.bottom).to.be.closeTo(nav.bottom,1)
@@ -74,41 +76,41 @@ describe('Coordinated mobile dock',()=>{
    cy.get('.sona-search-morph').should($expanded=>expect($expanded[0]).to.equal(element))
   })
   cy.get('[aria-label="Return to Library"]').should('be.visible')
-  cy.get('.sona-search-morph').should($el=>expect($el[0].getBoundingClientRect().width).to.be.closeTo(315,1))
+  cy.get('.sona-search-morph').should($el=>expect(getDockBounds($el[0] as HTMLElement).width).to.be.closeTo(315,1))
   cy.get('.sona-player').should('have.css','opacity','1')
   cy.get('input').focus()
   cy.get('.sona-player').should('have.css','opacity','0')
   cy.get('input').type('test').blur()
   cy.get('.sona-player').should('have.css','opacity','1').should($mini=>{
-   const bar=$mini[0].ownerDocument.querySelector('.sona-search-morph')!.getBoundingClientRect()
-   expect($mini[0].getBoundingClientRect().bottom).to.be.lessThan(bar.top)
+   const bar=getDockBounds($mini[0].ownerDocument.querySelector<HTMLElement>('.sona-search-morph')!)
+   expect(getDockBounds($mini[0] as HTMLElement).bottom).to.be.lessThan(bar.top)
   })
  })
  it('snaps the highlight between tabs and commits a tab only on release',()=>{
   setup()
-  cy.get('.sona-bottom-nav').trigger('pointerdown',{pointerId:1,isPrimary:true,pointerType:'touch',clientX:47,clientY:800})
+  cy.get('.sona-bottom-nav > .sona-dock-surface').trigger('pointerdown',{pointerId:1,isPrimary:true,pointerType:'touch',clientX:47,clientY:800})
    .trigger('pointermove',{pointerId:1,isPrimary:true,pointerType:'touch',clientX:180,clientY:800})
   cy.get('[aria-label="Sona"]').should('have.attr','aria-current','page')
   cy.get('.sona-nav-highlight').should($el=>expect(getComputedStyle($el[0]).transform).not.to.equal('matrix(1, 0, 0, 1, 0, 0)'))
-  cy.get('.sona-bottom-nav').trigger('pointerup',{pointerId:1,isPrimary:true,pointerType:'touch',clientX:180,clientY:800})
+  cy.get('.sona-bottom-nav > .sona-dock-surface').trigger('pointerup',{pointerId:1,isPrimary:true,pointerType:'touch',clientX:180,clientY:800})
   cy.get('[aria-label="Request"]').should('have.attr','aria-current','page')
  })
  it('uses matching live width transitions rather than replacing the circle',()=>{
   setup()
   cy.get('.sona-search-morph').then($el=>{
    const search=$el[0],nav=search.ownerDocument.querySelector('.sona-bottom-nav')!
-   expect(search.getBoundingClientRect().width).to.equal(64)
+   expect(getDockBounds(search as HTMLElement).width).to.equal(64)
    ;(search.querySelector('button') as HTMLButtonElement).click()
    cy.then(()=>new Cypress.Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))).then(()=>{
-    const transitions=search.getAnimations().filter(animation=>(animation.effect as KeyframeEffect).getKeyframes().some(frame=>frame.width))
-    const navTransition=nav.getAnimations().find(animation=>(animation.effect as KeyframeEffect).getKeyframes().some(frame=>frame.width))!
+    const transitions=search.querySelector('.sona-dock-surface')!.getAnimations().filter(animation=>(animation.effect as KeyframeEffect).getKeyframes().some(frame=>frame.clipPath))
+    const navTransition=nav.querySelector('.sona-dock-surface')!.getAnimations().find(animation=>(animation.effect as KeyframeEffect).getKeyframes().some(frame=>frame.clipPath))!
     expect(transitions).to.have.length(1)
     expect(navTransition).to.exist
     expect(transitions[0].effect!.getTiming().duration).to.equal(navTransition.effect!.getTiming().duration)
     expect(transitions[0].startTime).to.equal(navTransition.startTime)
     transitions[0].pause();navTransition.pause()
     transitions[0].currentTime=120;navTransition.currentTime=120
-    const width=search.getBoundingClientRect().width
+    const width=getDockBounds(search as HTMLElement).width
     expect(width).to.be.greaterThan(64).and.lessThan(302)
     transitions[0].finish();navTransition.finish()
    })
@@ -123,7 +125,7 @@ describe('Coordinated mobile dock',()=>{
    cy.then(()=>viewport.dispatchEvent(new Event('resize')))
    cy.get('html').should('have.attr','data-sona-keyboard-moving','false')
    cy.get('.sona-search-morph').should('have.css','opacity','1').should($bar=>{
-    expect($bar[0].getBoundingClientRect().bottom).to.be.closeTo(496,1)
+    expect(getDockBounds($bar[0] as HTMLElement).bottom).to.be.closeTo(496,1)
    })
    cy.get('#scroll-viewport').should('have.prop','scrollTop',0)
    cy.then(()=>{Object.defineProperty(viewport,'height',{configurable:true,get:()=>650});viewport.dispatchEvent(new Event('resize'))})
@@ -132,7 +134,7 @@ describe('Coordinated mobile dock',()=>{
    cy.get('html').should('have.attr','data-sona-keyboard-moving','false')
    cy.get('.sona-search-morph').should('have.css','opacity','1')
    cy.get('.sona-player').should('have.css','opacity','1').should($mini=>{
-    expect($mini[0].getBoundingClientRect().bottom).to.be.lessThan($mini[0].ownerDocument.querySelector('.sona-search-morph')!.getBoundingClientRect().top)
+    expect(getDockBounds($mini[0] as HTMLElement).bottom).to.be.lessThan(getDockBounds($mini[0].ownerDocument.querySelector<HTMLElement>('.sona-search-morph')!).top)
    })
   })
  })
@@ -146,12 +148,12 @@ describe('Coordinated mobile dock',()=>{
    cy.get('#scroll-viewport').trigger('wheel',{deltaY:50,deltaX:0}).scrollTo(0,150)
    geometry()
    cy.get('.sona-player [data-testid="player-button-next"]').should('have.css','opacity','0')
-   cy.get('.sona-player [data-testid="player-button-play"]').should('have.css','translate','36px')
+   cy.get('.sona-player [data-testid="player-button-play"]').should('have.css','translate','28px')
    cy.get('.sona-player-track').click()
    cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
    cy.get('[aria-label="Minimize Now Playing"]').click()
    cy.get('.sona-now-overlay').should('have.attr','data-phase','closed').should($sheet=>{
-    const mini=$sheet[0].ownerDocument.querySelector('.sona-player')!.getBoundingClientRect(),sheet=$sheet[0].getBoundingClientRect()
+    const mini=getDockBounds($sheet[0].ownerDocument.querySelector<HTMLElement>('.sona-player')!),sheet=$sheet[0].getBoundingClientRect()
     expect(sheet.left).to.be.closeTo(mini.left,1);expect(sheet.width).to.be.closeTo(mini.width,1)
    })
    cy.get('html').should('have.attr','data-sona-dock','compact')
@@ -184,12 +186,12 @@ describe('Coordinated mobile dock',()=>{
   setup('/mobile-library')
   cy.get('[aria-label="Search"]').click()
   cy.get('.sona-search-morph').should($search=>{
-   const nav=$search[0].ownerDocument.querySelector('.sona-bottom-nav')!.getBoundingClientRect()
-   expect($search[0].getBoundingClientRect().left-nav.right).to.be.closeTo(5,1)
+   const nav=getDockBounds($search[0].ownerDocument.querySelector<HTMLElement>('.sona-bottom-nav')!)
+   expect(getDockBounds($search[0] as HTMLElement).left-nav.right).to.be.closeTo(5,1)
   })
   cy.get('input').focus().type('test')
   cy.get('.sona-search-cancel-circle').should('have.css','opacity','1').should($cancel=>{
-   const search=$cancel[0].ownerDocument.querySelector('.sona-search-morph')!.getBoundingClientRect()
+   const search=getDockBounds($cancel[0].ownerDocument.querySelector<HTMLElement>('.sona-search-morph')!)
    expect($cancel[0].getBoundingClientRect().left-search.right).to.be.closeTo(5,1)
   })
   cy.get('.sona-bottom-nav').should('have.css','opacity','0')
@@ -197,7 +199,7 @@ describe('Coordinated mobile dock',()=>{
   cy.get('.sona-search-morph').should('have.css','transition-duration','0.2s')
   cy.get('input').blur()
   cy.get('.sona-bottom-nav').should('have.css','opacity','1')
-  cy.get('.sona-search-morph').should($el=>{const r=$el[0].getBoundingClientRect();expect(r.width).to.be.closeTo(260,1);expect(r.height).to.equal(50)})
+  cy.get('.sona-search-morph').should($el=>{const r=getDockBounds($el[0] as HTMLElement);expect(r.width).to.be.closeTo(260,1);expect(r.height).to.equal(50)})
   cy.get('[aria-label="Cancel search"]').click()
   cy.get('[aria-label="Return to Library"]').should('be.visible')
   cy.get('input').should('have.value','')
@@ -222,14 +224,14 @@ describe('Coordinated mobile dock',()=>{
   const inspect = () => cy.then(()=>new Cypress.Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))).get('.sona-player').then($mini=>{
    const mini=$mini[0],doc=mini.ownerDocument
    const nav=doc.querySelector<HTMLElement>('.sona-bottom-nav')!,search=doc.querySelector<HTMLElement>('.sona-search-morph')!
-   const animations=[mini,nav,search].map(el=>el.getAnimations().find(a=>(a.effect as KeyframeEffect).getKeyframes().some(f=>f.width))!)
+   const animations=[mini,nav,search].flatMap(el=>el.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===440))
    expect(animations.every(Boolean)).to.equal(true)
    animations.forEach(a=>a.pause())
    for(const time of [0,44,88,132,176,220,330,439]){
     animations.forEach(a=>a.currentTime=time)
-    const m=mini.getBoundingClientRect()
+    const m=getDockBounds(mini as HTMLElement)
     for(const el of [nav,search]){
-     const r=el.getBoundingClientRect()
+     const r=getDockBounds(el as HTMLElement)
      const overlapX=Math.min(m.right,r.right)-Math.max(m.left,r.left)
      const overlapY=Math.min(m.bottom,r.bottom)-Math.max(m.top,r.top)
      expect(overlapX<=1||overlapY<=1,`no overlap ${doc.documentElement.dataset.sonaDock} at ${time}ms: mini ${m.left},${m.top},${m.right},${m.bottom}; other ${r.left},${r.top},${r.right},${r.bottom}`).to.equal(true)
@@ -249,12 +251,12 @@ describe('Coordinated mobile dock',()=>{
   geometry()
   cy.get('[aria-label="Expand Sona navigation"]').click()
   cy.get('.sona-bottom-nav').then($nav=>{
-   const nav=$nav[0],animation=nav.getAnimations().find(a=>(a.effect as KeyframeEffect).getKeyframes().some(f=>f.width))!
+   const nav=$nav[0],animation=nav.querySelector('.sona-dock-surface')!.getAnimations().find(a=>(a.effect as KeyframeEffect).getKeyframes().some(f=>f.clipPath))!
    animation.pause();animation.currentTime=88
-   const cells=[...nav.querySelectorAll<HTMLElement>('.sona-tab')].map(el=>el.getBoundingClientRect())
+   const cells=[...nav.querySelectorAll<HTMLElement>('.sona-tab')].map(el=>getDockBounds(el as HTMLElement))
    expect(cells[0].width).to.be.closeTo(73.25,1)
    expect(cells[1].left-cells[0].left).to.be.closeTo(73.25,1)
-   expect(nav.getBoundingClientRect().width).to.be.greaterThan(50).and.lessThan(301)
+   expect(getDockBounds(nav as HTMLElement).width).to.be.greaterThan(50).and.lessThan(301)
    animation.finish()
   })
  })

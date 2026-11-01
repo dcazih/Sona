@@ -1,3 +1,5 @@
+import { flyPlayerDetails } from '@/app/components/sona/player-detail-flight'
+import { getDockBounds } from '@/app/components/sona/dock-bounds'
 import { SONA_NOTE_PATH } from '@/app/components/header/sona-note-glyph'
 import { useLayoutEffect, useRef } from 'react'
 
@@ -57,6 +59,10 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     const previousArt = sheet
       .querySelector<HTMLElement>('.sona-now-art')
       ?.getBoundingClientRect()
+    const detailOrigins = {
+      title: sheet.querySelector('.sona-now-song-info h2')?.getBoundingClientRect(),
+      play: sheet.querySelector('.sona-transport-toggle .is-visible svg')?.getBoundingClientRect(),
+    }
     const previousPanel = sheet.querySelector<HTMLElement>('.sona-now-panel')
     const panelSnapshot = previousPanel
       ? {
@@ -68,16 +74,18 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     const mini = document.querySelector<HTMLElement>(
       '.sona-player[data-mobile-active="true"]',
     )
-    const target = mini?.getBoundingClientRect()
+    const target = mini ? getDockBounds(mini) : undefined
     if (!width || !height) return
-    const sx = Math.max(0.01, (mini?.offsetWidth || width - 24) / width)
-    const sy = Math.max(0.01, (mini?.offsetHeight || 50) / height)
-    const radius = (mini?.offsetHeight || 50) / 2
+    const sx = Math.max(0.01, (target?.layoutWidth || width - 24) / width)
+    const sy = Math.max(0.01, (target?.layoutHeight || 50) / height)
+    const radius = (target?.layoutHeight || 50) / 2
     const left =
-      target && mini ? target.left + (target.width - mini.offsetWidth) / 2 : 12
+      target && mini
+        ? target.left + (target.width - target.layoutWidth) / 2
+        : 12
     const top =
       target && mini
-        ? target.top + (target.height - mini.offsetHeight) / 2
+        ? target.top + (target.height - target.layoutHeight) / 2
         : height - 110
     const compact = {
       transform: `translate3d(${left}px,${top}px,0) scale(${sx},${sy})`,
@@ -228,6 +236,10 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
         ),
       )
     }
+    const detailFlight =
+      !expand && mini && !reduced
+        ? flyPlayerDetails(sheet, mini, duration, easing, detailOrigins)
+        : null
     const panel = sheet.querySelector<HTMLElement>('.sona-now-panel')
     if (panel && !reduced) {
       extraAnimations.push(
@@ -271,6 +283,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       }, duration * 0.4)
     }
     const cleanupFlight = () => {
+      detailFlight?.cleanup()
       coverGhost.current?.remove()
       coverGhost.current = null
       if (fullArt) fullArt.style.visibility = oldFullVisibility
@@ -371,7 +384,33 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       distance.current = 0
       if (!expand) onClosedRef.current?.()
     }
-    anim.finished.then(finish).catch(() => {})
+    anim.finished
+      .then(() => {
+        if (animation.current !== anim) return
+        if (expand || reduced) {
+          finish()
+          return
+        }
+        // Fade only after the sheet, artwork, title and play icon share mini bounds.
+        sheet.dataset.phase = 'landing'
+        const landing = [
+          sheet,
+          ...(coverGhost.current ? [coverGhost.current] : []),
+          ...(detailFlight?.nodes ?? []),
+        ]
+        const fades = landing.map((node) =>
+          node.animate([{ opacity: 1 }, { opacity: 0 }], {
+            duration: 90,
+            easing: 'ease-out',
+            fill: 'both',
+          }),
+        )
+        extraAnimations.push(...fades)
+        Promise.all(fades.map((fade) => fade.finished))
+          .then(finish)
+          .catch(() => {})
+      })
+      .catch(() => {})
   }
 
   useLayoutEffect(() => {

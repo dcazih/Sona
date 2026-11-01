@@ -104,12 +104,6 @@ export function TrackInfo({ song }: { song: ISong | undefined }) {
       {isMobile ? (
         <div className="sona-mini-copy flex flex-col justify-center w-full overflow-hidden">
           <MiniFadingText title text={song.title} />
-          <MiniFadingText
-            text={
-              song.artists?.map((artist) => artist.name).join(', ') ||
-              song.artist
-            }
-          />
         </div>
       ) : (
         <div className="flex flex-col justify-center w-full overflow-hidden">
@@ -145,9 +139,11 @@ function MiniFadingText({
       }
       data-testid={title ? 'track-title' : undefined}
     >
-      <span className="sona-mini-text-sharp">{text}</span>
+      <span className="sona-mini-text-sharp">
+        <span className="sona-mini-ink">{text}</span>
+      </span>
       <span className="sona-mini-text-blurred" aria-hidden="true">
-        {text}
+        <span className="sona-mini-ink">{text}</span>
       </span>
     </span>
   )

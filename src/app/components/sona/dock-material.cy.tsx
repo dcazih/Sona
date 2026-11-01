@@ -1,3 +1,4 @@
+import {getDockBounds} from './dock-bounds'
 import { Player } from '@/app/components/player/player'
 import { SonaMobileNavigation } from './mobile-navigation'
 import SonaMobileSearch from './mobile-search'
@@ -26,12 +27,12 @@ describe('Dock material and stable contents',()=>{
   mountDock()
   cy.get('.sona-player').should($mini=>{
    const mini=$mini[0],nav=mini.ownerDocument.querySelector('.sona-bottom-nav')!
-   expect(getComputedStyle(mini).backgroundColor).to.equal(getComputedStyle(nav).backgroundColor)
-   expect(getComputedStyle(mini).backdropFilter).to.equal(getComputedStyle(nav).backdropFilter)
+   expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backgroundColor).to.equal(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backgroundColor)
+   expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backdropFilter).to.equal(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backdropFilter)
    expect(getComputedStyle(mini,'::before').display).to.equal('none')
    const progress=mini.querySelector('.sona-web-player-progress')!.getBoundingClientRect()
    const buttons=mini.querySelector('.sona-player-controls>div:first-child')!.getBoundingClientRect()
-   expect(progress.width).to.be.greaterThan(mini.getBoundingClientRect().width-30)
+   expect(progress.width).to.be.greaterThan(getDockBounds(mini).width-30)
    expect(buttons.bottom).to.be.lessThan(progress.top)
    expect(getComputedStyle(mini.querySelector('.sona-player-controls')!,'::before').display).to.equal('none')
   })
@@ -41,27 +42,22 @@ describe('Dock material and stable contents',()=>{
   mountDock()
   cy.then(()=>useSonaDock.setState({compact:true}))
   cy.get('html').should('have.attr','data-sona-dock','compact')
-  cy.get('.sona-player').should($mini=>expect($mini[0].getBoundingClientRect().width).to.be.closeTo(254,1))
-  cy.get('.sona-player').should($mini=>expect($mini[0].getAnimations().filter(a=>(a.effect as KeyframeEffect).getKeyframes().some(f=>f.width)).some(a=>a.playState==='running')).to.equal(false))
+  cy.get('.sona-player').should($mini=>expect(getDockBounds($mini[0]).width).to.be.closeTo(254,1))
+  cy.get('.sona-player').should($mini=>expect($mini[0].getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===440).some(a=>a.playState==='running')).to.equal(false))
   cy.get('[aria-label="Expand Sona navigation"]').click()
   cy.get('.sona-player').then($mini=>{
-   const mini=$mini[0],animation=mini.getAnimations().find(a=>(a.effect as KeyframeEffect).getKeyframes().some(f=>f.width))!
-   animation.pause()
+   const mini=$mini[0],animations=mini.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===440)
+   animations.forEach(a=>a.pause())
    const sizes:number[]=[]
    for(const time of Array.from({length:89},(_,i)=>i*5)){
-    animation.currentTime=time
+    animations.forEach(a=>a.currentTime=time)
     const art=mini.querySelector('.sona-player-cover')!.getBoundingClientRect()
-    expect(art.width).to.equal(27);expect(art.height).to.equal(27)
-    expect(art.left-mini.getBoundingClientRect().left).to.be.closeTo(18,1)
-    sizes.push(mini.getBoundingClientRect().width)
+    expect(art.width).to.be.closeTo(27,.001);expect(art.height).to.be.closeTo(27,.001)
+    expect(art.left-getDockBounds(mini).left).to.be.closeTo(18,1)
+    sizes.push(getDockBounds(mini).width)
    }
    expect(Math.max(...sizes)).to.be.greaterThan(370).and.lessThan(373)
-   const frames=(animation.effect as KeyframeEffect).getKeyframes()
-   for(const frame of frames){
-    const y=(parseFloat(String(frame.bottom))-4)/72
-    if(y<=.6)expect(parseFloat(String(frame.width))).to.be.closeTo(254,.01)
-   }
-   animation.finish()
+   animations.forEach(a=>a.finish())
   })
  })
  it('snaps the two search scopes while dragging and commits the selected source',()=>{
@@ -90,4 +86,24 @@ describe('Dock material and stable contents',()=>{
    for(const el of layers)expect(win.getComputedStyle(el).backgroundColor,el.tagName+'#'+el.id+'.'+el.className).to.equal('rgb(23, 23, 25)')
   })
  })
+ it('centers both compact circle icons and leaves extra space to the right of play',()=>{
+  mountDock()
+  cy.then(()=>useSonaDock.setState({compact:true}))
+  cy.get('.sona-player').should($mini=>expect(getDockBounds($mini[0]).width).to.be.closeTo(254,.01))
+  cy.get('.sona-search-orb svg').should($svg=>{
+   const icon=$svg[0].getBoundingClientRect(),circle=getDockBounds($svg[0].closest('.sona-search-morph') as HTMLElement)
+   expect(icon.left+icon.width/2).to.be.closeTo(circle.left+circle.width/2,.1)
+   expect(icon.top+icon.height/2).to.be.closeTo(circle.top+circle.height/2,.1)
+  })
+  cy.get('.sona-nav-return svg').should($svg=>{
+   const icon=$svg[0].getBoundingClientRect(),circle=getDockBounds($svg[0].closest('.sona-bottom-nav') as HTMLElement)
+   expect(icon.left+icon.width/2).to.be.closeTo(circle.left+circle.width/2,.1)
+   expect(icon.top+icon.height/2).to.be.closeTo(circle.top+circle.height/2,.1)
+  })
+  cy.get('.sona-player [data-testid="player-button-play"] svg').should($svg=>{
+   const icon=$svg[0].getBoundingClientRect(),mini=getDockBounds($svg[0].closest('.sona-player') as HTMLElement)
+   expect(mini.right-icon.right).to.be.greaterThan(16)
+  })
+ })
+
 })

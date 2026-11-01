@@ -1,3 +1,5 @@
+import { DockSurface } from '@/app/components/sona/dock-surface'
+import { getDockBounds } from '@/app/components/sona/dock-bounds'
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { getSongStreamUrl } from '@/api/httpClient'
 import { getProxyURL } from '@/api/podcastClient'
@@ -53,7 +55,7 @@ const MemoMiniPlayerButton = memo(MiniPlayerButton)
 export function Player() {
   const pressAnimation = useRef<Animation | null>(null)
   const swipeStart = useRef<{ x: number; y: number } | null>(null)
-  const hideFavoritesSection = useAppStore().pages.hideFavoritesSection
+  const hideFavoritesSection = useAppStore(state=>state.pages.hideFavoritesSection)
   const { setIsFullscreen } = usePlayerFullscreen()
   const audioRef = useRef<HTMLAudioElement>(null)
   const radioRef = useRef<HTMLAudioElement>(null)
@@ -73,7 +75,7 @@ export function Player() {
   const { isSong, isRadio, isPodcast } = usePlayerMediaType()
   const loopState = usePlayerLoop()
   const audioPlayerRef = usePlayerRef()
-  const currentPlaybackRate = usePlayerStore().playerState.currentPlaybackRate
+  const currentPlaybackRate = usePlayerStore(state=>state.playerState.currentPlaybackRate)
   const { replayGainType, replayGainPreAmp, replayGainDefaultGain } =
     useReplayGainState()
 
@@ -216,26 +218,42 @@ export function Player() {
   }, [song, replayGainDefaultGain, replayGainPreAmp, replayGainType])
 
   function pressFeedback(element: HTMLElement, pressed: boolean) {
+    const bounds = getDockBounds(element)
+    element.style.transformOrigin = `${bounds.layoutWidth / 2}px ${bounds.layoutHeight / 2}px`
     const from = getComputedStyle(element).scale
     pressAnimation.current?.cancel()
     const scale = pressed ? '1.025' : '1'
     element.style.scale = scale
-    pressAnimation.current = element.animate([
-      { scale: from === 'none' ? '1' : from }, { scale },
-    ], { duration: pressed ? 210 : 310, easing: 'cubic-bezier(.22,1,.36,1)' })
+    pressAnimation.current = element.animate(
+      [{ scale: from === 'none' ? '1' : from }, { scale }],
+      { duration: pressed ? 210 : 310, easing: 'cubic-bezier(.22,1,.36,1)' },
+    )
   }
 
   return (
-    <footer data-mobile-active={Boolean(song || radio || podcast)}
+    <footer
+      data-mobile-active={Boolean(song || radio || podcast)}
       onPointerDown={(event) => {
         if (window.innerWidth >= 768 || !(song || radio || podcast)) return
         if ((event.target as Element).closest('button, [role="slider"]')) return
         pressFeedback(event.currentTarget, true)
       }}
-      onPointerUp={(event) => { pressFeedback(event.currentTarget, false) }}
-      onPointerCancel={(event) => { pressFeedback(event.currentTarget, false) }}
-      onPointerLeave={(event) => { pressFeedback(event.currentTarget, false) }}
-      onTouchStart={(event) => { if (window.innerWidth < 768) swipeStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY } }}
+      onPointerUp={(event) => {
+        pressFeedback(event.currentTarget, false)
+      }}
+      onPointerCancel={(event) => {
+        pressFeedback(event.currentTarget, false)
+      }}
+      onPointerLeave={(event) => {
+        pressFeedback(event.currentTarget, false)
+      }}
+      onTouchStart={(event) => {
+        if (window.innerWidth < 768)
+          swipeStart.current = {
+            x: event.touches[0].clientX,
+            y: event.touches[0].clientY,
+          }
+      }}
       onTouchEnd={(event) => {
         const start = swipeStart.current
         swipeStart.current = null
@@ -244,113 +262,120 @@ export function Player() {
         const dy = event.changedTouches[0].clientY - start.y
         if (dy < -35 && Math.abs(dy) > Math.abs(dx) * 1.2) setIsFullscreen(true)
       }}
-      onTouchCancel={() => { swipeStart.current = null }}
-      className="sona-player border-t h-[--player-height] w-full flex items-center fixed bottom-0 left-0 right-0 z-40 bg-background">
-      <div className="sona-player-layout w-full h-full grid grid-cols-player gap-2 px-4">
-        {/* Track Info */}
-        <div className="sona-player-track flex items-center gap-2 w-full min-w-0"
-          onClickCapture={(event) => {
-            if (window.innerWidth >= 768 || !song) return
-            // The entire mobile mini-player opens Now Playing, including
-            // artist and song text. Desktop artist links remain navigable.
-            event.preventDefault()
-            event.stopPropagation()
-            setIsFullscreen(true)
-          }}>
-          {isSong && <MemoTrackInfo song={song} />}
-          {isRadio && <MemoRadioInfo radio={radio} />}
-          {isPodcast && <MemoPodcastInfo podcast={podcast} />}
-        </div>
-        {/* Main Controls */}
-        <div className="sona-player-controls flex flex-col justify-center items-center px-4 gap-1">
-          <MemoPlayerControls
-            song={song}
-            radio={radio}
-            podcast={podcast}
-            audioRef={getAudioRef()}
-          />
-
-          {(isSong || isPodcast) && (
-            <MemoPlayerProgress audioRef={getAudioRef()} />
-          )}
-        </div>
-        {/* Remain Controls and Volume */}
-        <div className="sona-player-extra flex items-center w-full justify-end">
-          <div className="flex items-center gap-1">
-            {isSong && !hideFavoritesSection && (
-              <>
-                <MemoPlayerLikeButton disabled={!song} />
-              </>
-            )}
-            {isSong && (
-              <>
-                <MemoLyricsButton disabled={!song} />
-                <MemoPlayerQueueButton disabled={!song} />
-              </>
-            )}
-            {isPodcast && <MemoPodcastPlaybackRate />}
-            {(isRadio || isPodcast) && (
-              <MemoPlayerClearQueueButton disabled={!radio && !podcast} />
-            )}
-
-            <MemoPlayerVolume
+      onTouchCancel={() => {
+        swipeStart.current = null
+      }}
+      className="sona-player sona-dock-host border-t h-[--player-height] w-full flex items-center fixed bottom-0 left-0 right-0 z-40 bg-background"
+    >
+      <DockSurface>
+        <div className="sona-player-layout w-full h-full grid grid-cols-player gap-2 px-4">
+          {/* Track Info */}
+          <div
+            className="sona-player-track flex items-center gap-2 w-full min-w-0"
+            onClickCapture={(event) => {
+              if (window.innerWidth >= 768 || !song) return
+              // The entire mobile mini-player opens Now Playing, including
+              // artist and song text. Desktop artist links remain navigable.
+              event.preventDefault()
+              event.stopPropagation()
+              setIsFullscreen(true)
+            }}
+          >
+            {isSong && <MemoTrackInfo song={song} />}
+            {isRadio && <MemoRadioInfo radio={radio} />}
+            {isPodcast && <MemoPodcastInfo podcast={podcast} />}
+          </div>
+          {/* Main Controls */}
+          <div className="sona-player-controls flex flex-col justify-center items-center px-4 gap-1">
+            <MemoPlayerControls
+              song={song}
+              radio={radio}
+              podcast={podcast}
               audioRef={getAudioRef()}
-              disabled={!song && !radio && !podcast}
             />
 
-            {isSong && <MemoPlayerExpandButton disabled={!song} />}
-            {isSong && hasPiPSupport && <MemoMiniPlayerButton />}
+            {(isSong || isPodcast) && (
+              <MemoPlayerProgress audioRef={getAudioRef()} />
+            )}
+          </div>
+          {/* Remain Controls and Volume */}
+          <div className="sona-player-extra flex items-center w-full justify-end">
+            <div className="flex items-center gap-1">
+              {isSong && !hideFavoritesSection && (
+                <>
+                  <MemoPlayerLikeButton disabled={!song} />
+                </>
+              )}
+              {isSong && (
+                <>
+                  <MemoLyricsButton disabled={!song} />
+                  <MemoPlayerQueueButton disabled={!song} />
+                </>
+              )}
+              {isPodcast && <MemoPodcastPlaybackRate />}
+              {(isRadio || isPodcast) && (
+                <MemoPlayerClearQueueButton disabled={!radio && !podcast} />
+              )}
+
+              <MemoPlayerVolume
+                audioRef={getAudioRef()}
+                disabled={!song && !radio && !podcast}
+              />
+
+              {isSong && <MemoPlayerExpandButton disabled={!song} />}
+              {isSong && hasPiPSupport && <MemoMiniPlayerButton />}
+            </div>
           </div>
         </div>
-      </div>
 
-      {isSong && song && (
-        <AudioPlayer
-          replayGain={trackReplayGain}
-          src={songStreamUrl}
-          autoPlay={isPlaying}
-          audioRef={audioRef}
-          loop={loopState === LoopState.One}
-          onPlay={() => setPlayingState(true)}
-          onPause={() => setPlayingState(false)}
-          onLoadedMetadata={setupDuration}
-          onTimeUpdate={setupProgress}
-          onEnded={handleSongEnded}
-          onLoadStart={setupInitialVolume}
-          data-testid="player-song-audio"
-        />
-      )}
+        {isSong && song && (
+          <AudioPlayer
+            replayGain={trackReplayGain}
+            src={songStreamUrl}
+            autoPlay={isPlaying}
+            audioRef={audioRef}
+            loop={loopState === LoopState.One}
+            onPlay={() => setPlayingState(true)}
+            onPause={() => setPlayingState(false)}
+            onLoadedMetadata={setupDuration}
+            onTimeUpdate={setupProgress}
+            onEnded={handleSongEnded}
+            onLoadStart={setupInitialVolume}
+            data-testid="player-song-audio"
+          />
+        )}
 
-      {isRadio && radio && (
-        <AudioPlayer
-          src={radio.streamUrl}
-          autoPlay={isPlaying}
-          audioRef={radioRef}
-          onPlay={() => setPlayingState(true)}
-          onPause={() => setPlayingState(false)}
-          onLoadStart={setupInitialVolume}
-          data-testid="player-radio-audio"
-        />
-      )}
+        {isRadio && radio && (
+          <AudioPlayer
+            src={radio.streamUrl}
+            autoPlay={isPlaying}
+            audioRef={radioRef}
+            onPlay={() => setPlayingState(true)}
+            onPause={() => setPlayingState(false)}
+            onLoadStart={setupInitialVolume}
+            data-testid="player-radio-audio"
+          />
+        )}
 
-      {isPodcast && podcast && (
-        <AudioPlayer
-          src={getProxyURL(podcast.audio_url)}
-          autoPlay={isPlaying}
-          audioRef={podcastRef}
-          preload="auto"
-          onPlay={() => setPlayingState(true)}
-          onPause={() => setPlayingState(false)}
-          onLoadedMetadata={setupDuration}
-          onTimeUpdate={setupProgress}
-          onEnded={() => {
-            sendFinishProgress()
-            handleSongEnded()
-          }}
-          onLoadStart={setupInitialVolume}
-          data-testid="player-podcast-audio"
-        />
-      )}
+        {isPodcast && podcast && (
+          <AudioPlayer
+            src={getProxyURL(podcast.audio_url)}
+            autoPlay={isPlaying}
+            audioRef={podcastRef}
+            preload="auto"
+            onPlay={() => setPlayingState(true)}
+            onPause={() => setPlayingState(false)}
+            onLoadedMetadata={setupDuration}
+            onTimeUpdate={setupProgress}
+            onEnded={() => {
+              sendFinishProgress()
+              handleSongEnded()
+            }}
+            onLoadStart={setupInitialVolume}
+            data-testid="player-podcast-audio"
+          />
+        )}
+      </DockSurface>
     </footer>
   )
 }
