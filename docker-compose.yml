@@ -3,7 +3,7 @@ version: '3.8'
 services:
   aonsoku:
     container_name: aonsoku
-    image: ghcr.io/victoralvesf/aonsoku:latest
+    image: ghcr.io/dcazih/sona:latest
     restart: unless-stopped
     ports:
       - 8080:8080

@@ -10,7 +10,7 @@ import { ROUTES } from '@/routes/routesList'
 import { subsonic } from '@/service/subsonic'
 import { usePlayerActions } from '@/store/player.store'
 import { useAppStore } from '@/store/app.store'
-import { DISCOVER_PHOTOS, categoryPhoto, matchingGenre, rankDiscoverOnceDaily } from './search-discovery'
+import { DISCOVER_PHOTOS, matchingGenre, rankDiscoverOnceDaily } from './search-discovery'
 import { useSonaSearch, type SearchFilter } from './search-state'
 
 type RecentItem = { id: string; title: string; subtitle: string; type: 'song' | 'album' | 'artist' | 'query'; coverArt?: string; albumId?: string; explicitStatus?: string }
@@ -180,14 +180,10 @@ export default function SonaMobileSearch() {
     const available=genres||[]
     const popular=frequentAlbums?.list||[]
     const recent=recentAlbums?.list||[]
-    const used=new Set<string>()
     return rankDiscoverOnceDaily(discoveryProfile,popular,recent,available).map(category=>({
       ...category,
       matchedGenre:matchingGenre(category,available),
-      // Prefer frequently played artwork; fill missing genre cards from recently added albums.
-      // Neither source substitutes unrelated album art for a specific genre.
-      albumArt:categoryPhoto(category,[...popular,...recent],used),
-      photoUrl:DISCOVER_PHOTOS[category.photo],
+      photoUrl:DISCOVER_PHOTOS[category.id],
     }))
   },[discoveryProfile,discoveryDay,genres,frequentAlbums,recentAlbums])
 
@@ -306,10 +302,6 @@ export default function SonaMobileSearch() {
                     <img src={category.photoUrl} alt="" className="sona-am-category-photo"
                       loading="lazy" decoding="async"
                       onError={event=>{event.currentTarget.style.visibility='hidden'}}/>
-                    {category.albumArt&&<ImageLoader id={category.albumArt} type="album" size={450}>
-                      {src=><ArtworkImage src={src} alt="" loading="lazy"
-                        wrapperClassName="sona-am-category-album-art"/>}
-                    </ImageLoader>}
                   </span>
                   <span className="sona-am-category-label">{category.title}</span>
                 </button>

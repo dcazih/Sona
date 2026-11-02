@@ -1,7 +1,7 @@
 /* Sona service worker: network-first application updates, opt-in audio cache.
    Previous cache-first JS/CSS/favicon policy could freeze old branding/UI. */
-const APP_CACHE = 'sona-app-v25'
-const ARTWORK_CACHE = 'sona-artwork-v4'
+const APP_CACHE = 'sona-app-v26'
+const ARTWORK_CACHE = 'sona-artwork-v5'
 let artworkWrites = 0
 const MEDIA_CACHE = 'sona-media-v1'
 let mediaPreferences = { enabled: true, maxTracks: 40, allowCellular: false }

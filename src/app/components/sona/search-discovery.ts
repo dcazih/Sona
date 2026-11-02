@@ -12,23 +12,75 @@ export interface SonaDiscoverCategory {
   related: string[]
   query: string
 }
-/** Stable, free-to-use photographic backups. Actual frequently played artwork
- * from the user's Navidrome library takes precedence when relevant. */
-export const DISCOVER_PHOTOS: Record<CategoryPhoto,string> = {
-  urban:'https://images.unsplash.com/photo-1612233965238-898fac5e45f4?w=550&h=320&fit=crop&auto=format&q=78',
-  singer:'https://images.unsplash.com/photo-1641907067574-ce3056926093?w=550&h=320&fit=crop&auto=format&q=78',
-  rock:'https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=550&h=320&fit=crop&auto=format&q=78',
-  dj:'https://images.unsplash.com/photo-1496337589254-7e19d01cec44?w=550&h=320&fit=crop&auto=format&q=78',
-  vinyl:'https://images.unsplash.com/photo-1647796310365-8741019c7ca9?w=550&h=320&fit=crop&auto=format&q=78',
-  jazz:'https://images.unsplash.com/photo-1707944494732-e706d511456d?w=550&h=320&fit=crop&auto=format&q=78',
-  piano:'https://images.unsplash.com/photo-1632008341003-5c6767c7d237?w=550&h=320&fit=crop&auto=format&q=78',
-  acoustic:'https://images.unsplash.com/photo-1771254240340-ae73c5a378ff?w=550&h=320&fit=crop&auto=format&q=78',
-  orchestra:'https://images.unsplash.com/photo-1764805354851-7933a7116129?w=550&h=320&fit=crop&auto=format&q=78',
-  ocean:'https://images.unsplash.com/photo-1557322964-9ff4a6b15352?w=550&h=320&fit=crop&auto=format&q=78',
-  live:'https://images.unsplash.com/photo-1767376133639-d76d3189a1f7?w=550&h=320&fit=crop&auto=format&q=78',
-  country:'https://images.unsplash.com/photo-1770224654899-1ecf1efec4cc?w=550&h=320&fit=crop&auto=format&q=78',
-  calm:'https://images.unsplash.com/photo-1486869801134-25b6bc85fc0d?w=550&h=320&fit=crop&auto=format&q=78',
+/** One independently sourced image for EVERY editorial category. Photos were
+ * selected from free Unsplash listings, never from paid Unsplash+ assets.
+ * IDs are stable public photo IDs; use the official Unsplash photo download
+ * redirect (or direct image CDN URL for photo-* keys). Do not reuse a generic
+ * photo for multiple categories or paint a random library cover over it. */
+const DISCOVER_PHOTO_SOURCE: Record<string, string> = {
+  "Charts": "sB060yMpDL8",
+  "Hip-Hop": "2hx7e52ZQmk",
+  "R&B": "nUtCKZeC_s8",
+  "Hits": "1PyAEhnglQY",
+  "Pop": "94QHry3i-6E",
+  "Country": "84g_BCu9vz0",
+  "Dance": "IQOyho3CZGU",
+  "Rock": "MmEieFqSrsg",
+  "Hip-Hop History Month": "0l0KjNoAfAk",
+  "Apple Music Live": "PnwT76qq_9c",
+  "JAY-Z’s Road to Halftime": "photo-1518648562504-d0d6fda97d86",
+  "Concerts": "OrAuR5QdX84",
+  "Holiday": "photo-1606830733744-0ad778449672",
+  "Apple Music Radio": "Mwa8-6H9QPk",
+  "Latin": "TwbvCh39AtA",
+  "Urbano Latino": "9J2gMQam16U",
+  "Pop Latino": "GsXMLb2Z8ek",
+  "K-Pop": "NtvuKlx4YqM",
+  "Classic Rock": "IW9mC6wEXbk",
+  "Hard Rock": "NqyORrt3njs",
+  "Punk": "vST3iSERj1g",
+  "Metal": "ab3NfsI3pIY",
+  "Oldies": "jV5fhVuespg",
+  "Americana": "HH8LMtcK3H4",
+  "Música Mexicana": "Lbsgr1-esqk",
+  "Alternative": "RIo45CycGCs",
+  "Acoustic": "jJmZDTqQAec",
+  "Afrobeats": "JT8eoWKJO70",
+  "Reggae": "2kLhltQ83GY",
+  "Worldwide": "txi6qBCxqEc",
+  "Kids": "8LWIKumF108",
+  "Family": "bGdp2ikEDmA",
+  "Electronic": "TbWTypoo0sM",
+  "DJ Mixes": "6CnYJ-5k2iM",
+  "Indie": "f5eBh8d5064",
+  "Christian": "hwa6VuZIcek",
+  "Gospel": "Ab2bwO5zoQs",
+  "Jazz": "photo-1707944494732-e706d511456d",
+  "Blues": "dBWvUqBoOU8",
+  "Music Videos": "Bz5LV6lK54g",
+  "Soul/Funk": "IrIzNPVU14U",
+  "Classical": "photo-1632008341003-5c6767c7d237",
+  "Film, TV & Stage": "photo-1764805354851-7933a7116129",
+  "Anime": "hCgHOCIlrow",
+  "Alpha Women": "GWkWorZjIjs",
+  "Essentials": "photo-1612233965238-898fac5e45f4",
+  "Decades": "photo-1647796310365-8741019c7ca9",
+  "Behind the Songs": "_WaZBtx-eUI",
+  "Sports": "photo-1473976345543-9ffc928e648d",
+  "Fitness": "IYLLF511aOY",
+  "Chill": "photo-1557322964-9ff4a6b15352",
+  "Sleep": "photo-1486869801134-25b6bc85fc0d",
+  "Feel Good": "WJMxnu2uVZc",
 }
+
+const discoverImageUrl = (source: string) => source.startsWith('photo-')
+  ? `https://images.unsplash.com/${source}?w=720&h=420&fit=crop&auto=format&q=78`
+  : `https://unsplash.com/photos/${encodeURIComponent(source)}/download?w=720`
+
+export const DISCOVER_PHOTOS: Record<string,string> = Object.fromEntries(
+  Object.entries(DISCOVER_PHOTO_SOURCE).map(([title, source]) =>
+    [normalizeGenre(title),discoverImageUrl(source)]),
+)
 type Row = [string,string,CategoryPhoto,string,string?,string?]
 /* Category set and saturated card colors follow the supplied reference grid.
  * Aliases use actual Navidrome genres when available; editorial shelves use

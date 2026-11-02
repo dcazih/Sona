@@ -1,4 +1,4 @@
-import { rankDiscoverOnceDaily, recordGenreListen, SONA_DISCOVER_CATEGORIES } from './search-discovery'
+import { DISCOVER_PHOTOS, rankDiscoverOnceDaily, recordGenreListen, SONA_DISCOVER_CATEGORIES } from './search-discovery'
 import type { Albums } from '@/types/responses/album'
 import type { ISong } from '@/types/responses/song'
 
@@ -39,5 +39,14 @@ describe('Sona daily Search discovery order', () => {
     recordGenreListen(profile, { id: 'track-1', genre: 'Rock', genres: [{ name: 'Rock' }] } as ISong)
     const second = rankDiscoverOnceDaily(profile, [album('Hip-Hop')], [], [])
     expect(second.map(category => category.id)).to.deep.equal(first.map(category => category.id))
+  })
+})
+
+describe('Category-specific Search artwork', () => {
+  it('has one non-reused photo URL per category', () => {
+    const ids = SONA_DISCOVER_CATEGORIES.map(category => category.id)
+    const urls = ids.map(id => DISCOVER_PHOTOS[id])
+    expect(urls.every(Boolean)).to.equal(true)
+    expect(new Set(urls).size).to.equal(ids.length)
   })
 })
