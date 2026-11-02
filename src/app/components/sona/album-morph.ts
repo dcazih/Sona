@@ -209,7 +209,7 @@ export function closeSonaAlbumToCover(
     morphAfterNavigation(
       source.image,
       cover.getBoundingClientRect(),
-      () => document.querySelector(source.selector),
+      () => [...document.querySelectorAll<HTMLElement>(source.selector)].find(element => element.getClientRects().length > 0 && getComputedStyle(element).visibility !== 'hidden') || null,
       artworkStyle(cover),
       true,
     )

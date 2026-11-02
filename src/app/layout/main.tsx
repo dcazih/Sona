@@ -1,5 +1,6 @@
-import { useLayoutEffect } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { useLayoutEffect, useRef, type ReactNode } from 'react'
+import { useOutlet, useLocation } from 'react-router-dom'
+import { useIsMobile } from '@/app/hooks/use-mobile'
 import { ScrollArea } from '@/app/components/ui/scroll-area'
 import { SonaImplicitRefresh } from '@/app/components/sona/mobile-refresh'
 import { getMainScrollElement } from '@/utils/scrollPageToTop'
@@ -11,13 +12,19 @@ const scrollPositions = new Map<string, number>()
 export function MainRoutes() {
   const { pathname, search } = useLocation()
   const route = pathname + search
+  const outlet = useOutlet()
+  const mobile = useIsMobile()
+  const home = useRef<ReactNode>(null)
+  if (mobile && pathname === '/') home.current = outlet
 
   useLayoutEffect(() => {
     const viewport = getMainScrollElement()
     if (!viewport) return
     // Search must never restore an old scroll offset behind the iOS keyboard.
-    const resetOnEntry = pathname === '/mobile-search' || /^\/library\/albums\/[^/]+$/.test(pathname)
-    const saved = resetOnEntry ? 0 : (scrollPositions.get(route) || 0)
+    const resetOnEntry =
+      pathname === '/mobile-search' ||
+      /^\/library\/albums\/[^/]+$/.test(pathname)
+    const saved = resetOnEntry ? 0 : scrollPositions.get(route) || 0
     let restoring = saved > 0
     let touched = false
     let frame = 0
@@ -66,8 +73,38 @@ export function MainRoutes() {
 
   return (
     <main className="flex h-full">
-      <ScrollArea id="main-scroll-area" className="w-full bg-background-foreground">
-        <Outlet />
+      <ScrollArea
+        id="main-scroll-area"
+        className="w-full bg-background-foreground"
+      >
+        {mobile ? (
+          <>
+            <div
+              data-sona-cached-home
+              aria-hidden={pathname !== '/'}
+              ref={(node) => {
+                if (node) node.inert = pathname !== '/'
+              }}
+              style={
+                pathname === '/'
+                  ? { position: 'relative', width: '100%' }
+                  : {
+                      position: 'absolute',
+                      width: '100%',
+                      height: 0,
+                      overflow: 'hidden',
+                      visibility: 'hidden',
+                      pointerEvents: 'none',
+                    }
+              }
+            >
+              {home.current}
+            </div>
+            {pathname !== '/' && outlet}
+          </>
+        ) : (
+          outlet
+        )}
       </ScrollArea>
       <SonaImplicitRefresh />
     </main>

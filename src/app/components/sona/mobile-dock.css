@@ -2,7 +2,7 @@
  html{
    --sona-dock-bottom:calc(4px + env(safe-area-inset-bottom,0px));
    --sona-chrome-time:440ms;
-   --sona-dock-glass:rgba(29,29,33,.75);
+   --sona-dock-glass:rgb(29,29,33);
    --sona-chrome-ease:cubic-bezier(.22,1,.36,1);
    --sona-nav-width:calc(100dvw - 89px);
    --sona-nav-size:64px;
@@ -161,7 +161,7 @@
   transform:translate3d(var(--sona-slot-left),0,0);translate:0 calc(64px - var(--sona-slot-height) - var(--sona-slot-bottom) + var(--sona-dock-bottom));
   filter:none;will-change:transform;contain:layout style;
  }
- .sona-dock-surface{position:absolute;inset:0;pointer-events:auto;overflow:visible;background:rgba(29,29,33,.75);
+ .sona-dock-surface{position:absolute;inset:0;pointer-events:auto;overflow:visible;background:rgb(29,29,33);
   backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);
   clip-path:inset(0 calc(100% - var(--sona-slot-width)) calc(64px - var(--sona-slot-height)) 0 round calc(var(--sona-slot-height)/2));will-change:clip-path;}
  .sona-dock-contents{position:absolute;inset:0;transform:translateY(calc((var(--sona-slot-height) - 64px)/2));}
@@ -225,7 +225,7 @@
 
 @media(max-width:767px){
  .sona-player-controls>div:first-child::before{display:none!important;}
- .sona-player [data-testid="player-button-play"]::before,.sona-player [data-testid="player-button-pause"]::before{content:"";position:absolute;right:100%;top:0;width:100%;height:100%;background:linear-gradient(to right,transparent,rgb(29,29,33));backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);pointer-events:none;z-index:-1;}
+ .sona-player [data-testid="player-button-play"]::before,.sona-player [data-testid="player-button-pause"]::before{content:"";position:absolute;right:100%;top:0;width:100%;height:100%;background:linear-gradient(to right,transparent,rgb(29,29,33));pointer-events:none;z-index:-1;}
  .sona-player [data-testid="player-button-play"]::after,.sona-player [data-testid="player-button-pause"]::after{content:"";position:absolute;left:0;right:-60px;top:0;height:100%;background:rgb(29,29,33);pointer-events:none;z-index:-1;}
 }
 
@@ -233,4 +233,13 @@
  html[data-sona-dock="compact"],html[data-sona-dock="search"]{--sona-rim-scale:.78125;}
  .sona-player-controls>div:first-child{transform:translateX(calc(var(--sona-slot-width) - (100dvw - 18px)));}
  .sona-dock-shadow{transform:scale(1,var(--sona-rim-scale,1));border-radius:999px;}
+}
+
+/* Each moving capsule owns its opaque material. WebKit must not composite a
+   backdrop-filter texture larger than the capsule while it changes shape. */
+@media(max-width:767px){
+ .sona-dock-surface,.sona-search-cancel-circle{background:rgb(29,29,33)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+ .sona-player-controls>div:first-child{bottom:0!important;padding-right:11px!important;}
+ html[data-sona-dock="compact"] .sona-player-controls>div:first-child{padding-right:3px!important;}
+ .sona-player [data-testid="player-button-play"]::before,.sona-player [data-testid="player-button-pause"]::before{width:33.333333%;}
 }

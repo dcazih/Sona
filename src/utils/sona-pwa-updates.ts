@@ -5,13 +5,21 @@ type UpdateOptions = {
 }
 
 /** Refresh an installed app after a worker update, without interrupting music or typing. */
-export function installSonaPwaUpdates(registration: Pick<ServiceWorkerRegistration, 'update'>, options: UpdateOptions) {
+export function installSonaPwaUpdates(
+  registration: Pick<ServiceWorkerRegistration, 'update'>,
+  options: UpdateOptions,
+) {
   const worker = options.serviceWorker || navigator.serviceWorker
   const reload = options.reload || (() => window.location.reload())
   let controlled = Boolean(worker.controller)
   let pending = false
   const flush = () => {
-    if (!pending || document.visibilityState !== 'visible' || !options.canReload()) return
+    if (
+      !pending ||
+      document.visibilityState !== 'visible' ||
+      !options.canReload()
+    )
+      return
     pending = false
     reload()
   }
@@ -31,10 +39,14 @@ export function installSonaPwaUpdates(registration: Pick<ServiceWorkerRegistrati
   document.addEventListener('visibilitychange', check)
   window.addEventListener('pageshow', check)
   window.addEventListener('focusout', blur)
-  return { flush, check, dispose: () => {
-    worker.removeEventListener('controllerchange', changed)
-    document.removeEventListener('visibilitychange', check)
-    window.removeEventListener('pageshow', check)
-    window.removeEventListener('focusout', blur)
-  } }
+  return {
+    flush,
+    check,
+    dispose: () => {
+      worker.removeEventListener('controllerchange', changed)
+      document.removeEventListener('visibilitychange', check)
+      window.removeEventListener('pageshow', check)
+      window.removeEventListener('focusout', blur)
+    },
+  }
 }

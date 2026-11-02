@@ -202,7 +202,7 @@ describe('Mobile player sheet motion', () => {
       expect(matrix.d*scale[1]).to.be.closeTo(1,.001)
       expect(Number(frame.opacity)).to.equal(1)
       expect(Number(inverse.opacity)).to.be.lessThan(.1)
-      expect(getComputedStyle($sheet[0].querySelector('.sona-now-glass')!).backdropFilter).to.equal('blur(22px) saturate(1.4)')
+      expect(getComputedStyle($sheet[0].querySelector('.sona-now-glass')!).backdropFilter).to.equal('none')
       const capsule=$sheet[0].querySelector('.sona-now-top')!
       expect(capsule.getAnimations()[0].effect?.getTiming().duration).to.equal(80)
     })
@@ -353,6 +353,7 @@ describe('Mobile player sheet motion', () => {
   cy.get('.sona-player-detail-flight.is-title').should('exist')
   cy.get('.sona-player-detail-flight.is-play').should('exist')
   cy.get('.sona-player-detail-flight.is-next').should('exist')
+  cy.get('.sona-player-detail-flight.is-play svg,.sona-player-detail-flight.is-next svg').each($icon=>expect(getComputedStyle($icon[0]).fill).to.equal('rgb(255, 255, 255)'))
   cy.get('.sona-player-detail-flight').each($node=>{
    expect($node[0].parentElement?.classList.contains('sona-now-content')).to.equal(true)
    const fade=$node[0].getAnimations()[0]

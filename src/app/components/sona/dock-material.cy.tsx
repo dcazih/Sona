@@ -27,11 +27,12 @@ describe('Dock material and stable contents',()=>{
   mountDock()
   cy.get('.sona-player').should($mini=>{
    const mini=$mini[0],nav=mini.ownerDocument.querySelector('.sona-bottom-nav')!
-   expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backgroundColor).to.equal(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backgroundColor)
+   expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgb(29, 29, 33)')
+   expect(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgb(29, 29, 33)')
    expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backdropFilter).to.equal(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backdropFilter)
    expect(getComputedStyle(mini,'::before').display).to.equal('none')
    const progress=mini.querySelector('.sona-web-player-progress')!.getBoundingClientRect()
-   const buttons=mini.querySelector('.sona-player-controls>div:first-child')!.getBoundingClientRect()
+   const buttons=mini.querySelector('[data-testid="player-button-play"],[data-testid="player-button-pause"]')!.getBoundingClientRect()
    expect(progress.width).to.be.greaterThan(getDockBounds(mini).width-30)
    expect(buttons.bottom).to.be.lessThan(progress.top)
    expect(getComputedStyle(mini.querySelector('.sona-player-controls')!,'::before').display).to.equal('none')
@@ -102,7 +103,11 @@ describe('Dock material and stable contents',()=>{
   })
   cy.get('.sona-player [data-testid="player-button-play"] svg').should($svg=>{
    const icon=$svg[0].getBoundingClientRect(),mini=getDockBounds($svg[0].closest('.sona-player') as HTMLElement)
-   expect(mini.right-icon.right).to.be.greaterThan(16)
+   expect(mini.right-icon.right).to.be.greaterThan(8)
+   expect(icon.top+icon.height/2).to.be.closeTo(mini.top+mini.height/2,1)
+   const button=$svg[0].closest('button')!
+   const gradient=getComputedStyle(button,'::before')
+   expect(parseFloat(gradient.width)).to.be.closeTo(button.getBoundingClientRect().width/3,1)
   })
  })
 
