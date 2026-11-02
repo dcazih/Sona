@@ -445,7 +445,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       sx: Math.max(0.01, matrix.a),
       sy: Math.max(0.01, matrix.d),
     }
-    animation.current?.cancel()
+    // No running animation here: the opening/closing phase was rejected above.
     animation.current = null
     cleanupExtras.current()
     distance.current = Math.max(0, rect.top)

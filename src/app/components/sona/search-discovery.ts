@@ -174,7 +174,10 @@ export function rankDiscoverOnceDaily(
  }
  const exploration=SONA_DISCOVER_CATEGORIES.filter(c=>!direct.includes(c) && (related.get(c.id)||0)>0)
   .sort((a,b)=>(related.get(b.id)||0)-(related.get(a.id)||0))
+ const availableGenreKeys=new Set(genres.map(g=>normalizeGenre(g.value)))
  const rest=SONA_DISCOVER_CATEGORIES.filter(c=>!direct.includes(c)&&!exploration.includes(c))
+  .sort((a,b)=>Number(b.aliases.some(alias=>availableGenreKeys.has(alias)))-
+    Number(a.aliases.some(alias=>availableGenreKeys.has(alias))))
  const result=[...direct,...exploration,...rest]
  // Do not freeze an empty/unauthenticated state; it must become personal once data arrives.
  if(frequent.length||recent.length||Object.keys(getGenrePlays(profile)).length){
