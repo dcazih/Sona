@@ -54,8 +54,8 @@ export function SonaReloadPlayback() {
   useEffect(() => {
     const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
     const snapshot = nav?.type === 'reload' ? readSnapshot() : null
-    let handled = !snapshot || !snapshot.playing
-    let pending = Boolean(snapshot?.playing)
+    let handled = !snapshot
+    let pending = Boolean(snapshot)
     let lastSavedProgress = -1
 
     function restore() {
@@ -79,7 +79,7 @@ export function SonaReloadPlayback() {
       if (audio && audio.readyState >= 1) {
         try { audio.currentTime = snapshot.progress } catch { /* ignore */ }
       }
-      state.actions.setPlayingState(true)
+      state.actions.setPlayingState(snapshot.playing)
     }
 
     if (pending) {

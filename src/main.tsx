@@ -1,3 +1,6 @@
+import {installSonaPwaUpdates} from '@/utils/sona-pwa-updates'
+import {isStandalonePwa} from '@/utils/is-standalone-pwa'
+import {usePlayerStore} from '@/store/player.store'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -29,7 +32,7 @@ blockFeatures()
 installSonaDeviceHint()
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').then((registration) => {
+  navigator.serviceWorker.register('./sw.js', {updateViaCache:'none'}).then((registration) => {
     const sendCachePreferences = () => {
       const cache = useSonaWebSettings.getState()
       const enabled = useAppStore.getState().pages.mediaCacheEnabled
@@ -41,6 +44,14 @@ if ('serviceWorker' in navigator) {
       })
     }
     sendCachePreferences()
+    if (isStandalonePwa()) {
+      const updates = installSonaPwaUpdates(registration, { canReload: () => {
+        const state = usePlayerStore.getState()
+        return !state.playerState.isPlaying && !state.fullscreen.isFullscreen &&
+          !(document.activeElement instanceof HTMLInputElement)
+      } })
+      usePlayerStore.subscribe(updates.flush)
+    }
     navigator.serviceWorker.addEventListener('controllerchange', sendCachePreferences)
     useSonaWebSettings.subscribe(sendCachePreferences)
     useAppStore.subscribe(sendCachePreferences)

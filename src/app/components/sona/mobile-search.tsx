@@ -10,7 +10,7 @@ import { ROUTES } from '@/routes/routesList'
 import { subsonic } from '@/service/subsonic'
 import { usePlayerActions } from '@/store/player.store'
 import { useAppStore } from '@/store/app.store'
-import { DISCOVER_PHOTOS, matchingGenre, rankDiscoverOnceDaily } from './search-discovery'
+import { DISCOVER_ARTISTS, DISCOVER_PHOTOS, DISCOVER_FOCAL_POINTS, matchingGenre, rankDiscoverOnceDaily } from './search-discovery'
 import { useSonaSearch, type SearchFilter } from './search-state'
 
 type RecentItem = { id: string; title: string; subtitle: string; type: 'song' | 'album' | 'artist' | 'query'; coverArt?: string; albumId?: string; explicitStatus?: string }
@@ -184,6 +184,7 @@ export default function SonaMobileSearch() {
       ...category,
       matchedGenre:matchingGenre(category,available),
       photoUrl:DISCOVER_PHOTOS[category.id],
+      artist:DISCOVER_ARTISTS[category.id],
     }))
   },[discoveryProfile,discoveryDay,genres,frequentAlbums,recentAlbums])
 
@@ -292,21 +293,21 @@ export default function SonaMobileSearch() {
           <h1 className="sona-am-search-heading">Search</h1>
           <section className="sona-am-browse" aria-label="Browse music categories">
             <div className="sona-am-genre-grid">
-              {browse.map(category=>(
+              {browse.map((category,index)=>(
                 <button key={category.id} type="button"
                   className="sona-am-genre-card"
                   aria-label={'Explore '+category.title}
                   onClick={()=>openCategory(category)}
-                  style={{'--sona-category-color':category.color} as CSSProperties}>
+                  style={{'--sona-category-color':category.color,'--sona-category-position':DISCOVER_FOCAL_POINTS[category.id] || 'center 10%'} as CSSProperties}>
                   <span className="sona-am-genre-art" aria-hidden="true">
-                    <img src={category.photoUrl} alt="" className="sona-am-category-photo"
-                      loading="lazy" decoding="async"
-                      onError={event=>{event.currentTarget.style.visibility='hidden'}}/>
+                    <img src={category.photoUrl} alt={category.artist} className="sona-am-category-photo"
+                      loading={index < 6 ? 'eager' : 'lazy'} decoding="async"/>
                   </span>
                   <span className="sona-am-category-label">{category.title}</span>
                 </button>
               ))}
             </div>
+            <a className="sona-category-photo-credits" href="/discovery/artists-v1/credits.html" target="_blank" rel="noreferrer">Photo credits</a>
           </section>
         </>
       ) : (

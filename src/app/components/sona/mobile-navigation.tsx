@@ -577,6 +577,7 @@ export function SonaMobileNavigation() {
             aria-label={isSearch ? 'Focus search' : 'Search'}
             onClick={() => {
               if (!isSearch) {
+                reset()
                 setCompact(false)
                 navigate('/mobile-search', {
                   state: { sonaSearchOrigin: pathname + search },

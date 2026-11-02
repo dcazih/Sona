@@ -1,0 +1,479 @@
+[
+  {
+    "category": "Charts",
+    "artist": "Taylor Swift",
+    "path": "/discovery/artists-v1/charts.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Taylor_Swift_at_the_2023_MTV_Video_Music_Awards_(3).png",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://youtube.com/@iHeartRadioCA\">iHeartRadioCA</a>",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
+  },
+  {
+    "category": "Hip-Hop",
+    "artist": "Kendrick Lamar",
+    "path": "/discovery/artists-v1/hip-hop.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:KendrickSZASPurs230725-144_(cropped)_desaturated.jpg",
+    "author": "Raph_PH",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+  },
+  {
+    "category": "R&B",
+    "artist": "SZA",
+    "path": "/discovery/artists-v1/r-b.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:KendrickSZASPurs230725-19_-_54683179509_(cropped)_(cropped).jpg",
+    "author": "Raph_PH",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+  },
+  {
+    "category": "Hits",
+    "artist": "The Weeknd",
+    "path": "/discovery/artists-v1/hits.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:The_Weeknd_Portrait_by_Brian_Ziff.jpg",
+    "author": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Approaching12am&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"User:Approaching12am (page does not exist)\">Brian Ziff</a>",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  {
+    "category": "Pop",
+    "artist": "Dua Lipa",
+    "path": "/discovery/artists-v1/pop.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Dua_Lipa-69798_(cropped).jpg",
+    "author": "<bdi><a href=\"https://www.wikidata.org/wiki/Q640\" class=\"extiw\" title=\"d:Q640\"><span title=\"German photographer; former vice chair of Wikimedia Deutschland\">Harald Krichel</span></a></bdi>",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  {
+    "category": "Country",
+    "artist": "Dolly Parton",
+    "path": "/discovery/artists-v1/country.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Young-Dolly-Parton_(higher_quality_scan)_(cropped).jpg",
+    "author": "David Gahr",
+    "license": "Public domain",
+    "licenseUrl": null
+  },
+  {
+    "category": "Dance",
+    "artist": "Calvin Harris",
+    "path": "/discovery/artists-v1/dance.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Calvin_Harris_-_Press_Image_1.tif",
+    "author": "Sony BMG",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
+  },
+  {
+    "category": "Rock",
+    "artist": "Dave Grohl",
+    "path": "/discovery/artists-v1/rock.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:FoosDublin210819-6_(48620330261)_(cropped).jpg",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/69880995@N04\">Raph_PH</a>",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "category": "Hip-Hop History Month",
+    "artist": "Tupac Shakur",
+    "path": "/discovery/artists-v1/hip-hop-history-month.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Tupac_Shakur_in_1995.jpg",
+    "author": "Unknown author<span style=\"display: none;\">Unknown author</span>",
+    "license": "Public domain",
+    "licenseUrl": null
+  },
+  {
+    "category": "Apple Music Live",
+    "artist": "Billie Eilish",
+    "path": "/discovery/artists-v1/apple-music-live.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:BillieEilishO2140725-39_-_54665577407_(cropped).jpg",
+    "author": "Raph_PH",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+  },
+  {
+    "category": "JAY-Z’s Road to Halftime",
+    "artist": "Jay-Z",
+    "path": "/discovery/artists-v1/jay-z-s-road-to-halftime.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Jay-Z_meets_with_New_York_Senate_Majority_Leader_in_Albany_(cropped).webp",
+    "author": "Photo Courtesy of NYS Senate Media Services",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "category": "Concerts",
+    "artist": "Beyoncé",
+    "path": "/discovery/artists-v1/concerts.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Beyonc%C3%A9_-_Tottenham_Hotspur_Stadium_-_1st_June_2023_(10_of_118)_(52946364598)_(best_crop).jpg",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/69880995@N04\">Raph_PH</a>",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "category": "Holiday",
+    "artist": "Mariah Carey",
+    "path": "/discovery/artists-v1/holiday.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Mariah_Carey_Library_of_Congress_2023_1_Cropped_3.png",
+    "author": "Shawn Miller",
+    "license": "Public domain",
+    "licenseUrl": null
+  },
+  {
+    "category": "Apple Music Radio",
+    "artist": "Zane Lowe",
+    "path": "/discovery/artists-v1/apple-music-radio.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Zane_Lowe_(2012)_(cropped).jpg",
+    "author": "Lennon Photography",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "category": "Latin",
+    "artist": "Bad Bunny",
+    "path": "/discovery/artists-v1/latin.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Bad_Bunny_2019_by_Glenn_Francis_(cropped).jpg",
+    "author": "<a href=\"//commons.wikimedia.org/wiki/User:Toglenn\" title=\"User:Toglenn\">Toglenn</a>",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  {
+    "category": "Urbano Latino",
+    "artist": "Rauw Alejandro",
+    "path": "/discovery/artists-v1/urbano-latino.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:2023-11-16_Gala_de_los_Latin_Grammy,_13_(cropped).jpg",
+    "author": "Junta de Andalucía",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
+  },
+  {
+    "category": "Pop Latino",
+    "artist": "Shakira",
+    "path": "/discovery/artists-v1/pop-latino.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:2023-11-16_Gala_de_los_Latin_Grammy,_03_(cropped)02.jpg",
+    "author": "Junta de Andalucía",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
+  },
+  {
+    "category": "K-Pop",
+    "artist": "Lisa (rapper)",
+    "path": "/discovery/artists-v1/k-pop.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:20240314_Lisa_Manoban_07.jpg",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://youtube.com/@_TV10?si=SP3uEtXErFCCqW18\">티비텐</a>",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
+  },
+  {
+    "category": "Classic Rock",
+    "artist": "Freddie Mercury",
+    "path": "/discovery/artists-v1/classic-rock.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Freddie_Mercury_performing_in_New_Haven,_CT,_November_1977.jpg",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/43547797@N00\">Carl Lender</a>",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+  },
+  {
+    "category": "Hard Rock",
+    "artist": "Slash (musician)",
+    "path": "/discovery/artists-v1/hard-rock.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Slash_live_in_London_2022_(Cropped_-_upright).jpg",
+    "author": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Kreepin_Deth&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"User:Kreepin Deth (page does not exist)\">Kreepin Deth</a>",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  {
+    "category": "Punk",
+    "artist": "Billie Joe Armstrong",
+    "path": "/discovery/artists-v1/punk.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:GreenDayIOW230624_(307_of_367)_(cropped).jpg",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/69880995@N04\">Raph_PH</a>",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "category": "Metal",
+    "artist": "James Hetfield",
+    "path": "/discovery/artists-v1/metal.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:James_Hetfield_2025_Marvel_Stadium_(8).jpg",
+    "author": "<a href=\"//commons.wikimedia.org/wiki/User:4TheWynne\" title=\"User:4TheWynne\">4TheWynne</a>",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  {
+    "category": "Oldies",
+    "artist": "Elvis Presley",
+    "path": "/discovery/artists-v1/oldies.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Elvis_Presley_promoting_Jailhouse_Rock.jpg",
+    "author": "<a href=\"https://en.wikipedia.org/wiki/Metro-Goldwyn-Mayer\" class=\"extiw\" title=\"w:Metro-Goldwyn-Mayer\">Metro-Goldwyn-Mayer, Inc.</a><br> Reproduction Number: LC-USZ6-2067<br> Location: NYWTS -- BIOG",
+    "license": "Public domain",
+    "licenseUrl": null
+  },
+  {
+    "category": "Americana",
+    "artist": "Chris Stapleton",
+    "path": "/discovery/artists-v1/americana.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Chris_Stapleton_Concert_(48519730107)_(cropped).jpg",
+    "author": "Steve Kwak - <a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/64018555@N03\">Maryland GovPics</a>",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "category": "Música Mexicana",
+    "artist": "Peso Pluma",
+    "path": "/discovery/artists-v1/m-sica-mexicana.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Peso_Pluma,_performing_in_Monterrey_(2024-09-24)_(1).png",
+    "author": "Villa Records México",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
+  },
+  {
+    "category": "Alternative",
+    "artist": "Hayley Williams",
+    "path": "/discovery/artists-v1/alternative.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Hayley_Williams_Ego_Nite_Woburn_MA_(cropped).png",
+    "author": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Riverparsons&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"User:Riverparsons (page does not exist)\">Riverparsons</a>",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  },
+  {
+    "category": "Acoustic",
+    "artist": "Ed Sheeran",
+    "path": "/discovery/artists-v1/acoustic.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Ed_Sheeran_2022_(3x4_crop).jpg",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/49707497@N06\">Number 10</a>",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "category": "Afrobeats",
+    "artist": "Burna Boy",
+    "path": "/discovery/artists-v1/afrobeats.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Untold_2024_-Burna_Boy_(53926047977)_(cropped).jpg",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/77219176@N04\">Nuță Lucian</a> from Cluj-Napoca, Romania",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
+  },
+  {
+    "category": "Reggae",
+    "artist": "Bob Marley",
+    "path": "/discovery/artists-v1/reggae.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Bob_Marley_circa_1976_(cropped).jpg",
+    "author": "Not credited",
+    "license": "Public domain",
+    "licenseUrl": null
+  },
+  {
+    "category": "Worldwide",
+    "artist": "Angélique Kidjo",
+    "path": "/discovery/artists-v1/worldwide.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Ang%C3%A9lique_Kidjo_Gershwin_2023.jpg",
+    "author": "Library of Congress Life",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  },
+  {
+    "category": "Kids",
+    "artist": "Raffi",
+    "path": "/discovery/artists-v1/kids.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:RaffiSpeaking.jpg",
+    "author": null,
+    "license": "CC BY-SA 2.5",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5"
+  },
+  {
+    "category": "Family",
+    "artist": "Laurie Berkner",
+    "path": "/discovery/artists-v1/family.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Laurie_Berkner_(29326823611).jpg",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/50036088@N05\">PoolSafely</a>",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "category": "Electronic",
+    "artist": "Skrillex",
+    "path": "/discovery/artists-v1/electronic.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:From_First_To_Last_-_Emo_Nite_2_-_PH_Carl_Pocket_(cropped).jpg",
+    "author": "<a href=\"//commons.wikimedia.org/wiki/User:Carl_Pocket\" title=\"User:Carl Pocket\">Carl Pocket</a>",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  {
+    "category": "DJ Mixes",
+    "artist": "David Guetta",
+    "path": "/discovery/artists-v1/dj-mixes.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:2023-11-16_Gala_de_los_Latin_Grammy,_22_(David_Guetta).jpg",
+    "author": "Junta de Andalucía",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
+  },
+  {
+    "category": "Indie",
+    "artist": "Kevin Parker",
+    "path": "/discovery/artists-v1/indie.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Tame_Impala_at_Flow_Festival_Helsinki_Aug_10_2019_-19_(cropped).jpg",
+    "author": "Raph_PH",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "category": "Christian",
+    "artist": "Lauren Daigle",
+    "path": "/discovery/artists-v1/christian.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Lauren_Daigle_@_The_Novo_05_11_2023_(53048053550).jpg",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/39400957@N03\">Justin Higuchi</a>",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "category": "Gospel",
+    "artist": "Kirk Franklin",
+    "path": "/discovery/artists-v1/gospel.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Kirk_Franklin_at_JoyFest_%2717_(cropped).jpg",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/clholly/\">CL Holly</a>",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "category": "Jazz",
+    "artist": "Miles Davis",
+    "path": "/discovery/artists-v1/jazz.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Miles_Davis_by_Palumbo_cropped.jpg",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/tompalumbo\">Tom Palumbo</a> from New York City, USA",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0"
+  },
+  {
+    "category": "Blues",
+    "artist": "B. B. King",
+    "path": "/discovery/artists-v1/blues.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Bbking.jpg",
+    "author": "<a href=\"//commons.wikimedia.org/w/index.php?title=User:Lightversus&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"User:Lightversus (page does not exist)\">Marco Tambara / Lightversus</a>",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+  },
+  {
+    "category": "Music Videos",
+    "artist": "Lady Gaga",
+    "path": "/discovery/artists-v1/music-videos.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Lady_Gaga_at_Joe_Biden%27s_inauguration_(cropped_5).jpg",
+    "author": "Carlos M. Vazquez II",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "category": "Soul/Funk",
+    "artist": "Stevie Wonder",
+    "path": "/discovery/artists-v1/soul-funk.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:SWonderBSTHyde060719-72_(cropped).jpg",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.flickr.com/people/69880995@N04\">Raph_PH</a>",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "category": "Classical",
+    "artist": "Yo-Yo Ma",
+    "path": "/discovery/artists-v1/classical.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Yo-Yo_Ma_in_2018_(cropped).jpg",
+    "author": "Joi Ito",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0"
+  },
+  {
+    "category": "Film, TV & Stage",
+    "artist": "Lin-Manuel Miranda",
+    "path": "/discovery/artists-v1/film-tv-stage.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:LinManuelMiranda-byPhilipRomano.jpg",
+    "author": "<a href=\"//commons.wikimedia.org/wiki/User:PhilipRomano\" title=\"User:PhilipRomano\">PhilipRomano</a>",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  {
+    "category": "Anime",
+    "artist": "LiSA (Japanese musician, born 1987)",
+    "path": "/discovery/artists-v1/anime.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:LiSA_by_Gage_Skidmore.jpg",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://flickr.com/gageskidmore\">Gage Skidmore</a>",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+  },
+  {
+    "category": "Alpha Women",
+    "artist": "Rihanna",
+    "path": "/discovery/artists-v1/alpha-women.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Rihanna_Fenty_2018.png",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://vimeo.com/sigmatechno\">SIGMA</a>",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
+  },
+  {
+    "category": "Essentials",
+    "artist": "Prince (musician)",
+    "path": "/discovery/artists-v1/essentials.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Prince_promo_picture_(1988;_cropped_and_retouched).png",
+    "author": "Unknown author<span style=\"display: none;\">Unknown author</span>, based on <a href=\"//commons.wikimedia.org/wiki/File:Prince_promo_picture_(1988;_cropped).png\" title=\"File:Prince promo picture (1988; cropped).png\">File:Prince promo picture (1988; cropped).png</a>",
+    "license": "Public domain",
+    "licenseUrl": null
+  },
+  {
+    "category": "Decades",
+    "artist": "Michael Jackson",
+    "path": "/discovery/artists-v1/decades.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Michael_Jackson_1983_(3x4_cropped)_(contrast).jpg",
+    "author": "Matthew Rolston; Distributed by Epic Records",
+    "license": "Public domain",
+    "licenseUrl": null
+  },
+  {
+    "category": "Behind the Songs",
+    "artist": "Jack Antonoff",
+    "path": "/discovery/artists-v1/behind-the-songs.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Jack_Antonoff_at_Electric_Lady_Studios_2023_(cropped)_(cropped2).jpg",
+    "author": "Alex Lockett",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  {
+    "category": "Sports",
+    "artist": "Eminem",
+    "path": "/discovery/artists-v1/sports.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Eminem_2021_Color_Corrected.jpg",
+    "author": "Brendan_linden",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  },
+  {
+    "category": "Fitness",
+    "artist": "Megan Thee Stallion",
+    "path": "/discovery/artists-v1/fitness.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Megan_Thee_Stallion_Adweek_pose.jpg",
+    "author": "Adweek",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
+  },
+  {
+    "category": "Chill",
+    "artist": "Frank Ocean",
+    "path": "/discovery/artists-v1/chill.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Frank_Ocean_2022_Blonded.jpg",
+    "author": "Andras Ladocsi",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  {
+    "category": "Sleep",
+    "artist": "Laufey (musician)",
+    "path": "/discovery/artists-v1/sleep.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Laufey_performing_at_Wiener_Stadthalle_in_Vienna,_Austria_on_February_26th_2026_-_29.jpg",
+    "author": "<a href=\"//commons.wikimedia.org/wiki/User:Tomzorz\" title=\"User:Tomzorz\">Tomzorz</a>",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  {
+    "category": "Feel Good",
+    "artist": "Lizzo",
+    "path": "/discovery/artists-v1/feel-good.webp",
+    "source": "https://commons.wikimedia.org/wiki/File:Lizzo_September_2025.png",
+    "author": "<a rel=\"nofollow\" class=\"external text\" href=\"https://www.youtube.com/@MWORTHOFGAME\">MILLION DOLLAZ WORTH OF GAME</a>",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0"
+  }
+]
