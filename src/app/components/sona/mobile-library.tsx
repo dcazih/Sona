@@ -1,6 +1,6 @@
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { ArrowDownToLine, Check, ChevronRight, GripVertical, Heart, ListMusic, Mic2, Podcast, Radio, Tags, Disc3 } from 'lucide-react'
+import { ArrowDownToLine, Check, ChevronRight, GripVertical, Star, ListMusic, Mic2, Podcast, Radio, Tags, Disc3 } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArtworkImage } from '@/app/components/artwork-image'
@@ -16,7 +16,7 @@ const sections = [
   { id: 'artists', name: 'Artists', icon: Mic2, href: ROUTES.LIBRARY.ARTISTS },
   { id: 'albums', name: 'Albums', icon: Disc3, href: ROUTES.LIBRARY.ALBUMS },
   { id: 'songs', name: 'Songs', icon: SonaNoteGlyph, href: ROUTES.LIBRARY.SONGS },
-  { id: 'favorites', name: 'Favorites', icon: Heart, href: ROUTES.LIBRARY.FAVORITES },
+  { id: 'favorites', name: 'Favorites', icon: Star, href: ROUTES.LIBRARY.FAVORITES },
   { id: 'downloads', name: 'Downloaded', icon: ArrowDownToLine, href: '/library/downloads' },
   { id: 'genres', name: 'Genres', icon: Tags, href: ROUTES.LIBRARY.GENRES },
   { id: 'podcasts', name: 'Podcasts', icon: Podcast, href: ROUTES.LIBRARY.PODCASTS },
@@ -220,7 +220,7 @@ export default function SonaMobileLibrary() {
                       {included && <Check size={15} strokeWidth={3}/>}
                     </span>
                   </button>
-                  <Icon className="sona-apple-library-row-icon" size={24} strokeWidth={1.8}/>
+                  <Icon className="sona-apple-library-row-icon" size={id === 'songs' ? 29 : 24} strokeWidth={1.8}/>
                   <span className="sona-apple-library-row-label">{item.name}</span>
                   <button type="button" className="sona-apple-library-drag-handle"
                     aria-label={'Drag to reorder '+item.name}

@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { Heart } from 'lucide-react'
+import { Star } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/app/components/ui/button'
 import { SimpleTooltip } from '@/app/components/ui/simple-tooltip'
@@ -33,7 +33,7 @@ export function PlayerLikeButton({ disabled }: PlayerLikeButtonProps) {
         onClick={starCurrentSong}
         data-testid="player-like-button"
       >
-        <Heart
+        <Star
           className={clsx(
             'w-5 h-5',
             isSongStarred && 'text-red-500 fill-red-500',

@@ -427,3 +427,24 @@
 @media(max-width:767px){
  .sona-playlists-list,.sona-app-shell:has(.sona-playlists-list) #main-scroll-area,.sona-app-shell:has(.sona-playlists-list) #scroll-viewport{background:#000!important;background-image:none!important;}
 }
+
+/* Playlist actions: icon-only outer controls; white capsule main Play. */
+@media(max-width:767px){
+ .sona-section-playlist-row .sona-section-star-toggle,
+ .sona-section-playlist-row .sona-section-star-toggle:not(.is-starred){
+   opacity:1!important;visibility:visible!important;color:#ff496e!important;
+   width:20px!important;min-width:20px!important;
+   margin-right:11px!important;display:grid!important;place-items:center!important
+ }
+ .sona-section-playlist-row .sona-section-star-toggle:active{
+   transform:scale(.87);transition:transform .13s cubic-bezier(.22,.8,.22,1)
+ }
+ .sona-section-playlist-actions>button:not(.sona-section-playlist-play){
+   background:transparent!important;border:0!important;box-shadow:none!important;
+   color:#fff!important;border-radius:0!important
+ }
+ .sona-section-playlist-actions>.sona-section-playlist-play{
+   background:#fff!important;color:#111!important;box-shadow:none!important;
+   border:0!important;border-radius:999px!important
+ }
+}

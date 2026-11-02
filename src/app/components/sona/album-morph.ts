@@ -55,6 +55,7 @@ function morphAfterNavigation(
   from: DOMRect,
   destination: () => HTMLElement | null,
   sourceStyle: { borderTopLeftRadius: string; boxShadow: string },
+  fadeOnLanding = false,
 ) {
   const fromRadius = parseFloat(sourceStyle.borderTopLeftRadius) || 0
   const fromShadow = sourceStyle.boxShadow
@@ -139,7 +140,20 @@ function morphAfterNavigation(
       ],
       { duration: 480, easing: 'cubic-bezier(.22,.75,.25,1)', fill: 'both' },
     )
-    animation.finished.then(cleanup).catch(cleanup)
+    animation.finished.then(() => {
+      if (!fadeOnLanding || !target) {
+        cleanup()
+        return
+      }
+      // The flying artwork is now precisely over its destination. Reveal the
+      // real album tile beneath it, then crossfade only the top image.
+      target.style.visibility = oldVisibility
+      const fade = artwork.animate(
+        [{ opacity: 1 }, { opacity: 0 }],
+        { duration: 160, easing: 'cubic-bezier(.22,.75,.25,1)', fill: 'both' },
+      )
+      fade.finished.then(cleanup).catch(cleanup)
+    }).catch(cleanup)
   }
   frame = requestAnimationFrame(locate)
 }
@@ -197,6 +211,7 @@ export function closeSonaAlbumToCover(
       cover.getBoundingClientRect(),
       () => document.querySelector(source.selector),
       artworkStyle(cover),
+      true,
     )
   }
   lastSource = null

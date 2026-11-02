@@ -245,6 +245,7 @@ export function SonaPlaylistsList(){
  },[playlists])
  const downloaded=trackedDownloads()
  const toggleFavorite=(id:string)=>{
+  navigator.vibrate?.(12)
   const next=new Set(favoriteIds)
   if(next.has(id))next.delete(id);else next.add(id)
   setFavoriteIds(next);saveSet('sona-playlist-favorites',next)
@@ -262,7 +263,7 @@ export function SonaPlaylistsList(){
     <div className="sona-section-playlist-row" key={p.id}>
      <button type="button" className={'sona-section-star-toggle'+(favoriteIds.has(p.id)?' is-starred':'')}
       aria-label={(favoriteIds.has(p.id)?'Unfavorite ':'Favorite ')+p.name} onClick={()=>toggleFavorite(p.id)}>
-      <Star size={14} fill={favoriteIds.has(p.id)?'currentColor':'none'}/>
+      <Star size={18} strokeWidth={2.2} fill={favoriteIds.has(p.id)?'currentColor':'none'}/>
      </button>
      <button type="button" className="sona-section-playlist-target" onClick={()=>navigate(ROUTES.PLAYLIST.PAGE(p.id))}>
       <SectionArt id={p.coverArt} name={p.name}/>
@@ -417,7 +418,7 @@ export function SonaDownloadsList(){
  ]
  return <section className="sona-section-page sona-downloads-list" aria-label="Downloads">
   <div className="sona-section-download-links">{links.map(({name,icon:Icon,to})=>
-   <Link to={to} key={name}><Icon size={24} color="#fa4268" strokeWidth={1.8}/><span>{name}</span><ChevronRight size={23} className="sona-section-chevron"/></Link>)}
+   <Link to={to} key={name}><Icon size={name === 'Songs' ? 29 : 24} color="#fa4268" strokeWidth={1.8}/><span>{name}</span><ChevronRight size={23} className="sona-section-chevron"/></Link>)}
   </div>
  </section>
 }

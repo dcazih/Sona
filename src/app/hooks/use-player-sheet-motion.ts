@@ -434,8 +434,9 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
   function begin() {
     const sheet = ref.current
     if (!sheet) return
-    // A grab can interrupt an opening/snap-back animation. Preserve its
-    // current visual position instead of jumping to the old target.
+    // Never let a downward gesture interrupt opening/settling animations.
+    // The sheet is only draggable once its opening transition has fully landed.
+    if (sheet.dataset.phase !== 'open' || animation.current) return false
     lastCorners.current = ''
     const rect = sheet.getBoundingClientRect()
     const matrix = new DOMMatrixReadOnly(getComputedStyle(sheet).transform)
@@ -457,6 +458,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     sheet.style.opacity = '1'
     sheet.classList.add('is-dragging')
     sheet.dataset.phase = 'dragging'
+    return true
   }
 
   return { ref, move, flush, begin, settle: () => run(true), distance }

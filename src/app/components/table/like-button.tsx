@@ -1,5 +1,5 @@
 import { clsx } from 'clsx'
-import { Heart } from 'lucide-react'
+import { Star } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { Button } from '@/app/components/ui/button'
@@ -68,7 +68,7 @@ export function TableLikeButton({
         handleStarred()
       }}
     >
-      <Heart
+      <Star
         className={clsx('w-4 h-4', isStarred && 'text-red-500 fill-red-500')}
         strokeWidth={2}
       />

@@ -1,4 +1,4 @@
-import { Heart } from 'lucide-react'
+import { Star } from 'lucide-react'
 import './heart-glyph.css'
 export function SonaHeartGlyph({
   active,
@@ -15,8 +15,8 @@ export function SonaHeartGlyph({
       style={{ width: size, height: size }}
       aria-hidden="true"
     >
-      <Heart size={size} />
-      <Heart size={size} className="sona-heart-fill" fill="currentColor" />
+      <Star size={size} />
+      <Star size={size} className="sona-heart-fill" fill="currentColor" />
     </span>
   )
 }

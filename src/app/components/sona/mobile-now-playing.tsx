@@ -192,6 +192,10 @@ export function SonaMobileNowPlaying() {
   function moveSwipe(event: globalThis.PointerEvent) {
     const start = gesture.current
     if (!start || event.pointerId !== start.id) return
+    if (motion.ref.current?.dataset.phase !== 'open' && motion.ref.current?.dataset.phase !== 'dragging') {
+      gesture.current = null
+      return
+    }
     const samples = event.getCoalescedEvents?.()
     const point = samples?.[samples.length - 1] || event
     const dx = point.clientX - start.x
@@ -206,7 +210,10 @@ export function SonaMobileNowPlaying() {
         start.axis = 'x'
       if (start.axis === 'y') {
         artTouchX.current = null
-        motion.begin()
+        if (!motion.begin()) {
+          gesture.current = null
+          return
+        }
         start.base = motion.distance.current
         motion.ref.current?.setPointerCapture(event.pointerId)
       }
@@ -400,7 +407,7 @@ export function SonaMobileNowPlaying() {
                   setView(view === 'lyrics' ? 'playing' : 'lyrics')
                 }
               >
-                <SonaNoteGlyph size={22} />
+                <SonaNoteGlyph size={27} />
               </button>
               <button
                 type="button"

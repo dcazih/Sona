@@ -2517,3 +2517,10 @@
  .sona-account-portal-sheet .sona-account-scroll{padding-top:calc(var(--sona-account-heading-height,100px) + 18px)!important;}
  .sona-app-shell:has(.sona-artist-page) .sona-header-detail-view>.sona-album-header-back,.sona-app-shell:has(.sona-artist-page) .sona-header-detail-view>.sona-album-header-more{width:32px!important;height:32px!important;}
 }
+
+/* Music-note glyph within the full-player lyrics action is 5px larger. */
+@media(max-width:767px){
+ .sona-now-bottom-actions [aria-label="Show lyrics"] svg{
+   width:34px!important;height:34px!important
+ }
+}
