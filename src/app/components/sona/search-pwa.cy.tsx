@@ -30,6 +30,13 @@ describe('Installed Sona Search',()=>{
   cy.get('[aria-label="Search"]').click()
   cy.get('.sona-am-genre-card').first().should('be.visible')
   cy.get('.sona-am-genre-card').should('have.length',SONA_DISCOVER_CATEGORIES.length)
+  cy.get('.sona-am-genre-card').first().should($card=>{
+   const box=$card[0].getBoundingClientRect()
+   expect(box.height).to.be.closeTo((390-50)/3.54,1)
+   expect(getComputedStyle($card[0]).aspectRatio).to.equal('auto')
+  })
+  cy.contains('Photo credits').should('not.exist')
+  cy.get('html').should($html=>expect($html[0].style.getPropertyValue('--sona-notch-color')).to.equal('#000000'))
   cy.get('.sona-am-category-label').first().should($label=>{
    const label=$label[0],box=label.getBoundingClientRect(),card=label.closest('button')!.getBoundingClientRect()
    expect(box.left-card.left).to.be.closeTo(12,1)

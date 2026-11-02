@@ -72,8 +72,7 @@ export function useDockMorph({
       previous.current !== key &&
       !focused &&
       !moving &&
-      window.innerWidth < 768 &&
-      !matchMedia('(prefers-reduced-motion: reduce)').matches
+      window.innerWidth < 768
     ) {
       const start = document.timeline.currentTime
       animations.current = surfaces.flatMap((element, index) => {
@@ -185,7 +184,7 @@ function animateSurface(
   const p = parts(element),
     base = target.baseWidth,
     result: Animation[] = []
-  const standard = 'cubic-bezier(.22,.8,.22,1)',
+  const standard = 'cubic-bezier(.16,1,.3,1)',
     widthEase = expanding && !mini ? 'cubic-bezier(.55,0,.2,1)' : standard
   type Stop = { offset: number; fraction: number; easing?: string }
   const widthStops: Stop[] =
@@ -210,7 +209,7 @@ function animateSurface(
     height: lerp(from.height, target.height, stop.fraction),
   }))
   const play = (part: Element | null, keyframes: Keyframe[]) => {
-    if (!part) return
+    if (!part || getComputedStyle(part).display === 'none') return
     const properties = Object.keys(keyframes[0]).filter(
       (key) => key !== 'offset' && key !== 'easing',
     )

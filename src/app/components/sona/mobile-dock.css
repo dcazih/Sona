@@ -243,3 +243,11 @@
  html[data-sona-dock="compact"] .sona-player-controls>div:first-child{padding-right:3px!important;}
  .sona-player [data-testid="player-button-play"]::before,.sona-player [data-testid="player-button-pause"]::before{width:33.333333%;}
 }
+
+/* No capsule outlines. One clipped opaque layer owns every moving surface. */
+@media(max-width:767px){
+ .sona-dock-rim,.sona-dock-rim-line{display:none!important;}
+ .sona-search-cancel-circle{border:0!important;outline:0!important;box-shadow:none!important;}
+ .sona-player,.sona-bottom-nav-split,.sona-search-morph{outline:0!important;border:0!important;}
+ .sona-dock-surface{border:0!important;outline:0!important;box-shadow:none!important;}
+}

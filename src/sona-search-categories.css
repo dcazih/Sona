@@ -7,7 +7,8 @@
  }
  .sona-am-search-page .sona-am-genre-card{
    display:block!important;position:relative!important;isolation:isolate!important;
-   aspect-ratio:1.77!important;min-width:0!important;padding:0!important;
+   width:100%!important;height:calc((100vw - 50px) / 3.54)!important;
+   aspect-ratio:auto!important;min-width:0!important;padding:0!important;
    margin:0!important;overflow:hidden!important;border:0!important;
    border-radius:16px!important;background:var(--sona-category-color,#b75a92)!important;
    background-image:none!important;box-shadow:none!important;text-align:left!important;
@@ -45,4 +46,12 @@
  .sona-am-genre-art::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.08) 55%,rgba(0,0,0,.68) 100%);}
 }
 
-.sona-category-photo-credits{display:block;color:#999;font-size:11px;text-align:right;margin:16px 0 4px;}
+
+/* The viewport owns the screen height; content grows only with actual rows. */
+@media(max-width:767px){
+ .sona-app-shell:has(.sona-am-search-page) #main-scroll-area{background:#000!important;}
+ .sona-app-shell:has(.sona-am-search-page) #scroll-viewport>div{min-height:100%!important;padding-top:0!important;padding-bottom:0!important;box-sizing:border-box!important;}
+ .sona-app-shell:has(.sona-am-search-page) .sona-am-search-page{min-height:0!important;padding-bottom:calc(126px + env(safe-area-inset-bottom,0px))!important;box-sizing:border-box!important;}
+ html:has(.sona-am-search-page),html:has(.sona-am-search-page) body{background:#000!important;--sona-notch-color:#000!important;}
+ .sona-app-shell:has(.sona-am-search-page)::before{background:#000!important;}
+}

@@ -52,7 +52,7 @@ describe('Coordinated mobile dock',()=>{
   cy.contains('Page /library/playlists/example').should('exist')
   cy.get('[aria-label="New"]').should('have.attr','aria-current','page')
  })
- it('compacts on downward scroll, preserves it through full player, and reverses on upward scroll',()=>{
+ it('compacts on downward scroll, preserves it through full player, and expands only at the top',()=>{
   setup()
   cy.get('#scroll-viewport').trigger('wheel',{deltaY:120,deltaX:0}).scrollTo(0,120)
   cy.get('html').should('have.attr','data-sona-dock','compact')
@@ -62,6 +62,8 @@ describe('Coordinated mobile dock',()=>{
   cy.then(()=>usePlayerStore.setState(state=>({fullscreen:{...state.fullscreen,isFullscreen:false}})))
   cy.get('html').should('have.attr','data-sona-dock','compact')
   cy.get('#scroll-viewport').trigger('wheel',{deltaY:-50,deltaX:0}).scrollTo(0,110)
+  cy.get('html').should('have.attr','data-sona-dock','compact')
+  cy.get('#scroll-viewport').trigger('wheel',{deltaY:-120,deltaX:0}).scrollTo('top')
   cy.get('html').should('have.attr','data-sona-dock','normal')
   cy.get('#scroll-viewport').trigger('wheel',{deltaY:50,deltaX:0}).scrollTo(0,150)
   cy.get('[aria-label="Expand Sona navigation"]').click()
@@ -178,7 +180,7 @@ describe('Coordinated mobile dock',()=>{
   cy.get('#scroll-viewport').scrollTo(0,1600).trigger('scroll')
   cy.get('html').should('have.attr','data-sona-dock','compact')
   cy.get('#scroll-viewport').trigger('wheel',{deltaY:-20,deltaX:0})
-  cy.get('html').should('have.attr','data-sona-dock','normal')
+  cy.get('html').should('have.attr','data-sona-dock','compact')
   cy.get('#scroll-viewport').scrollTo('top').trigger('wheel',{deltaY:-100,deltaX:0})
   cy.get('html').should('have.attr','data-sona-dock','normal')
  })
@@ -282,6 +284,32 @@ describe('Coordinated mobile dock',()=>{
   cy.get('[aria-label="Cancel search"]').should('be.visible')
   cy.get('input').should('have.value','')
   cy.get('.sona-search-morph').should($el=>expect(getDockBounds($el[0]).width).to.be.closeTo(260,1))
+ })
+
+ it('moves search, navigation and mini together on one visible cubic timeline',()=>{
+  setup()
+  cy.get('[aria-label="Search"]').click()
+  cy.get('.sona-search-morph').then($search=>{
+   const doc=$search[0].ownerDocument
+   const elements=[$search[0],doc.querySelector<HTMLElement>('.sona-bottom-nav')!,doc.querySelector<HTMLElement>('.sona-player')!]
+   const animations=elements.flatMap(el=>el.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===440))
+   expect(animations.length).to.be.greaterThan(3)
+   expect(new Set(animations.map(a=>a.startTime)).size).to.equal(1)
+   animations.forEach(a=>a.pause())
+   const widths:number[]=[],navWidths:number[]=[],miniTops:number[]=[]
+   for(const time of [0,100,220,439]){
+    animations.forEach(a=>a.currentTime=time)
+    widths.push(getDockBounds(elements[0]).width)
+    navWidths.push(getDockBounds(elements[1]).width)
+    miniTops.push(getDockBounds(elements[2]).top)
+   }
+   expect(widths[0]).to.be.closeTo(64,1)
+   expect(widths[1]).to.be.greaterThan(64).and.lessThan(315)
+   expect(widths[2]).to.be.greaterThan(widths[1])
+   expect(navWidths[1]).to.be.lessThan(navWidths[0]).and.greaterThan(50)
+   expect(miniTops[1]).to.be.greaterThan(miniTops[0]).and.lessThan(miniTops[3])
+   animations.forEach(a=>a.finish())
+  })
  })
 
  it('initializes the dock before paint through React StrictMode remounts',()=>{

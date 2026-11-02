@@ -307,7 +307,6 @@ export default function SonaMobileSearch() {
                 </button>
               ))}
             </div>
-            <a className="sona-category-photo-credits" href="/discovery/artists-v1/credits.html" target="_blank" rel="noreferrer">Photo credits</a>
           </section>
         </>
       ) : (

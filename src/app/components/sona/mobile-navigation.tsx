@@ -100,6 +100,7 @@ export function SonaMobileNavigation() {
 
   useEffect(() => {
     let touch: { x: number; y: number } | null = null
+    let upwardIntent = false
     const intent = (delta: number) => {
       if (
         isSearch ||
@@ -110,12 +111,22 @@ export function SonaMobileNavigation() {
         return
       const viewport = getMainScrollElement()
       if (!viewport) return
+      upwardIntent = delta < 0
       const top = viewport.scrollTop,
         max = Math.max(0, viewport.scrollHeight - viewport.clientHeight)
       // Rubber-band recovery and programmatic scrolling are not user intent.
-      if ((delta > 0 && top >= max - 0.5) || (delta < 0 && top <= 0.5)) return
-      setCompact(delta > 0)
+      if (delta > 0) {
+        if (top < max - 0.5) setCompact(true)
+      } else if (top <= 1) setCompact(false)
     }
+    const scrolled = () => {
+      const viewport = getMainScrollElement()
+      if (viewport && viewport.scrollTop <= 1 && upwardIntent) {
+        setCompact(false)
+        upwardIntent = false
+      }
+    }
+    const scrollEnded = () => { upwardIntent = false }
     const inContent = (target: EventTarget | null) =>
       target instanceof Element && Boolean(target.closest('#scroll-viewport'))
     const wheel = (event: WheelEvent) => {
@@ -141,6 +152,8 @@ export function SonaMobileNavigation() {
     const end = () => {
       touch = null
     }
+    document.addEventListener('scrollend', scrollEnded, { passive: true, capture: true })
+    document.addEventListener('scroll', scrolled, { passive: true, capture: true })
     document.addEventListener('wheel', wheel, { passive: true, capture: true })
     document.addEventListener('touchstart', start, {
       passive: true,
@@ -156,6 +169,8 @@ export function SonaMobileNavigation() {
       capture: true,
     })
     return () => {
+      document.removeEventListener('scrollend', scrollEnded, true)
+      document.removeEventListener('scroll', scrolled, true)
       document.removeEventListener('wheel', wheel, true)
       document.removeEventListener('touchstart', start, true)
       document.removeEventListener('touchmove', move, true)
@@ -175,13 +190,13 @@ export function SonaMobileNavigation() {
   useEffect(() => () => cancelAnimationFrame(dragFrame.current), [])
 
   useEffect(() => {
-    if (window.innerWidth >= 768 || isStandalonePwa()) return
+    if (window.innerWidth >= 768 || (isStandalonePwa() && !isSearch)) return
     const root = document.documentElement
     const tabColor = '#000000'
     root.style.setProperty('--sona-tab-notch-color', tabColor)
     if (
       root.dataset.sonaNotchOwner !== 'player' &&
-      !root.style.getPropertyValue('--sona-album-notch-color')
+      (isSearch || !root.style.getPropertyValue('--sona-album-notch-color'))
     ) {
       root.style.setProperty('--sona-notch-color', tabColor)
       document
@@ -552,7 +567,7 @@ export function SonaMobileNavigation() {
                 leaveSearch()
                 setCompact(false)
                 if (routeState?.sonaSearchOrigin === returnRoute) navigate(-1)
-                else navigate(returnRoute, { replace: true })
+                else navigate(returnRoute, { replace: true, flushSync: true })
               } else setCompact(false)
             }}
           >
@@ -581,6 +596,7 @@ export function SonaMobileNavigation() {
                 setCompact(false)
                 navigate('/mobile-search', {
                   state: { sonaSearchOrigin: pathname + search },
+                  flushSync: true,
                 })
                 return
               }

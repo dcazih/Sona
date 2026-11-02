@@ -7,8 +7,7 @@ import { ArtworkImage } from '@/app/components/artwork-image'
 import { ImageLoader } from '@/app/components/image-loader'
 import { PreviewCard } from '@/app/components/preview-card/card'
 import { ROUTES } from '@/routes/routesList'
-import { subsonic } from '@/service/subsonic'
-import { useIsAlbumPlaying, usePlayerActions } from '@/store/player.store'
+import { useIsAlbumPlaying } from '@/store/player.store'
 import { Albums } from '@/types/responses/album'
 
 type AlbumCardProps = {
@@ -16,29 +15,8 @@ type AlbumCardProps = {
 }
 
 function AlbumCard({ album }: AlbumCardProps) {
-  const { setSongList, togglePlayPause } = usePlayerActions()
   const navigate = useNavigate()
-  const { isAlbumActive, isAlbumPlaying } = useIsAlbumPlaying(album.id)
-
-  async function playCurrentAlbum() {
-    const response = await subsonic.albums.getOne(album.id)
-
-    if (response) {
-      setSongList(response.song, 0, false, {
-        id: response.id,
-        name: response.name,
-        type: 'album',
-      })
-    }
-  }
-
-  function handlePlayPause() {
-    if (isAlbumActive) {
-      togglePlayPause()
-    } else {
-      playCurrentAlbum()
-    }
-  }
+  const { isAlbumPlaying } = useIsAlbumPlaying(album.id)
 
   return (
     <PreviewCard.Root data-sona-album-id={album.id}>
@@ -52,11 +30,6 @@ function AlbumCard({ album }: AlbumCardProps) {
           {(src) => <ArtworkImage src={src} alt={album.name} loading="lazy"
             data-testid="card-image" />}
         </ImageLoader>
-        {isAlbumPlaying ? (
-          <PreviewCard.PauseButton onClick={handlePlayPause} />
-        ) : (
-          <PreviewCard.PlayButton onClick={handlePlayPause} />
-        )}
       </PreviewCard.ImageWrapper>
       <PreviewCard.InfoWrapper>
         <div className="flex items-center gap-1">

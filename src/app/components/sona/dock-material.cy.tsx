@@ -27,6 +27,8 @@ describe('Dock material and stable contents',()=>{
   mountDock()
   cy.get('.sona-player').should($mini=>{
    const mini=$mini[0],nav=mini.ownerDocument.querySelector('.sona-bottom-nav')!
+   expect(getComputedStyle(nav.querySelector('.sona-dock-rim')!).display).to.equal('none')
+   expect(getComputedStyle(mini).borderTopWidth).to.equal('0px')
    expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgb(29, 29, 33)')
    expect(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgb(29, 29, 33)')
    expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backdropFilter).to.equal(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backdropFilter)
