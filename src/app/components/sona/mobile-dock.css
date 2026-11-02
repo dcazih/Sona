@@ -225,8 +225,6 @@
 
 @media(max-width:767px){
  .sona-player-controls>div:first-child::before{display:none!important;}
- .sona-player [data-testid="player-button-play"]::before,.sona-player [data-testid="player-button-pause"]::before{content:"";position:absolute;right:100%;top:-25px;width:100%;height:100px;background:linear-gradient(to right,transparent,rgba(29,29,33,.75));pointer-events:none;z-index:-1;}
- .sona-player [data-testid="player-button-play"]::after,.sona-player [data-testid="player-button-pause"]::after{content:"";position:absolute;left:0;right:-60px;top:-25px;height:100px;background:rgba(29,29,33,.75);pointer-events:none;z-index:-1;}
 }
 
 @media(max-width:767px){
@@ -239,7 +237,6 @@
 @media(max-width:767px){
  .sona-player-controls>div:first-child{bottom:0!important;padding-right:11px!important;}
  html[data-sona-dock="compact"] .sona-player-controls>div:first-child{padding-right:3px!important;}
- .sona-player [data-testid="player-button-play"]::before,.sona-player [data-testid="player-button-pause"]::before{width:33.333333%;}
 }
 
 /* No capsule outlines. Each blurred layer is clipped with its host. */
@@ -273,4 +270,24 @@
  .sona-bottom-nav-split>.sona-dock-shadow,.sona-search-morph>.sona-dock-shadow{display:none!important;}
  .sona-bottom-nav-split::before,.sona-bottom-nav-split::after,.sona-search-morph::before,.sona-search-morph::after{content:none!important;display:none!important;}
 
+}
+
+@media(max-width:767px){
+ /* Mask the text itself: a second tinted surface would darken the glass twice. */
+ .sona-player{overflow:hidden!important;}
+ .sona-player .sona-mini-copy{mask-image:linear-gradient(to right,#000 calc(100% - 14px),transparent 100%);-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 14px),transparent 100%);}
+ .sona-player [data-testid="player-button-play"]::before,.sona-player [data-testid="player-button-pause"]::before{display:none!important;}
+ .sona-player-controls>div:first-child{background:transparent!important;}
+ .sona-search-morph.is-expanded .sona-search-morph-field{transition-delay:0s!important;}
+ html[data-sona-player-settling="true"] body{cursor:default;}
+}
+
+@media(max-width:767px){
+ .sona-player .sona-mini-copy{height:64px!important;align-self:center;}
+ .sona-player [data-testid="player-button-play"]::after,.sona-player [data-testid="player-button-pause"]::after{display:none!important;}
+}
+
+@media(max-width:767px){
+ .sona-player .sona-mini-copy{position:relative;}
+ .sona-player .sona-mini-copy::after{content:"";position:absolute;right:0;top:-6px;bottom:-6px;width:14px;background:transparent;pointer-events:none;}
 }

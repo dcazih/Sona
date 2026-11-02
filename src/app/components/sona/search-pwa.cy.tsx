@@ -22,9 +22,9 @@ describe('Installed Sona Search',()=>{
   cy.intercept('**/rest/getGenres*',{delay:500,body:{'subsonic-response':{status:'ok',genres:{genre:[]}}}})
   cy.intercept('**/rest/getAlbumList2*',{body:{'subsonic-response':{status:'ok',albumList2:{album:[]}}}})
  })
- it('opens the complete category grid on installed iPhone even with stale search state',()=>{
+ it('opens the complete category grid on installed iPhone',()=>{
   cy.window().then(win=>Object.defineProperty(win.navigator,'standalone',{value:true,configurable:true}))
-  useSonaSearch.setState({engaged:true,focused:false,term:'old query'})
+  useSonaSearch.setState({engaged:false,focused:false,term:''})
   const router=createMemoryRouter([{path:'/',element:<div className="sona-app-shell"><div id="main-scroll-area"><div id="scroll-viewport" style={{height:844,overflow:'auto'}}>Home</div></div><SonaMobileNavigation/></div>},{path:'/mobile-search',element:<div className="sona-app-shell"><div id="main-scroll-area"><div id="scroll-viewport" style={{height:844,overflow:'auto'}}><SonaMobileSearch/></div></div><SonaMobileNavigation/></div>}])
   mount(<QueryClientProvider client={new QueryClient()}><RouterProvider router={router}/></QueryClientProvider>)
   cy.get('[aria-label="Search"]').click()

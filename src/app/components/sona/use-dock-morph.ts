@@ -122,10 +122,10 @@ function parts(element: HTMLElement) {
     contents: element.querySelector<HTMLElement>(
       ':scope>.sona-dock-surface>.sona-dock-contents',
     ),
-    left: element.querySelector<SVGElement>('.sona-dock-rim-left'),
-    right: element.querySelector<SVGElement>('.sona-dock-rim-right'),
-    top: element.querySelector<HTMLElement>('.sona-dock-rim-top'),
-    bottom: element.querySelector<HTMLElement>('.sona-dock-rim-bottom'),
+    left: null as SVGElement | null,
+    right: null as SVGElement | null,
+    top: null as HTMLElement | null,
+    bottom: null as HTMLElement | null,
     controls: element.matches('.sona-player')
       ? element.querySelector<HTMLElement>(
           '.sona-player-controls>div:first-child',
@@ -181,7 +181,7 @@ function animateSurface(
   const p = parts(element),
     base = target.baseWidth,
     result: Animation[] = []
-  const standard = 'cubic-bezier(.16,1,.3,1)',
+  const standard = 'cubic-bezier(.45,0,.25,1)',
     widthEase = standard
   type Stop = { offset: number; fraction: number; easing?: string }
   const widthStops: Stop[] =

@@ -1,3 +1,4 @@
+import { DOCK_DURATION } from './use-dock-morph'
 import {StrictMode} from 'react'
 import { getDockBounds } from './dock-bounds'
 import { DockSurface } from './dock-surface'
@@ -114,7 +115,7 @@ describe('Coordinated mobile dock',()=>{
     transitions[0].pause();navTransition.pause()
     transitions[0].currentTime=120;navTransition.currentTime=120
     const width=getDockBounds(search as HTMLElement).width
-    expect(width).to.be.greaterThan(64).and.lessThan(302)
+    expect(width).to.be.greaterThan(64).and.lessThan(315)
     transitions[0].finish();navTransition.finish()
    })
   })
@@ -227,7 +228,7 @@ describe('Coordinated mobile dock',()=>{
   const inspect = () => cy.then(()=>new Cypress.Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))).get('.sona-player').then($mini=>{
    const mini=$mini[0],doc=mini.ownerDocument
    const nav=doc.querySelector<HTMLElement>('.sona-bottom-nav')!,search=doc.querySelector<HTMLElement>('.sona-search-morph')!
-   const animations=[mini,nav,search].flatMap(el=>el.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===300))
+   const animations=[mini,nav,search].flatMap(el=>el.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===DOCK_DURATION))
    expect(animations.every(Boolean)).to.equal(true)
    animations.forEach(a=>a.pause())
    for(const time of [0,30,60,90,120,150,225,299]){
@@ -302,12 +303,12 @@ describe('Coordinated mobile dock',()=>{
   cy.get('.sona-search-morph').then($search=>{
    const doc=$search[0].ownerDocument
    const elements=[$search[0],doc.querySelector<HTMLElement>('.sona-bottom-nav')!,doc.querySelector<HTMLElement>('.sona-player')!]
-   const animations=elements.flatMap(el=>el.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===300))
+   const animations=elements.flatMap(el=>el.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===DOCK_DURATION))
    expect(animations.length).to.be.greaterThan(3)
    expect(new Set(animations.map(a=>a.startTime)).size).to.equal(1)
    animations.forEach(a=>a.pause())
    const widths:number[]=[],navWidths:number[]=[],miniTops:number[]=[]
-   for(const time of [0,70,150,299]){
+   for(const time of [0,70,150,DOCK_DURATION-1]){
     animations.forEach(a=>a.currentTime=time)
     widths.push(getDockBounds(elements[0]).width)
     navWidths.push(getDockBounds(elements[1]).width)

@@ -10,3 +10,9 @@ html[data-sona-album-morph="active"] .sona-mobile-album-cover { visibility: hidd
   .sona-album-loading .sona-mobile-album-artist > div,
   .sona-album-loading .sona-mobile-album-facts > div { height: 1.5em; }
 }
+
+@media(max-width:767px){
+ .sona-detail-black{position:fixed;inset:0;background:#000;z-index:1;}
+ .sona-album-page,.sona-artist-page{animation:sona-detail-content-in .28s ease-out both;}
+ @keyframes sona-detail-content-in{from{opacity:0}to{opacity:1}}
+}

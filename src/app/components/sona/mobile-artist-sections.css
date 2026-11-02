@@ -7,25 +7,41 @@
  .sona-mobile-artist-about{border-top:1px solid #ffffff24;padding:18px 0;}
  .sona-mobile-artist-about summary{font-size:17px;font-weight:700;cursor:pointer;}
  .sona-mobile-artist-sections h2{font-size:25px;font-weight:800;letter-spacing:-.04em;padding:0 20px;margin:24px 0 14px;}
- .sona-artist-popular-grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(4,64px);grid-auto-columns:min(80vw,330px);gap:4px 14px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;padding:0 20px;scrollbar-width:none;}
+ .sona-artist-popular-grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(4,56px);grid-auto-columns:min(80vw,330px);gap:4px 14px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;padding:0 20px;scrollbar-width:none;}
  .sona-artist-popular-grid::-webkit-scrollbar,.sona-artist-album-rail::-webkit-scrollbar{display:none;}
  .sona-artist-popular-song{display:flex;align-items:center;gap:10px;text-align:left;min-width:0;scroll-snap-align:start;color:#fff;}
- .sona-artist-popular-song .sona-artwork-shell{width:52px;height:52px;flex:none;border-radius:9px;overflow:hidden;}
+ .sona-artist-popular-song .sona-artwork-shell{width:45px;height:45px;flex:none;border-radius:7px;overflow:hidden;}
  .sona-artist-popular-song img{width:100%;height:100%;object-fit:cover;}
  .sona-artist-popular-song span:not(.sona-artwork-shell){min-width:0;display:grid;gap:2px;}
  .sona-artist-popular-song strong,.sona-artist-popular-song small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
- .sona-artist-popular-song strong{font-size:14px;font-weight:700;}.sona-artist-popular-song small{font-size:12px;color:#a7a7ac;}
+ .sona-artist-popular-song strong{font-size:13px;font-weight:650;}.sona-artist-popular-song small{font-size:12px;color:#949094;}
  .sona-artist-popular-song.is-playing strong{color:#ff4f87;}
  .sona-artist-album-rail{display:flex;gap:13px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;padding:0 20px;scrollbar-width:none;}
  .sona-artist-album-card{flex:0 0 150px;min-width:0;scroll-snap-align:start;color:#fff;text-decoration:none!important;}
  .sona-artist-album-card .sona-artwork-shell{display:block;width:100%;aspect-ratio:1;overflow:hidden;border-radius:12px;}
  .sona-artist-album-card img{width:100%;height:100%;object-fit:cover;}
  .sona-artist-album-card strong{display:block;font-size:13px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:7px;}
- .sona-artist-album-section.is-essential .sona-artist-album-card{flex-basis:min(68vw,310px);}
+ .sona-artist-album-section.is-essential .sona-artist-album-card{flex-basis:min(82vw,380px);}
  .sona-artist-album-section.is-essential .sona-artist-album-card strong{font-size:15px;}
- .sona-playing-bars{display:inline-flex!important;align-items:center;justify-content:center;gap:2px;color:#ff4e88;vertical-align:middle;flex:none;}
- .sona-playing-bars i{width:3px;height:45%;border-radius:2px;background:currentColor;animation:sona-playing-bar .7s ease-in-out infinite alternate;}
- .sona-playing-bars i:nth-child(2){animation-delay:-.3s}.sona-playing-bars i:nth-child(3){animation-delay:-.5s}.sona-playing-bars i:nth-child(4){animation-delay:-.15s}
- @keyframes sona-playing-bar{from{height:20%}to{height:85%}}
  .sona-album-song-row.is-playing .sona-album-song-title,.sona-am-search-row.is-playing .sona-am-result-copy strong{color:#ff4e88!important;transition:color .2s ease;}
+}
+
+@media(max-width:767px){
+ .sona-artist-popular-song{gap:0;}
+ .sona-artist-popular-song .sona-section-song-target{min-width:0;flex:1;}
+ .sona-artist-popular-song>.sona-section-song-more{flex:none;}
+ .sona-artist-popular-song .sona-section-song-label{flex:1;}
+ .sona-playing-bars{animation:sona-playing-reveal .18s ease both;}
+ @keyframes sona-playing-reveal{from{opacity:0}to{opacity:1}}
+}
+@media(max-width:767px){
+ .sona-artist-popular-grid>.sona-am-search-row{margin:0;min-width:0;}
+ .sona-artist-popular-grid .sona-am-result-info{padding:6px 0;}
+ .sona-artist-popular-grid .sona-am-result-art{width:48px;height:48px;}
+ .sona-artist-popular-grid .sona-am-result-copy{min-width:0;}
+ .sona-artist-popular-grid .sona-am-result-copy strong{font-size:14px;}
+ .sona-artist-popular-grid .sona-am-result-copy small{font-size:12px;}
+}
+@media(max-width:767px){
+ .sona-artist-popular-grid,.sona-artist-album-rail{scroll-padding-inline:20px;}
 }

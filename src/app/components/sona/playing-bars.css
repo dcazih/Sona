@@ -1,0 +1,17 @@
+
+.sona-playing-bars{display:inline-flex;align-items:center;justify-content:center;gap:2px;color:#ff4e88;vertical-align:middle;flex:none;animation:sona-playing-reveal .18s ease both;}
+.sona-playing-bars i{width:3px;height:45%;border-radius:2px;background:currentColor;animation:sona-playing-bar .7s ease-in-out infinite alternate;}
+.sona-playing-bars i:nth-child(2){animation-delay:-.3s}.sona-playing-bars i:nth-child(3){animation-delay:-.5s}.sona-playing-bars i:nth-child(4){animation-delay:-.15s}
+@keyframes sona-playing-bar{from{height:20%}to{height:85%}}
+@keyframes sona-playing-reveal{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.sona-playing-bars,.sona-playing-bars i{animation:none;}}
+
+.sona-playing-bars[data-playing="false"] i{animation-play-state:paused;}
+.sona-playback-indicator{display:inline-grid;place-items:center;}
+.sona-playback-indicator>svg,.sona-playback-indicator>.sona-playing-bars{grid-area:1/1;transition:opacity .16s ease;}
+.sona-playback-indicator>.sona-playing-bars{opacity:0;animation:none;}
+.sona-playback-indicator.is-active>svg{opacity:0;}
+.sona-playback-indicator.is-active>.sona-playing-bars{opacity:1;}
+.sona-am-result-copy strong,.sona-album-song-title{transition:color .2s ease;}
+
+.sona-album-song-row.is-playing .sona-album-song-title,.sona-am-search-row.is-playing .sona-am-result-copy strong{color:#ff4e88!important;}

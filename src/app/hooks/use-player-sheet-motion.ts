@@ -31,8 +31,8 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     const { x, sx, sy } = dragShape.current
     sheet.style.transform = `translate3d(${x}px,${distance.current}px,0) scale(${sx},${sy})`
     if (dragBackground.current) {
-      const blend = Math.min(1, distance.current / (dragShape.current.height * .7))
-      dragBackground.current.style.opacity = '1'
+      const blend = Math.min(1, (1 - Math.exp(-distance.current / 32)))
+      dragBackground.current.style.opacity = String(1 - blend)
       const glass = ref.current?.querySelector<HTMLElement>('.sona-now-glass')
       if (glass) glass.style.opacity = String(blend)
     }
@@ -78,7 +78,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       '.sona-player[data-mobile-active="true"]',
     )
     const target = mini ? getDockBounds(mini) : undefined
-    if (expand) document.documentElement.dataset.sonaPlayerProgress = 'hidden'
+    if (expand) { document.documentElement.dataset.sonaPlayerProgress = 'hidden'; delete document.documentElement.dataset.sonaPlayerSettling }
     if (!width || !height) return
     const sx = Math.max(0.01, (target?.layoutWidth || width - 24) / width)
     const sy = Math.max(0.01, (target?.layoutHeight || 50) / height)
@@ -119,7 +119,8 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     const reduced = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     ).matches
-    const duration = reduced ? 0 : expand ? 600 : 740
+    const duration = reduced ? 0 : expand ? 600 : 690
+    if (!expand) document.documentElement.dataset.sonaPlayerSettling = 'true'
     const easing = expand ? OPEN_EASE : CLOSE_EASE
     const extraAnimations: Animation[] = []
     let reboundTimer = 0
@@ -174,6 +175,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       ghostImage.removeAttribute('class')
       if (ghostImage instanceof HTMLImageElement) {
         ghostImage.loading = 'eager'
+        ghostImage.decoding = 'sync'
         ghostImage.alt = ''
       } else
         Object.assign(ghost.style, {
@@ -267,7 +269,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
                   { transform: 'translate3d(0,42px,0)', opacity: 0 },
                 ],
           {
-            duration: expand ? 570 : 120,
+            duration: expand ? 570 : 70,
             delay: expand && wasClosed ? 45 : 0,
             easing: OPEN_EASE,
             fill: 'both',
@@ -281,12 +283,12 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
         const moving = [mini, sheet, ...(coverGhost.current ? [coverGhost.current] : [])]
         rebounds = moving.map(node => node.animate(
           [{ translate: '0 0' }, { translate: '0 4px', offset: .5 }, { translate: '0 0' }],
-          { duration: duration * .2, easing: 'cubic-bezier(.37,0,.25,1)', composite: 'add' },
+          { duration: duration * .1, easing: 'cubic-bezier(.37,0,.25,1)', composite: 'add' },
         ))
         Promise.all(rebounds.map(item => item.finished)).then(() => {
           delete mini.dataset.sonaRebound
         }).catch(() => {})
-      }, duration * .5)
+      }, duration * .7)
     }
     const cleanupFlight = () => {
       detailFlight?.cleanup()
@@ -351,10 +353,10 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
               ...(surface === glass
                 ? {
                     opacity: expand
-                      ? lerp(glassOpacity, 0, Math.min(1, frame.offset / .55))
-                      : lerp(glassOpacity, 1, Math.min(1, frame.offset / .55)),
+                      ? lerp(glassOpacity, 0, Math.min(1, frame.offset / .22))
+                      : lerp(glassOpacity, 1, Math.min(1, frame.offset / .22)),
                   }
-                : {}),
+                : surface === background ? { opacity: expand ? Math.min(1, frame.offset / .22) : lerp(Number(getComputedStyle(background!).opacity), 0, Math.min(1, frame.offset / .22)) } : {}),
             }
           }),
           { duration, easing: 'linear', fill: 'both' },
@@ -365,7 +367,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     if (capsule && !expand)
       extraAnimations.push(
         capsule.animate([{ opacity: 1 }, { opacity: 0 }], {
-          duration: 80,
+          duration: 30,
           fill: 'both',
         }),
       )
@@ -390,6 +392,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       anim.cancel()
       distance.current = 0
       if (!expand) {
+        delete document.documentElement.dataset.sonaPlayerSettling
         if (reduced) document.documentElement.dataset.sonaPlayerProgress = 'returning'
         onClosedRef.current?.()
       }
@@ -412,7 +415,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
         ]
         const fades = landing.map((node) =>
           node.animate([{ opacity: getComputedStyle(node).opacity }, { opacity: 0 }], {
-            duration: 2000,
+            duration: 1950,
             easing: 'ease-out',
             fill: 'both',
           }),
@@ -426,6 +429,17 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
   }
 
   useLayoutEffect(() => {
+    const blockPress = (event: Event) => {
+      if (document.documentElement.dataset.sonaPlayerSettling !== 'true') return
+      event.preventDefault()
+      event.stopImmediatePropagation()
+    }
+    const events = ['pointerdown', 'pointerup', 'click', 'touchstart', 'keydown']
+    events.forEach(type => document.addEventListener(type, blockPress, { capture: true, passive: false }))
+    return () => events.forEach(type => document.removeEventListener(type, blockPress, true))
+  }, [])
+
+  useLayoutEffect(() => {
     if (!open && !initialized.current) {
       if (ref.current) ref.current.dataset.phase = 'closed'
     } else run(open)
@@ -437,6 +451,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       cancelAnimationFrame(frame.current)
       animation.current?.cancel()
       cleanupExtras.current()
+      delete document.documentElement.dataset.sonaPlayerSettling
       initialized.current = false
       if (ref.current) ref.current.dataset.phase = 'closed'
     },

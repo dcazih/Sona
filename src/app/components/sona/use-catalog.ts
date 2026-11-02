@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { catalogFetch, catalogGet, catalogProfile, type RequestStatus } from '@/service/sona-catalog'
@@ -5,12 +6,15 @@ import { catalogFetch, catalogGet, catalogProfile, type RequestStatus } from '@/
 /** Live events invalidate metadata availability; downloads alone never unlock playback. */
 export function useCatalogRequests() {
   const client = useQueryClient(), profile = catalogProfile()
+  const pathname = useLocation().pathname
+  const active = pathname === '/mobile-search' || pathname.startsWith('/catalog/')
   const query = useQuery({
-    queryKey: ['sona-requests', profile],
+    queryKey: ['sona-requests', profile], enabled: active,
     queryFn: ({ signal }) => catalogGet<{ requests: RequestStatus[] }>('requests/live-status', signal),
     staleTime: 3000, refetchInterval: 10000, retry: 1,
   })
   useEffect(() => {
+    if (!active) return
     const controller = new AbortController()
     let timer: ReturnType<typeof setTimeout> | undefined
     let refreshedAt = 0
@@ -63,6 +67,6 @@ export function useCatalogRequests() {
     void connect()
     window.addEventListener('sona:requests-changed', refresh)
     return () => { controller.abort(); clearTimeout(timer); clearTimeout(reconnect); window.removeEventListener('sona:requests-changed', refresh) }
-  }, [client, profile])
+  }, [client, profile, active])
   return query
 }

@@ -43,10 +43,10 @@ export default function Artist() {
   const { data: topSongs, isLoading: topSongsIsLoading } = useGetTopSongs(
     artist?.name,
   )
-  const showBlack = useMobileDetailReveal(artistId, artistIsLoading)
+  const showBlack = useMobileDetailReveal(artistId, artistIsLoading || (mobile && topSongsIsLoading))
 
   if (showBlack && mobile) return <div className="sona-detail-black" aria-label="Loading artist" />
-  if (artistIsLoading)
+  if (artistIsLoading || (mobile && topSongsIsLoading))
     return mobile ? <MobileArtistLoading /> : <AlbumFallback />
   if (isFetched && !artist) {
     return <ErrorPage status={404} statusText="Not Found" />
@@ -131,7 +131,7 @@ export default function Artist() {
           />
         )}
 
-        {artistInfoIsLoading && <PreviewListFallback />}
+        {!mobile && artistInfoIsLoading && <PreviewListFallback />}
         {artistInfo?.similarArtist && !artistInfoIsLoading && (
           <RelatedArtistsList
             title={t('artist.relatedArtists')}

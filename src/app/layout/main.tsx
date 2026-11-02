@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type ReactNode } from 'react'
+import { Component, useLayoutEffect, useRef, type ReactNode } from 'react'
 import { useOutlet, useLocation } from 'react-router-dom'
 import { useIsMobile } from '@/app/hooks/use-mobile'
 import { ScrollArea } from '@/app/components/ui/scroll-area'
@@ -9,12 +9,29 @@ import { getMainScrollElement } from '@/utils/scrollPageToTop'
 // Home, New, Request, Library and Search, including their nested pages.
 const scrollPositions = new Map<string, number>()
 
+/** Capture before React hides the old route and the browser clamps its viewport. */
+class RouteScrollSnapshot extends Component<{ route: string; children: ReactNode }> {
+  getSnapshotBeforeUpdate(previous: Readonly<{ route: string; children: ReactNode }>) {
+    if (previous.route !== this.props.route) {
+      const viewport = getMainScrollElement()
+      if (viewport) scrollPositions.set(previous.route, viewport.scrollTop)
+    }
+    return null
+  }
+  componentDidUpdate() {}
+  render() { return this.props.children }
+}
+
 export function MainRoutes() {
   const { pathname, search } = useLocation()
   const route = pathname + search
+  const activeRoute = useRef(route)
+  activeRoute.current = route
   const outlet = useOutlet()
   const mobile = useIsMobile()
   const home = useRef<ReactNode>(null)
+  const cachedSearch = useRef<ReactNode>(null)
+  if (mobile && pathname === '/mobile-search') cachedSearch.current = outlet
   if (mobile && pathname === '/') home.current = outlet
 
   useLayoutEffect(() => {
@@ -25,6 +42,7 @@ export function MainRoutes() {
       pathname.startsWith('/catalog/') ||
       /^\/library\/albums\/[^/]+$/.test(pathname)
     const saved = resetOnEntry ? 0 : scrollPositions.get(route) || 0
+    let lastTop = saved
     let restoring = saved > 0
     let touched = false
     let frame = 0
@@ -40,7 +58,7 @@ export function MainRoutes() {
     }
 
     const remember = () => {
-      if (!restoring) scrollPositions.set(route, viewport.scrollTop)
+      if (activeRoute.current === route && !restoring) { lastTop = viewport.scrollTop; scrollPositions.set(route, lastTop) }
     }
     const stopRestore = () => {
       touched = true
@@ -62,7 +80,6 @@ export function MainRoutes() {
     viewport.addEventListener('touchstart', stopRestore, { passive: true })
     viewport.addEventListener('wheel', stopRestore, { passive: true })
     return () => {
-      scrollPositions.set(route, restoring ? saved : viewport.scrollTop)
       cancelAnimationFrame(frame)
       observer?.disconnect()
       viewport.removeEventListener('scroll', remember)
@@ -72,7 +89,7 @@ export function MainRoutes() {
   }, [route])
 
   return (
-    <main className="flex h-full">
+    <RouteScrollSnapshot route={route}><main className="flex h-full">
       <ScrollArea
         id="main-scroll-area"
         className="w-full bg-background-foreground"
@@ -100,13 +117,18 @@ export function MainRoutes() {
             >
               {home.current}
             </div>
-            {pathname !== '/' && outlet}
+            <div data-sona-cached-search aria-hidden={pathname !== '/mobile-search'}
+              ref={node => { if (node) node.inert = pathname !== '/mobile-search' }}
+              style={pathname === '/mobile-search' ? { position: 'relative', width: '100%' } : { position: 'absolute', width: '100%', height: 0, overflow: 'hidden', visibility: 'hidden', pointerEvents: 'none' }}>
+              {cachedSearch.current}
+            </div>
+            {pathname !== '/' && pathname !== '/mobile-search' && outlet}
           </>
         ) : (
           outlet
         )}
       </ScrollArea>
       <SonaImplicitRefresh />
-    </main>
+    </main></RouteScrollSnapshot>
   )
 }

@@ -5,7 +5,11 @@ import { ROUTES } from '@/routes/routesList'
 import { usePlayerActions, usePlayerCurrentSong } from '@/store/player.store'
 import type { Albums } from '@/types/responses/album'
 import type { ISong } from '@/types/responses/song'
-import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
+import { PlayingBars } from './playing-bars'
+import { SongExplicitMark } from './song-explicit-mark'
+import { Ellipsis } from 'lucide-react'
+import { SongMenuOptions } from '@/app/components/song/menu-options'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/app/components/ui/dropdown-menu'
 import './mobile-artist-sections.css'
 
 function AlbumRail({ title, albums, large = false }: { title: string; albums: Albums[]; large?: boolean }) {
@@ -36,12 +40,14 @@ export function SonaMobileArtistSections({ artistId, artistName, songs, albums }
     {popular.length > 0 && <section className="sona-artist-popular">
       <h2>Popular</h2>
       <div className="sona-artist-popular-grid">
-        {popular.map((song, index) => <button type="button" key={song.id} className={'sona-artist-popular-song' + (song.id === currentSong?.id ? ' is-playing' : '')}
-          onClick={() => setSongList(popular, index, false, { id: artistId, name: artistName, type: 'artist' })}>
-          <ImageLoader id={song.coverArt} type="song" size={110}>{src => <ArtworkImage src={src} alt="" loading="eager" />}</ImageLoader>
-          <span><strong>{song.title}</strong><small>{song.artist}</small></span>
-          {song.id === currentSong?.id && <SonaNoteGlyph size={18} />}
-        </button>)}
+        {popular.map((song, index) => <div key={song.id} className={'sona-section-song-row sona-artist-popular-song' + (song.id === currentSong?.id ? ' is-playing' : '')}>
+          <button type="button" className="sona-section-song-target" onClick={() => setSongList(popular, index, false, { id: artistId, name: artistName, type: 'artist' })}>
+            <ImageLoader id={song.coverArt} type="song" size={110}>{src => <ArtworkImage src={src} alt="" loading="eager" />}</ImageLoader>
+            <span className="sona-section-song-label"><strong>{song.title}<SongExplicitMark song={song}/></strong><small>{song.artist}</small></span>
+            {song.id === currentSong?.id && <PlayingBars size={18}/>}
+          </button>
+          <DropdownMenu><DropdownMenuTrigger asChild><button className="sona-section-song-more" aria-label={'Options for ' + song.title}><Ellipsis size={24}/></button></DropdownMenuTrigger><DropdownMenuContent align="end"><SongMenuOptions variant="dropdown" song={song} index={index}/></DropdownMenuContent></DropdownMenu>
+        </div>)}
       </div>
     </section>}
     <AlbumRail title="Essential Albums" albums={essential} large />

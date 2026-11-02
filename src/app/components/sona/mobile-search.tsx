@@ -2,17 +2,17 @@ import { CatalogResults } from './catalog-results'
 import { requestCatalogItem } from '@/service/sona-catalog'
 import { toast } from 'react-toastify'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { ArrowRight, ChevronRight, Play, Search } from 'lucide-react'
+import { ArrowRight, ChevronRight, Search } from 'lucide-react'
 import { SongExplicitMark } from './song-explicit-mark'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { ArtworkImage } from '@/app/components/artwork-image'
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
 import { ROUTES } from '@/routes/routesList'
 import { subsonic } from '@/service/subsonic'
 import { usePlayerActions, usePlayerCurrentSong } from '@/store/player.store'
-import { PlayingBars } from './playing-bars'
+import { PlaybackIndicator } from './playing-bars'
 import { useAppStore } from '@/store/app.store'
 import { DISCOVER_ARTISTS, DISCOVER_PHOTOS, DISCOVER_FOCAL_POINTS, matchingGenre, rankDiscoverOnceDaily } from './search-discovery'
 import { useSonaSearch, type SearchFilter } from './search-state'
@@ -56,6 +56,7 @@ function loadRecents(): RecentItem[] {
 export default function SonaMobileSearch() {
   useEffect(preloadGenreImages, [])
   const navigate = useNavigate()
+  const visible = useLocation().pathname === '/mobile-search'
   const discoveryProfile = useAppStore(state=>state.data.url+'|'+state.data.username)
   const [discoveryDay,setDiscoveryDay] = useState(()=>new Date().toDateString())
   const term = useSonaSearch((state) => state.term)
@@ -66,7 +67,7 @@ export default function SonaMobileSearch() {
   const setFocused = useSonaSearch((state) => state.setFocused)
   const filter = useSonaSearch((state) => state.filter)
   const setFilter = useSonaSearch((state) => state.setFilter)
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(() => term.trim())
   const [recent, setRecent] = useState<RecentItem[]>(loadRecents)
   const [errorMessage, setErrorMessage] = useState('')
   const [searchScope, setSearchScope] = useState<SearchScope>(lastSearchScope)
@@ -166,7 +167,7 @@ export default function SonaMobileSearch() {
   const { data: searchData, isFetching, isError } = useQuery({
     queryKey: ['sona-mobile-search-v2', discoveryProfile, query],
     queryFn: () => subsonic.search.get({ query, albumCount: 35, artistCount: 35, songCount: 60 }),
-    enabled: query.length >= 2,
+    enabled: visible && query.length >= 2,
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
     placeholderData: keepPreviousData,
@@ -305,7 +306,7 @@ export default function SonaMobileSearch() {
           </span>
           {!onPlay && <ChevronRight size={20} className="sona-am-row-chevron"/>}
         </button>
-        {onPlay && <button type="button" className="sona-am-result-play" aria-label={'Play ' + item.title} onClick={onPlay}>{item.id === currentSong?.id ? <PlayingBars size={18}/> : <Play size={16} fill="currentColor"/>}</button>}
+        {onPlay && <button type="button" className="sona-am-result-play" aria-label={'Play ' + item.title} onClick={onPlay}><PlaybackIndicator active={item.id === currentSong?.id}/></button>}
       </div>
     )
   }
@@ -330,7 +331,7 @@ export default function SonaMobileSearch() {
                   onClick={()=>openCategory(category)}
                   style={{'--sona-category-color':category.color,'--sona-category-position':DISCOVER_FOCAL_POINTS[category.id] || 'center 10%'} as CSSProperties}>
                   <span className="sona-am-genre-art" aria-hidden="true">
-                    <img src={category.photoUrl} alt={category.artist} className="sona-am-category-photo"
+                    <ArtworkImage src={category.photoUrl} alt={category.artist} className="sona-am-category-photo"
                       loading={index < 6 ? 'eager' : 'lazy'} decoding="async"/>
                   </span>
                   <span className="sona-am-category-label">{category.title}</span>

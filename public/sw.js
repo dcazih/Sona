@@ -1,6 +1,6 @@
 /* Sona service worker: network-first application updates, opt-in audio cache.
    Previous cache-first JS/CSS/favicon policy could freeze old branding/UI. */
-const APP_CACHE = 'sona-app-v34'
+const APP_CACHE = 'sona-app-v35'
 const ARTWORK_CACHE = 'sona-artwork-v5'
 let artworkWrites = 0
 const MEDIA_CACHE = 'sona-media-v1'
@@ -47,7 +47,7 @@ self.addEventListener('fetch', (event) => {
           await cache.put(request, response.clone())
           if (++artworkWrites % 32 === 0) {
             const keys = await cache.keys()
-            await Promise.all(keys.slice(0, Math.max(0, keys.length - 1600)).map(key => cache.delete(key)))
+            await Promise.all(keys.slice(0, Math.max(0, keys.length - 3200)).map(key => cache.delete(key)))
           }
         })().catch(() => {}))
       }

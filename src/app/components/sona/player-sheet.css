@@ -92,7 +92,7 @@
 
 @media(max-width:767px){
  .sona-now-overlay{background:transparent!important;}
- .sona-now-background{z-index:-2!important;opacity:1!important;}
+ .sona-now-background{z-index:-2!important;opacity:1;}
  .sona-now-glass{position:absolute;z-index:-1;inset:0;pointer-events:none;background:rgba(29,29,33,.75);opacity:0;backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);transform-origin:0 0;}
 }
 .sona-player-detail-flight{position:fixed;left:0;top:0;z-index:252;pointer-events:none;transform-origin:0 0;will-change:transform;}
@@ -106,4 +106,10 @@
  .sona-now-overlay .sona-now-art{border-radius:20px!important;}
  .sona-now-overlay .sona-now-art:not(.is-playing){transform:scale(.84);}
  .sona-now-overlay .sona-now-art.is-playing{transform:scale(1.04);}
+}
+
+@media(max-width:767px){
+ .sona-now-overlay{background:rgba(29,29,33,.75)!important;backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);}
+ .sona-now-overlay[data-phase="open"],.sona-now-overlay[data-phase="opening"]{backdrop-filter:none;-webkit-backdrop-filter:none;}
+ .sona-now-glass{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
 }

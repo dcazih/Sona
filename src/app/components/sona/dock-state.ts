@@ -22,11 +22,12 @@ interface DockState {
   setCompact: (compact: boolean) => void
   setReturnRoute: (route: string) => void
 }
-export const useSonaDock = create<DockState>((set) => ({
+export const useSonaDock = create<DockState>((set, get) => ({
   selected: savedTab(),
   compact: false,
   returnRoute: '/',
   select: (index) => {
+    if (get().selected === index) return
     try {
       sessionStorage.setItem('sona-active-tab', String(index))
     } catch {}
@@ -34,5 +35,5 @@ export const useSonaDock = create<DockState>((set) => ({
   },
   setCompact: (compact) =>
     set((state) => (state.compact === compact ? state : { compact })),
-  setReturnRoute: (returnRoute) => set({ returnRoute }),
+  setReturnRoute: (returnRoute) => set(state => state.returnRoute === returnRoute ? state : { returnRoute }),
 }))

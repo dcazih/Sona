@@ -1,3 +1,6 @@
+import { useLocation } from 'react-router-dom'
+import type { ReactNode } from 'react'
+import { useMobileDetailReveal } from '@/app/hooks/use-mobile-detail-reveal'
 import { useIsMobile } from '@/app/hooks/use-mobile'
 import './album-loading.css'
 import { ImageHeaderEffect } from '@/app/components/album/header-effect'
@@ -109,7 +112,6 @@ export function MobileAlbumLoading() {
               <div className="sona-album-song-row" key={index}>
                 <span className="sona-album-song-index"><Skeleton className="h-3 w-3" /></span>
                 <div className="sona-album-song-main"><Skeleton className="h-[14px] w-3/4" /></div>
-                <span className="sona-album-song-duration"><Skeleton className="h-3 w-7" /></span>
                 <div className="sona-album-song-more"><Skeleton className="h-2 w-4" /></div>
               </div>
             ))}
@@ -119,4 +121,10 @@ export function MobileAlbumLoading() {
       <span className="sr-only">Loading album</span>
     </div>
   )
+}
+
+export function ColdDetailFallback({ children }: { children: ReactNode }) {
+  const mobile = useIsMobile()
+  const black = useMobileDetailReveal(useLocation().pathname, true)
+  return mobile && black ? <div className="sona-detail-black" style={{ position:'fixed', inset:0, background:'#000', zIndex:1 }} aria-label="Loading music"/> : <>{children}</>
 }

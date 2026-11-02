@@ -370,6 +370,7 @@ export function SonaMobileNowPlaying() {
                         {(src) => (
                           <ArtworkImage
                             src={src}
+                            crossOrigin="anonymous"
                             alt={song?.title || 'Album artwork'}
                           />
                         )}

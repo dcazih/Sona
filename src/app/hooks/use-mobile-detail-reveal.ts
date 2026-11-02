@@ -1,14 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 
-/** A cold detail route stays black briefly; ready data is never delayed. */
+/** Each cold entity gets its own black interval; cached data opens immediately. */
 export function useMobileDetailReveal(key: string, loading: boolean) {
-  const [blackDone, setBlackDone] = useState(false)
-  const initialKey = useRef(key)
-  const initiallyLoading = useRef(loading)
-  useEffect(() => {
-    if (!initiallyLoading.current) return
-    const timer = window.setTimeout(() => setBlackDone(true), 3000)
+  const [elapsed, setElapsed] = useState<string | null>(null)
+  useLayoutEffect(() => {
+    setElapsed(null)
+    if (!loading) return
+    const timer = window.setTimeout(() => setElapsed(key), 3000)
     return () => window.clearTimeout(timer)
-  }, [])
-  return loading && initiallyLoading.current && !blackDone && initialKey.current === key
+  }, [key, loading])
+  return loading && elapsed !== key
 }

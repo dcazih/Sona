@@ -1,3 +1,4 @@
+import { useMobileDetailReveal } from '@/app/hooks/use-mobile-detail-reveal'
 import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
 import { Play, Shuffle } from 'lucide-react'
@@ -30,6 +31,8 @@ export default function SonaCatalogAlbum() {
   const result = useQuery({ queryKey: ['sona-catalog-album', profile, albumId],
     queryFn: ({ signal }) => catalogGet<CatalogAlbum>('sona/albums/' + encodeURIComponent(albumId), signal),
     staleTime: 15000, refetchInterval: 10000, retry: 1 })
+  const black = useMobileDetailReveal(albumId, result.isPending)
+  if (black) return <div className="sona-detail-black" aria-label="Loading album"/>
   if (!result.data) return result.isError ? <p className="sona-catalog-message" role="alert">{result.error.message} <button onClick={() => void result.refetch()}>Try again</button></p> : <AlbumFallback/>
   const album = result.data, statuses = requests.data?.requests || []
   const status = statuses.find(row => row.kind === 'album' && row.mbid === album.id)

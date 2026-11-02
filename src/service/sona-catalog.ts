@@ -6,7 +6,7 @@ import type { SingleAlbum } from '@/types/responses/album'
 export type CatalogItem = {
   id: string; kind: 'song' | 'album' | 'artist'; title: string; artist: string
   album?: string; albumId?: string; cover?: string; year?: number; duration?: number
-  track?: number; requestable?: boolean; localSong?: ISong | null
+  releaseType?: string; track?: number; requestable?: boolean; localSong?: ISong | null
 }
 export type CatalogAlbum = CatalogItem & { tracks: CatalogItem[]; localAlbum?: SingleAlbum | null }
 export type RequestStatus = { kind: 'track' | 'album'; id: string; mbid: string; state: string; text: string }

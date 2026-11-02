@@ -3,6 +3,7 @@ import { createHashRouter } from 'react-router-dom'
 
 import {
   AlbumFallback,
+  ColdDetailFallback,
   AlbumsFallback,
 } from '@/app/components/fallbacks/album-fallbacks'
 import { ArtistDetailFallback, ArtistsFallback } from '@/app/components/fallbacks/artists.tsx'
@@ -104,7 +105,7 @@ export const router = createHashRouter([
           </Suspense>
         ),
       },
-      { path: '/catalog/albums/:albumId', element: <Suspense fallback={<AlbumFallback/>}><CatalogAlbum/></Suspense>, errorElement: <ErrorPage/> },
+      { path: '/catalog/albums/:albumId', element: <Suspense fallback={<ColdDetailFallback><AlbumFallback/></ColdDetailFallback>}><CatalogAlbum/></Suspense>, errorElement: <ErrorPage/> },
       { path: '/catalog/artists/:artistId', element: <Suspense fallback={<ArtistsFallback/>}><CatalogArtist/></Suspense>, errorElement: <ErrorPage/> },
       {
         id: 'sona-downloads',
@@ -197,7 +198,7 @@ export const router = createHashRouter([
         path: ROUTES.ARTIST.PATH,
         errorElement: <ErrorPage />,
         element: (
-          <Suspense fallback={<ArtistDetailFallback />}>
+          <Suspense fallback={<ColdDetailFallback><ArtistDetailFallback /></ColdDetailFallback>}>
             <Artist />
           </Suspense>
         ),
@@ -207,7 +208,7 @@ export const router = createHashRouter([
         path: ROUTES.ALBUM.PATH,
         errorElement: <ErrorPage />,
         element: (
-          <Suspense fallback={<AlbumFallback />}>
+          <Suspense fallback={<ColdDetailFallback><AlbumFallback /></ColdDetailFallback>}>
             <Album />
           </Suspense>
         ),

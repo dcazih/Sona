@@ -40,7 +40,11 @@ type Swipe = {
 export function SonaMobileNavigation() {
   const navigate = useNavigate()
   const { pathname, search, state: routeState } = useLocation()
-  const isSearch = pathname === '/mobile-search'
+  const isSearchPage = pathname === '/mobile-search'
+  const searchStack = useRef(false)
+  if (isSearchPage || routeState?.sonaOpenedFromSearch) searchStack.current = true
+  else if (tabRoots.some(root => root === pathname)) searchStack.current = false
+  const isSearch = isSearchPage || searchStack.current
   const inputRef = useRef<HTMLInputElement>(null)
   const navRef = useRef<HTMLElement>(null)
   const swipeRef = useRef<Swipe | null>(null)
@@ -186,7 +190,7 @@ export function SonaMobileNavigation() {
   }, [selectedIndex])
   useEffect(() => () => cancelAnimationFrame(dragFrame.current), [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (window.innerWidth >= 768 || (isStandalonePwa() && !isSearch)) return
     const root = document.documentElement
     const tabColor = '#000000'
@@ -566,6 +570,7 @@ export function SonaMobileNavigation() {
                 })
                 return
               }
+              if (!isSearchPage) navigate('/mobile-search', { flushSync: true })
               setEngaged(true)
               inputRef.current?.focus({ preventScroll: true })
             }}
@@ -596,6 +601,7 @@ export function SonaMobileNavigation() {
                 }
               }}
               onFocus={() => {
+                if (!isSearchPage) navigate('/mobile-search', { flushSync: true })
                 setEngaged(true)
                 setKeyboardVisible(false)
                 setFocused(true)
@@ -629,6 +635,7 @@ export function SonaMobileNavigation() {
           onPointerDown={(event) => event.preventDefault()}
           onClick={() => {
             inputRef.current?.blur()
+            if (!isSearchPage) navigate('/mobile-search', { replace: true, flushSync: true })
             setTerm('')
             setEngaged(false)
             setFocused(false)

@@ -1,3 +1,4 @@
+import { DOCK_DURATION } from './use-dock-morph'
 import {getDockBounds} from './dock-bounds'
 import { Player } from '@/app/components/player/player'
 import { SonaMobileNavigation } from './mobile-navigation'
@@ -106,13 +107,13 @@ describe('Dock material and stable contents',()=>{
   cy.then(()=>useSonaDock.setState({compact:true}))
   cy.get('html').should('have.attr','data-sona-dock','compact')
   cy.get('.sona-player').should($mini=>expect(getDockBounds($mini[0]).width).to.be.closeTo(254,1))
-  cy.get('.sona-player').should($mini=>expect($mini[0].getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===300).some(a=>a.playState==='running')).to.equal(false))
+  cy.get('.sona-player').should($mini=>expect($mini[0].getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===DOCK_DURATION).some(a=>a.playState==='running')).to.equal(false))
   cy.get('[aria-label="Expand Sona navigation"]').click()
   cy.get('.sona-player').then($mini=>{
-   const mini=$mini[0],animations=mini.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===300)
+   const mini=$mini[0],animations=mini.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===DOCK_DURATION)
    animations.forEach(a=>a.pause())
    const sizes:number[]=[]
-   for(const time of Array.from({length:61},(_,i)=>i*5)){
+   for(const time of Array.from({length:61},(_,i)=>i*DOCK_DURATION/60)){
     animations.forEach(a=>a.currentTime=time)
     const art=mini.querySelector('.sona-player-cover')!.getBoundingClientRect()
     expect(art.width).to.be.closeTo(27,.001);expect(art.height).to.be.closeTo(27,.001)
@@ -169,7 +170,12 @@ describe('Dock material and stable contents',()=>{
    expect(icon.top+icon.height/2).to.be.closeTo(mini.top+mini.height/2,1)
    const button=$svg[0].closest('button')!
    const gradient=getComputedStyle(button,'::before')
-   expect(parseFloat(gradient.width)).to.be.closeTo(button.getBoundingClientRect().width/3,1)
+   expect(gradient.display).to.equal('none')
+   const copy=button.closest('.sona-player')!.querySelector<HTMLElement>('.sona-mini-copy')!
+   const bounds=copy.getBoundingClientRect()
+   expect(getComputedStyle(copy).maskImage).to.contain('linear-gradient')
+   expect(bounds.top).to.be.at.most(mini.top)
+   expect(bounds.bottom).to.be.at.least(mini.bottom)
   })
  })
 
