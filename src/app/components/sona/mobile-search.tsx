@@ -184,7 +184,9 @@ export default function SonaMobileSearch() {
     return rankDiscoverOnceDaily(discoveryProfile,popular,recent,available).map(category=>({
       ...category,
       matchedGenre:matchingGenre(category,available),
-      albumArt:categoryPhoto(category,popular,used),
+      // Prefer frequently played artwork; fill missing genre cards from recently added albums.
+      // Neither source substitutes unrelated album art for a specific genre.
+      albumArt:categoryPhoto(category,[...popular,...recent],used),
       photoUrl:DISCOVER_PHOTOS[category.photo],
     }))
   },[discoveryProfile,discoveryDay,genres,frequentAlbums,recentAlbums])
