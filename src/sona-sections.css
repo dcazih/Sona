@@ -448,3 +448,15 @@
    border:0!important;border-radius:999px!important
  }
 }
+
+@media(max-width:767px){
+ .sona-section-star-toggle{position:relative!important;cursor:pointer!important}
+ .sona-section-star-toggle>input[type="checkbox"]{
+   position:absolute!important;inset:0!important;
+   width:100%!important;height:100%!important;margin:0!important;
+   opacity:.001!important;cursor:pointer!important;z-index:2!important
+ }
+ .sona-section-star-toggle:has(input:focus-visible){
+   outline:2px solid #ff486d!important;border-radius:9px!important
+ }
+}

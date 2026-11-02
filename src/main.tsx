@@ -23,8 +23,10 @@ import { queryClient } from '@/lib/queryClient'
 import { useAppStore } from '@/store/app.store'
 import { useSonaWebSettings } from '@/store/sona-web-settings.store'
 import { blockFeatures } from '@/utils/browser'
+import { installSonaDeviceHint } from '@/utils/sona-device'
 
 blockFeatures()
+installSonaDeviceHint()
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').then((registration) => {

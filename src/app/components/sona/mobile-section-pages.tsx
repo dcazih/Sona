@@ -261,10 +261,14 @@ export function SonaPlaylistsList(){
    <Link className="sona-section-playlist-tile" to={ROUTES.PLAYLIST.PAGE(p.id)} key={p.id}><SectionArt id={p.coverArt} name={p.name}/><span>{p.name}</span></Link>)}</div>:
    <div className="sona-section-playlist-list">{shown.map(p=>
     <div className="sona-section-playlist-row" key={p.id}>
-     <button type="button" className={'sona-section-star-toggle'+(favoriteIds.has(p.id)?' is-starred':'')}
-      aria-label={(favoriteIds.has(p.id)?'Unfavorite ':'Favorite ')+p.name} onClick={()=>toggleFavorite(p.id)}>
-      <Star size={18} strokeWidth={2.2} fill={favoriteIds.has(p.id)?'currentColor':'none'}/>
-     </button>
+     <label className={'sona-section-star-toggle'+(favoriteIds.has(p.id)?' is-starred':'')}
+       aria-label={(favoriteIds.has(p.id)?'Unfavorite ':'Favorite ')+p.name}>
+       <input type="checkbox" checked={favoriteIds.has(p.id)}
+         aria-label={(favoriteIds.has(p.id)?'Unfavorite ':'Favorite ')+p.name}
+         ref={node=>node?.setAttribute('switch','')}
+         onChange={()=>toggleFavorite(p.id)}/>
+       <Star size={18} strokeWidth={2.2} fill={favoriteIds.has(p.id)?'currentColor':'none'}/>
+     </label>
      <button type="button" className="sona-section-playlist-target" onClick={()=>navigate(ROUTES.PLAYLIST.PAGE(p.id))}>
       <SectionArt id={p.coverArt} name={p.name}/>
       <span>{p.name}</span><ChevronRight size={23} className="sona-section-chevron"/>
