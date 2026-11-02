@@ -151,6 +151,25 @@ if [ "$PROBE_STATUS" != '200' ]; then
   docker rm -f "$PROBE" >/dev/null 2>&1 || true
   exit 1
 fi
+# Check Meta Muse's pre-registered public client before disturbing the live NAS
+# gateway. A valid unauthenticated PKCE authorize request MUST redirect to the
+# owner approval page, not fail with unknown-client or invalid-redirect errors.
+MUSE_PROBE_LOCATION="$(curl --silent --show-error --max-time 5 --get \
+  --output /dev/null --write-out '%{redirect_url}' \
+  --data-urlencode 'client_id=muse' \
+  --data-urlencode 'response_type=code' \
+  --data-urlencode 'redirect_uri=https://agent.meta.ai/api/hatch/oauth/callback' \
+  --data-urlencode 'scope=nas:root' \
+  --data-urlencode 'code_challenge=0123456789abcdefghijklmnopqrstuvwxyzABCDEFG' \
+  --data-urlencode 'code_challenge_method=S256' \
+  --data-urlencode 'state=muse-preflight' \
+  "http://127.0.0.1:${PROBE_PORT}/authorize" || true)"
+if [[ "$MUSE_PROBE_LOCATION" != 'https://homelab.hippocampus-polaris.ts.net/login?ticket='* ]]; then
+  echo 'Meta Muse OAuth client preflight failed; existing gateway is unchanged.' >&2
+  docker logs --tail 50 "$PROBE" >&2 || true
+  docker rm -f "$PROBE" >/dev/null 2>&1 || true
+  exit 1
+fi
 docker rm -f "$PROBE" >/dev/null
 echo 'OAuth discovery preflight passed.'
 if docker inspect "$CONTAINER" >/dev/null 2>&1; then docker rm -f "$CONTAINER"; fi
