@@ -227,10 +227,10 @@ describe('Coordinated mobile dock',()=>{
   const inspect = () => cy.then(()=>new Cypress.Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))).get('.sona-player').then($mini=>{
    const mini=$mini[0],doc=mini.ownerDocument
    const nav=doc.querySelector<HTMLElement>('.sona-bottom-nav')!,search=doc.querySelector<HTMLElement>('.sona-search-morph')!
-   const animations=[mini,nav,search].flatMap(el=>el.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===440))
+   const animations=[mini,nav,search].flatMap(el=>el.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===300))
    expect(animations.every(Boolean)).to.equal(true)
    animations.forEach(a=>a.pause())
-   for(const time of [0,44,88,132,176,220,330,439]){
+   for(const time of [0,30,60,90,120,150,225,299]){
     animations.forEach(a=>a.currentTime=time)
     const m=getDockBounds(mini as HTMLElement)
     for(const el of [nav,search]){
@@ -292,16 +292,20 @@ describe('Coordinated mobile dock',()=>{
   cy.get('.sona-search-morph').then($search=>{
    const doc=$search[0].ownerDocument
    const elements=[$search[0],doc.querySelector<HTMLElement>('.sona-bottom-nav')!,doc.querySelector<HTMLElement>('.sona-player')!]
-   const animations=elements.flatMap(el=>el.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===440))
+   const animations=elements.flatMap(el=>el.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===300))
    expect(animations.length).to.be.greaterThan(3)
    expect(new Set(animations.map(a=>a.startTime)).size).to.equal(1)
    animations.forEach(a=>a.pause())
    const widths:number[]=[],navWidths:number[]=[],miniTops:number[]=[]
-   for(const time of [0,100,220,439]){
+   for(const time of [0,70,150,299]){
     animations.forEach(a=>a.currentTime=time)
     widths.push(getDockBounds(elements[0]).width)
     navWidths.push(getDockBounds(elements[1]).width)
     miniTops.push(getDockBounds(elements[2]).top)
+    if(time===0){
+     const icon=elements[0].querySelector('.sona-search-orb svg')!.getBoundingClientRect(),circle=getDockBounds(elements[0])
+     expect(icon.left+icon.width/2).to.be.closeTo(circle.left+circle.width/2,.2)
+    }
    }
    expect(widths[0]).to.be.closeTo(64,1)
    expect(widths[1]).to.be.greaterThan(64).and.lessThan(315)
@@ -310,6 +314,28 @@ describe('Coordinated mobile dock',()=>{
    expect(miniTops[1]).to.be.greaterThan(miniTops[0]).and.lessThan(miniTops[3])
    animations.forEach(a=>a.finish())
   })
+ })
+
+ it('does not collapse without a visible active mini-player',()=>{
+  setup()
+  cy.get('.sona-player').invoke('attr','data-mobile-active','false')
+  cy.get('#scroll-viewport').trigger('wheel',{deltaY:100,deltaX:0}).scrollTo(0,100)
+  cy.get('html').should('have.attr','data-sona-dock','normal')
+  cy.get('.sona-player').invoke('attr','data-mobile-active','true').invoke('css','display','none')
+  cy.get('#scroll-viewport').trigger('wheel',{deltaY:100,deltaX:0}).scrollTo(0,200)
+  cy.get('html').should('have.attr','data-sona-dock','normal')
+  cy.get('.sona-player').invoke('css','display','block')
+  cy.document().then(doc=>{
+   const overlay=doc.createElement('div');overlay.className='sona-now-overlay';overlay.dataset.phase='landing';doc.body.append(overlay)
+  })
+  cy.get('#scroll-viewport').trigger('wheel',{deltaY:100,deltaX:0}).scrollTo(0,300)
+  cy.get('html').should('have.attr','data-sona-dock','normal')
+  cy.get('.sona-now-overlay').invoke('attr','data-phase','closed')
+  cy.get('#scroll-viewport').trigger('wheel',{deltaY:100,deltaX:0}).scrollTo(0,400)
+  cy.get('html').should('have.attr','data-sona-dock','compact')
+  cy.get('.sona-now-overlay').then($overlay=>$overlay.remove())
+  cy.get('.sona-player').invoke('attr','data-mobile-active','false')
+  cy.get('html').should('have.attr','data-sona-dock','normal')
  })
 
  it('initializes the dock before paint through React StrictMode remounts',()=>{

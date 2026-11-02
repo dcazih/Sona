@@ -28,9 +28,12 @@ describe('Dock material and stable contents',()=>{
   cy.get('.sona-player').should($mini=>{
    const mini=$mini[0],nav=mini.ownerDocument.querySelector('.sona-bottom-nav')!
    expect(getComputedStyle(nav.querySelector('.sona-dock-rim')!).display).to.equal('none')
+   expect(getComputedStyle(nav).backgroundColor).to.equal('rgba(0, 0, 0, 0)')
+   expect(getComputedStyle(nav.querySelector('.sona-dock-shadow')!).display).to.equal('none')
+   expect(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backdropFilter).to.contain('blur(22px)')
    expect(getComputedStyle(mini).borderTopWidth).to.equal('0px')
-   expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgba(29, 29, 33, 0.82)')
-   expect(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgba(29, 29, 33, 0.82)')
+   expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgba(29, 29, 33, 0.75)')
+   expect(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgba(29, 29, 33, 0.75)')
    expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backdropFilter).to.equal(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backdropFilter)
    expect(getComputedStyle(mini,'::before').display).to.equal('none')
    const progress=mini.querySelector('.sona-web-player-progress')!.getBoundingClientRect()
@@ -46,13 +49,13 @@ describe('Dock material and stable contents',()=>{
   cy.then(()=>useSonaDock.setState({compact:true}))
   cy.get('html').should('have.attr','data-sona-dock','compact')
   cy.get('.sona-player').should($mini=>expect(getDockBounds($mini[0]).width).to.be.closeTo(254,1))
-  cy.get('.sona-player').should($mini=>expect($mini[0].getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===440).some(a=>a.playState==='running')).to.equal(false))
+  cy.get('.sona-player').should($mini=>expect($mini[0].getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===300).some(a=>a.playState==='running')).to.equal(false))
   cy.get('[aria-label="Expand Sona navigation"]').click()
   cy.get('.sona-player').then($mini=>{
-   const mini=$mini[0],animations=mini.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===440)
+   const mini=$mini[0],animations=mini.getAnimations({subtree:true}).filter(a=>a.effect?.getTiming().duration===300)
    animations.forEach(a=>a.pause())
    const sizes:number[]=[]
-   for(const time of Array.from({length:89},(_,i)=>i*5)){
+   for(const time of Array.from({length:61},(_,i)=>i*5)){
     animations.forEach(a=>a.currentTime=time)
     const art=mini.querySelector('.sona-player-cover')!.getBoundingClientRect()
     expect(art.width).to.be.closeTo(27,.001);expect(art.height).to.be.closeTo(27,.001)

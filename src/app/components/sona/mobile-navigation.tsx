@@ -99,6 +99,18 @@ export function SonaMobileNavigation() {
   })
 
   useEffect(() => {
+    const mini = document.querySelector<HTMLElement>('.sona-player')
+    const sync = () => {
+      if (!mini || mini.dataset.mobileActive !== 'true') setCompact(false)
+    }
+    sync()
+    if (!mini) return
+    const observer = new MutationObserver(sync)
+    observer.observe(mini, { attributes: true, attributeFilter: ['data-mobile-active'] })
+    return () => observer.disconnect()
+  }, [setCompact])
+
+  useEffect(() => {
     let touch: { x: number; y: number } | null = null
     let upwardIntent = false
     const intent = (delta: number) => {
@@ -106,11 +118,15 @@ export function SonaMobileNavigation() {
         isSearch ||
         focused ||
         usePlayerStore.getState().fullscreen.isFullscreen ||
+        document.querySelector('.sona-now-overlay:not([data-phase="closed"])') ||
         Math.abs(delta) < 1
       )
         return
       const viewport = getMainScrollElement()
       if (!viewport) return
+      const mini = document.querySelector<HTMLElement>('.sona-player[data-mobile-active="true"]')
+      if (delta > 0 && (!mini || getComputedStyle(mini).display === 'none' ||
+          getComputedStyle(mini).visibility !== 'visible' || Number(getComputedStyle(mini).opacity) === 0)) return
       upwardIntent = delta < 0
       const top = viewport.scrollTop,
         max = Math.max(0, viewport.scrollHeight - viewport.clientHeight)

@@ -5,7 +5,7 @@ export const SONA_NOTE_PATH =
 
 type Props = SVGProps<SVGSVGElement> & { size?: number }
 
-/** Supplied rounded Sona artwork, shared by default covers and lyrics. */
+/** White double-note glyph for playback, default covers and lyrics. */
 export function SonaNoteGlyph({ size = 21, ...props }: Props) {
   return (
     <svg
@@ -17,7 +17,7 @@ export function SonaNoteGlyph({ size = 21, ...props }: Props) {
       aria-hidden="true"
       {...props}
     >
-      <image href="/branding-v31/rounded.png" width="512" height="512" />
+      <path d={SONA_NOTE_PATH} />
     </svg>
   )
 }

@@ -8,7 +8,7 @@ type State = {
   focused: boolean
   moving: boolean
 }
-export const DOCK_DURATION = 440
+export const DOCK_DURATION = 300
 const geometry = (element: HTMLElement) => {
   const box = getDockBounds(element)
   return {
@@ -50,9 +50,6 @@ export function useDockMorph({
       ),
     ]
     const from = surfaces.map(geometry)
-    const interrupted = animations.current.some(
-      (a) => a.playState === 'running',
-    )
     const previousMode = previous.current.split(':')[0]
     animations.current.forEach((a) => a.cancel())
     animations.current = []
@@ -82,9 +79,9 @@ export function useDockMorph({
         const mini = element.matches('.sona-player'),
           search = element.matches('.sona-search-morph')
         const expanding =
-          previousMode === 'compact' && mode !== 'compact' && !interrupted
+          previousMode === 'compact' && mode !== 'compact'
         const collapsing =
-          mode === 'compact' && previousMode !== 'compact' && !interrupted
+          mode === 'compact' && previousMode !== 'compact'
         return animateSurface(
           element,
           a,
@@ -186,13 +183,13 @@ function animateSurface(
     base = target.baseWidth,
     result: Animation[] = []
   const standard = 'cubic-bezier(.16,1,.3,1)',
-    widthEase = expanding && !mini ? 'cubic-bezier(.55,0,.2,1)' : standard
+    widthEase = standard
   type Stop = { offset: number; fraction: number; easing?: string }
   const widthStops: Stop[] =
     expanding && mini
       ? [
           { offset: 0, fraction: 0, easing: 'linear' },
-          { offset: 0.06, fraction: 0, easing: 'cubic-bezier(.4,0,.2,1)' },
+          { offset: 0.17, fraction: 0, easing: 'cubic-bezier(.4,0,.2,1)' },
           {
             offset: 0.78,
             fraction: 1 + 2 / Math.max(1, target.width - from.width),
@@ -201,7 +198,8 @@ function animateSurface(
           { offset: 1, fraction: 1 },
         ]
       : [
-          { offset: 0, fraction: 0, easing: widthEase },
+          { offset: 0, fraction: 0, easing: 'linear' },
+          { offset: 0.17, fraction: 0, easing: widthEase },
           { offset: 1, fraction: 1 },
         ]
   const frames = widthStops.map((stop) => ({
@@ -246,8 +244,12 @@ function animateSurface(
       : mini && collapsing
         ? 'cubic-bezier(.75,0,.55,1)'
         : widthEase
-  play(element, [
+  play(element, mini && expanding ? [
     { offset: 0, translate: `0px ${fromY}px`, easing: verticalEase },
+    { offset: 1, translate: `0px ${targetY}px` },
+  ] : [
+    { offset: 0, translate: `0px ${fromY}px`, easing: 'linear' },
+    { offset: .17, translate: `0px ${fromY}px`, easing: verticalEase },
     { offset: 1, translate: `0px ${targetY}px` },
   ])
   for (const clipped of [p.surface, p.glass])

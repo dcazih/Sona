@@ -101,7 +101,7 @@
 
 
 @media(max-width:767px){
- .sona-now-glass{background:rgba(29,29,33,.82);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);}
+ .sona-now-glass{background:rgba(29,29,33,.75);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);}
  .sona-now-overlay .sona-now-art{border-radius:20px!important;}
  .sona-now-overlay .sona-now-art:not(.is-playing){transform:scale(.84);}
  .sona-now-overlay .sona-now-art.is-playing{transform:scale(1.04);}
