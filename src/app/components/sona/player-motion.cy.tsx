@@ -1,3 +1,4 @@
+import {useSonaDock} from './dock-state'
 import {getDockBounds} from './dock-bounds'
 import {SonaMobileNavigation} from './mobile-navigation'
 import { Profiler } from 'react'
@@ -18,6 +19,7 @@ function mountPlayer() {
 
 describe('Mobile player sheet motion', () => {
   beforeEach(() => {
+    useSonaDock.setState({selected:0,compact:false,returnRoute:'/'})
     cy.viewport(390, 844)
     cy.mockCoverArt()
     cy.mockSongStream()
@@ -171,7 +173,7 @@ describe('Mobile player sheet motion', () => {
     cy.get('.sona-now-art').should('not.have.class','is-playing')
     cy.then(()=>usePlayerStore.getState().actions.setPlayingState(true))
     cy.get('.sona-now-art').should('have.class','is-playing').should(($cover)=>{
-      expect(new DOMMatrixReadOnly(getComputedStyle($cover[0]).transform).a).to.be.closeTo(1.025,.002)
+      expect(new DOMMatrixReadOnly(getComputedStyle($cover[0]).transform).a).to.be.closeTo(1.07,.002)
     })
     cy.get('.sona-now-art-content').should(($content)=>{
       expect(new DOMMatrixReadOnly(getComputedStyle($content[0]).transform).a).to.be.closeTo(1.035,.002)
@@ -342,7 +344,7 @@ describe('Mobile player sheet motion', () => {
   })
   cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
  })
- it('flies the title and play icon into the mini player and fades only after landing',()=>{
+ it('reveals top-anchored mini title and controls after 200ms and fades only after landing',()=>{
   mountPlayer()
   cy.get('.sona-player-track').click()
   cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
@@ -350,6 +352,13 @@ describe('Mobile player sheet motion', () => {
   cy.get('[aria-label="Minimize Now Playing"]').click()
   cy.get('.sona-player-detail-flight.is-title').should('exist')
   cy.get('.sona-player-detail-flight.is-play').should('exist')
+  cy.get('.sona-player-detail-flight.is-next').should('exist')
+  cy.get('.sona-player-detail-flight').each($node=>{
+   expect($node[0].parentElement?.classList.contains('sona-now-content')).to.equal(true)
+   const fade=$node[0].getAnimations()[0]
+   expect(fade.effect?.getTiming().delay).to.equal(200)
+   expect(fade.effect?.getTiming().duration).to.equal(130)
+  })
   cy.get('.sona-now-overlay').then($sheet=>{
    const sheet=$sheet[0],shape=sheet.getAnimations().find(a=>(a.effect as KeyframeEffect).getKeyframes().some(f=>f.transform))!
    shape.pause();shape.currentTime=370
@@ -365,6 +374,22 @@ describe('Mobile player sheet motion', () => {
   })
   cy.get('.sona-now-overlay').should('have.attr','data-phase','closed')
   cy.get('.sona-player-detail-flight,.sona-player-artwork-flight').should('not.exist')
+ })
+
+ it('reveals only play on a compact landing and actually blends away the album color',()=>{
+  mountPlayer()
+  cy.then(()=>useSonaDock.setState({compact:true}))
+  cy.get('.sona-player').should($el=>expect(getDockBounds($el[0]).width).to.be.closeTo(254,1))
+  cy.get('.sona-player-track').click()
+  cy.get('.sona-now-overlay').should('have.attr','data-phase','open')
+  cy.get('[aria-label="Minimize Now Playing"]').click()
+  cy.get('.sona-player-detail-flight.is-play').should('exist')
+  cy.get('.sona-player-detail-flight.is-next').should('not.exist')
+  cy.get('.sona-now-background').then($bg=>{
+   const animation=$bg[0].getAnimations()[0];animation.pause();animation.currentTime=600
+   expect(Number(getComputedStyle($bg[0]).opacity)).to.be.lessThan(.01)
+  })
+  cy.get('.sona-now-overlay').should('have.attr','data-phase','closed')
  })
 
 })

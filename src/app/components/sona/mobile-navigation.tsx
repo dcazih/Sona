@@ -89,7 +89,7 @@ export function SonaMobileNavigation() {
   }, [pathname, search, isSearch, selectTab])
 
   const fullSearch = isSearch && (engaged || term.length > 0)
-  const resultsDock = fullSearch && !focused && term.trim().length > 0
+  const resultsDock = fullSearch && !focused
   useDockMorph({
     mode: isSearch ? 'search' : compact ? 'compact' : 'normal',
     editing: fullSearch,
@@ -660,7 +660,9 @@ export function SonaMobileNavigation() {
           onPointerDown={(event) => event.preventDefault()}
           onClick={() => {
             inputRef.current?.blur()
-            reset()
+            setTerm('')
+            setEngaged(true)
+            setFocused(false)
           }}
         >
           <X size={27} />

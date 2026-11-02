@@ -434,7 +434,7 @@
  .sona-section-playlist-row .sona-section-star-toggle:not(.is-starred){
    opacity:1!important;visibility:visible!important;color:#ff496e!important;
    width:20px!important;min-width:20px!important;
-   margin-right:11px!important;display:grid!important;place-items:center!important
+   margin-right:12px!important;display:grid!important;place-items:center!important
  }
  .sona-section-playlist-row .sona-section-star-toggle:active{
    transform:scale(.87);transition:transform .13s cubic-bezier(.22,.8,.22,1)

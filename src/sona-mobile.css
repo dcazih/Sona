@@ -845,7 +845,7 @@
         color-mix(in srgb,var(--sona-ambient-color) 48%,#1b1820) 0%,
         color-mix(in srgb,var(--sona-ambient-color) 16%,#17161b) 65%,
         #141419 100%)!important;
-    opacity:1!important;
+    opacity:1;
     pointer-events:none!important;
   }
   .sona-now-background:after {
@@ -2524,3 +2524,7 @@
    width:34px!important;height:34px!important
  }
 }
+/* Work-in-progress sections occupy one viewport without reserved scroll space. */
+.sona-app-shell:has(.sona-new-placeholder) #scroll-viewport{overflow:hidden!important;}
+.sona-app-shell:has(.sona-new-placeholder) #main-scroll-area #scroll-viewport>div{height:100%!important;min-height:0!important;padding:0!important;position:relative;box-sizing:border-box;}
+.sona-new-placeholder{position:absolute;inset:0;height:100%;min-height:0;overflow:hidden;}

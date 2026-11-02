@@ -1,4 +1,4 @@
-import { flyPlayerDetails } from '@/app/components/sona/player-detail-flight'
+import { revealMiniPlayerDetails } from '@/app/components/sona/player-detail-flight'
 import { getDockBounds } from '@/app/components/sona/dock-bounds'
 import { SONA_NOTE_PATH } from '@/app/components/header/sona-note-glyph'
 import { useLayoutEffect, useRef } from 'react'
@@ -17,7 +17,8 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
   const cleanupExtras = useRef<() => void>(() => {})
   const distance = useRef(0)
   const lastCorners = useRef('')
-  const dragShape = useRef({ x: 0, sx: 1, sy: 1 })
+  const dragShape = useRef({ x: 0, sx: 1, sy: 1, height: 1 })
+  const dragBackground = useRef<HTMLElement | null>(null)
   const onClosedRef = useRef(onClosed)
   onClosedRef.current = onClosed
   const initialized = useRef(false)
@@ -29,6 +30,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     if (!sheet) return
     const { x, sx, sy } = dragShape.current
     sheet.style.transform = `translate3d(${x}px,${distance.current}px,0) scale(${sx},${sy})`
+    if (dragBackground.current) dragBackground.current.style.opacity = String(1 - Math.min(1, distance.current / (dragShape.current.height * .7)))
     const radius = playerDragRadius(distance.current)
     const corners = `${(radius / sx).toFixed(1)}px ${(radius / sx).toFixed(1)}px 0 0 / ${(radius / sy).toFixed(1)}px ${(radius / sy).toFixed(1)}px 0 0`
     if (lastCorners.current !== corners) {
@@ -59,10 +61,6 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     const previousArt = sheet
       .querySelector<HTMLElement>('.sona-now-art')
       ?.getBoundingClientRect()
-    const detailOrigins = {
-      title: sheet.querySelector('.sona-now-song-info h2')?.getBoundingClientRect(),
-      play: sheet.querySelector('.sona-transport-toggle .is-visible svg')?.getBoundingClientRect(),
-    }
     const previousPanel = sheet.querySelector<HTMLElement>('.sona-now-panel')
     const panelSnapshot = previousPanel
       ? {
@@ -238,7 +236,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     }
     const detailFlight =
       !expand && mini && !reduced
-        ? flyPlayerDetails(sheet, mini, duration, easing, detailOrigins)
+        ? revealMiniPlayerDetails(sheet, mini)
         : null
     const panel = sheet.querySelector<HTMLElement>('.sona-now-panel')
     if (panel && !reduced) {
@@ -332,6 +330,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     })
     const background = sheet.querySelector<HTMLElement>('.sona-now-background')
     const glass = sheet.querySelector<HTMLElement>('.sona-now-glass')
+    const colorOpacity = expand && wasClosed ? 0 : background ? Number(getComputedStyle(background).opacity) : 1
     for (const surface of [background, content, glass]) {
       if (!surface) continue
       extraAnimations.push(
@@ -344,8 +343,8 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
               ...(surface === background
                 ? {
                     opacity: expand
-                      ? Math.min(1, frame.offset / 0.55)
-                      : 1 - Math.min(1, frame.offset / 0.55),
+                      ? lerp(colorOpacity, 1, Math.min(1, frame.offset / 0.55))
+                      : lerp(colorOpacity, 0, Math.min(1, frame.offset / 0.55)),
                   }
                 : {}),
             }
@@ -399,7 +398,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
           ...(detailFlight?.nodes ?? []),
         ]
         const fades = landing.map((node) =>
-          node.animate([{ opacity: 1 }, { opacity: 0 }], {
+          node.animate([{ opacity: getComputedStyle(node).opacity }, { opacity: 0 }], {
             duration: 90,
             easing: 'ease-out',
             fill: 'both',
@@ -442,6 +441,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     const matrix = new DOMMatrixReadOnly(getComputedStyle(sheet).transform)
     dragShape.current = {
       x: matrix.e,
+      height: sheet.offsetHeight,
       sx: Math.max(0.01, matrix.a),
       sy: Math.max(0.01, matrix.d),
     }
@@ -450,6 +450,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     cleanupExtras.current()
     distance.current = Math.max(0, rect.top)
     const background = sheet.querySelector<HTMLElement>('.sona-now-background')
+    dragBackground.current = background
     if (background)
       background.style.scale = `${1 / dragShape.current.sx} ${1 / dragShape.current.sy}`
     const content = sheet.querySelector<HTMLElement>('.sona-now-content')

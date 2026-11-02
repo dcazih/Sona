@@ -1,3 +1,4 @@
+import {StrictMode} from 'react'
 import { getDockBounds } from './dock-bounds'
 import { DockSurface } from './dock-surface'
 import {createMemoryRouter,RouterProvider,useLocation} from 'react-router-dom'
@@ -102,8 +103,8 @@ describe('Coordinated mobile dock',()=>{
    expect(getDockBounds(search as HTMLElement).width).to.equal(64)
    ;(search.querySelector('button') as HTMLButtonElement).click()
    cy.then(()=>new Cypress.Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))).then(()=>{
-    const transitions=search.querySelector('.sona-dock-surface')!.getAnimations().filter(animation=>(animation.effect as KeyframeEffect).getKeyframes().some(frame=>frame.clipPath))
-    const navTransition=nav.querySelector('.sona-dock-surface')!.getAnimations().find(animation=>(animation.effect as KeyframeEffect).getKeyframes().some(frame=>frame.clipPath))!
+    const transitions=search.getAnimations().filter(animation=>(animation.effect as KeyframeEffect).getKeyframes().some(frame=>frame.clipPath))
+    const navTransition=nav.getAnimations().find(animation=>(animation.effect as KeyframeEffect).getKeyframes().some(frame=>frame.clipPath))!
     expect(transitions).to.have.length(1)
     expect(navTransition).to.exist
     expect(transitions[0].effect!.getTiming().duration).to.equal(navTransition.effect!.getTiming().duration)
@@ -251,7 +252,7 @@ describe('Coordinated mobile dock',()=>{
   geometry()
   cy.get('[aria-label="Expand Sona navigation"]').click()
   cy.get('.sona-bottom-nav').then($nav=>{
-   const nav=$nav[0],animation=nav.querySelector('.sona-dock-surface')!.getAnimations().find(a=>(a.effect as KeyframeEffect).getKeyframes().some(f=>f.clipPath))!
+   const nav=$nav[0],animation=nav.getAnimations().find(a=>(a.effect as KeyframeEffect).getKeyframes().some(f=>f.clipPath))!
    animation.pause();animation.currentTime=88
    const cells=[...nav.querySelectorAll<HTMLElement>('.sona-tab')].map(el=>getDockBounds(el as HTMLElement))
    expect(cells[0].width).to.be.closeTo(73.25,1)
@@ -264,6 +265,31 @@ describe('Coordinated mobile dock',()=>{
   setup('/mobile-search')
   cy.get('.sona-player').should('have.css','transition-duration','0.1s')
   cy.get('.sona-search-morph').should('have.css','transition-duration','0.2s')
+ })
+
+ it('keeps an active morph running through keyboard-state updates and preserves the three-control row after X',()=>{
+  setup('/mobile-library')
+  cy.get('[aria-label="Search"]').click()
+  cy.get('.sona-search-morph').then($search=>{
+   const animation=$search[0].getAnimations().find(a=>(a.effect as KeyframeEffect).getKeyframes().some(f=>f.clipPath))!
+   animation.pause();animation.currentTime=180
+   cy.then(()=>useSonaSearch.setState({focused:true}))
+   cy.then(()=>{expect(animation.playState).to.equal('paused');animation.finish()})
+  })
+  cy.get('input').type('test').blur()
+  cy.get('[aria-label="Cancel search"]').click()
+  cy.get('[aria-label="Return to Library"]').should('be.visible')
+  cy.get('[aria-label="Cancel search"]').should('be.visible')
+  cy.get('input').should('have.value','')
+  cy.get('.sona-search-morph').should($el=>expect(getDockBounds($el[0]).width).to.be.closeTo(260,1))
+ })
+
+ it('initializes the dock before paint through React StrictMode remounts',()=>{
+  useSonaDock.setState({compact:true})
+  const router=createMemoryRouter([{path:'*',element:<Screen/>}])
+  mount(<StrictMode><QueryClientProvider client={new QueryClient()}><RouterProvider router={router}/></QueryClientProvider></StrictMode>)
+  cy.get('html').should('have.attr','data-sona-dock-ready','true').and('have.attr','data-sona-dock','compact')
+  geometry()
  })
 
 })

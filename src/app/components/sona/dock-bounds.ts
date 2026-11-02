@@ -9,8 +9,9 @@ export function getDockBounds(element: HTMLElement) {
       layoutWidth: element.offsetWidth,
       layoutHeight: element.offsetHeight,
     })
-  const css =
-    element.ownerDocument.defaultView!.getComputedStyle(surface).clipPath
+  const win = element.ownerDocument.defaultView!
+  const outerClip = win.getComputedStyle(element).clipPath
+  const css = outerClip !== 'none' ? outerClip : win.getComputedStyle(surface).clipPath
   const tokens =
     css
       .slice(css.indexOf('(') + 1)

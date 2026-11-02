@@ -1,5 +1,5 @@
 @media(max-width:767px){
- html[data-sona-dock-ready]{
+ html{
    --sona-dock-bottom:calc(4px + env(safe-area-inset-bottom,0px));
    --sona-chrome-time:440ms;
    --sona-dock-glass:rgba(29,29,33,.75);
@@ -202,4 +202,35 @@
 @media(min-width:768px){
  .sona-player>.sona-dock-surface,.sona-player>.sona-dock-surface>.sona-dock-contents{display:contents;}
  .sona-player>.sona-dock-shadow,.sona-player .sona-dock-rim,.sona-player .sona-dock-rim-line{display:none;}
+}
+
+/* Clip the complete dock subtree, including WebKit's backdrop compositing layer. */
+@media(max-width:767px){
+ .sona-dock-host{clip-path:inset(0 calc(100% - var(--sona-slot-width)) calc(64px - var(--sona-slot-height)) 0 round calc(var(--sona-slot-height)/2));will-change:transform,translate,clip-path!important;}
+ .sona-dock-surface{clip-path:none;overflow:hidden;}
+ .sona-dock-rim-left{transform:scale(var(--sona-rim-scale,1));}
+ .sona-dock-rim-right{transform:translateX(calc(var(--sona-slot-width) - var(--sona-slot-height))) scale(var(--sona-rim-scale,1));}
+ .sona-dock-rim-top{transform:translateX(calc(var(--sona-slot-height)/2)) scaleX(var(--sona-rim-line-scale,0));}
+ .sona-dock-rim-bottom{transform:translate(calc(var(--sona-slot-height)/2),calc(var(--sona-slot-height) - 1px)) scaleX(var(--sona-rim-line-scale,0));}
+ .sona-search-morph-field{width:calc(100% - 50px);}
+ .sona-nav-return{transition:opacity .2s cubic-bezier(.22,.8,.22,1);}
+ .sona-bottom-nav-split.is-collapsed .sona-nav-return{transition-delay:0s;}
+ .sona-bottom-nav-split.is-collapsed .sona-nav-return svg{animation:sona-tab-icon-reveal .2s ease-out both;}
+ @keyframes sona-tab-icon-reveal{from{opacity:0}to{opacity:1}}
+ html[data-sona-dock="compact"] .sona-player-controls>div:first-child{padding-right:8px!important;}
+ .sona-player .sona-mini-text-sharp{mask-image:none;}
+ .sona-player .sona-mini-text-blurred{display:none;}
+ .sona-player [data-testid="player-button-play"],.sona-player [data-testid="player-button-pause"],.sona-player [data-testid="player-button-next"]{position:relative;z-index:1;}
+}
+
+@media(max-width:767px){
+ .sona-player-controls>div:first-child::before{display:none!important;}
+ .sona-player [data-testid="player-button-play"]::before,.sona-player [data-testid="player-button-pause"]::before{content:"";position:absolute;right:100%;top:0;width:100%;height:100%;background:linear-gradient(to right,transparent,rgb(29,29,33));backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);pointer-events:none;z-index:-1;}
+ .sona-player [data-testid="player-button-play"]::after,.sona-player [data-testid="player-button-pause"]::after{content:"";position:absolute;left:0;right:-60px;top:0;height:100%;background:rgb(29,29,33);pointer-events:none;z-index:-1;}
+}
+
+@media(max-width:767px){
+ html[data-sona-dock="compact"],html[data-sona-dock="search"]{--sona-rim-scale:.78125;}
+ .sona-player-controls>div:first-child{transform:translateX(calc(var(--sona-slot-width) - (100dvw - 18px)));}
+ .sona-dock-shadow{transform:scale(1,var(--sona-rim-scale,1));border-radius:999px;}
 }

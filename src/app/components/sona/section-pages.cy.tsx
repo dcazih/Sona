@@ -1,3 +1,4 @@
+import SonaMobileNew from './mobile-new'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { mount } from 'cypress/react'
@@ -84,5 +85,16 @@ describe('Mobile Songs, playlists and empty album filters', () => {
     cy.get('.sona-mobile-album-cover,.sona-mobile-album-details,.sona-album-songs-heading,.sona-album-song-duration').should('not.exist')
     cy.get('.sona-section-play-actions button').should('have.length',2)
   })
+
+ for(const label of ['New','Podcasts','Radio'])it(`centers ${label}'s work-in-progress message without page scrolling`,()=>{
+  const router=createMemoryRouter([{path:'/',element:<div className="sona-app-shell" style={{height:844}}><MainRoutes/></div>,children:[{path:'mobile-new',element:<SonaMobileNew label={label}/>}]}],{initialEntries:['/mobile-new']})
+  mount(<QueryClientProvider client={new QueryClient()}><RouterProvider router={router}/></QueryClientProvider>)
+  cy.get('#scroll-viewport').should($view=>{
+   const view=$view[0],message=view.querySelector('.sona-new-placeholder-message')!.getBoundingClientRect(),box=view.getBoundingClientRect()
+   expect(view.scrollHeight).to.be.at.most(view.clientHeight)
+   expect(message.top+message.height/2).to.be.closeTo(box.top+box.height/2,1)
+   expect(getComputedStyle(view).overflowY).to.equal('hidden')
+  })
+ })
 
 })

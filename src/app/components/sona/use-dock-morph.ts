@@ -18,6 +18,10 @@ const geometry = (element: HTMLElement) => {
     height: box.height,
     top: box.top,
     baseWidth: element.offsetWidth,
+    orbX: (() => {
+      const orb = element.querySelector('.sona-search-orb')
+      return orb ? new DOMMatrixReadOnly(getComputedStyle(orb).transform).m41 : 0
+    })(),
     translateY:
       parseFloat(getComputedStyle(element).translate.split(/\s+/)[1]) || 0,
   }
@@ -36,6 +40,10 @@ export function useDockMorph({
   useLayoutEffect(() => {
     const root = document.documentElement,
       key = mode + ':' + (results ? 'results' : editing ? 'editing' : 'browse')
+    root.dataset.sonaSearchFocused = String(focused)
+    root.dataset.sonaKeyboardMoving = String(moving)
+    // Viewport/keyboard updates must not cancel a geometry transition in flight.
+    if (previous.current === key && root.dataset.sonaDockReady === 'true') return
     const surfaces = [
       ...document.querySelectorAll<HTMLElement>(
         '.sona-bottom-nav-split,.sona-search-morph,.sona-player[data-mobile-active="true"]',
@@ -86,7 +94,6 @@ export function useDockMorph({
           DOCK_DURATION,
           mini,
           search,
-          previousMode === 'search',
           expanding,
           collapsing,
         )
@@ -97,6 +104,7 @@ export function useDockMorph({
   useLayoutEffect(
     () => () => {
       animations.current.forEach((a) => a.cancel())
+      previous.current = ''
       for (const key of [
         'sonaDockReady',
         'sonaDock',
@@ -114,7 +122,7 @@ type Box = ReturnType<typeof geometry>
 function parts(element: HTMLElement) {
   return {
     shadow: element.querySelector<HTMLElement>(':scope>.sona-dock-shadow'),
-    surface: element.querySelector<HTMLElement>(':scope>.sona-dock-surface'),
+    surface: element,
     contents: element.querySelector<HTMLElement>(
       ':scope>.sona-dock-surface>.sona-dock-contents',
     ),
@@ -159,15 +167,8 @@ function setSurfaceRest(element: HTMLElement, box: Box) {
     p.progress.style.transformOrigin = '0 50%'
     p.progress.style.transform = `scaleX(${(box.width - 24) / (base - 24)})`
   }
-  if (p.voice) p.voice.style.transform = 'none'
-  for (const text of element.querySelectorAll<HTMLElement>(
-    '.sona-mini-text-sharp,.sona-mini-text-blurred',
-  )) {
-    const delta = box.width - base
-    text.style.transform = `translate3d(${delta}px,0,0)`
-    const ink = text.querySelector<HTMLElement>('.sona-mini-ink')
-    if (ink) ink.style.transform = `translate3d(${-delta}px,0,0)`
-  }
+  if (p.voice) p.voice.style.transform = `translate3d(${box.width - base}px,0,0)`
+
 }
 
 function animateSurface(
@@ -178,7 +179,6 @@ function animateSurface(
   duration: number,
   mini: boolean,
   search: boolean,
-  wasSearch: boolean,
   expanding: boolean,
   collapsing: boolean,
 ) {
@@ -288,29 +288,17 @@ function animateSurface(
   play(
     p.voice,
     timeline((f) => ({
-      transform: `translate3d(${f.width - target.width}px,0,0)`,
+      transform: `translate3d(${f.width - base}px,0,0)`,
     })),
   )
   if (search) {
-    const oldX = wasSearch ? 0 : (from.width - 50) / 2,
+    const oldX = from.orbX,
       newX = target.width > 64 ? 0 : (target.width - 50) / 2
     play(
       element.querySelector('.sona-search-orb'),
       timeline((f) => ({
         transform: `translate3d(${lerp(oldX, newX, f.fraction)}px,-50%,0)`,
       })),
-    )
-  }
-  for (const text of element.querySelectorAll<HTMLElement>(
-    '.sona-mini-text-sharp,.sona-mini-text-blurred',
-  )) {
-    play(
-      text,
-      timeline((f) => ({ transform: `translate3d(${f.width - base}px,0,0)` })),
-    )
-    play(
-      text.querySelector('.sona-mini-ink'),
-      timeline((f) => ({ transform: `translate3d(${base - f.width}px,0,0)` })),
     )
   }
   return result
