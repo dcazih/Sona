@@ -246,6 +246,16 @@ describe('Coordinated mobile dock',()=>{
   inspect()
   cy.get('[aria-label="Search"]').click()
   inspect()
+  cy.get('[aria-label="Return to Sona"]').click()
+  cy.get('html').should('have.attr','data-sona-dock','normal')
+  cy.get('.sona-player').should($mini=>expect(getDockBounds($mini[0]).top).to.be.closeTo(718,1))
+  cy.then(()=>useSonaDock.setState({compact:true}))
+  cy.get('.sona-search-morph').then($search=>{
+   const animations=[...$search[0].ownerDocument.querySelectorAll('.sona-dock-host')].flatMap(el=>el.getAnimations({subtree:true}))
+   animations.forEach(a=>{a.pause();a.currentTime=30})
+  })
+  cy.get('[aria-label="Search"]').click()
+  inspect()
  })
 
  it('keeps icon cells fixed while revealing them through an expanding shell',()=>{

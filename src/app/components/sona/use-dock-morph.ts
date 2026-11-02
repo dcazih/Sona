@@ -79,7 +79,7 @@ export function useDockMorph({
         const mini = element.matches('.sona-player'),
           search = element.matches('.sona-search-morph')
         const expanding =
-          previousMode === 'compact' && mode !== 'compact'
+          previousMode === 'compact' && mode !== 'compact' && (!mini || a.top > b.top)
         const collapsing =
           mode === 'compact' && previousMode !== 'compact'
         return animateSurface(
