@@ -134,12 +134,21 @@ function localDay(){
  const now=new Date()
  return [now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-')
 }
+/** Editorial categories can use popular-genre artwork, but must never outrank
+ * the actual genres being listened to simply because of broad fallback aliases. */
+const EDITORIAL_OVERVIEW_IDS = new Set([
+  'charts', 'hits', 'hip hop history month', 'apple music live',
+  'jay z s road to halftime', 'concerts', 'apple music radio',
+  'music videos', 'alpha women', 'essentials', 'decades',
+  'behind the songs', 'sports',
+])
+
 /** One continuous order: favorites, adjacent discoveries, editorial remainder.
  * Ranking is fixed for the local calendar day and scoped to login/server. */
 export function rankDiscoverOnceDaily(
  profile:string, frequent:Albums[], recent:Albums[], genres:Genre[],
 ) {
- const cacheKey='sona-discover-daily-v3:'+profile
+ const cacheKey='sona-discover-daily-v4:'+profile
  const day=localDay()
  try {
   const saved=JSON.parse(localStorage.getItem(cacheKey)||'null')
@@ -163,6 +172,7 @@ export function rankDiscoverOnceDaily(
  })
  recent.forEach((album,i)=>{if(album.genre)add(album.genre,.6*(1-i/Math.max(1,recent.length)))})
  const directScore=(category:SonaDiscoverCategory)=>
+  EDITORIAL_OVERVIEW_IDS.has(category.id) ? 0 :
   category.aliases.reduce((max,g)=>Math.max(max,weights.get(g)||0),0)
  const direct=SONA_DISCOVER_CATEGORIES.filter(c=>directScore(c)>0.1)
   .sort((a,b)=>directScore(b)-directScore(a))
