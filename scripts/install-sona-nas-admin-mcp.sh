@@ -27,6 +27,10 @@ import subprocess
 import time
 from datetime import datetime, timezone
 from mcp.server.fastmcp import FastMCP
+from mcp.server.auth.routes import build_metadata
+from mcp.server.auth.settings import RevocationOptions
+from starlette.responses import JSONResponse
+from starlette.routing import Route
 
 TOKEN = Path('/run/secrets/token').read_text().strip()
 if len(TOKEN) < 48:
@@ -82,6 +86,26 @@ def run_host_command(command: str, timeout_seconds: int = 30) -> dict:
 
 
 app = mcp.streamable_http_app()
+
+# MCP SDK 1.28 advertises only client_secret_post/basic by default, despite
+# accepting unauthenticated public OAuth clients using PKCE. Meta Muse reads
+# that incorrect discovery document and rejects the connector before login.
+# Override only the OAuth discovery document, not the SDK's token handling.
+async def public_client_oauth_metadata(request):
+    config = auth_settings()
+    metadata = build_metadata(
+        config.issuer_url, None, config.client_registration_options,
+        RevocationOptions(),
+    ).model_dump(mode="json", exclude_none=True)
+    metadata["token_endpoint_auth_methods_supported"] = [
+        "none", "client_secret_post", "client_secret_basic",
+    ]
+    return JSONResponse(metadata, headers={"Cache-Control": "no-store"})
+
+app.routes.insert(0, Route(
+    "/.well-known/oauth-authorization-server",
+    public_client_oauth_metadata, methods=["GET"],
+))
 PY
 # Download versioned OAuth modules into the temporary Docker build context.
 # Set SONA_SOURCE_REF to an immutable commit SHA to pin these dependencies.
@@ -147,6 +171,24 @@ for i in $(seq 1 25); do
 done
 if [ "$PROBE_STATUS" != '200' ]; then
   echo 'OAuth preflight failed; existing gateway is unchanged.' >&2
+  docker logs --tail 50 "$PROBE" >&2 || true
+  docker rm -f "$PROBE" >/dev/null 2>&1 || true
+  exit 1
+fi
+# Muse must see public-client ("none") support in discovery or its Add
+# Credentials step fails before the owner login page appears.
+if ! curl --fail --silent --show-error --max-time 5 \
+  "http://127.0.0.1:${PROBE_PORT}/.well-known/oauth-authorization-server" | \
+  python3 -c '
+import json, sys
+metadata = json.load(sys.stdin)
+assert "none" in metadata.get("token_endpoint_auth_methods_supported", [])
+assert "S256" in metadata.get("code_challenge_methods_supported", [])
+assert "nas:root" in metadata.get("scopes_supported", [])
+assert metadata.get("authorization_endpoint") == "https://homelab.hippocampus-polaris.ts.net/authorize"
+assert metadata.get("token_endpoint") == "https://homelab.hippocampus-polaris.ts.net/token"
+' ; then
+  echo 'Muse public-PKCE discovery preflight failed; existing gateway is unchanged.' >&2
   docker logs --tail 50 "$PROBE" >&2 || true
   docker rm -f "$PROBE" >/dev/null 2>&1 || true
   exit 1
