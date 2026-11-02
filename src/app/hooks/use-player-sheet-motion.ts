@@ -73,6 +73,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       '.sona-player[data-mobile-active="true"]',
     )
     const target = mini ? getDockBounds(mini) : undefined
+    if (expand) document.documentElement.dataset.sonaPlayerProgress = 'hidden'
     if (!width || !height) return
     const sx = Math.max(0.01, (target?.layoutWidth || width - 24) / width)
     const sy = Math.max(0.01, (target?.layoutHeight || 50) / height)
@@ -117,7 +118,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     const easing = expand ? OPEN_EASE : CLOSE_EASE
     const extraAnimations: Animation[] = []
     let reboundTimer = 0
-    let rebound: Animation | undefined
+    let rebounds: Animation[] = []
     const miniFrame = mini?.querySelector<HTMLElement>('.sona-player-cover')
     const miniArt = miniFrame?.querySelector<HTMLImageElement>('img')
     const fullArt = sheet.querySelector<HTMLElement>('.sona-now-art')
@@ -265,20 +266,15 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     if (!expand && mini && !reduced) {
       reboundTimer = window.setTimeout(() => {
         mini.dataset.sonaRebound = 'true'
-        rebound = mini.animate(
-          [
-            { scale: '1' },
-            { scale: '1.006 .987', offset: 0.45 },
-            { scale: '1' },
-          ],
-          { duration: duration * 0.48, easing: 'cubic-bezier(.37,0,.25,1)' },
-        )
-        rebound.finished
-          .then(() => {
-            delete mini.dataset.sonaRebound
-          })
-          .catch(() => {})
-      }, duration * 0.4)
+        const moving = [mini, sheet, ...(coverGhost.current ? [coverGhost.current] : [])]
+        rebounds = moving.map(node => node.animate(
+          [{ translate: '0 0' }, { translate: '0 4px', offset: .45 }, { translate: '0 0' }],
+          { duration: 300, easing: 'cubic-bezier(.37,0,.25,1)', composite: 'add' },
+        ))
+        Promise.all(rebounds.map(item => item.finished)).then(() => {
+          delete mini.dataset.sonaRebound
+        }).catch(() => {})
+      }, duration * .8)
     }
     const cleanupFlight = () => {
       detailFlight?.cleanup()
@@ -291,7 +287,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       cleanupFlight()
       extraAnimations.forEach((item) => item.cancel())
       window.clearTimeout(reboundTimer)
-      rebound?.cancel()
+      rebounds.forEach(item => item.cancel())
       if (mini) delete mini.dataset.sonaRebound
     }
     // Top and sides settle first; the bottom stays present until the last part
@@ -381,7 +377,10 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       animation.current = null
       anim.cancel()
       distance.current = 0
-      if (!expand) onClosedRef.current?.()
+      if (!expand) {
+        if (reduced) document.documentElement.dataset.sonaPlayerProgress = 'returning'
+        onClosedRef.current?.()
+      }
     }
     anim.finished
       .then(() => {
@@ -392,6 +391,8 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
         }
         // Fade only after the sheet, artwork, title and play icon share mini bounds.
         sheet.dataset.phase = 'landing'
+        if (miniArt) miniArt.style.visibility = oldMiniVisibility
+        document.documentElement.dataset.sonaPlayerProgress = 'returning'
         const landing = [
           sheet,
           ...(coverGhost.current ? [coverGhost.current] : []),
@@ -399,7 +400,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
         ]
         const fades = landing.map((node) =>
           node.animate([{ opacity: getComputedStyle(node).opacity }, { opacity: 0 }], {
-            duration: 90,
+            duration: 2000,
             easing: 'ease-out',
             fill: 'both',
           }),

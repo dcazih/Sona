@@ -13,7 +13,7 @@ describe('Native launch to web cover continuity',()=>{
   const setup="Object.defineProperty(navigator,'standalone',{value:true});Object.defineProperty(screen,'width',{value:390});Object.defineProperty(screen,'height',{value:844});"
   cy.mount(<iframe title="Startup handoff" style={{width:390,height:800}} srcDoc={`<html class="sona-booting"><head><script>${setup}${geometry}</script><style>${critical}</style><style>html,body{background:#171719!important;min-height:100vh!important}</style></head><body>${cover}<script>${boot}</script></body></html>`}/>)
   const check=()=>cy.get('iframe').should($frame=>{
-   const doc=($frame[0] as HTMLIFrameElement).contentDocument!,cover=doc.getElementById('sona-startup')!.getBoundingClientRect(),note=doc.querySelector('svg')!.getBoundingClientRect()
+   const doc=($frame[0] as HTMLIFrameElement).contentDocument!,cover=doc.getElementById('sona-startup')!.getBoundingClientRect(),note=doc.querySelector('.sona-startup-note')!.getBoundingClientRect()
    expect(cover.height).to.equal(844);expect(cover.width).to.equal(390)
    expect(note.top+note.height/2).to.equal(422)
    expect(getComputedStyle(doc.body).backgroundImage).to.contain('linear-gradient')
@@ -24,9 +24,9 @@ describe('Native launch to web cover continuity',()=>{
   cy.get('iframe').invoke('css','height','750px')
   check()
  })
- it('uses the identical vector for the splash, default covers and lyrics icon',()=>{
+ it('uses the supplied rounded icon for splash, default covers and lyrics',()=>{
   cy.mount(<SonaNoteGlyph/>)
-  cy.get('svg path').should('have.attr','d',cover.match(/d="(M201[^\"]+)"/)![1])
-  cy.get('svg').should('have.attr','viewBox','0 0 512 512')
+  cy.get('svg image').should('have.attr','href','/branding-v31/rounded.png')
+  expect(cover).to.contain('/branding-v31/rounded.png')
  })
 })

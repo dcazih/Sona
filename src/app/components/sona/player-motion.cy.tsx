@@ -173,14 +173,14 @@ describe('Mobile player sheet motion', () => {
     cy.get('.sona-now-art').should('not.have.class','is-playing')
     cy.then(()=>usePlayerStore.getState().actions.setPlayingState(true))
     cy.get('.sona-now-art').should('have.class','is-playing').should(($cover)=>{
-      expect(new DOMMatrixReadOnly(getComputedStyle($cover[0]).transform).a).to.be.closeTo(1.07,.002)
+      expect(new DOMMatrixReadOnly(getComputedStyle($cover[0]).transform).a).to.be.closeTo(1.04,.002)
     })
     cy.get('.sona-now-art-content').should(($content)=>{
       expect(new DOMMatrixReadOnly(getComputedStyle($content[0]).transform).a).to.be.closeTo(1.035,.002)
     })
     cy.then(()=>usePlayerStore.getState().actions.setPlayingState(false))
     cy.get('.sona-now-art').should('not.have.class','is-playing').should(($cover)=>{
-      expect(new DOMMatrixReadOnly(getComputedStyle($cover[0]).transform).a).to.be.closeTo(.86,.002)
+      expect(new DOMMatrixReadOnly(getComputedStyle($cover[0]).transform).a).to.be.closeTo(.84,.002)
     })
   })
 
@@ -202,7 +202,7 @@ describe('Mobile player sheet motion', () => {
       expect(matrix.d*scale[1]).to.be.closeTo(1,.001)
       expect(Number(frame.opacity)).to.equal(1)
       expect(Number(inverse.opacity)).to.be.lessThan(.1)
-      expect(getComputedStyle($sheet[0].querySelector('.sona-now-glass')!).backdropFilter).to.equal('none')
+      expect(getComputedStyle($sheet[0].querySelector('.sona-now-glass')!).backdropFilter).to.contain('blur(22px)')
       const capsule=$sheet[0].querySelector('.sona-now-top')!
       expect(capsule.getAnimations()[0].effect?.getTiming().duration).to.equal(80)
     })
@@ -370,8 +370,13 @@ describe('Mobile player sheet motion', () => {
   cy.get('.sona-now-overlay').should('have.attr','data-phase','landing').then($sheet=>{
    const sheet=$sheet[0],mini=sheet.ownerDocument.querySelector<HTMLElement>('.sona-player')!,target=getDockBounds(mini),landed=sheet.getBoundingClientRect()
    expect(landed.left).to.be.closeTo(target.left,1);expect(landed.top).to.be.closeTo(target.top,1);expect(landed.width).to.be.closeTo(target.width,1)
-   const fade=sheet.getAnimations().find(a=>a.effect?.getTiming().duration===90)!
+   const fade=sheet.getAnimations().find(a=>a.effect?.getTiming().duration===2000)!
    expect(fade).to.exist
+   expect(sheet.ownerDocument.documentElement.dataset.sonaPlayerProgress).to.equal('returning')
+   const progress=mini.querySelector('.sona-web-player-progress')!
+   const returning=progress.getAnimations().find(a=>a.effect?.getTiming().duration===3000)!
+   expect(returning).to.exist
+   expect(returning.effect?.getTiming().delay).to.equal(2500)
   })
   cy.get('.sona-now-overlay').should('have.attr','data-phase','closed')
   cy.get('.sona-player-detail-flight,.sona-player-artwork-flight').should('not.exist')

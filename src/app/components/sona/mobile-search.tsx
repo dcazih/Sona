@@ -193,10 +193,7 @@ export default function SonaMobileSearch() {
       navigate(ROUTES.GENRE.PAGE(category.matchedGenre))
       return
     }
-    setTerm(category.query)
-    setFilter('all')
-    setEngaged(true)
-    navigate('/mobile-search')
+    navigate(ROUTES.GENRE.PAGE(category.title))
   }
 
   function remember(item: RecentItem) {

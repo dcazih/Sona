@@ -281,9 +281,9 @@ describe('Coordinated mobile dock',()=>{
   cy.get('input').type('test').blur()
   cy.get('[aria-label="Cancel search"]').click()
   cy.get('[aria-label="Return to Library"]').should('be.visible')
-  cy.get('[aria-label="Cancel search"]').should('be.visible')
+  cy.get('[aria-label="Cancel search"]').should('not.be.visible')
   cy.get('input').should('have.value','')
-  cy.get('.sona-search-morph').should($el=>expect(getDockBounds($el[0]).width).to.be.closeTo(260,1))
+  cy.get('.sona-search-morph').should($el=>expect(getDockBounds($el[0]).width).to.be.closeTo(315,1))
  })
 
  it('moves search, navigation and mini together on one visible cubic timeline',()=>{

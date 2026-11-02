@@ -55,3 +55,20 @@
  html:has(.sona-am-search-page),html:has(.sona-am-search-page) body{background:#000!important;--sona-notch-color:#000!important;}
  .sona-app-shell:has(.sona-am-search-page)::before{background:#000!important;}
 }
+
+@media(max-width:767px){
+ .sona-am-genre-art::after{background:linear-gradient(var(--sona-category-color),var(--sona-category-color));opacity:.25;}
+ .sona-am-category-label{text-shadow:0 1px 5px #000!important;}
+ .sona-app-shell a,.sona-app-shell a:hover,.sona-app-shell a:active{text-decoration:none!important;}
+ .sona-mobile-album-cover{width:min(65vw,282px)!important;border-radius:20px!important;}
+ [data-sona-album-id] img{border-radius:12px!important;}
+ .sona-empty-genre{min-height:calc(100dvh - 160px);padding:24px 20px;}
+ .sona-empty-genre h1{font-size:28px;font-weight:800;}
+ .sona-empty-genre p{padding:40px 0;color:#aaa;text-align:center;}
+}
+
+@media(max-width:767px){
+ .sona-app-shell a *{text-decoration:none!important;}
+ [data-sona-album-id]>.group{border-radius:14px!important;width:97%;margin-inline:auto;}
+ [data-sona-album-id] .sona-artwork-shell{border-radius:inherit;overflow:hidden;}
+}

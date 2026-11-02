@@ -12,7 +12,6 @@ import { BadgesData } from '@/app/components/header-info'
 import ListWrapper from '@/app/components/list-wrapper'
 import { StickyHeader } from '@/app/components/sticky-header'
 import { useDetectSticky } from '@/app/hooks/use-detect-sticky'
-import ErrorPage from '@/app/pages/error-page'
 import { subsonic } from '@/service/subsonic'
 import { saveGridClickedItem } from '@/utils/gridTools'
 import { queryKeys } from '@/utils/queryKeys'
@@ -42,8 +41,8 @@ export default function Genre() {
   }, [data])
 
   if (isLoading) return <GenreFallback />
-  if (isFetched && !data?.list) {
-    return <ErrorPage status={404} statusText="Not Found" />
+  if (isFetched && !data?.list?.length) {
+    return <div className="sona-empty-genre"><h1>{genre}</h1><p>Nothing to Show.</p></div>
   }
   if (!data?.list) return <GenreFallback />
 

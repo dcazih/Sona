@@ -29,8 +29,8 @@ describe('Dock material and stable contents',()=>{
    const mini=$mini[0],nav=mini.ownerDocument.querySelector('.sona-bottom-nav')!
    expect(getComputedStyle(nav.querySelector('.sona-dock-rim')!).display).to.equal('none')
    expect(getComputedStyle(mini).borderTopWidth).to.equal('0px')
-   expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgb(29, 29, 33)')
-   expect(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgb(29, 29, 33)')
+   expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgba(29, 29, 33, 0.82)')
+   expect(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgba(29, 29, 33, 0.82)')
    expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backdropFilter).to.equal(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backdropFilter)
    expect(getComputedStyle(mini,'::before').display).to.equal('none')
    const progress=mini.querySelector('.sona-web-player-progress')!.getBoundingClientRect()

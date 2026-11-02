@@ -235,19 +235,35 @@
  .sona-dock-shadow{transform:scale(1,var(--sona-rim-scale,1));border-radius:999px;}
 }
 
-/* Each moving capsule owns its opaque material. WebKit must not composite a
-   backdrop-filter texture larger than the capsule while it changes shape. */
+/* Each moving capsule owns its clipped material. */
 @media(max-width:767px){
- .sona-dock-surface,.sona-search-cancel-circle{background:rgb(29,29,33)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
  .sona-player-controls>div:first-child{bottom:0!important;padding-right:11px!important;}
  html[data-sona-dock="compact"] .sona-player-controls>div:first-child{padding-right:3px!important;}
  .sona-player [data-testid="player-button-play"]::before,.sona-player [data-testid="player-button-pause"]::before{width:33.333333%;}
 }
 
-/* No capsule outlines. One clipped opaque layer owns every moving surface. */
+/* No capsule outlines. Each blurred layer is clipped with its host. */
 @media(max-width:767px){
  .sona-dock-rim,.sona-dock-rim-line{display:none!important;}
  .sona-search-cancel-circle{border:0!important;outline:0!important;box-shadow:none!important;}
  .sona-player,.sona-bottom-nav-split,.sona-search-morph{outline:0!important;border:0!important;}
  .sona-dock-surface{border:0!important;outline:0!important;box-shadow:none!important;}
+}
+
+@media(max-width:767px){
+ .sona-dock-surface,.sona-search-cancel-circle{background:rgba(29,29,33,.82)!important;backdrop-filter:blur(22px) saturate(1.4)!important;-webkit-backdrop-filter:blur(22px) saturate(1.4)!important;}
+ html[data-sona-player-progress="hidden"] .sona-web-player-progress{opacity:0!important;animation:none!important;transition:opacity .15s ease!important;}
+ html[data-sona-player-progress="returning"] .sona-web-player-progress{animation:sona-mini-progress-return 3s ease 2.5s both;}
+ @keyframes sona-mini-progress-return{from{opacity:0}to{opacity:1}}
+ .sona-search-cancel-circle{animation:sona-cancel-in .25s ease both;}
+ @keyframes sona-cancel-in{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+}
+
+@media(max-width:767px){
+ .sona-search-cancel-circle{opacity:0;pointer-events:none;transform:translateX(16px);animation:none;transition:opacity .3s ease,transform .44s cubic-bezier(.16,1,.3,1);}
+ .sona-search-cancel-circle.is-visible{opacity:1;pointer-events:auto;transform:translateX(0);}
+}
+
+@media(max-width:767px){
+ .sona-dock-surface{clip-path:inset(0 calc(100% - var(--sona-slot-width)) calc(64px - var(--sona-slot-height)) 0 round calc(var(--sona-slot-height)/2));isolation:isolate;}
 }

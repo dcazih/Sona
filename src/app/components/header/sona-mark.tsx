@@ -4,6 +4,6 @@ type Props = SVGProps<SVGSVGElement> & { size?: number }
 export function SonaMark({ size = 32, style, ...props }: Props) {
   return <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 512 512" role="img" aria-label="Sona" {...props}
     style={{ borderRadius: "11%", overflow: "hidden", ...style } as CSSProperties}>
-    <image href="/apple-music-logo.png?v=16" width="512" height="512" />
+    <image href="/branding-v31/rounded.png" width="512" height="512" />
   </svg>
 }

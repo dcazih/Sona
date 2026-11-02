@@ -669,16 +669,18 @@ export function SonaMobileNavigation() {
           )}
         </DockSurface>
       </div>
-      {fullSearch && (
+      {isSearch && (
         <button
           type="button"
-          className="sona-search-cancel-circle"
+          className={"sona-search-cancel-circle" + (fullSearch ? " is-visible" : "")}
+          aria-hidden={!fullSearch}
+          tabIndex={fullSearch ? 0 : -1}
           aria-label="Cancel search"
           onPointerDown={(event) => event.preventDefault()}
           onClick={() => {
             inputRef.current?.blur()
             setTerm('')
-            setEngaged(true)
+            setEngaged(false)
             setFocused(false)
           }}
         >
