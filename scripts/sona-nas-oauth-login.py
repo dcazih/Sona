@@ -63,8 +63,13 @@ to your NAS, including executing commands, modifying containers and deleting dat
 
     @mcp.custom_route("/login", methods=["POST"])
     async def login_confirm(request: Request) -> Response:
-        if request.headers.get("origin") not in (None, ISSUER):
-            return HTMLResponse("Invalid origin", status_code=403)
+        # OAuth approval may run in a browser/app webview whose Origin header
+        # reflects the embedding client or is "null". Do not use this optional
+        # header as an authorization factor. A valid approval still requires:
+        # 1. a short-lived, one-time OAuth transaction ticket;
+        # 2. a per-transaction CSRF cookie bound to that ticket (Secure, Lax);
+        # 3. the NAS owner's secret, checked in constant time.
+        # Cross-site form posts cannot supply the explicit SameSite=Lax cookie.
         form = await request.form()
         ticket, supplied = form.get("ticket", ""), form.get("secret", "")
         if not isinstance(ticket, str) or not isinstance(supplied, str):
