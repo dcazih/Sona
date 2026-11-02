@@ -156,8 +156,8 @@
  html[data-sona-dock-ready] .sona-app-shell .sona-dock-host.sona-dock-host{
   position:fixed!important;left:0!important;right:auto!important;top:auto!important;bottom:var(--sona-dock-bottom)!important;
   width:calc(100dvw - 18px)!important;height:64px!important;padding:0!important;
-  background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;
-  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;overflow:visible!important;pointer-events:none!important;
+  background:rgba(29,29,33,.75)!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+  backdrop-filter:blur(22px) saturate(1.4)!important;-webkit-backdrop-filter:blur(22px) saturate(1.4)!important;overflow:visible!important;pointer-events:none!important;
   transform:translate3d(var(--sona-slot-left),0,0);translate:0 calc(64px - var(--sona-slot-height) - var(--sona-slot-bottom) + var(--sona-dock-bottom));
   filter:none;will-change:transform;contain:layout style;
  }
@@ -250,7 +250,7 @@
 }
 
 @media(max-width:767px){
- .sona-dock-surface,.sona-search-cancel-circle{background:rgba(29,29,33,.75)!important;backdrop-filter:blur(22px) saturate(1.4)!important;-webkit-backdrop-filter:blur(22px) saturate(1.4)!important;}
+ .sona-search-cancel-circle{background:rgba(29,29,33,.75)!important;backdrop-filter:blur(22px) saturate(1.4)!important;-webkit-backdrop-filter:blur(22px) saturate(1.4)!important;}
  html[data-sona-player-progress="hidden"] .sona-web-player-progress{opacity:0!important;animation:none!important;transition:opacity .15s ease!important;}
  html[data-sona-player-progress="returning"] .sona-web-player-progress{animation:sona-mini-progress-return 3s ease 2.5s both;}
  @keyframes sona-mini-progress-return{from{opacity:0}to{opacity:1}}
@@ -264,13 +264,12 @@
 }
 
 @media(max-width:767px){
- .sona-dock-surface{clip-path:inset(0 calc(100% - var(--sona-slot-width)) calc(64px - var(--sona-slot-height)) 0 round calc(var(--sona-slot-height)/2));isolation:isolate;}
+ .sona-dock-surface{clip-path:none!important;background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;isolation:auto;}
 }
 
-/* Frost belongs to the capsules. The backing and the gap paint nothing. */
+/* The host owns both its clip and the frost: no clipped ancestor may isolate the blur. */
 @media(max-width:767px){
  .sona-bottom-nav-split>.sona-dock-shadow,.sona-search-morph>.sona-dock-shadow{display:none!important;}
  .sona-bottom-nav-split::before,.sona-bottom-nav-split::after,.sona-search-morph::before,.sona-search-morph::after{content:none!important;display:none!important;}
- html[data-sona-dock-ready] .sona-app-shell .sona-bottom-nav-split.sona-dock-host,
- html[data-sona-dock-ready] .sona-app-shell .sona-search-morph.sona-dock-host{background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+
 }

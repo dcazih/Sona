@@ -119,7 +119,6 @@ function parts(element: HTMLElement) {
   return {
     shadow: element.querySelector<HTMLElement>(':scope>.sona-dock-shadow'),
     surface: element,
-    glass: element.querySelector<HTMLElement>(':scope>.sona-dock-surface'),
     contents: element.querySelector<HTMLElement>(
       ':scope>.sona-dock-surface>.sona-dock-contents',
     ),
@@ -252,9 +251,8 @@ function animateSurface(
     { offset: .17, translate: `0px ${fromY}px`, easing: verticalEase },
     { offset: 1, translate: `0px ${targetY}px` },
   ])
-  for (const clipped of [p.surface, p.glass])
-    play(
-      clipped,
+  play(
+      p.surface,
       timeline((f) => ({
         clipPath: `inset(0px ${base - f.width}px ${64 - f.height}px 0px round ${f.height / 2}px)`,
       })),

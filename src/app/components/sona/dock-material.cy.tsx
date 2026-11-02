@@ -28,13 +28,13 @@ describe('Dock material and stable contents',()=>{
   cy.get('.sona-player').should($mini=>{
    const mini=$mini[0],nav=mini.ownerDocument.querySelector('.sona-bottom-nav')!
    expect(getComputedStyle(nav.querySelector('.sona-dock-rim')!).display).to.equal('none')
-   expect(getComputedStyle(nav).backgroundColor).to.equal('rgba(0, 0, 0, 0)')
+   expect(getComputedStyle(nav).backgroundColor).to.equal('rgba(29, 29, 33, 0.75)')
    expect(getComputedStyle(nav.querySelector('.sona-dock-shadow')!).display).to.equal('none')
-   expect(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backdropFilter).to.contain('blur(22px)')
+   expect(getComputedStyle(nav).backdropFilter).to.contain('blur(22px)')
    expect(getComputedStyle(mini).borderTopWidth).to.equal('0px')
-   expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgba(29, 29, 33, 0.75)')
-   expect(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgba(29, 29, 33, 0.75)')
-   expect(getComputedStyle(mini.querySelector('.sona-dock-surface')!).backdropFilter).to.equal(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backdropFilter)
+   expect(getComputedStyle(mini).backgroundColor).to.equal('rgba(29, 29, 33, 0.75)')
+   expect(getComputedStyle(nav.querySelector('.sona-dock-surface')!).backgroundColor).to.equal('rgba(0, 0, 0, 0)')
+   expect(getComputedStyle(mini).backdropFilter).to.equal(getComputedStyle(nav).backdropFilter)
    expect(getComputedStyle(mini,'::before').display).to.equal('none')
    const progress=mini.querySelector('.sona-web-player-progress')!.getBoundingClientRect()
    const buttons=mini.querySelector('[data-testid="player-button-play"],[data-testid="player-button-pause"]')!.getBoundingClientRect()
@@ -44,6 +44,63 @@ describe('Dock material and stable contents',()=>{
   })
   cy.get('.sona-player').screenshot('sona-neutral-mini-progress')
  })
+ it('actually blurs page pixels inside all three dark capsules',()=>{
+  mountDock()
+  let samples:{x:number;y:number;width:number}[]=[]
+  cy.get('.sona-app-shell').then($shell=>{
+   const shell=$shell[0],doc=shell.ownerDocument
+   shell.style.height='844px'
+   const backdrop=doc.createElement('div')
+   backdrop.style.cssText='position:fixed;inset:0;z-index:40;pointer-events:none;background:repeating-linear-gradient(90deg,#fff 0px,#fff 4px,#000 4px,#000 8px)'
+   shell.prepend(backdrop)
+   const style=doc.createElement('style');style.textContent='.sona-dock-contents{visibility:hidden!important}'
+   shell.append(style)
+   const origin=shell.getBoundingClientRect()
+   samples=['.sona-bottom-nav','.sona-search-morph','.sona-player'].map(selector=>{
+    const box=getDockBounds(doc.querySelector<HTMLElement>(selector)!)
+    return {x:box.left+box.width/2-origin.left-8,y:box.top+box.height/2-origin.top,width:origin.width}
+   })
+  })
+  cy.get('.sona-app-shell').screenshot('frost-pixels',{overwrite:true})
+  cy.readFile('cypress/screenshots/dock-material.cy.tsx/frost-pixels.png','base64').then(encoded=>new Cypress.Promise<void>((resolve,reject)=>{
+   const picture=new Image()
+   picture.onload=()=>{
+    try{
+     const canvas=document.createElement('canvas');canvas.width=picture.width;canvas.height=picture.height
+     const ctx=canvas.getContext('2d')!;ctx.drawImage(picture,0,0)
+     const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data
+     // Cypress may resize its capture viewport for fixed-position elements.
+     // Locate the two painted capsule rows in the image, rather than assuming
+     // the pre-capture viewport's Y coordinates survived that resize.
+     const runs:{start:number;end:number}[]=[]
+     const center=Math.floor(picture.width/2)
+     for(let y=0;y<picture.height;y++){
+      const value=pixels[(y*picture.width+center)*4]
+      if(value>35 && value<90){
+       const previous=runs.at(-1)
+       if(previous && previous.end===y-1)previous.end=y
+       else runs.push({start:y,end:y})
+      }
+     }
+     const rows=runs.filter(run=>run.end-run.start>20)
+     expect(rows,'mini-player and navigation rows are visibly painted').to.have.length(2)
+     for(const [index,sample] of samples.entries()){
+      const row=rows[index===2?0:1]
+      const scale=picture.width/sample.width,y=Math.round((row.start+row.end)/2),x=Math.round(sample.x*scale)
+      const values=Array.from({length:16},(_,i)=>pixels[(y*picture.width+x+Math.round(i*scale))*4])
+      const average=values.reduce((sum,value)=>sum+value,0)/values.length
+      const contrast=values.slice(0,12).reduce((sum,value,i)=>sum+Math.abs(value-values[i+4]),0)/12
+      expect(average,'dark frosted background instead of an opaque fill').to.be.greaterThan(35).and.lessThan(90)
+      expect(contrast,'4px stripes are blurred, not visible through clear transparency').to.be.lessThan(8)
+     }
+     resolve()
+    }catch(error){reject(error)}
+   }
+   picture.onerror=reject
+   picture.src='data:image/png;base64,'+encoded
+  }))
+ })
+
  it('keeps mini artwork and icon sizes fixed during every sampled width change',()=>{
   mountDock()
   cy.then(()=>useSonaDock.setState({compact:true}))
