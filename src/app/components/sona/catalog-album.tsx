@@ -1,3 +1,5 @@
+import { NativeHeartTap } from './native-heart-tap'
+import { useDetailArtwork } from '@/app/hooks/use-detail-artwork'
 import { useMobileDetailReveal } from '@/app/hooks/use-mobile-detail-reveal'
 import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router-dom'
@@ -9,18 +11,17 @@ import { catalogGet, catalogProfile, type CatalogAlbum, type CatalogItem, type R
 import { SonaMobileAlbumHero } from './mobile-album-hero'
 import { SonaMobileAlbumTracks } from './mobile-album-tracks'
 import { CatalogRequestButton, CloudGlyph, useRequestMusic } from './catalog-request-button'
-import { NativeHeartTap } from './native-heart-tap'
 import { useCatalogRequests } from './use-catalog'
 
 function CatalogTrack({ item, status, index }: { item: CatalogItem; status?: RequestStatus; index: number }) {
   const { playSong } = usePlayerActions()
   const { working, request } = useRequestMusic(item, status)
   const title = <button type="button" className="sona-album-song-title" disabled={item.requestable === false && !item.localSong}
-    onClick={() => item.localSong ? playSong(item.localSong) : request()}>{item.title}</button>
+    onClick={() => item.localSong && playSong(item.localSong)}>{item.title}</button>
   return <div className={'sona-album-song-row sona-catalog-row' + (!item.localSong ? ' is-unavailable' : '')}>
     <span className="sona-album-song-index">{item.track || index + 1}</span>
-    <div className="sona-album-song-main">{item.localSong ? title : <NativeHeartTap active={working} label={'Request ' + item.title}>{title}</NativeHeartTap>}</div>
-    {!item.localSong && <button className="sona-catalog-request" aria-label={'Request ' + item.title} disabled={working || item.requestable === false} onClick={request}><CloudGlyph working={working}/></button>}
+    <div className="sona-album-song-main">{title}</div>
+    {!item.localSong && <NativeHeartTap active={working} label={'Request ' + item.title}><button className="sona-catalog-request" aria-label={'Request ' + item.title} disabled={working || item.requestable === false} onClick={request}><CloudGlyph working={working}/></button></NativeHeartTap>}
   </div>
 }
 export default function SonaCatalogAlbum() {
@@ -31,9 +32,10 @@ export default function SonaCatalogAlbum() {
   const result = useQuery({ queryKey: ['sona-catalog-album', profile, albumId],
     queryFn: ({ signal }) => catalogGet<CatalogAlbum>('sona/albums/' + encodeURIComponent(albumId), signal),
     staleTime: 15000, refetchInterval: 10000, retry: 1 })
-  const black = useMobileDetailReveal(albumId, result.isPending)
+  const artworkReady = useDetailArtwork(result.data?.cover)
+  const black = useMobileDetailReveal(albumId, result.isPending || !artworkReady)
   if (black) return <div className="sona-detail-black" aria-label="Loading album"/>
-  if (!result.data) return result.isError ? <p className="sona-catalog-message" role="alert">{result.error.message} <button onClick={() => void result.refetch()}>Try again</button></p> : <AlbumFallback/>
+  if (!result.data || !artworkReady) return result.isError ? <p className="sona-catalog-message" role="alert">{result.error.message} <button onClick={() => void result.refetch()}>Try again</button></p> : <AlbumFallback/>
   const album = result.data, statuses = requests.data?.requests || []
   const status = statuses.find(row => row.kind === 'album' && row.mbid === album.id)
   const playable = album.tracks.flatMap(track => track.localSong ? [track.localSong] : [])

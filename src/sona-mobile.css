@@ -263,7 +263,7 @@
     -webkit-overflow-scrolling:touch;
     overscroll-behavior-y:contain;
   }
-  .sona-app-shell:has(.sona-am-search-page) .sona-header {display:none!important}
+  .sona-app-shell:has(.sona-am-search-page) .sona-header:not(.sona-header-detail-view) {display:none!important}
   .sona-app-shell:has(.sona-am-search-page) [data-slot="sidebar-wrapper"] {padding-top:env(safe-area-inset-top,0px)!important}
   .sona-am-search-page {
     background:#050505;
@@ -2528,3 +2528,29 @@
 .sona-app-shell:has(.sona-new-placeholder) #scroll-viewport{overflow:hidden!important;}
 .sona-app-shell:has(.sona-new-placeholder) #main-scroll-area #scroll-viewport>div{height:100%!important;min-height:0!important;padding:0!important;position:relative;box-sizing:border-box;}
 .sona-new-placeholder{position:absolute;inset:0;height:100%;min-height:0;overflow:hidden;}
+
+@media(max-width:767px){
+ .sona-header.sona-header-detail-view{display:grid!important;background:rgba(8,8,9,.78)!important;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);}
+ .sona-album-song-row.sona-catalog-row{box-sizing:border-box;max-width:100%;width:100%;min-width:0;display:flex;}
+ .sona-catalog-row .sona-album-song-main{flex:1;min-width:0;overflow:hidden;}
+ .sona-catalog-row .sona-catalog-request{flex:0 0 40px;width:40px;margin-right:0;}
+ .sona-artist-album-rail,.sona-artist-popular-grid{scroll-snap-type:x mandatory!important;scroll-behavior:auto;}
+ .sona-artist-popular-grid>.sona-am-search-row{scroll-snap-align:start;}
+ .sona-artist-album-card .sona-artwork-shell{height:auto!important;aspect-ratio:1!important;position:relative;}
+ .sona-artist-album-card .sona-artwork-shell>img{position:absolute;inset:0;}
+ .sona-mobile-artist-extra{padding-bottom:24px;}
+ .sona-app-shell:has(.sona-artist-page),.sona-app-shell:has(.sona-album-page){background:var(--sona-detail-background,#080809);}
+}
+
+@media(max-width:767px){
+ #main-scroll-area:has(.sona-album-page){background:linear-gradient(180deg,color-mix(in srgb,var(--sona-page-album-color,#342730) 40%,#17171a),#171719 65%)!important;}
+ #main-scroll-area:has(.sona-artist-page){background:radial-gradient(ellipse 120% 70% at 50% 0%,#493a47 0%,#171719 75%)!important;}
+ .sona-artist-page>.md\:hidden>.sona-artist-actions{position:relative!important;inset:auto!important;}
+}
+
+@media(max-width:767px){.sona-album-song-row.sona-catalog-row>.sona-native-heart-tap{flex:none;max-width:40px;} .sona-album-song-row.sona-catalog-row{padding-right:0!important;} }
+@media(max-width:767px){
+ .sona-app-shell #main-scroll-area:has(.sona-album-page){background:radial-gradient(ellipse 112% 56% at 50% 0%,color-mix(in srgb,var(--sona-page-album-color,#342730) 40%,#17171a) 0%,#171719 82%)!important;}
+ .sona-app-shell #main-scroll-area:has(.sona-artist-page){background:radial-gradient(ellipse 120% 70% at 50% 0%,#493a47 0%,#171719 75%)!important;}
+ .sona-app-shell #main-scroll-area:has(.sona-artist-page) #scroll-viewport,.sona-app-shell #main-scroll-area:has(.sona-album-page) #scroll-viewport{background:transparent!important;}
+}

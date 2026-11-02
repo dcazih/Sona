@@ -19,3 +19,5 @@
 .sona-catalog-message{padding:12px 20px;color:#a8a8af;font-size:14px;}
 .sona-catalog-row .sona-album-song-main>.sona-native-heart-tap{width:100%;justify-content:start;}
 @media(min-width:768px){.sona-catalog-album .sona-mobile-album-hero{display:flex;flex-direction:column;align-items:center;gap:18px;padding:32px}.sona-catalog-album .sona-mobile-album-cover{width:280px;height:280px;border-radius:20px}.sona-catalog-album .sona-mobile-album-details{text-align:center}.sona-catalog-album .sona-mobile-album-actions{gap:18px}.sona-catalog-album .sona-album-song-row{display:flex;align-items:center;gap:16px;padding:8px}.sona-catalog-album .sona-album-song-main{flex:1}}
+
+@media(max-width:767px){.sona-catalog-album .sona-album-songs{box-sizing:border-box;width:calc(100% - 40px)!important;max-width:calc(100% - 40px);margin-inline:20px!important;} .sona-catalog-album .sona-album-song-title{max-width:100%;overflow:hidden;text-overflow:ellipsis;} }

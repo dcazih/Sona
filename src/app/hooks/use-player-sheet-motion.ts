@@ -31,7 +31,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     const { x, sx, sy } = dragShape.current
     sheet.style.transform = `translate3d(${x}px,${distance.current}px,0) scale(${sx},${sy})`
     if (dragBackground.current) {
-      const blend = Math.min(1, (1 - Math.exp(-distance.current / 32)))
+      const blend = Math.min(1, distance.current / (dragShape.current.height * .5))
       dragBackground.current.style.opacity = String(1 - blend)
       const glass = ref.current?.querySelector<HTMLElement>('.sona-now-glass')
       if (glass) glass.style.opacity = String(blend)
@@ -119,12 +119,9 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     const reduced = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     ).matches
-    const duration = reduced ? 0 : expand ? 600 : 690
-    if (!expand) document.documentElement.dataset.sonaPlayerSettling = 'true'
+    const duration = reduced ? 0 : expand ? 600 : 660
     const easing = expand ? OPEN_EASE : CLOSE_EASE
     const extraAnimations: Animation[] = []
-    let reboundTimer = 0
-    let rebounds: Animation[] = []
     const miniFrame = mini?.querySelector<HTMLElement>('.sona-player-cover')
     const miniArt = miniFrame?.querySelector<HTMLImageElement>('img')
     const fullArt = sheet.querySelector<HTMLElement>('.sona-now-art')
@@ -269,26 +266,13 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
                   { transform: 'translate3d(0,42px,0)', opacity: 0 },
                 ],
           {
-            duration: expand ? 570 : 70,
+            duration: expand ? 570 : 40,
             delay: expand && wasClosed ? 45 : 0,
             easing: OPEN_EASE,
             fill: 'both',
           },
         ),
       )
-    }
-    if (!expand && mini && !reduced) {
-      reboundTimer = window.setTimeout(() => {
-        mini.dataset.sonaRebound = 'true'
-        const moving = [mini, sheet, ...(coverGhost.current ? [coverGhost.current] : [])]
-        rebounds = moving.map(node => node.animate(
-          [{ translate: '0 0' }, { translate: '0 4px', offset: .5 }, { translate: '0 0' }],
-          { duration: duration * .1, easing: 'cubic-bezier(.37,0,.25,1)', composite: 'add' },
-        ))
-        Promise.all(rebounds.map(item => item.finished)).then(() => {
-          delete mini.dataset.sonaRebound
-        }).catch(() => {})
-      }, duration * .7)
     }
     const cleanupFlight = () => {
       detailFlight?.cleanup()
@@ -300,9 +284,6 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     cleanupExtras.current = () => {
       cleanupFlight()
       extraAnimations.forEach((item) => item.cancel())
-      window.clearTimeout(reboundTimer)
-      rebounds.forEach(item => item.cancel())
-      if (mini) delete mini.dataset.sonaRebound
     }
     // Top and sides settle first; the bottom stays present until the last part
     // of closing. Sample independent edge curves into compositor keyframes.
@@ -320,7 +301,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       const edge = 1 - Math.pow(1 - t, expand ? 3 : 4)
       const bottomProgress = expand
         ? 1 - Math.pow(1 - t, 6)
-        : 1 - Math.pow(1 - Math.max(0, (t - 0.28) / 0.72), 1.8)
+        : 1 - Math.pow(1 - Math.min(1, Math.max(0, (t * duration - 73) / 467)), 1.8)
       const x = lerp(startBounds.left, endBounds.left, edge)
       const y = lerp(startBounds.top, endBounds.top, edge)
       const w = lerp(startBounds.width, endBounds.width, edge)
@@ -341,6 +322,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     const background = sheet.querySelector<HTMLElement>('.sona-now-background')
     const glass = sheet.querySelector<HTMLElement>('.sona-now-glass')
     const glassOpacity = expand && wasClosed ? 1 : glass ? Number(getComputedStyle(glass).opacity) : 0
+    const backgroundOpacity = background ? Number(getComputedStyle(background).opacity) : 1
     for (const surface of [background, content, glass]) {
       if (!surface) continue
       extraAnimations.push(
@@ -354,9 +336,9 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
                 ? {
                     opacity: expand
                       ? lerp(glassOpacity, 0, Math.min(1, frame.offset / .22))
-                      : lerp(glassOpacity, 1, Math.min(1, frame.offset / .22)),
+                      : lerp(glassOpacity, 1, Math.min(1, frame.offset / .5)),
                   }
-                : surface === background ? { opacity: expand ? Math.min(1, frame.offset / .22) : lerp(Number(getComputedStyle(background!).opacity), 0, Math.min(1, frame.offset / .22)) } : {}),
+                : surface === background ? { opacity: expand ? Math.min(1, frame.offset / .22) : lerp(backgroundOpacity, 0, Math.min(1, frame.offset / .5)) } : {}),
             }
           }),
           { duration, easing: 'linear', fill: 'both' },
@@ -367,7 +349,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     if (capsule && !expand)
       extraAnimations.push(
         capsule.animate([{ opacity: 1 }, { opacity: 0 }], {
-          duration: 30,
+          duration: 0,
           fill: 'both',
         }),
       )
@@ -415,7 +397,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
         ]
         const fades = landing.map((node) =>
           node.animate([{ opacity: getComputedStyle(node).opacity }, { opacity: 0 }], {
-            duration: 1950,
+            duration: 1000,
             easing: 'ease-out',
             fill: 'both',
           }),
@@ -427,17 +409,6 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       })
       .catch(() => {})
   }
-
-  useLayoutEffect(() => {
-    const blockPress = (event: Event) => {
-      if (document.documentElement.dataset.sonaPlayerSettling !== 'true') return
-      event.preventDefault()
-      event.stopImmediatePropagation()
-    }
-    const events = ['pointerdown', 'pointerup', 'click', 'touchstart', 'keydown']
-    events.forEach(type => document.addEventListener(type, blockPress, { capture: true, passive: false }))
-    return () => events.forEach(type => document.removeEventListener(type, blockPress, true))
-  }, [])
 
   useLayoutEffect(() => {
     if (!open && !initialized.current) {

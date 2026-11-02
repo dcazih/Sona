@@ -24,6 +24,17 @@ describe('Dock material and stable contents',()=>{
   useSonaDock.setState({selected:0,compact:false,returnRoute:'/'})
   useSonaSearch.getState().reset()
  })
+ it('keeps the compact title mask immediately before the compact play control',()=>{
+  mountDock()
+  cy.then(()=>useSonaDock.setState({compact:true}))
+  cy.get('.sona-mini-copy').should($copy=>{
+   const copy=$copy[0],button=copy.ownerDocument.querySelector('[data-testid="player-button-play"],[data-testid="player-button-pause"]')!
+   const end=copy.getBoundingClientRect().right,start=button.getBoundingClientRect().left
+   expect(end).to.be.at.most(start+1)
+   expect(start-end).to.be.lessThan(28)
+   expect(getComputedStyle(copy).maskImage).to.contain('linear-gradient')
+  })
+ })
  it('uses neutral navigation glass and keeps the text blur clear of full-width progress',()=>{
   mountDock()
   cy.get('.sona-player').should($mini=>{

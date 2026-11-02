@@ -68,8 +68,8 @@ export function revealMiniPlayerDetails(sheet: HTMLElement, mini: HTMLElement) {
     nodes.push(node)
     animations.push(
       node.animate([{ opacity: 0 }, { opacity }], {
-        delay: 150,
-        duration: 80,
+        delay: 120,
+        duration: 50,
         easing: 'cubic-bezier(.22,.8,.22,1)',
         fill: 'both',
       }),

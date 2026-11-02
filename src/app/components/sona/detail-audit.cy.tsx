@@ -16,8 +16,8 @@ import '@/sona-sections.css'
 import './mobile-artist-sections.css'
 
 describe('Mobile detail and retained Search requirements',()=>{
- beforeEach(()=>{cy.viewport(390,844);useSonaSearch.getState().reset()})
- it('shows black first, skeleton after 3 seconds, and reveals the loaded album together',()=>{
+ beforeEach(()=>{cy.mockCoverArt();cy.viewport(390,844);useSonaSearch.getState().reset()})
+ it('shows black first, skeleton after 1 second, and reveals the loaded album together',()=>{
   cy.fixture('albums/album').then((album:SingleAlbum)=>{
    let resolve!:(album:SingleAlbum)=>void
    cy.stub(subsonic.albums,'getOne').returns(new Promise<SingleAlbum>(done=>{resolve=done}))
@@ -26,7 +26,7 @@ describe('Mobile detail and retained Search requirements',()=>{
    cy.clock()
    mount(<QueryClientProvider client={new QueryClient({defaultOptions:{queries:{retry:false}}})}><MemoryRouter initialEntries={['/library/albums/'+album.id]}><Routes><Route path="/library/albums/:albumId" element={<Album/>}/></Routes></MemoryRouter></QueryClientProvider>)
    cy.get('.sona-detail-black').should('be.visible')
-   cy.tick(2999);cy.get('.sona-mobile-album-cover').should('not.exist')
+   cy.tick(999);cy.get('.sona-mobile-album-cover').should('not.exist')
    cy.tick(1);cy.get('.sona-detail-black').should('not.exist');cy.get('.sona-mobile-album-cover').should('exist')
    cy.clock().invoke('restore');cy.then(()=>resolve({...album,song:[]}));cy.contains('h1',album.name).should('exist')
    cy.get('.sona-album-page').should($page=>expect(getComputedStyle($page[0]).animationName).to.equal('sona-detail-content-in'))

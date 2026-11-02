@@ -16,3 +16,5 @@ html[data-sona-album-morph="active"] .sona-mobile-album-cover { visibility: hidd
  .sona-album-page,.sona-artist-page{animation:sona-detail-content-in .28s ease-out both;}
  @keyframes sona-detail-content-in{from{opacity:0}to{opacity:1}}
 }
+
+@media(max-width:767px){.sona-album-loading,.sona-artist-loading,[aria-label="Loading artist"]:not(.sona-detail-black){animation:sona-detail-content-in .22s ease-out both;}}

@@ -1,5 +1,4 @@
 import {useSonaDock} from './dock-state'
-import {getDockBounds} from './dock-bounds'
 import {SonaMobileNavigation} from './mobile-navigation'
 import { Player } from '@/app/components/player/player'
 import { usePlayerStore } from '@/store/player.store'
@@ -17,7 +16,7 @@ function mountPlayer() {
 }
 
 
-it('keeps the dragged sheet opaque, reaches dock material early and blocks presses until settled',()=>{
+it('keeps the dragged sheet opaque, reaches dock material halfway and allows presses while settling',()=>{
  cy.viewport(390,844)
  useSonaDock.setState({selected:0,compact:false,returnRoute:'/'})
  cy.mockCoverArt()
@@ -29,7 +28,7 @@ it('keeps the dragged sheet opaque, reaches dock material early and blocks press
  cy.get('.sona-now-drag-handle').trigger('pointermove',{eventConstructor:'PointerEvent',pointerId:81,isPrimary:true,clientX:180,clientY:135})
  cy.get('.sona-now-overlay').should($sheet=>{
   expect(Number(getComputedStyle($sheet[0]).opacity)).to.equal(1)
-  expect(Number(getComputedStyle($sheet[0].querySelector('.sona-now-background')!).opacity)).to.be.lessThan(.05)
+  expect(Number(getComputedStyle($sheet[0].querySelector('.sona-now-background')!).opacity)).to.be.closeTo(1 - 110 / 422, .03)
   expect(getComputedStyle($sheet[0]).backgroundColor).to.equal(getComputedStyle($sheet[0].ownerDocument.querySelector('.sona-player')!).backgroundColor)
  })
  cy.get('.sona-now-drag-handle').trigger('pointerup',{eventConstructor:'PointerEvent',pointerId:81,isPrimary:true,clientX:180,clientY:700})
@@ -37,8 +36,7 @@ it('keeps the dragged sheet opaque, reaches dock material early and blocks press
   const shape=$sheet[0].getAnimations().find(a=>(a.effect as KeyframeEffect).getKeyframes().some(frame=>frame.transform))!
   shape.pause();shape.currentTime=200
  })
- cy.get('[aria-label="Search"]').click({force:true})
- cy.get('html').should('have.attr','data-sona-player-settling','true')
+ cy.get('html').should('not.have.attr','data-sona-player-settling')
  cy.get('[aria-label="Search"]').should('exist')
  cy.get('.sona-now-overlay').then($sheet=>$sheet[0].getAnimations().forEach(a=>a.finish()))
  cy.get('.sona-now-overlay').should('have.attr','data-phase','landing').then($sheet=>$sheet[0].getAnimations().forEach(a=>a.finish()))

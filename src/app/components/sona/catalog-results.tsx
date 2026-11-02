@@ -1,3 +1,4 @@
+import { NativeHeartTap } from './native-heart-tap'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ChevronRight } from 'lucide-react'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -11,7 +12,6 @@ import { catalogGet, catalogProfile, type CatalogItem, type RequestStatus } from
 import type { ISearchResponse } from '@/types/responses/search'
 import { useCatalogRequests } from './use-catalog'
 import { CloudGlyph, useRequestMusic } from './catalog-request-button'
-import { NativeHeartTap } from './native-heart-tap'
 import type { SearchFilter } from './search-state'
 import type { RecentItem } from './mobile-search'
 
@@ -28,10 +28,10 @@ export function CatalogRow({ item, statuses, remember }: { item: Item; statuses:
   const open = () => {
     remember?.({ id: item.localId || item.id, title: item.title, subtitle: item.artist, type: item.kind,
       coverArt: item.localCover, coverUrl: item.cover, catalog: !item.localId, albumId: item.localSong?.albumId || item.albumId })
-    if (item.kind === 'song') { if (item.localSong) playSong(item.localSong); else request(); return }
+    if (item.kind === 'song') { if (item.localSong) playSong(item.localSong); else if (item.albumId) navigate('/catalog/albums/' + item.albumId, { state: { sonaOpenedFromSearch: location.pathname === '/mobile-search' || Boolean(location.state?.sonaOpenedFromSearch) } }); return }
     navigate(item.localId ? (item.kind === 'artist' ? ROUTES.ARTIST.PAGE(item.localId) : ROUTES.ALBUM.PAGE(item.localId)) : '/catalog/' + (item.kind === 'artist' ? 'artists/' : 'albums/') + item.id, { state: { sonaOpenedFromSearch: location.pathname === '/mobile-search' || Boolean(location.state?.sonaOpenedFromSearch) } })
   }
-  const info = <button type="button" className="sona-am-result-info" onClick={open} aria-label={(missing ? 'Request ' : '') + item.title}>
+  const info = <button type="button" className="sona-am-result-info" onClick={open} aria-label={item.title}>
     <span className={'sona-am-result-art ' + (item.kind === 'artist' ? 'is-artist' : '')}>
       {item.localCover ? <ImageLoader id={item.localCover} type={item.kind} size={130}>{src => <ArtworkImage src={src} alt=""/>}</ImageLoader>
         : item.cover ? <ArtworkImage src={item.cover} alt="" loading="lazy"/> : <SonaNoteGlyph size={23}/>}
@@ -39,8 +39,8 @@ export function CatalogRow({ item, statuses, remember }: { item: Item; statuses:
     <span className="sona-am-result-copy"><strong>{item.title}</strong><small>{item.artist}{item.album ? ' · ' + item.album : ''}</small></span>
   </button>
   return <div className={'sona-am-search-row sona-catalog-row' + (missing ? ' is-unavailable' : '') + (active ? ' is-playing' : '')}>
-    {missing ? <NativeHeartTap active={working} label={'Request ' + item.title}>{info}</NativeHeartTap> : info}
-    {missing ? <button type="button" className="sona-catalog-request" aria-label={working ? 'Request in progress' : 'Request ' + item.title} disabled={working} onClick={request}><CloudGlyph working={working}/></button>
+    {info}
+    {missing ? <NativeHeartTap active={working} label={'Request ' + item.title}><button type="button" className="sona-catalog-request" aria-label={working ? 'Request in progress' : 'Request ' + item.title} disabled={working} onClick={request}><CloudGlyph working={working}/></button></NativeHeartTap>
       : item.kind === 'song' ? <button className="sona-am-result-play" aria-label={'Play ' + item.title} onClick={open}><PlaybackIndicator active={active}/></button>
       : <button className="sona-am-result-play" aria-label={'Open ' + item.title} onClick={open}><ChevronRight size={20}/></button>}
   </div>

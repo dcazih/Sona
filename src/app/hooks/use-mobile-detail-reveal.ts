@@ -6,7 +6,7 @@ export function useMobileDetailReveal(key: string, loading: boolean) {
   useLayoutEffect(() => {
     setElapsed(null)
     if (!loading) return
-    const timer = window.setTimeout(() => setElapsed(key), 3000)
+    const timer = window.setTimeout(() => setElapsed(key), 1000)
     return () => window.clearTimeout(timer)
   }, [key, loading])
   return loading && elapsed !== key

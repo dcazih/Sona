@@ -1,6 +1,4 @@
 import { CatalogResults } from './catalog-results'
-import { requestCatalogItem } from '@/service/sona-catalog'
-import { toast } from 'react-toastify'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ArrowRight, ChevronRight, Search } from 'lucide-react'
 import { SongExplicitMark } from './song-explicit-mark'
@@ -256,9 +254,8 @@ export default function SonaMobileSearch() {
     }
     if (item.catalog) {
       if (item.type === 'song') {
-        navigator.vibrate?.(10)
-        void requestCatalogItem({ id: item.id, kind: 'song', title: item.title, artist: item.subtitle, albumId: item.albumId }).catch(error => toast.error(error.message))
-      } else navigate('/catalog/' + (item.type === 'artist' ? 'artists/' : 'albums/') + item.id)
+        if (item.albumId) navigate('/catalog/albums/' + item.albumId, { state: { sonaOpenedFromSearch: true } })
+      } else navigate('/catalog/' + (item.type === 'artist' ? 'artists/' : 'albums/') + item.id, { state: { sonaOpenedFromSearch: true } })
       setFocused(false)
       return
     }

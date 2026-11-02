@@ -1,3 +1,7 @@
+import CatalogArtist from '@/app/components/sona/catalog-artist'
+import { ArtistButtons } from '@/app/components/artist/buttons'
+import { useDetailArtwork } from '@/app/hooks/use-detail-artwork'
+import { getImmediateCoverArtUrl } from '@/api/httpClient'
 import { useIsMobile } from '@/app/hooks/use-mobile'
 import { useMobileDetailReveal } from '@/app/hooks/use-mobile-detail-reveal'
 import {
@@ -26,7 +30,6 @@ import ErrorPage from '@/app/pages/error-page'
 import { ROUTES } from '@/routes/routesList'
 import { sortRecentAlbums } from '@/utils/album'
 import { SonaMobileArtistHero } from '@/app/components/sona/mobile-artist-hero'
-import { SonaMobileArtistSections } from '@/app/components/sona/mobile-artist-sections'
 
 export default function Artist() {
   const { t } = useTranslation()
@@ -43,10 +46,11 @@ export default function Artist() {
   const { data: topSongs, isLoading: topSongsIsLoading } = useGetTopSongs(
     artist?.name,
   )
-  const showBlack = useMobileDetailReveal(artistId, artistIsLoading || (mobile && topSongsIsLoading))
+  const artworkReady = useDetailArtwork(artist?.coverArt ? getImmediateCoverArtUrl(artist.coverArt, 'artist', '700') : undefined)
+  const showBlack = useMobileDetailReveal(artistId, artistIsLoading || (mobile && topSongsIsLoading) || !artworkReady)
 
   if (showBlack && mobile) return <div className="sona-detail-black" aria-label="Loading artist" />
-  if (artistIsLoading || (mobile && topSongsIsLoading))
+  if (artistIsLoading || (mobile && (topSongsIsLoading || !artworkReady)))
     return mobile ? <MobileArtistLoading /> : <AlbumFallback />
   if (isFetched && !artist) {
     return <ErrorPage status={404} statusText="Not Found" />
@@ -110,11 +114,12 @@ export default function Artist() {
       </div>
       <div className="md:hidden">
         <SonaMobileArtistHero artist={artist} songCount={songCount} />
-        <SonaMobileArtistSections artistId={artist.id} artistName={artist.name} songs={topSongs || []} albums={recentAlbums} />
+        <ArtistButtons artist={artist} showInfoButton={false} isArtistEmpty={artist.albumCount === 0} />
+        <CatalogArtist artistName={artist.name} catalogArtistId={artist.musicBrainzId || artistInfo?.musicBrainzId} embedded />
       </div>
 
       <ListWrapper className={mobile ? 'sona-mobile-artist-extra' : undefined}>
-        {mobile ? <details className="sona-mobile-artist-about"><summary>About {artist.name}</summary><ArtistInfo artist={artist} /></details> : <ArtistInfo artist={artist} />}
+        {mobile ? <details className="sona-mobile-artist-about"><summary>About {artist.name}</summary><p className="sona-artist-biography">{artistInfo?.biography?.replace(/<[^>]*>/g, '')}</p></details> : <ArtistInfo artist={artist} />}
 
         {!mobile && topSongsIsLoading &&
           (mobile ? <MobileArtistSongsLoading /> : <TopSongsTableFallback />)}
