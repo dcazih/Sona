@@ -1,0 +1,21 @@
+.sona-request-cloud{display:inline-block;width:26px;height:26px;flex:none;background:currentColor;mask:url('/cloud-request.svg') center/contain no-repeat;-webkit-mask:url('/cloud-request.svg') center/contain no-repeat;}
+.sona-request-cloud.is-working{animation:sona-request-pulse 2.4s ease-in-out infinite;}
+@keyframes sona-request-pulse{0%,100%{opacity:1}50%{opacity:.28}}
+@media(prefers-reduced-motion:reduce){.sona-request-cloud.is-working{animation:none;opacity:.65}}
+.sona-catalog-request{display:grid;place-items:center;width:44px;height:44px;flex:none;color:var(--sona-accent,#ff648a);background:transparent;border:0;}
+.sona-catalog-request:disabled{cursor:default;}
+.sona-catalog-row.is-unavailable .sona-am-result-copy,.sona-catalog-row.is-unavailable .sona-album-song-main{color:#a8a8af;}
+.sona-catalog-row.is-unavailable .sona-am-result-copy small{color:#8d8d96;}
+.sona-catalog-row>.sona-native-heart-tap:first-child{flex:1;min-width:0;display:flex;}
+.sona-catalog-row>.sona-native-heart-tap:first-child>.sona-am-result-info{width:100%;}
+.sona-catalog-row .sona-am-result-copy strong{color:inherit;}
+.sona-catalog-album{padding-bottom:24px;}
+.sona-catalog-album .sona-mobile-album-cover{overflow:hidden;}
+.sona-catalog-album .sona-mobile-album-cover>.sona-artwork-shell{width:100%;height:100%;}
+.sona-catalog-album .sona-mobile-album-cover img{width:100%;height:100%;object-fit:cover;}
+.sona-catalog-album .sona-album-songs{margin:0 20px;}
+.sona-catalog-album .sona-mobile-album-actions{display:flex;justify-content:center;}
+.sona-catalog-album .sona-mobile-album-round{width:48px;height:48px;}
+.sona-catalog-message{padding:12px 20px;color:#a8a8af;font-size:14px;}
+.sona-catalog-row .sona-album-song-main>.sona-native-heart-tap{width:100%;justify-content:start;}
+@media(min-width:768px){.sona-catalog-album .sona-mobile-album-hero{display:flex;flex-direction:column;align-items:center;gap:18px;padding:32px}.sona-catalog-album .sona-mobile-album-cover{width:280px;height:280px;border-radius:20px}.sona-catalog-album .sona-mobile-album-details{text-align:center}.sona-catalog-album .sona-mobile-album-actions{gap:18px}.sona-catalog-album .sona-album-song-row{display:flex;align-items:center;gap:16px;padding:8px}.sona-catalog-album .sona-album-song-main{flex:1}}

@@ -1,4 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
+import { CatalogResults } from './catalog-results'
+import { requestCatalogItem } from '@/service/sona-catalog'
+import { toast } from 'react-toastify'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { ArrowRight, ChevronRight, Play, Search } from 'lucide-react'
 import { SongExplicitMark } from './song-explicit-mark'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
@@ -13,7 +16,7 @@ import { useAppStore } from '@/store/app.store'
 import { DISCOVER_ARTISTS, DISCOVER_PHOTOS, DISCOVER_FOCAL_POINTS, matchingGenre, rankDiscoverOnceDaily } from './search-discovery'
 import { useSonaSearch, type SearchFilter } from './search-state'
 
-type RecentItem = { id: string; title: string; subtitle: string; type: 'song' | 'album' | 'artist' | 'query'; coverArt?: string; albumId?: string; explicitStatus?: string }
+export type RecentItem = { id: string; title: string; subtitle: string; type: 'song' | 'album' | 'artist' | 'query'; coverArt?: string; albumId?: string; explicitStatus?: string; catalog?: boolean; coverUrl?: string }
 const RECENTS_KEY = 'sona-mobile-recent-searches'
 const SCOPE_KEY = 'sona-mobile-search-scope'
 type SearchScope = 'sona' | 'library'
@@ -140,11 +143,12 @@ export default function SonaMobileSearch() {
   }, [term])
 
   const { data: searchData, isFetching, isError } = useQuery({
-    queryKey: ['sona-mobile-search-v2', query],
+    queryKey: ['sona-mobile-search-v2', discoveryProfile, query],
     queryFn: () => subsonic.search.get({ query, albumCount: 35, artistCount: 35, songCount: 60 }),
     enabled: query.length >= 2,
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
+    placeholderData: keepPreviousData,
   })
   const { data: genres } = useQuery({
     queryKey: ['sona-mobile-genre-browse'],
@@ -170,9 +174,9 @@ export default function SonaMobileSearch() {
   },[])
 
   const resultsReady = term.trim() === query
-  const songs = resultsReady ? searchData?.song ?? [] : []
-  const albums = resultsReady ? searchData?.album ?? [] : []
-  const artists = resultsReady ? searchData?.artist ?? [] : []
+  const songs = searchData?.song ?? []
+  const albums = searchData?.album ?? []
+  const artists = searchData?.artist ?? []
   const hasResults = songs.length > 0 || albums.length > 0 || artists.length > 0
   const activeSearch = engaged || term.length > 0
 
@@ -228,6 +232,14 @@ export default function SonaMobileSearch() {
       setEngaged(true)
       return
     }
+    if (item.catalog) {
+      if (item.type === 'song') {
+        navigator.vibrate?.(10)
+        void requestCatalogItem({ id: item.id, kind: 'song', title: item.title, artist: item.subtitle, albumId: item.albumId }).catch(error => toast.error(error.message))
+      } else navigate('/catalog/' + (item.type === 'artist' ? 'artists/' : 'albums/') + item.id)
+      setFocused(false)
+      return
+    }
     if (item.type === 'artist') navigate(ROUTES.ARTIST.PAGE(item.id))
     else navigate(ROUTES.ALBUM.PAGE(item.albumId || item.id))
     setFocused(false)
@@ -258,7 +270,7 @@ export default function SonaMobileSearch() {
       <div className="sona-am-search-row" key={item.type + ':' + item.id}>
         <button type="button" className="sona-am-result-info" onClick={() => visit(item)}>
           <span className={'sona-am-result-art ' + (item.type === 'artist' ? 'is-artist' : '')}>
-            {item.coverArt ? (
+            {item.coverUrl ? <ArtworkImage src={item.coverUrl} alt="" loading="lazy"/> : item.coverArt ? (
               <ImageLoader id={item.coverArt} type={item.type === 'song' ? 'song' : item.type === 'album' ? 'album' : 'artist'} size={130}>
                 {(src) => item.type === 'artist'
                   ? <img src={src} alt="" loading="lazy" />
@@ -328,7 +340,7 @@ export default function SonaMobileSearch() {
                   <h2>Recently Searched</h2>
                   <button type="button" onClick={clearRecent}>Clear</button>
                 </div>
-                {recent.map((item) => renderRow(item))}
+                {recent.filter(item => searchScope === 'sona' || !item.catalog).map((item) => renderRow(item))}
               </>}
             </section>
           ) : (
@@ -352,10 +364,11 @@ export default function SonaMobileSearch() {
               </div>
               {errorMessage && <p className="sona-am-status">{errorMessage}</p>}
               {isError && <p className="sona-am-status">Search failed. Check your Navidrome connection.</p>}
-              {(isFetching || !resultsReady) && <p className="sona-am-status">Searching your library...</p>}
-              {query.length >= 2 && !isFetching && !isError && !hasResults &&
+              {(isFetching || !resultsReady) && <p className="sona-am-status">{searchScope === 'library' ? 'Searching your library…' : 'Searching…'}</p>}
+              {searchScope === 'library' && query.length >= 2 && !isFetching && !isError && !hasResults &&
                 <p className="sona-am-status">No matches found for “{query}”.</p>}
-              {showArtists && artists.length > 0 &&
+              {searchScope === 'sona' && query.length >= 2 && <CatalogResults query={query} filter={filter} local={searchData} remember={remember}/>}
+              {searchScope === 'library' && showArtists && artists.length > 0 &&
                 <section className="sona-am-result-section">
                   <h2>Artists</h2>
                   {artists.map((artist) => renderRow({
@@ -363,7 +376,7 @@ export default function SonaMobileSearch() {
                     subtitle:'Artist',coverArt:artist.coverArt,
                   }))}
                 </section>}
-              {showAlbums && albums.length > 0 &&
+              {searchScope === 'library' && showAlbums && albums.length > 0 &&
                 <section className="sona-am-result-section">
                   <h2>Albums</h2>
                   {albums.map((album) => renderRow({
@@ -374,7 +387,7 @@ export default function SonaMobileSearch() {
                     void startAlbum(album.id,album.name)
                   }))}
                 </section>}
-              {showSongs && songs.length > 0 &&
+              {searchScope === 'library' && showSongs && songs.length > 0 &&
                 <section className="sona-am-result-section">
                   <h2>Songs</h2>
                   {songs.map((song) => renderRow({

@@ -36,6 +36,8 @@ import SonaResponsive from '@/app/components/sona/mobile-responsive'
 import { SonaArtistsList, SonaAlbumsList, SonaGenresList, SonaGenreDetail, SonaPlaylistsList, SonaPlaylistDetail, SonaSongsList, SonaDownloadsList } from '@/app/components/sona/mobile-section-pages'
 
 const BaseLayout = lazy(() => import('@/app/layout/base'))
+const CatalogAlbum = lazy(() => import('@/app/components/sona/catalog-album'))
+const CatalogArtist = lazy(() => import('@/app/components/sona/catalog-artist'))
 const Album = lazy(() => import('@/app/pages/albums/album'))
 const AlbumsList = lazy(() => import('@/app/pages/albums/list'))
 const Artist = lazy(() => import('@/app/pages/artists/artist'))
@@ -102,6 +104,8 @@ export const router = createHashRouter([
           </Suspense>
         ),
       },
+      { path: '/catalog/albums/:albumId', element: <Suspense fallback={<AlbumFallback/>}><CatalogAlbum/></Suspense>, errorElement: <ErrorPage/> },
+      { path: '/catalog/artists/:artistId', element: <Suspense fallback={<ArtistsFallback/>}><CatalogArtist/></Suspense>, errorElement: <ErrorPage/> },
       {
         id: 'sona-downloads',
         path: '/library/downloads',

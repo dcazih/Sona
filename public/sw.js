@@ -1,6 +1,6 @@
 /* Sona service worker: network-first application updates, opt-in audio cache.
    Previous cache-first JS/CSS/favicon policy could freeze old branding/UI. */
-const APP_CACHE = 'sona-app-v33'
+const APP_CACHE = 'sona-app-v34'
 const ARTWORK_CACHE = 'sona-artwork-v5'
 let artworkWrites = 0
 const MEDIA_CACHE = 'sona-media-v1'
@@ -78,7 +78,7 @@ self.addEventListener('fetch', (event) => {
 
   // Never cache the app shell or authentication endpoints. Network-first
   // assets ensure a new deployment does not retain a stale theme/favicon.
-  if (request.mode === 'navigate' || /\/(?:rest|api)\//.test(url.pathname)) return
+  if (request.mode === 'navigate' || /\/(?:rest|api|sona-api)\//.test(url.pathname)) return
 
   if (/\.(?:js|css|woff2?|ttf|png|svg|ico|webp|gif)$/.test(url.pathname)) {
     event.respondWith((async () => {

@@ -22,7 +22,7 @@ export function MainRoutes() {
     if (!viewport) return
     // Search must never restore an old scroll offset behind the iOS keyboard.
     const resetOnEntry =
-      pathname === '/mobile-search' ||
+      pathname === '/mobile-search' || pathname.startsWith('/catalog/') ||
       /^\/library\/albums\/[^/]+$/.test(pathname)
     const saved = resetOnEntry ? 0 : scrollPositions.get(route) || 0
     let restoring = saved > 0

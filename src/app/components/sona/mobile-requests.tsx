@@ -71,6 +71,12 @@ export default function SonaMobileRequests() {
     [],
   )
 
+  useEffect(() => {
+    const refresh = () => frame.current?.contentWindow?.postMessage({ type: 'sona-profile-refresh' }, PROFILE_ORIGIN)
+    window.addEventListener('sona:requests-changed', refresh)
+    return () => window.removeEventListener('sona:requests-changed', refresh)
+  }, [])
+
   function handoffProfileSession() {
     frame.current?.contentWindow?.postMessage(
       {

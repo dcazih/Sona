@@ -49,7 +49,8 @@ export function Header() {
   }, [libraryMenuOpen])
   const albumId = /^\/library\/albums\/([^/]+)$/.exec(pathname)?.[1]
   const artistId = /^\/library\/artists\/([^/]+)$/.exec(pathname)?.[1]
-  const isMobileDetail = Boolean(albumId || artistId)
+  const isCatalogDetail = pathname.startsWith('/catalog/')
+  const isMobileDetail = Boolean(albumId || artistId || isCatalogDetail)
   const isSectionView =
     !isMobileDetail &&
     (pathname === '/library/albums' ||
