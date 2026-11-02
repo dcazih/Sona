@@ -1,4 +1,4 @@
-import CatalogArtist from '@/app/components/sona/catalog-artist'
+import CatalogArtist, { useArtistCatalog } from '@/app/components/sona/catalog-artist'
 import { ArtistButtons } from '@/app/components/artist/buttons'
 import { useDetailArtwork } from '@/app/hooks/use-detail-artwork'
 import { getImmediateCoverArtUrl } from '@/api/httpClient'
@@ -46,11 +46,13 @@ export default function Artist() {
   const { data: topSongs, isLoading: topSongsIsLoading } = useGetTopSongs(
     artist?.name,
   )
+  const catalogue = useArtistCatalog(mobile ? artist?.musicBrainzId || artistInfo?.musicBrainzId : '', mobile ? artist?.name : undefined)
+  const catalogueLoading = mobile && (catalogue.discovery.isLoading || catalogue.result.isLoading || catalogue.local.isLoading)
   const artworkReady = useDetailArtwork(artist?.coverArt ? getImmediateCoverArtUrl(artist.coverArt, 'artist', '700') : undefined)
-  const showBlack = useMobileDetailReveal(artistId, artistIsLoading || (mobile && topSongsIsLoading) || !artworkReady)
+  const showBlack = useMobileDetailReveal(artistId, artistIsLoading || (mobile && topSongsIsLoading) || !artworkReady || catalogueLoading)
 
   if (showBlack && mobile) return <div className="sona-detail-black" aria-label="Loading artist" />
-  if (artistIsLoading || (mobile && (topSongsIsLoading || !artworkReady)))
+  if (artistIsLoading || (mobile && (topSongsIsLoading || !artworkReady || catalogueLoading)))
     return mobile ? <MobileArtistLoading /> : <AlbumFallback />
   if (isFetched && !artist) {
     return <ErrorPage status={404} statusText="Not Found" />

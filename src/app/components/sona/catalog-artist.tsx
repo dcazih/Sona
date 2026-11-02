@@ -9,10 +9,7 @@ import { subsonic } from '@/service/subsonic'
 import { CatalogRow } from './catalog-results'
 import { useCatalogRequests } from './use-catalog'
 import './mobile-artist-sections.css'
-export default function CatalogArtist({ catalogArtistId, artistName, embedded = false }: { catalogArtistId?: string; artistName?: string; embedded?: boolean } = {}) {
-  const params = useParams()
-  const location = useLocation()
-  const knownId = catalogArtistId || params.artistId || ''
+export function useArtistCatalog(knownId = '', artistName?: string) {
   const discovery = useQuery({ queryKey: ['sona-artist-identity', catalogProfile(), artistName],
     queryFn: ({ signal }) => catalogGet<{ artists: CatalogItem[] }>('sona/search?q=' + encodeURIComponent(artistName!), signal),
     enabled: !knownId && Boolean(artistName), staleTime: 600000 })
@@ -21,6 +18,13 @@ export default function CatalogArtist({ catalogArtistId, artistName, embedded = 
     queryFn: ({ signal }) => catalogGet<{ title: string; albums: CatalogItem[]; songs?: CatalogItem[] }>('sona/artists/' + encodeURIComponent(artistId), signal), staleTime: 600000, enabled: Boolean(artistId) })
   const local = useQuery({ queryKey: ['sona-catalog-artist-local', catalogProfile(), result.data?.title],
     queryFn: () => subsonic.songs.getTopSongs(result.data!.title), enabled: Boolean(result.data?.title), staleTime: 600000 })
+  return { artistId, discovery, result, local }
+}
+export default function CatalogArtist({ catalogArtistId, artistName, embedded = false }: { catalogArtistId?: string; artistName?: string; embedded?: boolean } = {}) {
+  const params = useParams()
+  const location = useLocation()
+  const knownId = catalogArtistId || (embedded ? '' : params.artistId) || ''
+  const { artistId, discovery, result, local } = useArtistCatalog(knownId, artistName)
   const requests = useCatalogRequests()
   const artworkReady = useDetailArtwork(embedded ? undefined : result.data?.albums[0]?.cover)
   const loading = discovery.isLoading || (Boolean(artistId) && result.isPending) || local.isLoading || !artworkReady
