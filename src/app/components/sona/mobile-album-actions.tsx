@@ -6,6 +6,7 @@ import { subsonic } from '@/service/subsonic'
 import { useAppStore } from '@/store/app.store'
 import {
   useIsAlbumPlaying,
+  usePlayerCurrentSong,
   usePlayerActions,
   usePlayerStore,
 } from '@/store/player.store'
@@ -20,7 +21,11 @@ import {
 
 export function SonaMobileAlbumActions({ album }: { album: SingleAlbum }) {
   const { setSongList, togglePlayPause, toggleShuffle } = usePlayerActions()
-  const { isAlbumActive, isAlbumPlaying } = useIsAlbumPlaying(album.id)
+  const { isAlbumActive } = useIsAlbumPlaying(album.id)
+  const currentSong = usePlayerCurrentSong()
+  const currentSongIsHere = album.song.some(song => song.id === currentSong?.id)
+  const playbackActive = usePlayerStore(state => state.playerState.isPlaying)
+  const showPause = currentSongIsHere && playbackActive
   const shuffleActive = usePlayerStore(
     (state) => state.playerState.isShuffleActive,
   )
@@ -38,7 +43,7 @@ export function SonaMobileAlbumActions({ album }: { album: SingleAlbum }) {
   })
 
   function play() {
-    if (isAlbumActive) togglePlayPause()
+    if (currentSongIsHere) togglePlayPause()
     else setSongList(album.song, 0, false, source)
   }
   function shuffle() {
@@ -80,15 +85,15 @@ export function SonaMobileAlbumActions({ album }: { album: SingleAlbum }) {
       <button
         type="button"
         className="sona-mobile-album-play"
-        aria-label={(isAlbumPlaying ? 'Pause ' : 'Play ') + album.name}
+        aria-label={(showPause ? 'Pause ' : 'Play ') + album.name}
         onClick={play}
       >
-        {isAlbumPlaying ? (
+        {showPause ? (
           <Pause size={24} fill="currentColor" />
         ) : (
           <Play size={24} fill="currentColor" />
         )}
-        <span>{isAlbumPlaying ? 'Pause' : 'Play'}</span>
+        <span>{showPause ? 'Pause' : 'Play'}</span>
       </button>
       {!hideFavorites && (
         <NativeHeartTap

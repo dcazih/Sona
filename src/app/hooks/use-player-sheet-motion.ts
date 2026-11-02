@@ -30,7 +30,12 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     if (!sheet) return
     const { x, sx, sy } = dragShape.current
     sheet.style.transform = `translate3d(${x}px,${distance.current}px,0) scale(${sx},${sy})`
-    if (dragBackground.current) dragBackground.current.style.opacity = String(1 - Math.min(1, distance.current / (dragShape.current.height * .7)))
+    if (dragBackground.current) {
+      const blend = Math.min(1, distance.current / (dragShape.current.height * .7))
+      dragBackground.current.style.opacity = '1'
+      const glass = ref.current?.querySelector<HTMLElement>('.sona-now-glass')
+      if (glass) glass.style.opacity = String(blend)
+    }
     const radius = playerDragRadius(distance.current)
     const corners = `${(radius / sx).toFixed(1)}px ${(radius / sx).toFixed(1)}px 0 0 / ${(radius / sy).toFixed(1)}px ${(radius / sy).toFixed(1)}px 0 0`
     if (lastCorners.current !== corners) {
@@ -158,6 +163,13 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
         ghostImage = svg
       }
       if (imageSrc) (ghostImage as HTMLImageElement).src = imageSrc
+      if (imageSrc) {
+        // The decoded source is already on screen. A CSS image paints from the
+        // same resource while WebKit initializes the cloned <img> element.
+        ghost.style.backgroundImage = `url(${JSON.stringify(imageSrc)})`
+        ghost.style.backgroundSize = 'cover'
+        ghost.style.backgroundPosition = 'center'
+      }
       ghostImage.removeAttribute('id')
       ghostImage.removeAttribute('class')
       if (ghostImage instanceof HTMLImageElement) {
@@ -268,13 +280,13 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
         mini.dataset.sonaRebound = 'true'
         const moving = [mini, sheet, ...(coverGhost.current ? [coverGhost.current] : [])]
         rebounds = moving.map(node => node.animate(
-          [{ translate: '0 0' }, { translate: '0 4px', offset: .45 }, { translate: '0 0' }],
-          { duration: 300, easing: 'cubic-bezier(.37,0,.25,1)', composite: 'add' },
+          [{ translate: '0 0' }, { translate: '0 4px', offset: .5 }, { translate: '0 0' }],
+          { duration: duration * .2, easing: 'cubic-bezier(.37,0,.25,1)', composite: 'add' },
         ))
         Promise.all(rebounds.map(item => item.finished)).then(() => {
           delete mini.dataset.sonaRebound
         }).catch(() => {})
-      }, duration * .8)
+      }, duration * .5)
     }
     const cleanupFlight = () => {
       detailFlight?.cleanup()
@@ -326,7 +338,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     })
     const background = sheet.querySelector<HTMLElement>('.sona-now-background')
     const glass = sheet.querySelector<HTMLElement>('.sona-now-glass')
-    const colorOpacity = expand && wasClosed ? 0 : background ? Number(getComputedStyle(background).opacity) : 1
+    const glassOpacity = expand && wasClosed ? 1 : glass ? Number(getComputedStyle(glass).opacity) : 0
     for (const surface of [background, content, glass]) {
       if (!surface) continue
       extraAnimations.push(
@@ -336,11 +348,11 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
             return {
               offset: frame.offset,
               scale: `${1 / matrix.a} ${1 / matrix.d}`,
-              ...(surface === background
+              ...(surface === glass
                 ? {
                     opacity: expand
-                      ? lerp(colorOpacity, 1, Math.min(1, frame.offset / 0.55))
-                      : lerp(colorOpacity, 0, Math.min(1, frame.offset / 0.55)),
+                      ? lerp(glassOpacity, 0, Math.min(1, frame.offset / .55))
+                      : lerp(glassOpacity, 1, Math.min(1, frame.offset / .55)),
                   }
                 : {}),
             }
@@ -370,7 +382,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
         background.style.scale = '1'
         background.style.opacity = '1'
       }
-      if (glass && expand) glass.style.scale = '1'
+      if (glass) { glass.style.scale = '1'; glass.style.opacity = expand ? '0' : '1' }
       if (content && expand) content.style.scale = '1'
       cleanupFlight()
       sheet.dataset.phase = expand ? 'open' : 'closed'

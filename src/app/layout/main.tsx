@@ -20,9 +20,9 @@ export function MainRoutes() {
   useLayoutEffect(() => {
     const viewport = getMainScrollElement()
     if (!viewport) return
-    // Search must never restore an old scroll offset behind the iOS keyboard.
+    // Preserve Search's scroll when returning from another tab or detail page.
     const resetOnEntry =
-      pathname === '/mobile-search' || pathname.startsWith('/catalog/') ||
+      pathname.startsWith('/catalog/') ||
       /^\/library\/albums\/[^/]+$/.test(pathname)
     const saved = resetOnEntry ? 0 : scrollPositions.get(route) || 0
     let restoring = saved > 0

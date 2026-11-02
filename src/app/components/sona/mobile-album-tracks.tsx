@@ -1,6 +1,6 @@
 import { Ellipsis } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
+import { PlayingBars } from './playing-bars'
 import { SongMenuOptions } from '@/app/components/song/menu-options'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/app/components/ui/dropdown-menu'
 import { ROUTES } from '@/routes/routesList'
@@ -38,7 +38,7 @@ export function SonaMobileAlbumTracks({ album, showHeading = true, sourceType = 
                 play(index)
               }}>
               <span className="sona-album-song-index">
-                {active ? <SonaNoteGlyph size={20}/> : (sourceType === 'favourite' ? index + 1 : song.track || index + 1)}
+                {active ? <PlayingBars size={20}/> : (sourceType === 'favourite' ? index + 1 : song.track || index + 1)}
               </span>
               <div className="sona-album-song-main">
                 <button type="button" className="sona-album-song-title"

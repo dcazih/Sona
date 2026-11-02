@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { ArtworkImage } from '@/app/components/artwork-image'
 import { ImageLoader } from '@/app/components/image-loader'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
-import { usePlayerActions } from '@/store/player.store'
+import { usePlayerActions, usePlayerCurrentSong } from '@/store/player.store'
+import { PlayingBars } from './playing-bars'
 import { ROUTES } from '@/routes/routesList'
 import { catalogGet, catalogProfile, type CatalogItem, type RequestStatus } from '@/service/sona-catalog'
 import type { ISearchResponse } from '@/types/responses/search'
@@ -18,6 +19,8 @@ type Item = CatalogItem & { localId?: string; localCover?: string }
 const normalize = (value?: string) => (value || '').normalize('NFKC').toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
 export function CatalogRow({ item, statuses, remember }: { item: Item; statuses: RequestStatus[]; remember?: (item: RecentItem) => void }) {
   const navigate = useNavigate(), { playSong } = usePlayerActions()
+  const currentSong = usePlayerCurrentSong()
+  const active = item.kind === 'song' && item.localSong?.id === currentSong?.id
   const status = statuses.find(row => row.mbid === item.id && row.kind === (item.kind === 'song' ? 'track' : 'album'))
   const { working, request } = useRequestMusic(item, status)
   const missing = item.kind === 'song' && !item.localSong
@@ -34,10 +37,10 @@ export function CatalogRow({ item, statuses, remember }: { item: Item; statuses:
     </span>
     <span className="sona-am-result-copy"><strong>{item.title}</strong><small>{item.artist}{item.album ? ' · ' + item.album : ''}</small></span>
   </button>
-  return <div className={'sona-am-search-row sona-catalog-row' + (missing ? ' is-unavailable' : '')}>
+  return <div className={'sona-am-search-row sona-catalog-row' + (missing ? ' is-unavailable' : '') + (active ? ' is-playing' : '')}>
     {missing ? <NativeHeartTap active={working} label={'Request ' + item.title}>{info}</NativeHeartTap> : info}
     {missing ? <button type="button" className="sona-catalog-request" aria-label={working ? 'Request in progress' : 'Request ' + item.title} disabled={working} onClick={request}><CloudGlyph working={working}/></button>
-      : item.kind === 'song' ? <button className="sona-am-result-play" aria-label={'Play ' + item.title} onClick={open}><Play size={16} fill="currentColor"/></button>
+      : item.kind === 'song' ? <button className="sona-am-result-play" aria-label={'Play ' + item.title} onClick={open}>{active ? <PlayingBars size={18}/> : <Play size={16} fill="currentColor"/>}</button>
       : <button className="sona-am-result-play" aria-label={'Open ' + item.title} onClick={open}><ChevronRight size={20}/></button>}
   </div>
 }

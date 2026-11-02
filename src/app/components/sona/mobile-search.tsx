@@ -11,7 +11,8 @@ import { useNavigate } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
 import { ROUTES } from '@/routes/routesList'
 import { subsonic } from '@/service/subsonic'
-import { usePlayerActions } from '@/store/player.store'
+import { usePlayerActions, usePlayerCurrentSong } from '@/store/player.store'
+import { PlayingBars } from './playing-bars'
 import { useAppStore } from '@/store/app.store'
 import { DISCOVER_ARTISTS, DISCOVER_PHOTOS, DISCOVER_FOCAL_POINTS, matchingGenre, rankDiscoverOnceDaily } from './search-discovery'
 import { useSonaSearch, type SearchFilter } from './search-state'
@@ -19,6 +20,24 @@ import { useSonaSearch, type SearchFilter } from './search-state'
 export type RecentItem = { id: string; title: string; subtitle: string; type: 'song' | 'album' | 'artist' | 'query'; coverArt?: string; albumId?: string; explicitStatus?: string; catalog?: boolean; coverUrl?: string }
 const RECENTS_KEY = 'sona-mobile-recent-searches'
 const SCOPE_KEY = 'sona-mobile-search-scope'
+const retainedGenreImages: HTMLImageElement[] = []
+let genresPreloaded = false
+function preloadGenreImages() {
+  if (genresPreloaded) return
+  genresPreloaded = true
+  const urls = [...new Set(Object.values(DISCOVER_PHOTOS))]
+  let cursor = 0
+  const next = async (): Promise<void> => {
+    const src = urls[cursor++]
+    if (!src) return
+    const image = new Image()
+    image.src = src
+    retainedGenreImages.push(image)
+    try { await image.decode() } catch { /* the visible card can retry */ }
+    await next()
+  }
+  for (let index = 0; index < Math.min(6, urls.length); index++) void next()
+}
 type SearchScope = 'sona' | 'library'
 function lastSearchScope(): SearchScope {
   try { return window.localStorage.getItem(SCOPE_KEY) === 'library' ? 'library' : 'sona' }
@@ -35,6 +54,7 @@ function loadRecents(): RecentItem[] {
 }
 
 export default function SonaMobileSearch() {
+  useEffect(preloadGenreImages, [])
   const navigate = useNavigate()
   const discoveryProfile = useAppStore(state=>state.data.url+'|'+state.data.username)
   const [discoveryDay,setDiscoveryDay] = useState(()=>new Date().toDateString())
@@ -55,6 +75,7 @@ export default function SonaMobileSearch() {
   const scopeEl = useRef<HTMLDivElement>(null)
   const blockScopeClickUntil = useRef(0)
   const { playSong, setSongList } = usePlayerActions()
+  const currentSong = usePlayerCurrentSong()
 
   const chooseScope = (scope: SearchScope) => {
     setSearchScope(scope)
@@ -240,8 +261,8 @@ export default function SonaMobileSearch() {
       setFocused(false)
       return
     }
-    if (item.type === 'artist') navigate(ROUTES.ARTIST.PAGE(item.id))
-    else navigate(ROUTES.ALBUM.PAGE(item.albumId || item.id))
+    if (item.type === 'artist') navigate(ROUTES.ARTIST.PAGE(item.id), { state: { sonaOpenedFromSearch: true } })
+    else navigate(ROUTES.ALBUM.PAGE(item.albumId || item.id), { state: { sonaOpenedFromSearch: true } })
     setFocused(false)
   }
 
@@ -267,7 +288,7 @@ export default function SonaMobileSearch() {
 
   function renderRow(item: RecentItem, onPlay?: () => void) {
     return (
-      <div className="sona-am-search-row" key={item.type + ':' + item.id}>
+      <div className={'sona-am-search-row' + (item.type === 'song' && item.id === currentSong?.id ? ' is-playing' : '')} key={item.type + ':' + item.id}>
         <button type="button" className="sona-am-result-info" onClick={() => visit(item)}>
           <span className={'sona-am-result-art ' + (item.type === 'artist' ? 'is-artist' : '')}>
             {item.coverUrl ? <ArtworkImage src={item.coverUrl} alt="" loading="lazy"/> : item.coverArt ? (
@@ -284,7 +305,7 @@ export default function SonaMobileSearch() {
           </span>
           {!onPlay && <ChevronRight size={20} className="sona-am-row-chevron"/>}
         </button>
-        {onPlay && <button type="button" className="sona-am-result-play" aria-label={'Play ' + item.title} onClick={onPlay}><Play size={16} fill="currentColor"/></button>}
+        {onPlay && <button type="button" className="sona-am-result-play" aria-label={'Play ' + item.title} onClick={onPlay}>{item.id === currentSong?.id ? <PlayingBars size={18}/> : <Play size={16} fill="currentColor"/>}</button>}
       </div>
     )
   }

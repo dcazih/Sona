@@ -2,7 +2,7 @@ import { DockSurface } from './dock-surface'
 import { getDockBounds } from './dock-bounds'
 import { useDockMorph } from './use-dock-morph'
 import { isStandalonePwa } from '@/utils/is-standalone-pwa'
-import { Compass, House, Library, ListPlus, Mic, Search, X } from 'lucide-react'
+import { Compass, House, Library, ListPlus, Search, X } from 'lucide-react'
 import {
   useEffect,
   useLayoutEffect,
@@ -26,22 +26,6 @@ const tabs = [
   { key: 'library', label: 'Library', icon: Library, url: '/mobile-library' },
 ] as const
 
-type Recognition = {
-  lang: string
-  interimResults: boolean
-  onresult:
-    | ((event: {
-        results: ArrayLike<ArrayLike<{ transcript: string }>>
-      }) => void)
-    | null
-  onerror: (() => void) | null
-  start: () => void
-  stop: () => void
-}
-type SpeechWindow = Window & {
-  SpeechRecognition?: new () => Recognition
-  webkitSpeechRecognition?: new () => Recognition
-}
 type Swipe = {
   pointerId: number
   startX: number
@@ -72,21 +56,18 @@ export function SonaMobileNavigation() {
   const circleMode = compact || isSearch
   const [keyboardVisible, setKeyboardVisible] = useState(false)
   const [keyboardClosing, setKeyboardClosing] = useState(false)
-  const [voiceError, setVoiceError] = useState('')
-  const recognition = useRef<Recognition | null>(null)
   const term = useSonaSearch((state) => state.term)
   const focused = useSonaSearch((state) => state.focused)
   const setTerm = useSonaSearch((state) => state.setTerm)
   const setFocused = useSonaSearch((state) => state.setFocused)
   const engaged = useSonaSearch((state) => state.engaged)
   const setEngaged = useSonaSearch((state) => state.setEngaged)
-  const reset = useSonaSearch((state) => state.reset)
 
   useLayoutEffect(() => {
     const index = tabRoots.findIndex((root) => root === pathname)
     if (index >= 0) selectTab(index)
-    if (!isSearch) useSonaDock.getState().setReturnRoute(pathname + search)
-  }, [pathname, search, isSearch, selectTab])
+    if (!isSearch && !routeState?.sonaOpenedFromSearch) useSonaDock.getState().setReturnRoute(pathname + search)
+  }, [pathname, search, isSearch, routeState, selectTab])
 
   const fullSearch = isSearch && (engaged || term.length > 0)
   const resultsDock = fullSearch && !focused
@@ -223,10 +204,7 @@ export function SonaMobileNavigation() {
 
   function leaveSearch() {
     inputRef.current?.blur()
-    recognition.current?.stop()
     setFocused(false)
-    setVoiceError('')
-    reset()
   }
   function goTo(url: string) {
     const index = tabRoots.findIndex((root) => root === url)
@@ -334,7 +312,6 @@ export function SonaMobileNavigation() {
 
   useEffect(() => {
     if (!isSearch) {
-      recognition.current?.stop()
       setKeyboardVisible(false)
       setFocused(false)
     }
@@ -485,32 +462,6 @@ export function SonaMobileNavigation() {
     }
   }, [isSearch, setFocused])
 
-  function startVoiceSearch() {
-    const w = window as SpeechWindow
-    const SpeechRecognition = w.SpeechRecognition || w.webkitSpeechRecognition
-    if (!SpeechRecognition) {
-      setVoiceError('Voice search is not supported by this browser.')
-      return
-    }
-    try {
-      recognition.current?.stop()
-      const r = new SpeechRecognition()
-      recognition.current = r
-      r.lang = navigator.language || 'en-US'
-      r.interimResults = false
-      r.onresult = (event) => {
-        setTerm(event.results[0][0].transcript)
-        inputRef.current?.focus()
-        setVoiceError('')
-      }
-      r.onerror = () =>
-        setVoiceError('Microphone permission is needed for voice search.')
-      r.start()
-    } catch {
-      setVoiceError('Voice search could not start.')
-    }
-  }
-
   function submitSearch(event: FormEvent) {
     event.preventDefault()
     const value = term.trim()
@@ -608,7 +559,6 @@ export function SonaMobileNavigation() {
             aria-label={isSearch ? 'Focus search' : 'Search'}
             onClick={() => {
               if (!isSearch) {
-                reset()
                 setCompact(false)
                 navigate('/mobile-search', {
                   state: { sonaSearchOrigin: pathname + search },
@@ -635,9 +585,7 @@ export function SonaMobileNavigation() {
               enterKeyHint="search"
               spellCheck={false}
               autoComplete="off"
-              placeholder={
-                focused ? 'Artists, albums, songs…' : 'Search Your Library'
-              }
+              placeholder="Artists, albums, songs…"
               value={term}
               onPointerDown={() => {
                 // On iOS, focusing a fixed bottom input can scroll the document
@@ -668,21 +616,7 @@ export function SonaMobileNavigation() {
                 if (event.key === 'Escape') leaveSearch()
               }}
             />
-            <button
-              type="button"
-              className="sona-search-inline-action"
-              tabIndex={isSearch ? 0 : -1}
-              aria-label="Voice search"
-              onClick={startVoiceSearch}
-            >
-              <Mic size={19} />
-            </button>
           </form>
-          {voiceError && (
-            <span role="status" className="sona-search-voice-error">
-              {voiceError}
-            </span>
-          )}
         </DockSurface>
       </div>
       {isSearch && (

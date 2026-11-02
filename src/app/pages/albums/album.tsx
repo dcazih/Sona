@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { useIsMobile } from '@/app/hooks/use-mobile'
+import { useMobileDetailReveal } from '@/app/hooks/use-mobile-detail-reveal'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { AlbumComment } from '@/app/components/album/comment'
@@ -41,7 +42,9 @@ export default function Album() {
     useGetGenreAlbums(album?.genre || '')
 
   const moreAlbums = artist?.album
+  const showBlack = useMobileDetailReveal(albumId, albumIsLoading)
 
+  if (showBlack && isMobile) return <div className="sona-detail-black" aria-label="Loading album" />
   if (albumIsLoading) return <AlbumFallback />
   if (isFetched && !album) {
     return <ErrorPage status={404} statusText="Not Found" />

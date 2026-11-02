@@ -28,7 +28,7 @@
    position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
    display:block!important;object-fit:cover!important;object-position:var(--sona-category-position,center 10%)!important;
    border-radius:0!important;filter:contrast(1.05) saturate(1.1)!important;
-   opacity:1!important;mix-blend-mode:normal!important;transform:none!important;
+   opacity:.8!important;mix-blend-mode:normal!important;transform:none!important;
    -webkit-mask-image:none!important;mask-image:none!important
  }
  .sona-am-search-page .sona-am-genre-art .sona-am-category-album-art img{opacity:.80!important}
@@ -57,7 +57,7 @@
 }
 
 @media(max-width:767px){
- .sona-am-genre-art::after{background:linear-gradient(var(--sona-category-color),var(--sona-category-color));opacity:.25;}
+ .sona-am-genre-art::after{background:linear-gradient(var(--sona-category-color),var(--sona-category-color));opacity:.4;}
  .sona-am-category-label{text-shadow:0 1px 5px #000!important;}
  .sona-app-shell a,.sona-app-shell a:hover,.sona-app-shell a:active{text-decoration:none!important;}
  .sona-mobile-album-cover{width:min(65vw,282px)!important;border-radius:20px!important;}

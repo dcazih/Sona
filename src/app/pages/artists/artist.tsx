@@ -1,4 +1,5 @@
 import { useIsMobile } from '@/app/hooks/use-mobile'
+import { useMobileDetailReveal } from '@/app/hooks/use-mobile-detail-reveal'
 import {
   MobileArtistLoading,
   MobileArtistSongsLoading,
@@ -25,6 +26,7 @@ import ErrorPage from '@/app/pages/error-page'
 import { ROUTES } from '@/routes/routesList'
 import { sortRecentAlbums } from '@/utils/album'
 import { SonaMobileArtistHero } from '@/app/components/sona/mobile-artist-hero'
+import { SonaMobileArtistSections } from '@/app/components/sona/mobile-artist-sections'
 
 export default function Artist() {
   const { t } = useTranslation()
@@ -41,7 +43,9 @@ export default function Artist() {
   const { data: topSongs, isLoading: topSongsIsLoading } = useGetTopSongs(
     artist?.name,
   )
+  const showBlack = useMobileDetailReveal(artistId, artistIsLoading)
 
+  if (showBlack && mobile) return <div className="sona-detail-black" aria-label="Loading artist" />
   if (artistIsLoading)
     return mobile ? <MobileArtistLoading /> : <AlbumFallback />
   if (isFetched && !artist) {
@@ -106,18 +110,19 @@ export default function Artist() {
       </div>
       <div className="md:hidden">
         <SonaMobileArtistHero artist={artist} songCount={songCount} />
+        <SonaMobileArtistSections artistId={artist.id} artistName={artist.name} songs={topSongs || []} albums={recentAlbums} />
       </div>
 
-      <ListWrapper>
-        <ArtistInfo artist={artist} />
+      <ListWrapper className={mobile ? 'sona-mobile-artist-extra' : undefined}>
+        {mobile ? <details className="sona-mobile-artist-about"><summary>About {artist.name}</summary><ArtistInfo artist={artist} /></details> : <ArtistInfo artist={artist} />}
 
-        {topSongsIsLoading &&
+        {!mobile && topSongsIsLoading &&
           (mobile ? <MobileArtistSongsLoading /> : <TopSongsTableFallback />)}
-        {topSongs && !topSongsIsLoading && (
+        {!mobile && topSongs && !topSongsIsLoading && (
           <ArtistTopSongs topSongs={topSongs} artist={artist} />
         )}
 
-        {recentAlbums.length > 0 && (
+        {!mobile && recentAlbums.length > 0 && (
           <PreviewList
             title={t('artist.recentAlbums')}
             list={recentAlbums}

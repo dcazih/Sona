@@ -168,6 +168,7 @@
  .sona-player .sona-dock-contents{height:50px;transform:none;}
  .sona-player .sona-player-layout{height:50px!important;}
  .sona-dock-rim{position:absolute;width:64px;height:64px;left:0;top:0;pointer-events:none;fill:none;stroke:#ffffff29;stroke-width:1;transform-origin:0 0;}
+ .sona-dock-rim,.sona-dock-rim-line{display:none!important;}
  .sona-dock-rim-left{clip-path:inset(0 50% 0 0);}
  .sona-dock-rim-right{clip-path:inset(0 0 0 50%);}
  .sona-dock-rim-line{position:absolute;left:0;top:0;height:1px;width:100%;background:#ffffff29;pointer-events:none;transform-origin:0 0;}
@@ -224,8 +225,8 @@
 
 @media(max-width:767px){
  .sona-player-controls>div:first-child::before{display:none!important;}
- .sona-player [data-testid="player-button-play"]::before,.sona-player [data-testid="player-button-pause"]::before{content:"";position:absolute;right:100%;top:0;width:100%;height:100%;background:linear-gradient(to right,transparent,rgb(29,29,33));pointer-events:none;z-index:-1;}
- .sona-player [data-testid="player-button-play"]::after,.sona-player [data-testid="player-button-pause"]::after{content:"";position:absolute;left:0;right:-60px;top:0;height:100%;background:rgb(29,29,33);pointer-events:none;z-index:-1;}
+ .sona-player [data-testid="player-button-play"]::before,.sona-player [data-testid="player-button-pause"]::before{content:"";position:absolute;right:100%;top:-25px;width:100%;height:100px;background:linear-gradient(to right,transparent,rgba(29,29,33,.75));pointer-events:none;z-index:-1;}
+ .sona-player [data-testid="player-button-play"]::after,.sona-player [data-testid="player-button-pause"]::after{content:"";position:absolute;left:0;right:-60px;top:-25px;height:100px;background:rgba(29,29,33,.75);pointer-events:none;z-index:-1;}
 }
 
 @media(max-width:767px){

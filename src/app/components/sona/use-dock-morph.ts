@@ -8,7 +8,7 @@ type State = {
   focused: boolean
   moving: boolean
 }
-export const DOCK_DURATION = 300
+export const DOCK_DURATION = 260
 const geometry = (element: HTMLElement) => {
   const box = getDockBounds(element)
   return {
@@ -197,8 +197,7 @@ function animateSurface(
           { offset: 1, fraction: 1 },
         ]
       : [
-          { offset: 0, fraction: 0, easing: 'linear' },
-          { offset: 0.17, fraction: 0, easing: widthEase },
+          { offset: 0, fraction: 0, easing: widthEase },
           { offset: 1, fraction: 1 },
         ]
   const frames = widthStops.map((stop) => ({
@@ -271,13 +270,8 @@ function animateSurface(
         transform: `translate3d(0,${(f.height - 64) / 2}px,0)`,
       })),
     )
-  for (const key of ['left', 'right', 'top', 'bottom'] as const)
-    play(
-      p[key],
-      timeline((f) => ({
-        transform: rimTransforms(f.width, f.height, base)[key],
-      })),
-    )
+  // The rim is hidden on mobile; animating four more clipped SVG surfaces
+  // makes rapid tab/Search reversals hitch on iPhone.
   play(
     p.controls,
     timeline((f) => ({ transform: `translate3d(${f.width - base}px,0,0)` })),
