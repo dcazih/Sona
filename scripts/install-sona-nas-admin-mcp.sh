@@ -85,7 +85,7 @@ app = mcp.streamable_http_app()
 PY
 # Download versioned OAuth modules into the temporary Docker build context.
 # Set SONA_SOURCE_REF to an immutable commit SHA to pin these dependencies.
-SOURCE_REF="${SONA_SOURCE_REF:-sona-cassette-mobile}"
+SOURCE_REF="${SONA_SOURCE_REF:-main}"
 RAW_OAUTH="https://raw.githubusercontent.com/dcazih/Sona/${SOURCE_REF}/scripts"
 curl --fail --silent --show-error --location --retry 3 \
   "${RAW_OAUTH}/sona-nas-oauth-provider.py" -o "$APP_DIR/oauth_provider.py"
@@ -186,10 +186,12 @@ fi
 
 docker exec "$TAILSCALE_CONTAINER" tailscale funnel --bg "http://${NAS_IP}:${PORT}"
 echo 'MCP endpoint: https://homelab.hippocampus-polaris.ts.net/mcp'
+echo 'Meta Muse public OAuth client ID: muse'
+echo 'Muse OAuth callback: https://agent.meta.ai/api/hatch/oauth/callback'
 echo "NAS gateway: http://${NAS_IP}:${PORT}/mcp"
 echo 'Authentication token is stored in the Docker-managed sona-nas-admin-private volume.'
 echo 'Read privately: sudo docker exec sona-nas-admin-mcp cat /run/secrets/token'
-echo 'Use the owner secret only on the NAS OAuth consent page opened by ChatGPT. Never paste it in this chat.'
+echo 'Use the owner secret only on the NAS OAuth consent page opened by Muse. Never paste it into an AI chat.'
 echo 'Unauthenticated probe: curl -i https://homelab.hippocampus-polaris.ts.net/mcp (expect 401)'
 echo 'OAuth metadata: https://homelab.hippocampus-polaris.ts.net/.well-known/oauth-authorization-server'
 echo 'MCP resource metadata: https://homelab.hippocampus-polaris.ts.net/.well-known/oauth-protected-resource/mcp'

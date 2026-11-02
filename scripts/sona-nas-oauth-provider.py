@@ -21,6 +21,32 @@ from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 ISSUER = "https://homelab.hippocampus-polaris.ts.net"
 RESOURCE = ISSUER + "/mcp"
 SCOPE = "nas:root"
+
+# Meta Muse's personal assistant uses a pre-issued public client ID.
+# Its callback is fixed and it does not use dynamic client registration.
+# Keep the callback exact to prevent OAuth code interception.
+MUSE_CLIENT_ID = "muse"
+MUSE_REDIRECT_URI = "https://agent.meta.ai/api/hatch/oauth/callback"
+MUSE_CLIENT = OAuthClientInformationFull.model_validate({
+    "client_id": MUSE_CLIENT_ID,
+    "client_name": "Meta Muse",
+    "redirect_uris": [MUSE_REDIRECT_URI],
+    "response_types": ["code"],
+    "grant_types": ["authorization_code", "refresh_token"],
+    "token_endpoint_auth_method": "none",
+    "scope": SCOPE,
+})
+
+def permitted_redirect(value: str) -> bool:
+    parts = urlsplit(value)
+    if parts.scheme != "https" or parts.username or parts.password:
+        return False
+    if parts.port not in (None, 443) or parts.query or parts.fragment:
+        return False
+    if parts.hostname == "agent.meta.ai":
+        return value == MUSE_REDIRECT_URI
+    return parts.hostname in ("chatgpt.com", "chat.openai.com")
+
 OWNER_SECRET_FILE = Path("/run/secrets/token")
 DB_FILE = Path("/audit/oauth.sqlite3")
 
@@ -76,6 +102,8 @@ class OwnerOAuthProvider(
     OAuthAuthorizationServerProvider[AuthorizationCode, SonaRefreshToken, AccessToken]
 ):
     async def get_client(self, client_id: str) -> OAuthClientInformationFull | None:
+        if client_id == MUSE_CLIENT_ID:
+            return MUSE_CLIENT
         row = store.db.execute(
             "SELECT data FROM clients WHERE id=?", (client_id,)
         ).fetchone()
@@ -83,12 +111,10 @@ class OwnerOAuthProvider(
 
     async def register_client(self, client_info: OAuthClientInformationFull):
         callbacks = client_info.redirect_uris or []
-        if not callbacks or any(
-            urlsplit(str(url)).scheme != "https"
-            or urlsplit(str(url)).hostname not in ("chatgpt.com", "chat.openai.com")
-            for url in callbacks
-        ):
-            raise RegistrationError("invalid_redirect_uri", "ChatGPT HTTPS callback required")
+        if not callbacks or any(not permitted_redirect(str(url)) for url in callbacks):
+            raise RegistrationError("invalid_redirect_uri", "Unapproved HTTPS callback")
+        if client_info.client_id == MUSE_CLIENT_ID:
+            raise RegistrationError("invalid_client_metadata", "Muse uses the built-in public client")
         if not client_info.client_id:
             raise RegistrationError("invalid_client_metadata", "Client ID required")
         store.db.execute(

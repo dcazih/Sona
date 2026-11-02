@@ -40,7 +40,7 @@ border-radius:8px}}
 input{{background:#22232a;color:#fff;border:1px solid #777}}
 button{{background:#fff;color:#111;border:0;font-weight:bold;cursor:pointer}}
 </style></head><body><main><h2>Sona NAS Admin</h2>
-<p>ChatGPT is requesting <strong>unrestricted administrator access</strong>
+<p>Meta Muse or another authorized client is requesting <strong>unrestricted administrator access</strong>
 to your NAS, including executing commands, modifying containers and deleting data.</p>
 <form method="post" action="/login">
 <input type="hidden" name="ticket" value="{ticket_html}">
