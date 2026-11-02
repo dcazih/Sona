@@ -1,4 +1,6 @@
 import { isStandalonePwa } from '@/utils/is-standalone-pwa'
+import { useAppStore } from '@/store/app.store'
+import { recordGenreListen } from './search-discovery'
 import { Airplay, ListMusic } from 'lucide-react'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { type TouchEvent, useEffect, useRef, useState } from 'react'
@@ -39,6 +41,7 @@ type Gesture = {
 export function SonaMobileNowPlaying() {
   const { isFullscreen, setIsFullscreen } = usePlayerFullscreen()
   const song = usePlayerCurrentSong()
+  const discoveryProfile = useAppStore(state=>state.data.url+'|'+state.data.username)
   const playing = usePlayerIsPlaying()
   const ambientStyle = useSonaAmbient()
   const audioRef = usePlayerRef()
@@ -49,6 +52,22 @@ export function SonaMobileNowPlaying() {
   const gesture = useRef<Gesture | null>(null)
   const suppressClick = useRef(false)
   const artTouchX = useRef<number | null>(null)
+
+  // Count a genre listen only after actual playback, not on browse or a skip.
+  useEffect(()=>{
+    const audio=audioRef as HTMLAudioElement | null
+    if(!audio || !song?.id || !(song.genre || song.genres?.length))return
+    let recorded=false
+    const onTime=()=>{
+      const threshold=Math.max(10,Math.min(25,(song.duration||80)/4))
+      if(!recorded && !audio.paused && audio.currentTime>=threshold){
+        recorded=true
+        recordGenreListen(discoveryProfile,song)
+      }
+    }
+    audio.addEventListener('timeupdate',onTime)
+    return ()=>audio.removeEventListener('timeupdate',onTime)
+  },[audioRef,song?.id,song?.genre,discoveryProfile])
 
   useEffect(() => {
     setSupportsAirplay(

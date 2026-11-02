@@ -4,11 +4,13 @@ import { SongExplicitMark } from './song-explicit-mark'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
 import { ArtworkImage } from '@/app/components/artwork-image'
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ImageLoader } from '@/app/components/image-loader'
 import { ROUTES } from '@/routes/routesList'
 import { subsonic } from '@/service/subsonic'
 import { usePlayerActions } from '@/store/player.store'
+import { useAppStore } from '@/store/app.store'
+import { DISCOVER_PHOTOS, categoryPhoto, matchingGenre, rankDiscoverOnceDaily } from './search-discovery'
 import { useSonaSearch, type SearchFilter } from './search-state'
 
 type RecentItem = { id: string; title: string; subtitle: string; type: 'song' | 'album' | 'artist' | 'query'; coverArt?: string; albumId?: string; explicitStatus?: string }
@@ -19,12 +21,6 @@ function lastSearchScope(): SearchScope {
   try { return window.localStorage.getItem(SCOPE_KEY) === 'library' ? 'library' : 'sona' }
   catch { return 'sona' }
 }
-const genresColors = [
-  ['#635fef', '#17193c'], ['#e563a3','#48162d'], ['#1f9f87','#07362c'],
-  ['#f19a3a','#5c1924'], ['#3772e3','#191d50'], ['#e44f54','#511c37'],
-  ['#8e68dc','#292044'], ['#caa23e','#564225'], ['#5ac6c0','#1d3c4b'],
-  ['#e8667c','#54213e'], ['#3f9b76','#143f30'], ['#7e84bd','#383353'],
-]
 
 function loadRecents(): RecentItem[] {
   try {
@@ -37,6 +33,8 @@ function loadRecents(): RecentItem[] {
 
 export default function SonaMobileSearch() {
   const navigate = useNavigate()
+  const discoveryProfile = useAppStore(state=>state.data.url+'|'+state.data.username)
+  const [discoveryDay,setDiscoveryDay] = useState(()=>new Date().toDateString())
   const term = useSonaSearch((state) => state.term)
   const setTerm = useSonaSearch((state) => state.setTerm)
   const focused = useSonaSearch((state) => state.focused)
@@ -153,11 +151,23 @@ export default function SonaMobileSearch() {
     queryFn: () => subsonic.genres.get(),
     staleTime: 300000,
   })
-  const { data: albumList } = useQuery({
-    queryKey: ['sona-mobile-browse-art'],
-    queryFn: () => subsonic.albums.getAlbumList({ type: 'frequent', size: 100 }),
-    staleTime: 300000,
+  const { data: frequentAlbums } = useQuery({
+    queryKey: ['sona-mobile-browse-art','frequent',discoveryProfile],
+    queryFn: () => subsonic.albums.getAlbumList({ type: 'frequent', size: 180 }),
+    staleTime: 30 * 60 * 1000,
   })
+  const { data: recentAlbums } = useQuery({
+    queryKey: ['sona-mobile-browse-art','recent',discoveryProfile],
+    queryFn: () => subsonic.albums.getAlbumList({ type: 'recent', size: 80 }),
+    staleTime: 30 * 60 * 1000,
+  })
+  useEffect(()=>{
+    const timer=window.setInterval(()=>{
+      const today=new Date().toDateString()
+      setDiscoveryDay(previous=>previous===today?previous:today)
+    },60000)
+    return ()=>window.clearInterval(timer)
+  },[])
 
   const resultsReady = term.trim() === query
   const songs = resultsReady ? searchData?.song ?? [] : []
@@ -166,15 +176,29 @@ export default function SonaMobileSearch() {
   const hasResults = songs.length > 0 || albums.length > 0 || artists.length > 0
   const activeSearch = engaged || term.length > 0
 
-  const browse = useMemo(() => {
-    const options = (genres ?? []).filter((g) => (g.albumCount || g.songCount) > 0)
-      .sort((a,b) => b.albumCount - a.albumCount).slice(0, 18)
-    return options.map((genre, index) => ({
-      name: genre.value,
-      cover: albumList?.list?.find((album) => album.genre?.toLowerCase() === genre.value.toLowerCase())?.coverArt,
-      colors: genresColors[index % genresColors.length],
+  const browse=useMemo(()=>{
+    const available=genres||[]
+    const popular=frequentAlbums?.list||[]
+    const recent=recentAlbums?.list||[]
+    const used=new Set<string>()
+    return rankDiscoverOnceDaily(discoveryProfile,popular,recent,available).map(category=>({
+      ...category,
+      matchedGenre:matchingGenre(category,available),
+      albumArt:categoryPhoto(category,popular,used),
+      photoUrl:DISCOVER_PHOTOS[category.photo],
     }))
-  }, [genres, albumList])
+  },[discoveryProfile,discoveryDay,genres,frequentAlbums,recentAlbums])
+
+  function openCategory(category:typeof browse[number]){
+    if(category.matchedGenre){
+      navigate(ROUTES.GENRE.PAGE(category.matchedGenre))
+      return
+    }
+    setTerm(category.query)
+    setFilter('all')
+    setEngaged(true)
+    navigate('/mobile-search')
+  }
 
   function remember(item: RecentItem) {
     setRecent((previous) => {
@@ -268,23 +292,27 @@ export default function SonaMobileSearch() {
       {!activeSearch ? (
         <>
           <h1 className="sona-am-search-heading">Search</h1>
-          <section className="sona-am-browse">
-            <h2>Browse Your Music</h2>
-            {browse.length > 0 ? (
-              <div className="sona-am-genre-grid">
-                {browse.map((genre) => (
-                  <Link to={ROUTES.ALBUMS.GENRE(genre.name)} key={genre.name}
-                    className="sona-am-genre-card"
-                    style={{ background: 'linear-gradient(145deg,' + genre.colors[0] + ',' + genre.colors[1] + ')' }}>
-                    <ImageLoader id={genre.cover} type="album" size={400}>
-                      {(src) => <ArtworkImage src={src} alt="" loading="lazy"
-                        wrapperClassName="sona-am-genre-art" />}
-                    </ImageLoader>
-                    <span>{genre.name}</span>
-                  </Link>
-                ))}
-              </div>
-            ) : <p className="sona-am-browse-loading">Your music genres will appear here when your library loads.</p>}
+          <section className="sona-am-browse" aria-label="Browse music categories">
+            <div className="sona-am-genre-grid">
+              {browse.map(category=>(
+                <button key={category.id} type="button"
+                  className="sona-am-genre-card"
+                  aria-label={'Explore '+category.title}
+                  onClick={()=>openCategory(category)}
+                  style={{'--sona-category-color':category.color} as CSSProperties}>
+                  <span className="sona-am-genre-art" aria-hidden="true">
+                    <img src={category.photoUrl} alt="" className="sona-am-category-photo"
+                      loading="lazy" decoding="async"
+                      onError={event=>{event.currentTarget.style.visibility='hidden'}}/>
+                    {category.albumArt&&<ImageLoader id={category.albumArt} type="album" size={450}>
+                      {src=><ArtworkImage src={src} alt="" loading="lazy"
+                        wrapperClassName="sona-am-category-album-art"/>}
+                    </ImageLoader>}
+                  </span>
+                  <span className="sona-am-category-label">{category.title}</span>
+                </button>
+              ))}
+            </div>
           </section>
         </>
       ) : (
