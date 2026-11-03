@@ -1,3 +1,4 @@
+import { invalidateLibrary } from './library-live'
 import { useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -26,7 +27,7 @@ export function useCatalogRequests() {
         refreshedAt = Date.now()
         void client.invalidateQueries({ queryKey: ['sona-requests', profile] })
         void client.invalidateQueries({ queryKey: ['sona-catalog-album', profile] })
-        void client.invalidateQueries({ queryKey: ['sona-mobile-search-v2'] })
+        void invalidateLibrary(client)
       }, Math.max(500, 3000 - (Date.now() - refreshedAt)))
     }
     const connect = async () => {

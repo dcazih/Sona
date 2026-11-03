@@ -49,11 +49,11 @@
 
 /* The viewport owns the screen height; content grows only with actual rows. */
 @media(max-width:767px){
- .sona-app-shell:has(.sona-am-search-page) #main-scroll-area{background:#000!important;}
- .sona-app-shell:has(.sona-am-search-page) #scroll-viewport>div{min-height:100%!important;padding-top:0!important;padding-bottom:0!important;box-sizing:border-box!important;}
- .sona-app-shell:has(.sona-am-search-page) .sona-am-search-page{min-height:0!important;padding-bottom:calc(126px + env(safe-area-inset-bottom,0px))!important;box-sizing:border-box!important;}
- html:has(.sona-am-search-page),html:has(.sona-am-search-page) body{background:#000!important;--sona-notch-color:#000!important;}
- .sona-app-shell:has(.sona-am-search-page)::before{background:#000!important;}
+ html[data-sona-search-route="true"] .sona-app-shell #main-scroll-area{background:#000!important;}
+ html[data-sona-search-route="true"] .sona-app-shell #scroll-viewport>div{min-height:100%!important;padding-top:0!important;padding-bottom:0!important;box-sizing:border-box!important;}
+ html[data-sona-search-route="true"] .sona-app-shell .sona-am-search-page{min-height:0!important;padding-bottom:calc(126px + env(safe-area-inset-bottom,0px))!important;box-sizing:border-box!important;}
+ html[data-sona-search-route="true"],html[data-sona-search-route="true"] body{background:#000!important;--sona-notch-color:#000!important;}
+ html[data-sona-search-route="true"] .sona-app-shell::before{background:#000!important;}
 }
 
 @media(max-width:767px){

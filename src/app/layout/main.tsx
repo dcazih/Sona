@@ -35,6 +35,8 @@ export function MainRoutes() {
   if (mobile && pathname === '/') home.current = outlet
 
   useLayoutEffect(() => {
+    document.documentElement.dataset.sonaSearchRoute = String(pathname === '/mobile-search')
+    if (pathname === '/mobile-search') document.querySelector('meta[name="theme-color"]')?.setAttribute('content','#000000')
     const viewport = getMainScrollElement()
     if (!viewport) return
     // Preserve Search's scroll when returning from another tab or detail page.

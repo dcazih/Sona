@@ -1,0 +1,60 @@
+@media(max-width:767px){
+ .sona-now-overlay[data-view="queue"] .sona-now-art-area,.sona-now-overlay[data-view="lyrics"] .sona-now-art-area{display:none!important;}
+ .sona-now-overlay[data-view="queue"] .sona-now-song-info,.sona-now-overlay[data-view="lyrics"] .sona-now-song-info{display:none!important;}
+ .sona-now-overlay[data-view="queue"] .sona-now-stage,.sona-now-overlay[data-view="lyrics"] .sona-now-stage{position:relative;display:flex;flex-direction:column;align-items:stretch;padding:5px 25px 0!important;overflow:hidden!important;}
+ .sona-now-overlay[data-view="queue"] .sona-now-panel,.sona-now-overlay[data-view="lyrics"] .sona-now-panel{padding-top:0!important;translate:0 0!important;}
+ .sona-now-overlay[data-view="queue"] .sona-now-control-stack,.sona-now-overlay[data-view="lyrics"] .sona-now-control-stack{gap:8px!important;}
+ .sona-now-more{width:36px!important;height:36px!important;border-radius:50%;display:grid;place-items:center;color:#fff!important;background:#ffffff16;flex:none;}
+ .sona-now-song-info>.sona-native-heart{margin-left:auto;flex:none;}
+ .sona-queue-current-header{display:flex;align-items:center;gap:12px;min-height:88px;padding:4px 0 14px;}
+ .sona-queue-current-cover{width:74px;height:74px;flex:none;border-radius:9px;overflow:hidden;box-shadow:0 8px 18px #0005;}
+ .sona-queue-current-cover .sona-artwork-shell,.sona-queue-current-cover img{width:100%;height:100%;object-fit:cover;}
+ .sona-queue-current-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px;animation:sona-queue-fade-up .32s cubic-bezier(.22,.8,.22,1) both;}
+ .sona-queue-current-copy strong,.sona-queue-current-copy small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;}
+ .sona-queue-current-copy strong{font-size:16px;font-weight:750;}.sona-queue-current-copy small{font-size:14px;color:#ffffff80;}
+ .sona-queue-current-header>.sona-native-heart,.sona-queue-current-header>.sona-now-more{width:32px!important;height:32px!important;flex:none;animation:sona-queue-fade-up .32s cubic-bezier(.22,.8,.22,1) both;}
+ .sona-queue-current-header>.sona-native-heart svg{width:25px;height:25px;}
+ .sona-queue-screen{position:relative;min-height:0;flex:1;height:100%;}
+ .sona-queue-snap-scroller{height:100%;position:relative;overflow-y:auto;padding:0 0 15px!important;scroll-snap-type:y proximity;scrollbar-width:none;overflow-anchor:none;}
+ .sona-queue-snap-scroller::-webkit-scrollbar{display:none;}
+ .sona-queue-history{min-height:100%;scroll-snap-align:start;padding:8px 0 20px;}
+ .sona-queue-middle{scroll-snap-align:start;}
+ .sona-queue-history-heading{display:flex;align-items:center;justify-content:space-between;margin:8px 0 16px;}
+ .sona-queue-history-heading h2,.sona-queue-upcoming h2{font-size:20px;font-weight:750;}
+ .sona-queue-history-heading button{font-size:17px;color:#ffffff70;}
+ .sona-queue-upcoming{min-height:100%;scroll-snap-align:start;}
+ .sona-queue-sticky-controls{position:sticky;top:0;z-index:2;padding:0 0 14px;background:rgba(30,30,32,.85);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-radius:12px;}
+ .sona-queue-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:8px 0 20px;animation:sona-queue-fade-up .32s cubic-bezier(.22,.8,.22,1) both;}
+ .sona-queue-modes button{height:39px;border-radius:11px;background:#ffffff15;display:grid;place-items:center;color:#fff;}
+ .sona-queue-modes button[aria-pressed="true"]{background:#ffffff80;color:#222;}
+ .sona-queue-row{height:60px;min-height:60px;margin:0;padding:4px 0!important;display:flex;align-items:center;gap:8px;border:0!important;background:transparent;}
+ .sona-queue-song{min-width:0;flex:1;display:flex;align-items:center;gap:12px;text-align:left;}
+ .sona-queue-art{width:49px!important;height:49px!important;flex:none;border-radius:7px;overflow:hidden;}
+ .sona-queue-art .sona-artwork-shell,.sona-queue-art img{width:100%;height:100%;object-fit:cover;}
+ .sona-queue-text{min-width:0;flex:1;}.sona-queue-text strong{font-size:16px;font-weight:500;}.sona-queue-text small{font-size:13px;color:#ffffff70;}
+ .sona-queue-grip{flex:none;width:30px;height:44px;color:#ffffff50;touch-action:none;}
+ .sona-queue-drag-flight{background:rgba(48,48,52,.8)!important;backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);border-radius:12px;padding-inline:10px!important;box-shadow:0 8px 30px #0006;will-change:transform;}
+ .is-queue-shifting{transition:transform .16s cubic-bezier(.22,.8,.22,1);}
+ .is-reordering{scroll-snap-type:none!important;}
+ .sona-queue-top-fade{position:absolute;z-index:5;top:5px;left:0;width:100%;height:5px;background:linear-gradient(#222,transparent);pointer-events:none;}
+ .sona-queue-empty{padding:20px 0;color:#ffffff70;font-size:14px;}
+ .sona-now-lyrics{min-height:0;flex:1;overflow-y:auto;width:100%;}
+ @keyframes sona-queue-fade-up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+}
+
+@media(max-width:767px){.sona-queue-history{height:100%;min-height:100%;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;}.sona-queue-history-list{min-height:0;flex:1;overflow-y:auto;}.sona-queue-current-copy,.sona-queue-current-header>.sona-native-heart,.sona-queue-current-header>.sona-now-more{animation-delay:.16s;}.sona-queue-upcoming h2{animation:sona-queue-fade-up .32s cubic-bezier(.22,.8,.22,1) both;}.sona-view-art-flight img,.sona-view-art-flight .sona-artwork-shell{width:100%!important;height:100%!important;object-fit:cover!important;}}
+@media(max-width:767px){
+ .sona-now-overlay[data-view="queue"] .sona-now-background{background:#202020!important;}
+ .sona-now-overlay .sona-queue-sticky-controls{background:rgba(32,32,32,.92);border-radius:0;}
+ .sona-now-overlay .sona-queue-row{height:60px;min-height:60px;}
+ .sona-now-overlay .sona-queue-song{padding:0!important;gap:12px;}
+ .sona-now-overlay .sona-queue-text strong,.sona-queue-drag-flight .sona-queue-text strong{font-size:16px;font-weight:500;}
+ .sona-now-overlay .sona-queue-text small,.sona-queue-drag-flight .sona-queue-text small{font-size:13px;}
+ .sona-now-overlay .sona-queue-grip{width:30px;flex:none;}
+}
+
+@media(max-width:767px){.sona-now-overlay .sona-queue-text strong,.sona-queue-drag-flight .sona-queue-text strong{font-weight:400!important;}.sona-now-overlay .sona-queue-current-copy strong{font-weight:650;}}
+
+@media(prefers-reduced-motion:reduce){.sona-queue-current-copy,.sona-queue-current-header>.sona-native-heart,.sona-queue-current-header>.sona-now-more,.sona-queue-modes,.sona-queue-upcoming h2{animation:none!important;}}
+
+@media(max-width:767px){body:has(.sona-now-overlay.is-open) [data-radix-popper-content-wrapper]{z-index:400!important;}body:has(.sona-now-overlay.is-open) [role="dialog"]:not(.sona-now-overlay){z-index:450!important;}body:has(.sona-now-overlay.is-open) [data-state="open"].fixed.inset-0{z-index:449!important;}}

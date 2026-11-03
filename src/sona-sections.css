@@ -384,7 +384,7 @@
     touch-action:none;user-select:none;-webkit-user-select:none;z-index:45;
   }
   body > .sona-section-alphabet button {flex:1;min-height:0!important;width:22px!important;line-height:1!important;}
-  .sona-section-alphabet button[aria-pressed="true"] {color:white;background:#f04469;border-radius:50%;}
+  .sona-section-alphabet button[aria-pressed="true"] {color:#f24669;background:transparent;}
   .sona-section-indexed,.sona-section-song-indexed {display:block!important;padding-right:7px!important;}
   .sona-section-download-links a {min-height:59px;gap:14px;font-size:16px;font-weight:600;}
   .sona-section-download-links a::after {left:38px;}

@@ -63,9 +63,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
       parseFloat(computed.borderTopLeftRadius) * (visualBounds.width / width) ||
       0
     const wasClosed = !sheet.dataset.phase || sheet.dataset.phase === 'closed'
-    const previousArt = sheet
-      .querySelector<HTMLElement>('.sona-now-art')
-      ?.getBoundingClientRect()
+    const previousArt = (sheet.querySelector<HTMLElement>('[data-sona-active-player-cover]') || sheet.querySelector<HTMLElement>('.sona-now-art'))?.getBoundingClientRect()
     const previousPanel = sheet.querySelector<HTMLElement>('.sona-now-panel')
     const panelSnapshot = previousPanel
       ? {
@@ -124,7 +122,7 @@ export function usePlayerSheetMotion(open: boolean, onClosed?: () => void) {
     const extraAnimations: Animation[] = []
     const miniFrame = mini?.querySelector<HTMLElement>('.sona-player-cover')
     const miniArt = miniFrame?.querySelector<HTMLImageElement>('img')
-    const fullArt = sheet.querySelector<HTMLElement>('.sona-now-art')
+    const fullArt = (sheet.querySelector<HTMLElement>('[data-sona-active-player-cover]') || sheet.querySelector<HTMLElement>('.sona-now-art'))
     const fullImage = fullArt?.querySelector<HTMLImageElement>('img')
     const oldFullVisibility = fullArt?.style.visibility || ''
     const oldMiniVisibility = miniArt?.style.visibility || ''

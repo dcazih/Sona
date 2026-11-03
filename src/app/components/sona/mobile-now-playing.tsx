@@ -1,9 +1,12 @@
+import { PlayerCompactHeader, PlayerSongMore } from './player-song-header'
+import { usePlaybackHistory } from './playback-history'
+import { subsonic } from '@/service/subsonic'
 import { isStandalonePwa } from '@/utils/is-standalone-pwa'
 import { useAppStore } from '@/store/app.store'
 import { recordGenreListen } from './search-discovery'
 import { Airplay, ListMusic } from 'lucide-react'
 import { SonaNoteGlyph } from '@/app/components/header/sona-note-glyph'
-import { type TouchEvent, useEffect, useRef, useState } from 'react'
+import { type TouchEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ArtworkImage } from '@/app/components/artwork-image'
 import { ImageLoader } from '@/app/components/image-loader'
 import { SonaMobileTransport } from '@/app/components/sona/mobile-transport'
@@ -19,6 +22,7 @@ import { Link } from 'react-router-dom'
 import { ROUTES } from '@/routes/routesList'
 import {
   usePlayerActions,
+  usePlayerStore,
   usePlayerCurrentSong,
   usePlayerFullscreen,
   usePlayerRef,
@@ -48,7 +52,59 @@ export function SonaMobileNowPlaying() {
   const { playPrevSong, playNextSong } = usePlayerActions()
   const [view, setView] = useState<View>('playing')
   const [supportsAirplay, setSupportsAirplay] = useState(false)
-  const motion = usePlayerSheetMotion(isFullscreen, () => setView('playing'))
+  const motion = usePlayerSheetMotion(isFullscreen)
+  const lastRecorded = useRef('')
+  const modeCleanup = useRef<() => void>(()=>{})
+  const modeFlight = useRef<HTMLElement | null>(null)
+  const autoplay = usePlaybackHistory(state=>state.autoplay)
+  const record = usePlaybackHistory(state=>state.record)
+  useEffect(()=>{
+    if(playing && song?.id && lastRecorded.current!==discoveryProfile+'|'+song.id){
+      lastRecorded.current=discoveryProfile+'|'+song.id
+      record(discoveryProfile,song)
+    }
+  },[song,playing,discoveryProfile,record])
+  useEffect(()=>{
+    if(!autoplay || !playing || !song?.id)return
+    const state=usePlayerStore.getState()
+    if(state.songlist.currentSongIndex<state.songlist.currentList.length-2)return
+    let cancelled=false
+    void subsonic.songs.getRandomSongs({size:20,genre:song.genre}).then(songs=>{
+      if(cancelled || !songs?.length || !usePlaybackHistory.getState().autoplay)return
+      const now=usePlayerStore.getState()
+      if(now.songlist.currentSong.id===song.id && now.playerState.isPlaying)now.actions.setLastOnQueue(songs)
+    })
+    return()=>{cancelled=true}
+  },[autoplay,playing,song?.id,song?.genre])
+  useEffect(()=>()=>modeCleanup.current(),[])
+  useLayoutEffect(()=>{if(!isFullscreen)modeCleanup.current()},[isFullscreen])
+  function changeView(next:View){
+    const sheet=motion.ref.current,art=modeFlight.current || sheet?.querySelector<HTMLElement>('[data-sona-active-player-cover]')
+    const from=art?.getBoundingClientRect(),ghost=art?.cloneNode(true) as HTMLElement|undefined
+    const fromRadius=art&&from?(parseFloat(getComputedStyle(art).borderTopLeftRadius)||0)*from.width/(art.offsetWidth||from.width):20
+    modeCleanup.current()
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){setView(next);return}
+    const extras:HTMLElement[]=[]
+    if(view==='playing'){
+      const info=sheet?.querySelector<HTMLElement>('.sona-now-song-info')
+      if(info){const clone=info.cloneNode(true) as HTMLElement,rect=info.getBoundingClientRect();clone.className='sona-view-info-flight';clone.setAttribute('aria-hidden','true');clone.inert=true;Object.assign(clone.style,{position:'fixed',left:rect.left+'px',top:rect.top+'px',width:rect.width+'px',height:rect.height+'px',display:'flex',alignItems:'center',gap:'10px',zIndex:'253',pointerEvents:'none',color:'#fff'});document.body.appendChild(clone);extras.push(clone);clone.animate([{opacity:1,translate:'0 0'},{opacity:0,translate:'0 -12px'}],{duration:320,easing:'cubic-bezier(.22,.8,.22,1)',fill:'both'}).finished.then(()=>clone.remove()).catch(()=>{})}
+    }
+    setView(next)
+    let frame=requestAnimationFrame(()=>{
+      const target=motion.ref.current?.querySelector<HTMLElement>('[data-sona-active-player-cover]')
+      if(!target||!from||!ghost)return
+      const to=target.getBoundingClientRect(),radius=parseFloat(getComputedStyle(target).borderTopLeftRadius)||9
+      ghost.className='sona-view-art-flight';ghost.setAttribute('aria-hidden','true');ghost.inert=true;ghost.removeAttribute('data-sona-active-player-cover')
+      Object.assign(ghost.style,{position:'fixed',left:'0',top:'0',width:from.width+'px',height:from.height+'px',overflow:'hidden',zIndex:'254',pointerEvents:'none',transformOrigin:'0 0',borderRadius:fromRadius+'px',boxShadow:'0 12px 30px #0005'})
+      const image=ghost.querySelector<HTMLImageElement>('img');if(image){ghost.style.backgroundImage=`url(${JSON.stringify(image.currentSrc||image.src)})`;ghost.style.backgroundSize='cover'}
+      document.body.appendChild(ghost);modeFlight.current=ghost;target.style.visibility='hidden'
+      const animation=ghost.animate([{transform:`translate3d(${from.left}px,${from.top}px,0) scale(1)`},{transform:`translate3d(${to.left}px,${to.top}px,0) scale(${to.width/from.width})`,borderRadius:radius/(to.width/from.width)+'px'}],{duration:420,easing:'cubic-bezier(.22,.8,.22,1)',fill:'both'})
+      const cleanup=()=>{target.style.visibility='';ghost.remove();if(modeFlight.current===ghost)modeFlight.current=null;extras.forEach(node=>node.remove());animation.cancel()}
+      modeCleanup.current=cleanup
+      animation.finished.then(cleanup).catch(()=>{})
+    })
+    modeCleanup.current=()=>{cancelAnimationFrame(frame);ghost?.remove();extras.forEach(node=>node.remove())}
+  }
   const gesture = useRef<Gesture | null>(null)
   const suppressClick = useRef(false)
   const artTouchX = useRef<number | null>(null)
@@ -325,6 +381,7 @@ export function SonaMobileNowPlaying() {
     <>
       <div
         ref={motion.ref}
+        data-view={view}
         className={'sona-now-overlay ' + (isFullscreen ? 'is-open' : '')}
         role="dialog"
         aria-modal={isFullscreen ? 'true' : undefined}
@@ -353,7 +410,6 @@ export function SonaMobileNowPlaying() {
           </div>
 
           <div className="sona-now-stage">
-            {view === 'playing' && (
               <div
                 className="sona-now-art-area"
                 onTouchStart={(event) => {
@@ -363,6 +419,7 @@ export function SonaMobileNowPlaying() {
               >
                 <div
                   className={'sona-now-art' + (playing ? ' is-playing' : '')}
+                  data-sona-active-player-cover={view === 'playing' ? '' : undefined}
                 >
                   <div className="sona-now-art-content">
                     {
@@ -379,13 +436,10 @@ export function SonaMobileNowPlaying() {
                   </div>
                 </div>
               </div>
-            )}
             {view === 'lyrics' && (
-              <div className="sona-now-lyrics">
-                <LyricsTab />
-              </div>
+              <><PlayerCompactHeader/><div className="sona-now-lyrics"><LyricsTab /></div></>
             )}
-            {view === 'queue' && <SonaMobileQueue />}
+            {view === 'queue' && <SonaMobileQueue header={<PlayerCompactHeader/>} open={isFullscreen}/>}
           </div>
 
           <div className="sona-now-panel">
@@ -404,7 +458,7 @@ export function SonaMobileNowPlaying() {
                   <p>{song?.artist || ''}</p>
                 )}
               </div>
-              <LikeButton />
+              <LikeButton /><PlayerSongMore/>
             </div>
             <div className="sona-now-control-stack">
               <div className="sona-now-progress">
@@ -424,7 +478,7 @@ export function SonaMobileNowPlaying() {
                 aria-pressed={view === 'lyrics'}
                 className={view === 'lyrics' ? 'is-selected' : ''}
                 onClick={() =>
-                  setView(view === 'lyrics' ? 'playing' : 'lyrics')
+                  changeView(view === 'lyrics' ? 'playing' : 'lyrics')
                 }
               >
                 <SonaNoteGlyph size={27} />
@@ -450,7 +504,7 @@ export function SonaMobileNowPlaying() {
                 aria-label="Show song queue"
                 aria-pressed={view === 'queue'}
                 className={view === 'queue' ? 'is-selected' : ''}
-                onClick={() => setView(view === 'queue' ? 'playing' : 'queue')}
+                onClick={() => changeView(view === 'queue' ? 'playing' : 'queue')}
               >
                 <ListMusic size={22} />
               </button>

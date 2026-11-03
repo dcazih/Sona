@@ -258,13 +258,13 @@
 
 /* Apple Music-inspired search experiences, using genuine Navidrome content. */
 @media (max-width: 767px) {
-  .sona-app-shell:has(.sona-am-search-page) #main-scroll-area {
+  html[data-sona-search-route="true"] .sona-app-shell #main-scroll-area {
     background:#050505!important;
     -webkit-overflow-scrolling:touch;
     overscroll-behavior-y:contain;
   }
-  .sona-app-shell:has(.sona-am-search-page) .sona-header:not(.sona-header-detail-view) {display:none!important}
-  .sona-app-shell:has(.sona-am-search-page) [data-slot="sidebar-wrapper"] {padding-top:env(safe-area-inset-top,0px)!important}
+  html[data-sona-search-route="true"] .sona-app-shell .sona-header:not(.sona-header-detail-view) {display:none!important}
+  html[data-sona-search-route="true"] .sona-app-shell [data-slot="sidebar-wrapper"] {padding-top:env(safe-area-inset-top,0px)!important}
   .sona-am-search-page {
     background:#050505;
     color:#fff;min-height:calc(100dvh - 130px);
@@ -456,7 +456,7 @@
     padding-top:var(--header-height);
     min-height:100%;
   }
-  .sona-app-shell:has(.sona-am-search-page) #main-scroll-area #scroll-viewport > div {
+  html[data-sona-search-route="true"] .sona-app-shell #main-scroll-area #scroll-viewport > div {
     padding-top:env(safe-area-inset-top,0px);
   }
   .sona-header {
@@ -690,7 +690,7 @@
   .sona-home-hero-fallback-arrows{display:none!important}
 
   /* Search overlay: one consistent glass surface, also while keyboard animates. */
-  .sona-app-shell:has(.sona-am-search-page) #main-scroll-area #scroll-viewport{
+  html[data-sona-search-route="true"] .sona-app-shell #main-scroll-area #scroll-viewport{
     overscroll-behavior-y:contain!important;
   }
   .sona-search-dock {
@@ -911,7 +911,7 @@
   .sona-app-shell #main-scroll-area #scroll-viewport>div{
     padding-bottom:calc(173px + env(safe-area-inset-bottom,0px))!important;
   }
-  .sona-app-shell:has(.sona-am-search-page) #main-scroll-area #scroll-viewport>div{
+  html[data-sona-search-route="true"] .sona-app-shell #main-scroll-area #scroll-viewport>div{
     padding-bottom:calc(85px + env(safe-area-inset-bottom,0px))!important;
   }
 
@@ -1949,7 +1949,7 @@
 /* VisualViewport-based floating Search. The dock tracks the keyboard's top
    even when iOS Safari resizes the layout viewport simultaneously. */
 @media(max-width:767px){
-  .sona-app-shell:has(.sona-am-search-page) #main-scroll-area{
+  html[data-sona-search-route="true"] .sona-app-shell #main-scroll-area{
     position:fixed!important;
     top:env(safe-area-inset-top,0px)!important;
     left:0!important;right:0!important;
@@ -1963,14 +1963,14 @@
   }
   /* Safari may pan its visual viewport upward when the bottom search input
      receives focus. Keep the page's top edge attached to the visible screen. */
-  .sona-app-shell:has(.sona-am-search-page){position:fixed!important;inset:0!important;width:100vw!important;overflow:hidden!important}
-  .sona-app-shell:has(.sona-am-search-page) #main-scroll-area #scroll-viewport{
+  html[data-sona-search-route="true"] .sona-app-shell{position:fixed!important;inset:0!important;width:100vw!important;overflow:hidden!important}
+  html[data-sona-search-route="true"] .sona-app-shell #main-scroll-area #scroll-viewport{
     height:100%!important;max-height:100%!important;
     overflow-y:auto!important;overscroll-behavior-y:auto!important;touch-action:pan-y!important;
     scroll-padding-top:0!important;
     -webkit-overflow-scrolling:touch!important;
   }
-  .sona-app-shell:has(.sona-am-search-page) #main-scroll-area #scroll-viewport>div{
+  html[data-sona-search-route="true"] .sona-app-shell #main-scroll-area #scroll-viewport>div{
     min-height:100%!important;
     padding-top:8px!important;
     padding-bottom:85px!important;
@@ -2113,11 +2113,11 @@
   @keyframes sona-request-spin{to{transform:rotate(360deg)}}
 
   /* Expanded search geometry and keyboard timing. */
-  .sona-app-shell:has(.sona-am-search-page){height:100dvh!important;min-height:100dvh!important}
-  .sona-app-shell:has(.sona-am-search-page) .sona-am-search-page{min-height:calc(100dvh - env(safe-area-inset-top,0px))!important}
-  .sona-app-shell:has(.sona-am-search-page) #scroll-viewport>div{padding-bottom:0!important}
-  .sona-app-shell:has(.sona-am-search-page) .sona-am-search-page{box-sizing:border-box!important;padding-bottom:72px!important}
-  .sona-app-shell:has(.sona-am-search-page) .sona-am-live-results{padding-bottom:0!important;min-height:0!important}
+  html[data-sona-search-route="true"] .sona-app-shell{height:100dvh!important;min-height:100dvh!important}
+  html[data-sona-search-route="true"] .sona-app-shell .sona-am-search-page{min-height:calc(100dvh - env(safe-area-inset-top,0px))!important}
+  html[data-sona-search-route="true"] .sona-app-shell #scroll-viewport>div{padding-bottom:0!important}
+  html[data-sona-search-route="true"] .sona-app-shell .sona-am-search-page{box-sizing:border-box!important;padding-bottom:72px!important}
+  html[data-sona-search-route="true"] .sona-app-shell .sona-am-live-results{padding-bottom:0!important;min-height:0!important}
   .sona-am-search-page.is-search-active{padding-top:2px!important}
   .sona-search-scope{height:40px!important;margin-top:0!important;margin-bottom:20px!important;padding:2px!important}
   .sona-search-scope button{height:34px!important}
@@ -2554,3 +2554,5 @@
  .sona-app-shell #main-scroll-area:has(.sona-artist-page){background:radial-gradient(ellipse 120% 70% at 50% 0%,#493a47 0%,#171719 75%)!important;}
  .sona-app-shell #main-scroll-area:has(.sona-artist-page) #scroll-viewport,.sona-app-shell #main-scroll-area:has(.sona-album-page) #scroll-viewport{background:transparent!important;}
 }
+
+@media(max-width:767px){html[data-sona-search-route="true"],html[data-sona-search-route="true"] body,html[data-sona-search-route="true"] .sona-app-shell,html[data-sona-search-route="true"] #main-scroll-area,html[data-sona-search-route="true"] #scroll-viewport,html[data-sona-search-route="true"] .sona-am-search-page{background:#000!important;--sona-notch-color:#000!important;}html[data-sona-search-route="true"] .sona-app-shell::before{background:#000!important;}}
