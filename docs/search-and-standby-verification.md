@@ -37,3 +37,7 @@ Every returned song/album in this set passed separate verification and the exist
 - The manifest has explicit app identity and scope while preserving the existing default identity.
 
 The dedicated Sona hostname routes to Sona on the NAS. This does not prove which Home Screen installation iOS associates with an existing lock-screen session. There is no standard Media Session action for replacing the OS's installed-app launch target. Physical iPhone standby and notification launch still require device confirmation; an existing shortcut installed for the TrueNAS origin may need replacement with one installed directly from the dedicated Sona origin.
+
+## Final regression coverage
+
+20 backend tests and 23 browser checks passed, including explicit song/album filter intent, candidate display before verification, disabled clouds until verification succeeds, repeated lock-screen Play/Pause, restored actual audio position, and a stable audio URL across song metadata refreshes. The credited artist/album fast path resolves a direct credit in one MusicBrainz lookup rather than expanding the whole phrase as an artist first. Explicit section filters retain the small artist discography/popular-song workflow without blocking the default artist result.

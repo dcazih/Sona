@@ -70,6 +70,16 @@ describe('Sona Music catalogue requests',()=>{
     cy.contains('Request This Song').closest('.sona-catalog-row').find('button.sona-catalog-request').should('not.be.disabled').click({force:true})
     cy.wait('@request')
   })
+  it('passes explicit song and album filter intent to catalog retrieval',()=>{
+    render()
+    cy.wait('@catalog')
+    cy.contains('button','Songs').click()
+    cy.wait('@catalog').its('request.url').should('include','intent=song')
+    cy.contains('Request This Song').should('be.visible')
+    cy.contains('button','Albums').click()
+    cy.wait('@catalog').its('request.url').should('include','intent=album')
+    cy.contains('New Album').should('be.visible')
+  })
   it('opens an unavailable result without submitting a request',()=>{
     render()
     cy.wait('@catalog')

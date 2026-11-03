@@ -58,8 +58,9 @@ export function CatalogRow({ item, statuses, remember }: { item: Item; statuses:
 type LocalResults = NonNullable<ISearchResponse['searchResult3']>
 export function CatalogResults({ query, filter, local, remember }: { query: string; filter: SearchFilter; local?: LocalResults; remember: (item: RecentItem) => void }) {
   const profile = catalogProfile()
-  const catalogue = useQuery({ queryKey: ['sona-catalog-search-v4', profile, query, filter === 'artists' ? 'artist' : 'auto'],
-    queryFn: ({ signal }) => catalogGet<SearchIdentity & { albums: CatalogItem[]; artists: CatalogItem[]; songs: CatalogItem[]; status?: Record<string,string> }>('sona/search?q=' + encodeURIComponent(query) + (filter === 'artists' ? '&intent=artist' : ''), signal),
+  const intent = filter === 'artists' ? 'artist' : filter === 'albums' ? 'album' : filter === 'songs' ? 'song' : 'auto'
+  const catalogue = useQuery({ queryKey: ['sona-catalog-search-v5', profile, query, intent],
+    queryFn: ({ signal }) => catalogGet<SearchIdentity & { albums: CatalogItem[]; artists: CatalogItem[]; songs: CatalogItem[]; status?: Record<string,string> }>('sona/search?q=' + encodeURIComponent(query) + '&intent=' + intent, signal),
     enabled: query.length >= 2, staleTime: 600000, retry: 1 })
   const requests = useCatalogRequests()
   const statuses = requests.data?.requests || []
