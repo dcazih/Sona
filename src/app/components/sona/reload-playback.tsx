@@ -1,11 +1,13 @@
 import { useEffect } from 'react'
 import { idbStorage } from '@/store/idb'
+import { useAppStore } from '@/store/app.store'
 import { usePlayerStore } from '@/store/player.store'
 import type { ISongList } from '@/types/playerContext'
 import type { ISong } from '@/types/responses/song'
 
 const KEY = 'sona:reload-playback-v2'
-const EXPIRATION_MS = 5 * 60 * 1000
+const EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000
+const snapshotKey = () => KEY + '|' + window.SERVER_URL + '|' + useAppStore.getState().data.username
 type Snapshot = {
   id: string
   progress: number
@@ -26,7 +28,7 @@ function saveSnapshot() {
       savedAt: Date.now(),
       song,
     }
-    sessionStorage.setItem(KEY, JSON.stringify(snapshot))
+    localStorage.setItem(snapshotKey(), JSON.stringify(snapshot))
   } catch {
     // Session storage is optional. Do not affect playback in private mode.
   }
@@ -34,11 +36,11 @@ function saveSnapshot() {
 
 function readSnapshot(): Snapshot | null {
   try {
-    const value = sessionStorage.getItem(KEY)
+    const value = localStorage.getItem(snapshotKey()) || sessionStorage.getItem(KEY)
     if (!value) return null
     const item = JSON.parse(value) as Snapshot
     if (!item.id || Date.now() - item.savedAt > EXPIRATION_MS) {
-      sessionStorage.removeItem(KEY)
+      localStorage.removeItem(snapshotKey())
       return null
     }
     return item
@@ -52,8 +54,7 @@ function readSnapshot(): Snapshot | null {
  */
 export function SonaReloadPlayback() {
   useEffect(() => {
-    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
-    const snapshot = nav?.type === 'reload' ? readSnapshot() : null
+    const snapshot = readSnapshot()
     let handled = !snapshot
     let pending = Boolean(snapshot)
     let lastSavedProgress = -1
@@ -125,10 +126,13 @@ export function SonaReloadPlayback() {
     if (pending) restore()
 
     const onHide = () => saveSnapshot()
+    const onVisibility = () => { if (document.visibilityState === 'hidden') saveSnapshot() }
+    document.addEventListener('visibilitychange', onVisibility)
     window.addEventListener('pagehide', onHide)
     window.addEventListener('beforeunload', onHide)
     return () => {
       unsubscribe()
+      document.removeEventListener('visibilitychange', onVisibility)
       window.removeEventListener('pagehide', onHide)
       window.removeEventListener('beforeunload', onHide)
     }

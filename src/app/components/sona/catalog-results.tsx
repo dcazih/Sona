@@ -24,7 +24,15 @@ export function CatalogRow({ item, statuses, remember }: { item: Item; statuses:
   const currentSong = usePlayerCurrentSong()
   const active = item.kind === 'song' && item.localSong?.id === currentSong?.id
   const status = statuses.find(row => row.mbid === item.id && row.kind === (item.kind === 'song' ? 'track' : 'album'))
-  const { working, request } = useRequestMusic(item, status)
+  const verification = useQuery({
+    queryKey: ['sona-candidate-verification', catalogProfile(), item.kind, item.id, item.albumId],
+    queryFn: ({signal}) => catalogGet<{requestable:boolean}>('sona/verify?kind='+item.kind+'&id='+encodeURIComponent(item.id)+'&album_id='+encodeURIComponent(item.albumId || ''),signal),
+    enabled: Boolean(!item.localId && item.kind === 'song' && item.verificationPending),
+    staleTime: 600000, retry: 0,
+  })
+  const resolvedItem = verification.data ? {...item, requestable:verification.data.requestable} : item
+  const { working:requestWorking, request } = useRequestMusic(resolvedItem, status)
+  const working = requestWorking || verification.isFetching
   const missing = item.kind === 'song' && !item.localSong
   const open = () => {
     remember?.({ id: item.localId || item.id, title: item.title, subtitle: item.artist, type: item.kind,
@@ -41,7 +49,7 @@ export function CatalogRow({ item, statuses, remember }: { item: Item; statuses:
   </button>
   return <div className={'sona-am-search-row sona-catalog-row' + (missing ? ' is-unavailable' : '') + (active ? ' is-playing' : '')}>
     {info}
-    {missing ? <NativeHeartTap active={working} label={'Request ' + item.title}><button type="button" className="sona-catalog-request" aria-label={working ? 'Request in progress' : 'Request ' + item.title} disabled={working || item.requestable === false} onClick={request}><CloudGlyph working={working}/></button></NativeHeartTap>
+    {missing ? <NativeHeartTap active={working} label={'Request ' + item.title}><button type="button" className="sona-catalog-request" aria-label={verification.isFetching ? 'Checking request identity' : working ? 'Request in progress' : 'Request ' + item.title} disabled={working || resolvedItem.requestable === false} onClick={request}><CloudGlyph working={working}/></button></NativeHeartTap>
       : item.kind === 'song' ? <button className="sona-am-result-play" aria-label={'Play ' + item.title} onClick={open}><PlaybackIndicator active={active}/></button>
       : <button className="sona-am-result-play" aria-label={'Open ' + item.title} onClick={open}><ChevronRight size={20}/></button>}
   </div>
@@ -50,16 +58,13 @@ export function CatalogRow({ item, statuses, remember }: { item: Item; statuses:
 type LocalResults = NonNullable<ISearchResponse['searchResult3']>
 export function CatalogResults({ query, filter, local, remember }: { query: string; filter: SearchFilter; local?: LocalResults; remember: (item: RecentItem) => void }) {
   const profile = catalogProfile()
-  const catalogue = useQuery({ queryKey: ['sona-catalog-search-v3', profile, query, filter === 'artists' ? 'artist' : 'auto'],
-    queryFn: ({ signal }) => catalogGet<SearchIdentity & { albums: CatalogItem[]; artists: CatalogItem[]; status?: Record<string,string> }>('sona/search?q=' + encodeURIComponent(query) + (filter === 'artists' ? '&intent=artist' : ''), signal),
+  const catalogue = useQuery({ queryKey: ['sona-catalog-search-v4', profile, query, filter === 'artists' ? 'artist' : 'auto'],
+    queryFn: ({ signal }) => catalogGet<SearchIdentity & { albums: CatalogItem[]; artists: CatalogItem[]; songs: CatalogItem[]; status?: Record<string,string> }>('sona/search?q=' + encodeURIComponent(query) + (filter === 'artists' ? '&intent=artist' : ''), signal),
     enabled: query.length >= 2, staleTime: 600000, retry: 1 })
-  const tracks = useQuery({ queryKey: ['sona-catalog-songs-v3', profile, query],
-    queryFn: ({ signal }) => catalogGet<{ songs: CatalogItem[] }>('sona/songs?q=' + encodeURIComponent(query), signal),
-    enabled: query.length >= 2 && (filter === 'all' || filter === 'songs'), staleTime: 600000, retry: 1 })
   const requests = useCatalogRequests()
   const statuses = requests.data?.requests || []
   const localSongs: Item[] = (local?.song || []).map(song => ({ id: song.id, identityId: song.musicBrainzId || song.id, localId: song.id, kind: 'song', title: song.title, artist: song.artist, album: song.album, localCover: song.coverArt, localSong: song }))
-  const remoteSongs = (tracks.data?.songs || []).filter(song => !(local?.song || []).some(s =>
+  const remoteSongs = (catalogue.data?.songs || []).filter(song => !(local?.song || []).some(s =>
     s.musicBrainzId ? s.musicBrainzId === song.id : normalize(s.title) === normalize(song.title) && normalize(s.artist) === normalize(song.artist) && normalize(s.album) === normalize(song.album)))
   const localAlbums: Item[] = (local?.album || []).map(album => ({ id: album.id, identityId: album.musicBrainzId || album.id, localId: album.id, kind: 'album', title: album.name, artist: album.artist, localCover: album.coverArt }))
   const remoteAlbums = (catalogue.data?.albums || []).filter(album => !localAlbums.some(a => normalize(a.title) === normalize(album.title) && normalize(a.artist) === normalize(album.artist)))
@@ -74,9 +79,9 @@ export function CatalogResults({ query, filter, local, remember }: { query: stri
   return <>
     {groups.filter(([key]) => filter === 'all' || filter === key).map(([key, label, items]) => items.length > 0 && <section className="sona-am-result-section" key={key}><h2>{label}</h2>
       {items.map(item => <CatalogRow key={(item.localId ? 'local:' : 'catalog:') + item.id} item={item} statuses={statuses} remember={remember}/>)}</section>)}
-    {(catalogue.isFetching || tracks.isFetching) && <p className="sona-am-status" role="status">Searching Sona Music…</p>}
-    {(catalogue.error || tracks.error) && <p className="sona-am-status" role="alert">{(catalogue.error || tracks.error)?.message} <button onClick={() => { void catalogue.refetch(); void tracks.refetch() }}>Try again</button></p>}
+    {(catalogue.isFetching) && <p className="sona-am-status" role="status">Searching Sona Music…</p>}
+    {catalogue.error && <p className="sona-am-status" role="alert">{catalogue.error?.message} <button onClick={() => { void catalogue.refetch() }}>Try again</button></p>}
     {Object.values(catalogue.data?.status || {}).some(value => value !== 'ok') && <p className="sona-am-status">Some catalogue results are still unavailable. <button onClick={() => void catalogue.refetch()}>Retry</button></p>}
-    {!catalogue.isFetching && !tracks.isFetching && !catalogue.isError && !tracks.isError && groups.filter(([key]) => filter === 'all' || filter === key).every(([, , items]) => !items.length) && <p className="sona-am-status">No matches found for “{query}”.</p>}
+    {!catalogue.isFetching && !catalogue.isError && groups.filter(([key]) => filter === 'all' || filter === key).every(([, , items]) => !items.length) && <p className="sona-am-status">No matches found for “{query}”.</p>}
   </>
 }

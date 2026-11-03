@@ -20,7 +20,7 @@ export function useAudioContext(audio: HTMLAudioElement | null) {
   const gainNodeRef = useRef<IGainNode<IAudioContext> | null>(null)
 
   const setupAudioContext = useCallback(() => {
-    if (!audio || !isSong || replayGainError) return
+    if (!audio || !isSong || replayGainError || !replayGainEnabled) return
 
     if (!audioContextRef.current) {
       audioContextRef.current = new AudioContext()
@@ -39,7 +39,7 @@ export function useAudioContext(audio: HTMLAudioElement | null) {
       // And then we can connect the gainNode to the destination
       gainNodeRef.current.connect(audioContext.destination)
     }
-  }, [audio, isSong, replayGainError])
+  }, [audio, isSong, replayGainError, replayGainEnabled])
 
   const resumeContext = useCallback(async () => {
     const audioContext = audioContextRef.current
@@ -47,7 +47,7 @@ export function useAudioContext(audio: HTMLAudioElement | null) {
 
     logger.info('AudioContext State', { state: audioContext.state })
 
-    if (audioContext.state === 'suspended') {
+    if (audioContext.state === 'suspended' || String(audioContext.state) === 'interrupted') {
       await audioContext.resume()
     }
     if (audioContext.state === 'closed') {

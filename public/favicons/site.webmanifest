@@ -60,5 +60,7 @@
       "form_factor": "wide",
       "label": "Screenshot Displaying Home"
     }
-  ]
+  ],
+  "id": "/",
+  "scope": "/"
 }

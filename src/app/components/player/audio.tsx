@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify'
 import { useAudioContext } from '@/app/hooks/use-audio-context'
 import {
+  usePlayerStore,
   usePlayerActions,
   usePlayerIsPlaying,
   usePlayerMediaType,
@@ -31,6 +32,10 @@ export function AudioPlayer({
   ...props
 }: AudioPlayerProps) {
   const { t } = useTranslation()
+  useEffect(() => {
+    const session = (navigator as Navigator & {audioSession?:{type:string}}).audioSession
+    if (session) { try { session.type = 'playback' } catch { /* unsupported platform */ } }
+  }, [])
   const [previousGain, setPreviousGain] = useState(1)
   const { replayGainEnabled, replayGainError } = useReplayGainState()
   const { isSong, isRadio, isPodcast } = usePlayerMediaType()
@@ -68,12 +73,13 @@ export function AudioPlayer({
     if (!audio) return
 
     logger.error('Audio load error', {
-      src: audio.src,
+      src: audio.src.split('?')[0],
       networkState: audio.networkState,
       readyState: audio.readyState,
       error: audio.error,
     })
 
+    setPlayingState(false)
     toast.error(t('warnings.songError'))
 
     if (replayGainEnabled || !replayGainError) {
@@ -88,6 +94,7 @@ export function AudioPlayer({
     replayGainError,
     setReplayGainEnabled,
     setReplayGainError,
+    setPlayingState,
     t,
   ])
 
@@ -100,18 +107,25 @@ export function AudioPlayer({
   }, [audioRef, setPlayingState, t])
 
   useEffect(() => {
+    let cancelled = false
     async function handleSong() {
       const audio = audioRef.current
       if (!audio) return
 
       try {
         if (isPlaying) {
-          if (isSong) await resumeContext()
-          await audio.play()
+          const savedPosition = usePlayerStore.getState().playerProgress.progress
+          if (audio.currentTime < 1 && savedPosition > 1) {
+            try { audio.currentTime = savedPosition } catch { /* metadata handler seeks when loaded */ }
+          }
+          const playback = audio.play()
+          if (isSong) void resumeContext().catch(error => logger.error('Audio context resume failed', error))
+          await playback
         } else {
           audio.pause()
         }
       } catch (error) {
+        if (cancelled) return
         logger.error('Audio playback failed', error)
         // iOS and Chrome may block autoplay after a reload. This is not an
         // invalid audio stream: pause and keep the same song for a manual tap.
@@ -123,6 +137,7 @@ export function AudioPlayer({
       }
     }
     if (isSong || isPodcast) handleSong()
+    return () => { cancelled = true }
   }, [audioRef, handleSongError, isPlaying, isSong, isPodcast, resumeContext, setPlayingState])
 
   useEffect(() => {

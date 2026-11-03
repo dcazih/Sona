@@ -157,13 +157,20 @@ export function getSongStreamUrl(
   format?: string,
   cacheBustToken?: string,
 ) {
-  return getUrl('stream', {
+  const stream = getUrl('stream', {
     id,
     maxBitRate,
     format,
     estimateContentLength: 'true',
     ...(cacheBustToken ? { _cb: cacheBustToken } : {}),
   })
+  // Keep the household's media session and stream on the Sona app origin.
+  // Custom servers and other installations retain their configured URL.
+  if (location.hostname === 'sona.hippocampus-polaris.ts.net' &&
+      new URL(stream).hostname === 'music.hippocampus-polaris.ts.net') {
+    return '/sona-stream/stream' + new URL(stream).search
+  }
+  return stream
 }
 
 export function getDownloadUrl(id: string, maxBitRate = '0', format = 'raw') {

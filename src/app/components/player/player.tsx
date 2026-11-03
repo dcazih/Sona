@@ -85,6 +85,7 @@ export function Player() {
 
   const mediaCacheEnabled = useAppMediaCache()
   const songId = song?.id
+  const songSuffix = song?.suffix
 
   const songStreamUrl = useMemo(() => {
     if (!songId) return ''
@@ -94,10 +95,10 @@ export function Player() {
     return getSongStreamUrl(
       songId,
       undefined,
-      ensureSupportForAlac(song.suffix),
+      ensureSupportForAlac(songSuffix),
       cacheBustToken,
     )
-  }, [songId, song, mediaCacheEnabled])
+  }, [songId, songSuffix, mediaCacheEnabled])
 
   const getAudioRef = useCallback(() => {
     if (isRadio) return radioRef
@@ -110,9 +111,9 @@ export function Player() {
   useEffect(() => {
     if (!isSong && !song) return
 
-    if (audioPlayerRef === null && audioRef.current)
-      setAudioPlayerRef(audioRef.current)
-  }, [audioPlayerRef, audioRef, isSong, setAudioPlayerRef, song])
+    const activeAudio = getAudioRef().current
+    if (activeAudio && activeAudio !== audioPlayerRef) setAudioPlayerRef(activeAudio)
+  }, [audioPlayerRef, getAudioRef, setAudioPlayerRef, song, radio, podcast])
 
   useEffect(() => {
     const audio = podcastRef.current
@@ -167,6 +168,7 @@ export function Player() {
     const audio = getAudioRef().current
     if (!audio) return
 
+    if (audio.seeking || audio.readyState < 2) return
     const currentProgress = Math.floor(audio.currentTime)
     setProgress(currentProgress)
   }, [getAudioRef, setProgress])
