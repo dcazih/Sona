@@ -11,9 +11,9 @@ import { useCatalogRequests } from './use-catalog'
 import './mobile-artist-sections.css'
 export function useArtistCatalog(knownId = '', artistName?: string) {
   const discovery = useQuery({ queryKey: ['sona-artist-identity', catalogProfile(), artistName],
-    queryFn: ({ signal }) => catalogGet<{ artists: CatalogItem[] }>('sona/search?q=' + encodeURIComponent(artistName!), signal),
+    queryFn: ({ signal }) => catalogGet<{ artists: CatalogItem[] }>('sona/search?q=' + encodeURIComponent(artistName!) + '&intent=artist', signal),
     enabled: !knownId && Boolean(artistName), staleTime: 600000 })
-  const artistId = knownId || discovery.data?.artists.find(row => row.title.toLocaleLowerCase() === artistName?.toLocaleLowerCase())?.id || ''
+  const artistId = knownId || discovery.data?.artists.find(row => [row.title, ...(row.aliases || [])].some(name => name.toLocaleLowerCase() === artistName?.toLocaleLowerCase()))?.id || ''
   const result = useQuery({ queryKey: ['sona-catalog-artist-v2', catalogProfile(), artistId],
     queryFn: ({ signal }) => catalogGet<{ title: string; albums: CatalogItem[]; songs?: CatalogItem[] }>('sona/artists/' + encodeURIComponent(artistId), signal), staleTime: 600000, enabled: Boolean(artistId) })
   const local = useQuery({ queryKey: ['sona-catalog-artist-local', catalogProfile(), result.data?.title],

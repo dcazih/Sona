@@ -162,9 +162,9 @@ export default function SonaMobileSearch() {
     return () => window.clearTimeout(timeout)
   }, [term])
 
-  const { data: searchData, isFetching, isError } = useQuery({
-    queryKey: ['sona-mobile-search-v2', discoveryProfile, query],
-    queryFn: () => subsonic.search.get({ query, albumCount: 35, artistCount: 35, songCount: 60 }),
+  const { data: searchData, isFetching, isError, isPlaceholderData } = useQuery({
+    queryKey: ['sona-mobile-search-v2', discoveryProfile, query, searchScope],
+    queryFn: () => subsonic.search.get({ query, albumCount: searchScope === 'library' ? 35 : 8, artistCount: searchScope === 'library' ? 35 : 8, songCount: searchScope === 'library' ? 60 : 8 }),
     enabled: visible && query.length >= 2,
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
@@ -386,7 +386,7 @@ export default function SonaMobileSearch() {
               {(isFetching || !resultsReady) && <p className="sona-am-status">{searchScope === 'library' ? 'Searching your library…' : 'Searching…'}</p>}
               {searchScope === 'library' && query.length >= 2 && !isFetching && !isError && !hasResults &&
                 <p className="sona-am-status">No matches found for “{query}”.</p>}
-              {searchScope === 'sona' && query.length >= 2 && <CatalogResults query={query} filter={filter} local={searchData} remember={remember}/>}
+              {searchScope === 'sona' && query.length >= 2 && <CatalogResults query={query} filter={filter} local={isPlaceholderData ? undefined : searchData} remember={remember}/>}
               {searchScope === 'library' && showArtists && artists.length > 0 &&
                 <section className="sona-am-result-section">
                   <h2>Artists</h2>

@@ -22,7 +22,7 @@ function setup() {
   cy.intercept('POST','/sona-api/auth/sona-token',{profile_token:'profile-test'})
   cy.intercept('GET','/sona-api/requests/live-status',{requests:[]})
   cy.intercept('GET','/sona-api/requests/live-events',{body:': connected\n\n',headers:{'content-type':'text/event-stream'}})
-  cy.intercept('GET','/sona-api/sona/search*',{albums:[remoteAlbum],artists:[]}).as('catalog')
+  cy.intercept('GET','/sona-api/sona/search*',{albums:[remoteAlbum],artists:[],intent:'artist',identity:{id:'example',name:'Example Artist',aliases:['Example Artist']}}).as('catalog')
   cy.intercept('GET','/sona-api/sona/songs*',{songs:[remoteSong]}).as('tracks')
   cy.intercept('GET','**/rest/search3*',{body:{'subsonic-response':{status:'ok',searchResult3:{song:[localSong],album:[],artist:[]}}}})
   cy.intercept('GET','**/rest/getGenres*',{body:{'subsonic-response':{status:'ok',genres:{genre:[]}}}})
